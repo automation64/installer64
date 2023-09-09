@@ -1,0 +1,31 @@
+#
+# GIT Ignore
+#
+# * Template version: 1.0.1
+#
+
+.tmp/*
+.var/*
+
+# VScode
+.vscode
+*.code-workspace
+
+# Builds for prod/dev/test
+build/*
+
+# Dev libs. Dynamic content update at dev time
+lib/*
+
+# Secrets
+.secrets
+
+# Local variables
+.local
+
+# Keep placeholder for empty directories
+!/**/.gitkeep
+
+#
+# Project specific exclusions
+#
