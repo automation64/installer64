@@ -1,0 +1,11 @@
+{
+	"name": "OS / OracleLinux",
+	"image": "docker.io/library/oraclelinux:9",
+	"features": {},
+	"forwardPorts": [],
+	"customizations": {
+		"vscode": {
+			"extensions": []
+		}
+	}
+}
