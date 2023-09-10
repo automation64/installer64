@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -38,8 +38,9 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Globals
 #
 
-export INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://raw.githubusercontent.com/automation64/bashlib64/main/bashlib64.bash}"
-export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+export INST64_INSTALLER64_SOURCE="${INST64_INSTALLER64_SOURCE:-https://github.com/automation64/installer64}"
+export INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/installer64}"
+export INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 
 #
 # Functions
@@ -56,24 +57,34 @@ export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_bashlib64_install() {
-  local package_name='bashlib64.bash'
+function inst64_installer64_install() {
+  local package_name='installer64-scripts.tgz'
+  local package_path='releases/download'
+  local package_url=''
+  local app_target_owner='root'
 
-  echo "Task: prepare destination (${INST64_BASHLIB64_TARGET})"
-  if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
-    mkdir "$INST64_BASHLIB64_TARGET" &&
-      chmod 755 "$INST64_BASHLIB64_TARGET"
+  echo "Task: prepare destination (${INST64_INSTALLER64_TARGET})"
+  if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
+    mkdir "$INST64_INSTALLER64_TARGET" &&
+      chmod 755 "$INST64_INSTALLER64_TARGET"
   fi
-  cd "$INST64_BASHLIB64_TARGET" || return 1
+  cd "$INST64_INSTALLER64_TARGET" || return 1
 
-  echo "Task: install packages (${INST64_BASHLIB64_SOURCE})"
-  case "$inst64_bashlib64_download_tool" in
-  'curl') curl --remote-name --location "$INST64_BASHLIB64_SOURCE" || return $? ;;
-  'wget') wget "$INST64_BASHLIB64_SOURCE" || return $? ;;
+  echo "Task: download package (${INST64_INSTALLER64_SOURCE})"
+  package_url="${INST64_INSTALLER64_SOURCE}/${package_path}/${INST64_INSTALLER64_VERSION}/${package_name}"
+  case "$inst64_installer64_download_tool" in
+  'curl') curl --remote-name --location "$package_url" || return $? ;;
+  'wget') wget "$package_url" || return $? ;;
   *) return 1 ;;
   esac
 
-  [[ -f "$package_name" ]] && chmod 644 "$package_name"
+  echo "Task: install package (${INST64_INSTALLER64_TARGET})"
+  if [[ -f "$package_name" ]]; then
+    tar zxf "$package_name" &&
+      chown -R "${app_target_owner}:${app_target_owner}" "${INST64_INSTALLER64_TARGET}" ||
+      return $?
+    rm -f "$package_name"
+  fi
 }
 
 #######################################
@@ -87,16 +98,16 @@ function inst64_bashlib64_install() {
 #   0: initialization ok
 #   >: failed to initialize
 #######################################
-function inst64_bashlib64_initialize() {
+function inst64_installer64_initialize() {
   if [[ "$EUID" != '0' ]]; then
     echo 'Error: script must be run as root user'
     return 1
   fi
 
   if command -v 'curl' >/dev/null 2>&1; then
-    inst64_bashlib64_download_tool='curl'
+    inst64_installer64_download_tool='curl'
   elif command -v 'wget' >/dev/null 2>&1; then
-    inst64_bashlib64_download_tool='wget'
+    inst64_installer64_download_tool='wget'
   else
     echo 'Error: no donwload tool found (curl, wget)'
     return 1
@@ -107,18 +118,18 @@ function inst64_bashlib64_initialize() {
 # Main
 #
 
-declare inst64_bashlib64_task_title='Install application: BashLib64'
-declare -i inst64_bashlib64_status=0
-declare inst64_bashlib64_download_tool='none'
+declare inst64_installer64_task_title='Install application: Installer64'
+declare -i inst64_installer64_status=0
+declare inst64_installer64_download_tool='none'
 
-echo "Process: [${inst64_bashlib64_task_title}] started"
+echo "Process: [${inst64_installer64_task_title}] started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
-inst64_bashlib64_initialize &&
-  inst64_bashlib64_install
-inst64_bashlib64_status=$?
+inst64_installer64_initialize &&
+  inst64_installer64_install
+inst64_installer64_status=$?
 
-((inst64_bashlib64_status == 0)) &&
-  echo "Process: [${inst64_bashlib64_task_title}] finished successfully" ||
-  echo "Process: [${inst64_bashlib64_task_title}] finished with errors: exit-status-${inst64_bashlib64_status}"
-exit $inst64_bashlib64_status
+((inst64_installer64_status == 0)) &&
+  echo "Process: [${inst64_installer64_task_title}] finished successfully" ||
+  echo "Process: [${inst64_installer64_task_title}] finished with errors: exit-status-${inst64_installer64_status}"
+exit $inst64_installer64_status

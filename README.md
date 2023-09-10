@@ -19,11 +19,9 @@
 
 - `INST64_BASHLIB64`: Bashlib64 location. Default: `/opt/bl64/bashlib64.bash`
 - `INST64_DEBUG`: Enable script debugging?. Default: `NO`
-- `INST64_INSTALLER_ROOT`: Container64 installers location. Default: `/opt/installer64`
 - `INST64_LOCAL_BIN`: Searchable path for local executables. Default: `/usr/local/bin`
 - `INST64_LOCAL_ROOT`: Linux well-known base path for local content. Default: `/usr/local`
 - `INST64_OPT_ROOT`: Linux well-known base path for non-os packaged content. Default: `/opt`
-- `INST64_TMP`: System path for temporal files. Default: `/tmp`
 
 Additional parameters may be available and required by each application installer.
 
@@ -48,7 +46,7 @@ INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
 
 ### Installation
 
-- Download and uncompress the latest version of the `installer64.tgz` package from the `Releases` project section to `/opt/installer64`.
+- Download and uncompress the latest version of the `installer64.tgz` package from the project's `Releases` section to `/opt/installer64`.
 - Install BashLib64:
 
 ```shell
