@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Template: 1.0.0
 #######################################
-# Container64 / Package installer
+# Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/container64
-# Version: 1.1.0
+# Repository: https://github.com/automation64/installer64
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -27,19 +27,22 @@
 # Imports
 #
 
-# Environment Definition. See docs/base-environment.md for details
+# Base Installer64 parameters
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
 export INST64_DEBUG="${INST64_DEBUG:-}"
+export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
-source "$INST64_BASHLIB64" || { echo "Error: unable to load bashlib64 (${INST64_BASHLIB64})" && exit 1; }
+source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
 #
 # Globals
 #
 
-# Dedicated user home path
-export INST64_ANSIBLE_HOME
 # Ansible core version
 export INST64_ANSIBLE_VERSION="${INST64_ANSIBLE_VERSION:-latest}"
 # Use OS native package?
@@ -128,17 +131,15 @@ function inst64_ansible_initialize() {
     bl64_msg_show_error 'installer supports Python modules only' &&
     return 1
 
-  bl64_check_export 'INST64_ANSIBLE_HOME' &&
-    bl64_check_directory "$INST64_ANSIBLE_HOME" &&
-    bl64_os_check_version \
-      "${BL64_OS_ALM}-8" \
-      "${BL64_OS_CNT}-8" \
-      "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
-      "${BL64_OS_FD}-33" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" \
-      "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
-      "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
-      "${BL64_OS_RHEL}-8" \
-      "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" &&
+  bl64_os_check_version \
+    "${BL64_OS_ALM}-8" \
+    "${BL64_OS_CNT}-8" \
+    "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
+    "${BL64_OS_FD}-33" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" \
+    "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+    "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+    "${BL64_OS_RHEL}-8" \
+    "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" &&
     bl64_py_setup
 }
 

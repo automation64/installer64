@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Template: 1.0.0
 #######################################
-# Container64 / Package installer
+# Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/container64
+# Repository: https://github.com/automation64/installer64
 # Version: 1.0.0
 #
 #######################################
@@ -27,14 +27,17 @@
 # Imports
 #
 
-# Environment Definition. See docs/base-environment.md for details
+# Base Installer64 parameters
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
 export INST64_DEBUG="${INST64_DEBUG:-}"
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-/usr/local/bin}"
+export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
-source "$INST64_BASHLIB64" || { echo "Error: unable to load bashlib64 (${INST64_BASHLIB64})" && exit 1; }
+source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
 #
 # Globals
@@ -107,8 +110,7 @@ function inst64_k9s_install() {
 function inst64_k9s_initialize() {
   bl64_dbg_app_show_function
 
-  bl64_check_export 'INST64_LOCAL_BIN' &&
-    bl64_check_export 'INST64_OPT_ROOT' &&
+
     bl64_arc_setup &&
     bl64_check_privilege_root
 }
