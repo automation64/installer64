@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# Template: 1.1.0
+#######################################
+# Installer64 / Package installer
+#
+# Author: SerDigital64 (https://github.com/serdigital64)
+# Repository: https://github.com/automation64/installer64
+# Version: 1.1.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# Base Installer64 parameters
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+export INST64_DEBUG="${INST64_DEBUG:-}"
+export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_TMP="${INST64_TMP:-/tmp}"
+
+#
+# Globals
+#
+
+export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+export INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://raw.githubusercontent.com/automation64/bashlib64/main/bashlib64.bash}"
+
+#
+# Functions
+#
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_bashlib64_install() {
+  file_name='bashlib64.bash'
+
+  echo "Task: prepare destination (${INST64_BASHLIB64_TARGET})"
+  if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
+    mkdir "$INST64_BASHLIB64_TARGET" &&
+      chmod 755 "$INST64_BASHLIB64_TARGET"
+  fi
+  cd "$INST64_BASHLIB64_TARGET" || return 1
+
+  echo "Task: install packages (${INST64_BASHLIB64_SOURCE})"
+  case "$inst64_bashlib64_download_tool" in
+  'curl') curl --remote-name --location "$INST64_BASHLIB64_SOURCE" ;;
+  'wget') wget "$INST64_BASHLIB64_SOURCE" ;;
+  *) return 1 ;;
+  esac
+
+  [[ -f "$file_name" ]] && chmod 644 "$file_name"
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: failed to initialize
+#######################################
+function inst64_bashlib64_initialize() {
+  if [[ "$EUID" != '0' ]]; then
+    echo 'Error: script must be run as root user'
+    return 1
+  fi
+
+  if command -v 'curl' >/dev/null 2>&1; then
+    inst64_bashlib64_download_tool='curl'
+  elif command -v 'wget' >/dev/null 2>&1; then
+    inst64_bashlib64_download_tool='wget'
+  else
+    echo 'Error: no donwload tool found (curl, wget)'
+    return 1
+  fi
+}
+
+#
+# Main
+#
+
+declare inst64_bashlib64_task_title='Install application: BashLib64'
+declare -i inst64_bashlib64_status=0
+declare inst64_bashlib64_download_tool='none'
+
+echo "Process: [${inst64_bashlib64_task_title}] started"
+
+[[ -n "$INST64_DEBUG" ]] && set -x
+inst64_bashlib64_initialize &&
+  inst64_bashlib64_install
+inst64_bashlib64_status=$?
+
+((inst64_bashlib64_status == 0)) && echo "Process: [${inst64_bashlib64_task_title}] finished successfully" || echo "Process: [${inst64_bashlib64_task_title}] finished with errors: exit-status-${inst64_bashlib64_status}"
+exit $inst64_bashlib64_status

@@ -2,13 +2,58 @@
 
 ## Overview
 
+*Installer64* is a collection of application installer scripts for reduced OS environments such as containers and CICD runners.
+*Warning*: *Installer64* is not inteded for regular OS environments (i.e.: VMs, etc.) where better deployment options are available (i.e.: Ansible, Chef, etc.)
+
+### Standard directory structure
+
+*Installer64* is configured by default to use the following standard directory structure:
+
+- `/opt`: base location for optional applications.
+- `/opt/<APPLICATION>`: installed optional application. *Installer64* will use this for non-os provided applications.
+- `/usr/local/bin`: searchable path for executables. *Installer64* will use this to symlink non-os provided application executables.
+
+### Base Installer64 parameters
+
+*Installer64* scripts can be customized using the following parameters as shell environment variables:
+
+- `INST64_BASHLIB64`: Bashlib64 location. Default: `/opt/bl64/bashlib64.bash`
+- `INST64_DEBUG`: Enable script debugging?. Default: `NO`
+- `INST64_INSTALLER_ROOT`: Container64 installers location. Default: `/opt/installer64`
+- `INST64_LOCAL_BIN`: Searchable path for local executables. Default: `/usr/local/bin`
+- `INST64_LOCAL_ROOT`: Linux well-known base path for local content. Default: `/usr/local`
+- `INST64_OPT_ROOT`: Linux well-known base path for non-os packaged content. Default: `/opt`
+- `INST64_TMP`: System path for temporal files. Default: `/tmp`
+
+Additional parameters may be available and required by each application installer.
+
 ## Usage
+
+- Select application installer from `/opt/installer64`
+- Check for required installer parameters and set as environment variables
+- Run installer
+
+```shell
+INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
+```
 
 ## Deployment
 
 ### Requirements
 
+- Bash
+- Sudo (if not running as root)
+- BashLib64
+- Curl or Wget if BashLib64 is not already present
+
 ### Installation
+
+- Download and uncompress the latest version of the `installer64.tgz` package from the `Releases` project section to `/opt/installer64`.
+- Install BashLib64:
+
+```shell
+sudo /opt/installer64/install-bashlib64
+```
 
 ## Contributing
 

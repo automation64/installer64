@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# Template: 1.1.0
+#######################################
+# Installer64 / Package installer
+#
+# Author: SerDigital64 (https://github.com/serdigital64)
+# Repository: https://github.com/automation64/installer64
+# Version: 1.1.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# Base Installer64 parameters
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+export INST64_DEBUG="${INST64_DEBUG:-}"
+export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_TMP="${INST64_TMP:-/tmp}"
+
+# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
+export INST64_TFLINT_PLATFORM="${INST64_TFLINT_PLATFORM:-linux_amd64}"
+export INST64_TFLINT_TARGET="${INST64_TFLINT_TARGET:-${INST64_OPT_ROOT}/tflint}"
+export INST64_TFLINT_VERSION="${INST64_TFLINT_VERSION:-latest}"
+
+#
+# Functions
+#
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_tflint_install() {
+  bl64_dbg_app_show_function
+  local repo_owner='terraform-linters'
+  local repo_name='tflint'
+  local package_prefix='tflint_'
+  local package_sufix='.zip'
+  local package_name="${package_prefix}${INST64_TFLINT_PLATFORM}${package_sufix}"
+  local work_path=''
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli='tflint'
+
+  bl64_msg_show_task 'download application'
+  work_path="$(bl64_fs_create_tmpdir)" || return $?
+  bl64_rxtx_github_get_asset "$repo_owner" "$repo_name" "$INST64_TFLINT_VERSION" "$package_name" "${work_path}/${package_name}" &&
+    bl64_arc_open_zip "${work_path}/${package_name}" "${work_path}" ||
+    return $?
+
+  bl64_msg_show_task 'deploy application'
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_TFLINT_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_TFLINT_TARGET" "${work_path}/${app_cli}" ||
+    return $?
+
+  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
+  # shellcheck disable=SC2086
+  bl64_fs_run_ln $BL64_FS_SET_LN_SYMBOLIC "${INST64_TFLINT_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" ||
+    return $?
+
+  bl64_msg_show_task 'cleanup temporary files'
+  bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: failed to initialize
+#######################################
+function inst64_tflint_initialize() {
+  bl64_dbg_app_show_function
+
+  bl64_arc_setup &&
+    bl64_check_privilege_root
+}
+
+#
+# Main
+#
+
+declare inst64_tflint_installer_description='Install application: TFLint'
+declare -i inst64_tflint_status=0
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$inst64_tflint_installer_description"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
+inst64_tflint_initialize &&
+  inst64_tflint_install
+inst64_tflint_status=$?
+
+bl64_msg_show_batch_finish "$inst64_tflint_status" "$inst64_tflint_installer_description"
+exit $inst64_tflint_status
