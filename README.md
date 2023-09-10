@@ -2,13 +2,36 @@
 
 ## Overview
 
+Installer64 is a collection of application installers for reduced OS environments such as containers and CICD runners.
+
+Warning: Installer64 is not inteded for regular OS environments (i.e.: VMs, etc.) where better deployment options are available (i.e.: Ansible, Chef, etc.)
+
 ## Usage
+
+- Select application installer from `/opt/installer64`
+- Check for installer parameters and set as environment variables
+- Run installer
+
+```shell
+INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
+```
 
 ## Deployment
 
 ### Requirements
 
+- Bash
+- Sudo (if not running as root)
+- BashLib64
+
 ### Installation
+
+- Download and uncompress to `/opt/installer64` the latest version of the `installer64.tgz` package from the `Releases` project section.
+- Install BashLib64
+
+```shell
+sudo /opt/installer64/install-bashlib64
+```
 
 ## Contributing
 
