@@ -39,14 +39,14 @@ INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
 
 ### Requirements
 
-- Bash
-- Sudo (if not running as root)
-- BashLib64
-- Curl or Wget if BashLib64 is not already present
+- Bash: used by installer scripts.
+- Sudo: most installers will require privileged execution. Used if not already running as root.
+- BashLib64: automation library used by installer scripts.
+- Curl or Wget, Tar and GZip: used for initial download of Install64 and BashLib64
 
 ### Installation
 
-- Download and uncompress the latest version of the `installer64.tgz` package from the project's `Releases` section to `/opt/installer64`.
+- Download and uncompress the latest version of the `installer64-scripts.tgz` package from the project's `Releases` section to `/opt/installer64`.
 - Install BashLib64:
 
 ```shell
