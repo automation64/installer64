@@ -1,0 +1,11 @@
+{
+	"name": "Dev / Base",
+	"image": "ghcr.io/automation64/dev/ubuntu-22.4-dev:latest",
+	"features": {},
+	"forwardPorts": [],
+	"customizations": {
+		"vscode": {
+			"extensions": []
+		}
+	}
+}
