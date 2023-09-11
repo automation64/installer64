@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
+# Version: 1.3.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -46,7 +46,7 @@ export INST64_ANSIBLE_VERSION="${INST64_ANSIBLE_VERSION:-latest}"
 # Use OS native package?
 export INST64_ANSIBLE_FLAG_NATIVE="${INST64_ANSIBLE_FLAG_NATIVE:-$BL64_VAR_OFF}"
 # Use Python PIPX?
-export INST64_ANSIBLE_PIPX="${INST64_ANSIBLE_PIPX:-$BL64_VAR_OFF}"
+export INST64_ANSIBLE_PIPX="${INST64_ANSIBLE_PIPX:-$BL64_VAR_ON}"
 
 #
 # Functions
