@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# Template: 1.1.0
+#######################################
+# Installer64 / Package installer
+#
+# Author: SerDigital64 (https://github.com/serdigital64)
+# Repository: https://github.com/automation64/installer64
+# Version: 1.0.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# Base Installer64 parameters
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+export INST64_DEBUG="${INST64_DEBUG:-}"
+export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_TMP="${INST64_TMP:-/tmp}"
+
+# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
+export INST64_MKDOCS_VERSION="${INST64_MKDOCS_VERSION:-latest}"
+# Use OS native package?
+export INST64_MKDOCS_FLAG_NATIVE="${INST64_MKDOCS_FLAG_NATIVE:-$BL64_VAR_OFF}"
+
+#
+# Functions
+#
+
+function inst64_mkdocs_select_packages() {
+  local packages=''
+  local version_target=''
+
+  if [[ "$INST64_MKDOCS_VERSION" == 'latest' ]]; then
+    version_target=''
+  else
+    version_target="==${INST64_MKDOCS_VERSION}.*"
+  fi
+  packages="mkdocs${version_target}"
+
+  # Add plugins and dependencies
+  packages="$packages Markdown"
+  packages="$packages mdx-truly-sane-lists"
+  packages="$packages mkdocs-autorefs"
+  packages="$packages mkdocs-awesome-pages-plugin"
+  packages="$packages mkdocs-exclude"
+  packages="$packages mkdocs-include-markdown-plugin"
+  packages="$packages mkdocs-markmap"
+  packages="$packages mkdocs-material"
+  packages="$packages mkdocs-mermaid2-plugin"
+  packages="$packages mkdocs-minify-plugin"
+  packages="$packages mkdocstrings"
+  packages="$packages Pygments"
+  packages="$packages pymdown-extensions"
+
+  [[ -n "$packages" ]] && echo "$packages"
+}
+
+function inst64_mkdocs_install_with_pip() {
+  local packages=''
+
+  packages="$(inst64_mkdocs_select_packages)" ||
+    return $?
+
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_py_pip_usr_prepare &&
+    bl64_py_pip_usr_deploy $packages
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_mkdocs_install() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'deploy application'
+  inst64_mkdocs_install_with_pip
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: failed to initialize
+#######################################
+function inst64_mkdocs_initialize() {
+  bl64_dbg_app_show_function
+  [[ "$INST64_MKDOCS_FLAG_NATIVE" != "$BL64_VAR_OFF" ]] &&
+    bl64_msg_show_error 'OS native package installer is not supported. Using Python-PIP instead.' &&
+    return 1
+
+  bl64_os_check_version \
+    "${BL64_OS_UB}-22" &&
+    bl64_py_setup
+}
+
+#
+# Main
+#
+
+declare inst64_mkdocs_installer_description='Install application: MKDocs'
+declare -i inst64_mkdocs_status=0
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$inst64_mkdocs_installer_description"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
+inst64_mkdocs_initialize &&
+  inst64_mkdocs_install
+inst64_mkdocs_status=$?
+
+bl64_msg_show_batch_finish "$inst64_mkdocs_status" "$inst64_mkdocs_installer_description"
+exit $inst64_mkdocs_status
