@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -46,6 +46,30 @@ export INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 # Functions
 #
 
+function inst64_installer64_identify_latest() {
+  local github_query='https://api.github.com/repos/automation64/installer64/releases/latest'
+  case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
+  'curl') curl -s "$github_query" ;;
+  'wget') wget -q -O- "$github_query" ;;
+  *) return 1 ;;
+  esac | \
+  grep '"tag_name": "v'
+}
+
+function inst64_installer64_select_version() {
+  local version_target=''
+
+  if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
+    version_target="$(inst64_installer64_identify_latest)"
+    version_target="${version_target##*:??}"
+    version_target="${version_target%%?,*}"
+  else
+    version_target="$INST64_INSTALLER64_VERSION"
+  fi
+
+  [[ -n "$version_target" ]] && echo "$version_target"
+}
+
 #######################################
 # Install application packages
 #
@@ -61,6 +85,7 @@ function inst64_installer64_install() {
   local package_name='installer64-scripts.tgz'
   local package_path='releases/download'
   local package_url=''
+  local package_version=''
   local app_target_owner='root'
 
   echo "Task: prepare destination (${INST64_INSTALLER64_TARGET})"
@@ -71,8 +96,9 @@ function inst64_installer64_install() {
   cd "$INST64_INSTALLER64_TARGET" || return 1
 
   echo "Task: download package (${INST64_INSTALLER64_SOURCE})"
-  package_url="${INST64_INSTALLER64_SOURCE}/${package_path}/${INST64_INSTALLER64_VERSION}/${package_name}"
-  case "$inst64_installer64_download_tool" in
+  package_version="$(inst64_installer64_select_version)" || return $?
+  package_url="${INST64_INSTALLER64_SOURCE}/${package_path}/${package_version}/${package_name}"
+  case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
   'curl') curl --remote-name --location "$package_url" || return $? ;;
   'wget') wget "$package_url" || return $? ;;
   *) return 1 ;;
@@ -105,9 +131,9 @@ function inst64_installer64_initialize() {
   fi
 
   if command -v 'curl' >/dev/null 2>&1; then
-    inst64_installer64_download_tool='curl'
+    INST64_INSTALLER64_DOWNLOAD_TOOL='curl'
   elif command -v 'wget' >/dev/null 2>&1; then
-    inst64_installer64_download_tool='wget'
+    INST64_INSTALLER64_DOWNLOAD_TOOL='wget'
   else
     echo 'Error: no donwload tool found (curl, wget)'
     return 1
@@ -120,7 +146,7 @@ function inst64_installer64_initialize() {
 
 declare inst64_installer64_task_title='Install application: Installer64'
 declare -i inst64_installer64_status=0
-declare inst64_installer64_download_tool='none'
+declare INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 
 echo "Process: [${inst64_installer64_task_title}] started"
 
