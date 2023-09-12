@@ -121,7 +121,7 @@ function inst64_ansiblelint_install() {
 function inst64_ansiblelint_initialize() {
   bl64_dbg_app_show_function
   [[ "$INST64_ANSIBLELINT_FLAG_NATIVE" != "$BL64_VAR_OFF" ]] &&
-    bl64_msg_show_error 'installer supports Python modules only' &&
+    bl64_msg_show_error 'OS native package installer is not supported. Using Python-PIP instead.' &&
     return 1
 
   bl64_os_check_version \
