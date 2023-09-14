@@ -86,6 +86,7 @@ function inst64_mkdocs_install_with_pip() {
   packages="$(inst64_mkdocs_select_packages)" ||
     return $?
 
+  # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
     bl64_py_pip_usr_deploy $packages
