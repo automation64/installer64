@@ -111,9 +111,11 @@ function inst64_ghcli_install_debian() {
   local repository_url='https://cli.github.com/packages'
   local repository_key='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
   local packages='gh'
+  local suit='stable'
+  local component='main'
 
   bl64_msg_show_task 'Add Debian package repository'
-  bl64_pkg_repository_add "$repository_name" "$repository_url" "$repository_key" ||
+  bl64_pkg_repository_add "$repository_name" "$repository_url" "$repository_key" "$suit" "$component" ||
     return $?
 
   bl64_msg_show_task 'deploy packages'
