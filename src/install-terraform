@@ -4,8 +4,9 @@
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
+# Contributors: Carola Demaría (https://github.com/carolademaria)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -41,6 +42,12 @@ source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the
 # Globals
 #
 
+bl64_dbg_app_show_comments 'set binary installer options. Not needed for package installer'
+export INST64_TERRAFORM_PLATFORM="${INST64_TERRAFORM_PLATFORM:-linux_amd64}"
+export INST64_TERRAFORM_SOURCE="${INST64_TERRAFORM_SOURCE:-https://releases.hashicorp.com/terraform}"
+export INST64_TERRAFORM_TARGET="${INST64_TERRAFORM_TARGET:-${INST64_OPT_ROOT}/terraform}"
+export INST64_TERRAFORM_VERSION="${INST64_TERRAFORM_VERSION:-1.5.7}"
+
 #
 # Functions
 #
@@ -61,6 +68,39 @@ function inst64_terraform_install_rhel() {
   bl64_pkg_deploy $packages
 }
 
+function inst64_terraform_install_binary() {
+  bl64_dbg_app_show_function
+  local package_prefix='terraform_'
+  local package_sufix='.zip'
+  local package_name="${package_prefix}${INST64_TERRAFORM_VERSION}_${INST64_TERRAFORM_PLATFORM}${package_sufix}"
+  local package_url="${INST64_TERRAFORM_SOURCE}/${INST64_TERRAFORM_VERSION}"
+  local work_path=''
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli='terraform'
+
+  bl64_msg_show_task 'download application'
+  work_path="$(bl64_fs_create_tmpdir)" || return $?
+  bl64_rxtx_web_get_file "${package_url}/${package_name}" "${work_path}/${package_name}" &&
+    bl64_arc_open_zip "${work_path}/${package_name}" "${work_path}" ||
+    return $?
+
+  bl64_msg_show_task 'deploy application'
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_TERRAFORM_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_TERRAFORM_TARGET" "${work_path}/${app_cli}" ||
+    return $?
+
+  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
+  # shellcheck disable=SC2086
+  bl64_fs_run_ln $BL64_FS_SET_LN_SYMBOLIC "${INST64_TERRAFORM_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" ||
+    return $?
+
+  bl64_msg_show_task 'cleanup temporary files'
+  bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
 #######################################
 # Install application packages
 #
@@ -76,6 +116,8 @@ function inst64_terraform_install() {
   bl64_dbg_app_show_function
   if bl64_os_match "${BL64_OS_OL}-8" "${BL64_OS_OL}-9"; then
     inst64_terraform_install_rhel
+  elif bl64_os_match "${BL64_OS_ALP}-3"; then
+    inst64_terraform_install_binary
   fi
   # shellcheck disable=SC2181
   (($? != 0)) && return 1
@@ -99,9 +141,12 @@ function inst64_terraform_install() {
 function inst64_terraform_initialize() {
   bl64_dbg_app_show_function
 
-  bl64_os_check_version "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" &&
+  bl64_os_check_version \
+    "${BL64_OS_ALP}-3" \
+    "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root &&
-    bl64_pkg_setup
+    bl64_pkg_setup &&
+    bl64_arc_setup
 }
 
 #
