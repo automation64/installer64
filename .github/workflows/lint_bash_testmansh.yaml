@@ -1,6 +1,6 @@
 ---
-# Template: 2.2.0
-name: "Lint / Bash / TestManSH"
+# Template: 3.0.0
+name: "Lint / Bash"
 
 on:
   pull_request:
