@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#
+# Run test-cases
+#
+# * Template: 1.0.0
+#
+
+#
+# Imports
+#
+
+# shellcheck source=SCRIPTDIR/dev-set
+source ./bin/dev-set || exit 1
+
+# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+source "$DEV_CICD_BASHLIB64" || exit 1
+
+#
+# Functions
+#
+
+function dev_test_run() {
+  local container_image="$1"
+  local container_path_installer64='/opt/installer64'
+  local container_path_bl64='/opt/bl64'
+  local container_path_test='/test'
+  local image_name="DEV_TEST_CONTAINER_${container_image}"
+  local test_list="DEV_TEST_LIST_${container_image}"
+  local test_file=''
+
+  [[ ! -v "$image_name" ]] && bl64_msg_show_error "invalid container image CICD variable name (${image_name})" && return 1
+  [[ ! -v "$test_list" ]] && bl64_msg_show_error "invalid test list CICD variable name (${test_list})" && return 1
+
+  for test_file in $test_list; do
+    bl64_cnt_run \
+      $BL64_CNT_SET_RM \
+      $BL64_CNT_SET_TTY \
+      --volume="${DEV_SRC}:${container_path_installer64}" \
+      --volume="${DEV_LIB}:${container_path_bl64}" \
+      --volume="${DEV_TEST}:${container_path_test}" \
+      --entrypoint "${container_path_test}/${DEV_CICD_TEST_CASES}/${!test_file}.sh" \
+      "${DEV_CICD_TEST_REGISTRY}/${!image_name}" ||
+      return $?
+  done
+}
+
+#
+# Main
+#
+
+declare -u container_image="${1:-}"
+
+bl64_check_parameter 'container_image' &&
+  bl64_check_export 'DEV_CICD_TEST_CASES' &&
+  bl64_cnt_setup ||
+  exit 1
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start 'test-installer'
+dev_test_run "$container_image"
+bl64_msg_show_batch_finish $? 'test-installer'
