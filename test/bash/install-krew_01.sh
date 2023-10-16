@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo /opt/installer64/install-krew
+/opt/installer64/install-krew

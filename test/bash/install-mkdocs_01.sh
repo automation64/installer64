@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo /opt/installer64/install-mkdocs
+/opt/installer64/install-mkdocs

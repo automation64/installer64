@@ -128,7 +128,8 @@ function inst64_mkdocs_initialize() {
 
   bl64_os_check_version \
     "${BL64_OS_UB}-22" &&
-    bl64_py_setup
+    bl64_py_setup &&
+    bl64_check_privilege_not_root
 }
 
 #
