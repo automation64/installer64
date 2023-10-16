@@ -95,7 +95,7 @@ function inst64_podman_initialize() {
     bl64_msg_show_error 'installer supports OS native packages only' &&
     return 1
 
-  bl64_os_check_version "${BL64_OS_OL}" &&
+  bl64_os_check_version "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root &&
     bl64_pkg_setup
 }
