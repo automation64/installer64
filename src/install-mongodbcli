@@ -138,7 +138,7 @@ function inst64_mongodbcli_initialize() {
 
   bl64_check_privilege_root &&
     bl64_os_check_version \
-      "${BL64_OS_OL}" &&
+      "${BL64_OS_OL}-9" &&
     bl64_pkg_setup ||
     return $?
 
