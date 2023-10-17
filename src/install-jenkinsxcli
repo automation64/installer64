@@ -73,7 +73,6 @@ function inst64_jenkinsxcli_install_binary_release() {
     INST64_JENKINSXCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_JENKINSXCLI_REPO_OWNER" "$INST64_JENKINSXCLI_REPO_NAME")" ||
       return $?
   fi
-  # delete-me # Modify the following line to properly form the package name
   package_name="${package_prefix}${INST64_JENKINSXCLI_PLATFORM}${package_sufix}"
 
   bl64_rxtx_github_get_asset "$INST64_JENKINSXCLI_REPO_OWNER" "$INST64_JENKINSXCLI_REPO_NAME" "$INST64_JENKINSXCLI_VERSION" "$package_name" "${work_path}/${package_name}" &&
