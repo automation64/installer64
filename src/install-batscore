@@ -100,6 +100,7 @@ function inst64_batscore_initialize() {
   bl64_dbg_app_show_function
 
   bl64_vcs_setup &&
+    bl64_os_check_version "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root
 }
 
