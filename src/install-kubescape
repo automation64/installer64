@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -98,7 +98,7 @@ function inst64_kubescape_initialize() {
 
   bl64_arc_setup &&
     bl64_os_check_version \
-      "${BL64_OS_UB}-22" &&
+      "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root
 }
 
@@ -107,7 +107,6 @@ function inst64_kubescape_initialize() {
 #
 
 declare inst64_kubescape_installer_description='Install application: Kubescape'
-declare -i inst64_kubescape_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_kubescape_installer_description"
@@ -115,7 +114,5 @@ bl64_msg_show_batch_start "$inst64_kubescape_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
 inst64_kubescape_initialize &&
   inst64_kubescape_install
-inst64_kubescape_status=$?
 
-bl64_msg_show_batch_finish "$inst64_kubescape_status" "$inst64_kubescape_installer_description"
-exit $inst64_kubescape_status
+bl64_msg_show_batch_finish $? "$inst64_kubescape_installer_description"

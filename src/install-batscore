@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -43,6 +43,7 @@ source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the
 
 export INST64_BATSCORE_SOURCE="${INST64_BATSCORE_SOURCE:-https://github.com/bats-core}"
 export INST64_BATSCORE_TARGET="${INST64_BATSCORE_TARGET:-${INST64_OPT_ROOT}/bats-core}"
+
 export INST64_BATSCORE_TARGET_HELPERS="${INST64_BATSCORE_TARGET}/test_helper"
 
 #
@@ -100,7 +101,17 @@ function inst64_batscore_initialize() {
   bl64_dbg_app_show_function
 
   bl64_vcs_setup &&
-    bl64_os_check_version "${BL64_OS_OL}-9" &&
+    bl64_os_check_version \
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_CNT}" \
+      "${BL64_OS_DEB}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_RHEL}" \
+      "${BL64_OS_SLES}" \
+      "${BL64_OS_UB}" &&
     bl64_check_privilege_root
 }
 
@@ -109,7 +120,6 @@ function inst64_batscore_initialize() {
 #
 
 declare inst64_batscore_installer_description='Install application: BatsCore'
-declare -i inst64_batscore_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_batscore_installer_description"
@@ -117,7 +127,5 @@ bl64_msg_show_batch_start "$inst64_batscore_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_batscore_initialize &&
   inst64_batscore_install
-inst64_batscore_status=$?
 
-bl64_msg_show_batch_finish "$inst64_batscore_status" "$inst64_batscore_installer_description"
-exit $inst64_batscore_status
+bl64_msg_show_batch_finish $? "$inst64_batscore_installer_description"
