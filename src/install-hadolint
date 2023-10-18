@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -67,7 +67,6 @@ function inst64_hadolint_install() {
   local repo_owner='hadolint'
   local repo_name='hadolint'
   local package_prefix='hadolint'
-  #local package_sufix='X_PACKAGE_SUFIX_X'
   local package_name=''
   local work_path=''
   local app_target_mode='0755'
@@ -116,6 +115,7 @@ function inst64_hadolint_initialize() {
   bl64_dbg_app_show_function
   bl64_arc_setup &&
     bl64_os_check_version \
+      "${BL64_OS_ALP}-3" \
       "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root
 }
@@ -125,7 +125,6 @@ function inst64_hadolint_initialize() {
 #
 
 declare inst64_hadolint_installer_description='Install application: Haskell Dockerfile Linter'
-declare -i inst64_hadolint_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_hadolint_installer_description"
@@ -133,7 +132,5 @@ bl64_msg_show_batch_start "$inst64_hadolint_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
 inst64_hadolint_initialize &&
   inst64_hadolint_install
-inst64_hadolint_status=$?
 
-bl64_msg_show_batch_finish "$inst64_hadolint_status" "$inst64_hadolint_installer_description"
-exit $inst64_hadolint_status
+bl64_msg_show_batch_finish $? "$inst64_hadolint_installer_description"
