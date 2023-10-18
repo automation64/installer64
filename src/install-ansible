@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.4.0
+# Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -134,6 +134,7 @@ function inst64_ansible_initialize() {
     "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
     "${BL64_OS_RHEL}-8" \
     "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" &&
+    bl64_check_privilege_not_root &&
     bl64_py_setup
 }
 
@@ -142,7 +143,6 @@ function inst64_ansible_initialize() {
 #
 
 declare inst64_ansible_installer_description='Install application: Ansible (dedicated user)'
-declare -i inst64_ansible_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_ansible_installer_description"
@@ -150,7 +150,5 @@ bl64_msg_show_batch_start "$inst64_ansible_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
 inst64_ansible_initialize &&
   inst64_ansible_install
-inst64_ansible_status=$?
 
-bl64_msg_show_batch_finish "$inst64_ansible_status" "$inst64_ansible_installer_description"
-exit $inst64_ansible_status
+bl64_msg_show_batch_finish $? "$inst64_ansible_installer_description"
