@@ -3,7 +3,7 @@
 # Pack application for delivery
 #
 # * Use to create a distributable package of the application
-# * Template: 1.2.0
+# * Template: 1.3.0
 #
 
 #
@@ -22,6 +22,7 @@ source "$DEV_CICD_BASHLIB64" || exit 1
 bl64_check_export 'DEV_PACK_FULL_PATH' &&
   bl64_arc_setup || exit 1
 
+bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start 'pack-app'
 bl64_msg_show_task "create distributable package (${DEV_PACK_FULL_PATH})"
 bl64_arc_run_tar \

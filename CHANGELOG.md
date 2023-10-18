@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0]
+
+### Added
+
+- Installers for:
+  - FluxCD CLI
+  - ArgoCD CLI
+  - JenkinsX CLI
+  - ArgoCD
+
+### Changed
+
+- **breaking-change** Updated mandatory requirements for:
+  - install-awscli
+  - install-batscore
+  - install-cosign
+  - install-crane
+  - install-dockercli
+  - install-dockle
+  - install-gcloud
+  - install-hadolint
+  - install-helm
+  - install-helm-chart-releaser
+  - install-istioctl
+  - install-k9s
+  - install-krew
+  - install-kubectl
+  - install-kubescape
+  - install-lazydocker
+  - install-mkdocs
+  - install-mongodbcli
+  - install-podman
+  - install-shellcheck
+  - install-tflint
+  - install-tfsec
+
 ## [1.6.0]
 
 ### Added
@@ -76,6 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers migrated from Container64 project
 
+[2.0.0]: https://github.com/automation64/installer64/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/automation64/installer64/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/automation64/installer64/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/automation64/installer64/compare/v1.3.0...v1.4.0

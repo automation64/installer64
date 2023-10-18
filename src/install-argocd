@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Template: 1.2.0
+#######################################
+# Installer64 / Package installer
+#
+# Author: SerDigital64 (https://github.com/serdigital64)
+# Repository: https://github.com/automation64/installer64
+# Version: 1.0.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# Base Installer64 parameters
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+export INST64_DEBUG="${INST64_DEBUG:-}"
+export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_TMP="${INST64_TMP:-/tmp}"
+
+# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
+# Installation method
+export INST64_ARGOCD_METHOD="${INST64_ARGOCD_METHOD:-HELM}"
+
+export INST64_ARGOCD_HELM_CHART='argo-cd'
+export INST64_ARGOCD_HELM_REPO='argo'
+export INST64_ARGOCD_HELM_SOURCE='https://argoproj.github.io/argo-helm'
+export INST64_ARGOCD_K8S_KUBECONFIG="${INST64_ARGOCD_K8S_KUBECONFIG:-${HOME}/.kube/config}"
+export INST64_ARGOCD_K8S_NAMESPACE='argocd'
+
+#
+# Functions
+#
+
+function inst64_argocd_add_helm_repo() {
+  bl64_dbg_app_show_function
+  bl64_hlm_repo_add "$INST64_ARGOCD_HELM_REPO" "$INST64_ARGOCD_HELM_SOURCE"
+}
+
+function inst64_argocd_install_helm_chart() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'deploy application to K8S'
+  inst64_argocd_add_helm_repo &&
+    bl64_hlm_chart_upgrade \
+      "$INST64_ARGOCD_K8S_KUBECONFIG" \
+      "$INST64_ARGOCD_K8S_NAMESPACE" \
+      "$INST64_ARGOCD_HELM_CHART" \
+      "${INST64_ARGOCD_HELM_REPO}/${INST64_ARGOCD_HELM_CHART}"
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_argocd_install() {
+  bl64_dbg_app_show_function
+  inst64_argocd_install_helm_chart
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: failed to initialize
+#######################################
+function inst64_argocd_initialize() {
+  bl64_dbg_app_show_function
+  bl64_os_check_version \
+    "${BL64_OS_OL}-9" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ARGOCD_METHOD' "$INST64_ARGOCD_METHOD" \
+      'HELM' &&
+    bl64_check_privilege_not_root &&
+    bl64_k8s_setup &&
+    bl64_hlm_setup
+}
+
+#
+# Main
+#
+
+declare inst64_argocd_installer_description='Install application: ArgoCD'
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$inst64_argocd_installer_description"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
+inst64_argocd_initialize &&
+  inst64_argocd_install
+bl64_msg_show_batch_finish $? "$inst64_argocd_installer_description"
