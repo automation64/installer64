@@ -1,8 +1,22 @@
 # Script: installer64
 
+- [Script: installer64](#script-installer64)
+  - [Overview](#overview)
+    - [Standard directory structure](#standard-directory-structure)
+    - [Base Installer64 parameters](#base-installer64-parameters)
+    - [Installer specific parameters](#installer-specific-parameters)
+    - [Installation methods](#installation-methods)
+  - [Usage](#usage)
+  - [Deployment](#deployment)
+    - [Requirements](#requirements)
+    - [Installation](#installation)
+  - [Contributing](#contributing)
+    - [License](#license)
+    - [Author](#author)
+
 ## Overview
 
-_Installer64_ is a collection of application installer scripts for reduced OS environments such as containers and CICD runners.
+_Installer64_ is a collection of application installer scripts for ephemeral OS environments such as containers, CICD runners, etc.
 _Warning_: _Installer64_ is not inteded for regular OS environments (i.e.: VMs, etc.) where better deployment options are available (i.e.: Ansible, Chef, etc.)
 
 ### Standard directory structure
@@ -23,7 +37,31 @@ _Installer64_ scripts can be customized using the following parameters as shell 
 - `INST64_LOCAL_ROOT`: Linux well-known base path for local content. Default: `/usr/local`
 - `INST64_OPT_ROOT`: Linux well-known base path for non-os packaged content. Default: `/opt`
 
+### Installer specific parameters
+
 Additional parameters may be available and required by each application installer.
+
+Parameter name format: `INST64_<INSTALLER_NAME>_<PARAMETER_NAME>`
+
+Common parameters:
+
+- `INST64_<INSTALLER_NAME>_PLATFORM`: hardware platform (e.g.: linux_amd64, etc.)
+- `INST64_<INSTALLER_NAME>_SOURCE`: package source URL (e.g.: GitHub repository, Distro repository, etc.)
+- `INST64_<INSTALLER_NAME>_TARGET`: full path to the installation destination.
+- `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format.
+- `INST64_<INSTALLER_NAME>_METHOD`: installation method. See `Installation methods` section for further details
+- `INST64_<INSTALLER_NAME>_REINSTALL`: for `BINARY` installation method only. Reinstall (replace) application if already present?.
+- `INST64_<INSTALLER_NAME>_DEVELOPMENT`: install development components?. Applicable to packages that separates runtime and development.
+
+### Installation methods
+
+_Installer64_ will implement the best available installation method for each application.
+The selection criteria is based on the following priority list:
+
+1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc
+2. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
+3. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
+4. `BINARY`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
 
 ## Usage
 
