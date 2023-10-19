@@ -1,3 +1,5 @@
 #!/bin/sh
 
-sudo /opt/installer64/install-ansible
+export INST64_ANSIBLE_PIPX="OFF"
+
+/opt/installer64/install-ansible
