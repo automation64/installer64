@@ -120,7 +120,6 @@ function inst64_tflint_initialize() {
 #
 
 declare inst64_tflint_installer_description='Install application: TFLint'
-declare -i inst64_tflint_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_tflint_installer_description"
