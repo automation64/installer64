@@ -39,10 +39,11 @@ function dev_test_run() {
     bl64_cnt_run \
       $BL64_CNT_SET_RM \
       $BL64_CNT_SET_TTY \
+      --env=INST64_TEST_ENVIRONMENT='ON' \
       --volume="${DEV_SRC}:${container_path_installer64}" \
       --volume="${DEV_LIB}:${container_path_bl64}" \
       --volume="${DEV_TEST}:${container_path_test}" \
-      --entrypoint "${container_path_test}/${DEV_CICD_TEST_CASES}/${test_file}.sh" \
+      --entrypoint="${container_path_test}/${DEV_CICD_TEST_CASES}/${test_file}.sh" \
       "$container_uri" ||
       return $?
   done
