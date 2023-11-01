@@ -123,7 +123,8 @@ function inst64_argocdcli_initialize() {
   bl64_dbg_app_show_function
   bl64_os_check_version \
     "${BL64_OS_OL}-9" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ARGOCDCLI_METHOD' "$INST64_ARGOCDCLI_METHOD" \
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ARGOCDCLI_METHOD' \
+      "$INST64_ARGOCDCLI_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
 }

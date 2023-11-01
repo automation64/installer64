@@ -103,7 +103,8 @@ function inst64_argocd_initialize() {
   bl64_dbg_app_show_function
   bl64_os_check_version \
     "${BL64_OS_OL}-9" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ARGOCD_METHOD' "$INST64_ARGOCD_METHOD" \
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ARGOCD_METHOD' \
+      "$INST64_ARGOCD_METHOD" \
       'HELM' &&
     bl64_check_privilege_not_root &&
     bl64_k8s_setup &&

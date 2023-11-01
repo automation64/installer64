@@ -46,7 +46,7 @@ export INST64_HCR_SOURCE="${INST64_HCR_SOURCE:-https://github.com/helm/chart-rel
 export INST64_HCR_TARGET="${INST64_HCR_TARGET:-${INST64_OPT_ROOT}/chart-releaser}"
 export INST64_HCR_VERSION="${INST64_HCR_VERSION:-latest}"
 # Installation method
-export INST64_HCR_METHOD="${INST64_HCR_METHOD:-BINARY}"
+export INST64_HCR_METHOD="${INST64_HCR_METHOD:-CUSTOM}"
 
 export INST64_HCR_REPO_NAME='chart-releaser'
 export INST64_HCR_REPO_OWNER='helm'
@@ -109,7 +109,7 @@ function inst64_hcr_install_custom_package() {
 #######################################
 function inst64_hcr_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_HCR_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_HCR_METHOD" == 'CUSTOM' ]]; then
     inst64_hcr_install_custom_package
   fi
 }
@@ -132,8 +132,9 @@ function inst64_hcr_initialize() {
     bl64_os_check_version \
       "${BL64_OS_UB}-22" \
       "${BL64_OS_OL}-9" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HCR_METHOD' "$INST64_HCR_METHOD" \
-      'BINARY' &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HCR_METHOD' \
+      "$INST64_HCR_METHOD" \
+      'CUSTOM' &&
     bl64_check_privilege_root
 }
 
