@@ -48,10 +48,11 @@ export INST64_HELM_VERSION="${INST64_HELM_VERSION:-latest}"
 # Installation method
 export INST64_HELM_METHOD="${INST64_HELM_METHOD:-BINARY}"
 
+export INST64_HELM_REPO_NAME='helm'
+export INST64_HELM_REPO_OWNER='helm'
+
 function inst64_helm_install_binary_release() {
   bl64_dbg_app_show_function
-  local repo_owner='helm'
-  local repo_name='helm'
   local package_prefix='helm'
   local package_sufix='.tar.gz'
   local package_name=''
@@ -65,7 +66,7 @@ function inst64_helm_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   if [[ "$INST64_HELM_VERSION" == 'latest' ]]; then
-    INST64_HELM_VERSION="$(bl64_vcs_github_release_get_latest "$repo_owner" "$repo_name")" ||
+    INST64_HELM_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HELM_REPO_OWNER" "$INST64_HELM_REPO_NAME")" ||
       return $?
   fi
   package_name="${package_prefix}-${INST64_HELM_VERSION}-${INST64_HELM_PLATFORM}${package_sufix}"
