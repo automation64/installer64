@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -45,23 +45,10 @@ export INST64_HELM_PLATFORM="${INST64_HELM_PLATFORM:-linux-amd64}"
 export INST64_HELM_SOURCE="${INST64_HELM_SOURCE:-https://get.helm.sh}"
 export INST64_HELM_TARGET="${INST64_HELM_TARGET:-${INST64_OPT_ROOT}/helm}"
 export INST64_HELM_VERSION="${INST64_HELM_VERSION:-latest}"
+# Installation method
+export INST64_HELM_METHOD="${INST64_HELM_METHOD:-BINARY}"
 
-#
-# Functions
-#
-
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_helm_install() {
+function inst64_helm_install_binary_release() {
   bl64_dbg_app_show_function
   local repo_owner='helm'
   local repo_name='helm'
@@ -94,12 +81,34 @@ function inst64_helm_install() {
 
   bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
   # shellcheck disable=SC2086
-  bl64_fs_run_ln $BL64_FS_SET_LN_SYMBOLIC "${INST64_HELM_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" ||
+  bl64_fs_create_symlink "${INST64_HELM_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
   return 0
+}
+
+#
+# Functions
+#
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_helm_install() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_HELM_METHOD" == 'BINARY' ]]; then
+    inst64_helm_install_binary_release
+  fi
 }
 
 #######################################
@@ -118,7 +127,10 @@ function inst64_helm_initialize() {
 
   bl64_arc_setup &&
     bl64_os_check_version \
+      "${BL64_OS_UB}-22" \
       "${BL64_OS_OL}-9" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HELM_METHOD' "$INST64_HELM_METHOD" \
+      'BINARY' &&
     bl64_check_privilege_root
 }
 
@@ -127,7 +139,6 @@ function inst64_helm_initialize() {
 #
 
 declare inst64_helm_installer_description='Install application: Helm'
-declare -i inst64_helm_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_helm_installer_description"
@@ -135,7 +146,5 @@ bl64_msg_show_batch_start "$inst64_helm_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
 inst64_helm_initialize &&
   inst64_helm_install
-inst64_helm_status=$?
 
-bl64_msg_show_batch_finish "$inst64_helm_status" "$inst64_helm_installer_description"
-exit $inst64_helm_status
+bl64_msg_show_batch_finish $? "$inst64_helm_installer_description"
