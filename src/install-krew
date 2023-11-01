@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -39,12 +39,17 @@ export INST64_TMP="${INST64_TMP:-/tmp}"
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
 source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
+export INST64_KREW_REPO_NAME='krew'
+export INST64_KREW_REPO_OWNER='kubernetes-sigs'
+
 #
 # Globals
 #
 
 export INST64_KREW_PLATFORM="${INST64_KREW_PLATFORM:-linux_amd64}"
 export INST64_KREW_VERSION="${INST64_KREW_VERSION:-latest}"
+# Installation method
+export INST64_KREW_METHOD="${INST64_KREW_METHOD:-CUSTOM}"
 
 #
 # Functions
@@ -52,8 +57,6 @@ export INST64_KREW_VERSION="${INST64_KREW_VERSION:-latest}"
 
 function inst64_krew_install_custom_package() {
   bl64_dbg_app_show_function
-  local repo_owner='kubernetes-sigs'
-  local repo_name='krew'
   local package_prefix='krew-'
   local package_sufix='.tar.gz'
   local package_name=''
@@ -62,12 +65,12 @@ function inst64_krew_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   if [[ "$INST64_KREW_VERSION" == 'latest' ]]; then
-    INST64_KREW_VERSION="$(bl64_vcs_github_release_get_latest "$repo_owner" "$repo_name")" ||
+    INST64_KREW_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KREW_REPO_OWNER" "$INST64_KREW_REPO_NAME")" ||
       return $?
   fi
   package_name="${package_prefix}${INST64_KREW_PLATFORM}${package_sufix}"
 
-  bl64_rxtx_github_get_asset "$repo_owner" "$repo_name" "$INST64_KREW_VERSION" "$package_name" "${work_path}/${package_name}" &&
+  bl64_rxtx_github_get_asset "$INST64_KREW_REPO_OWNER" "$INST64_KREW_REPO_NAME" "$INST64_KREW_VERSION" "$package_name" "${work_path}/${package_name}" &&
     bl64_arc_open_tar "${work_path}/${package_name}" "${work_path}" ||
     return $?
 
@@ -93,7 +96,9 @@ function inst64_krew_install_custom_package() {
 #######################################
 function inst64_krew_install() {
   bl64_dbg_app_show_function
-  inst64_krew_install_custom_package
+  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+    inst64_krew_install_custom_package
+  fi
 }
 
 #######################################
@@ -110,7 +115,11 @@ function inst64_krew_install() {
 function inst64_krew_initialize() {
   bl64_dbg_app_show_function
   bl64_os_check_version \
+    "${BL64_OS_UB}-22" \
     "${BL64_OS_OL}-9" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KREW_METHOD' \
+      "$INST64_KREW_METHOD" \
+      'CUSTOM' &&
     bl64_check_privilege_not_root &&
     bl64_arc_setup
 }
