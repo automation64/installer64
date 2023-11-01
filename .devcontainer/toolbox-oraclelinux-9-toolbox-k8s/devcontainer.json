@@ -1,0 +1,11 @@
+{
+	"name": "ToolBox / K8S",
+	"image": "ghcr.io/automation64/toolbox/oraclelinux-9-toolbox-k8s:latest",
+	"features": {},
+	"forwardPorts": [],
+	"customizations": {
+		"vscode": {
+			"extensions": []
+		}
+	}
+}
