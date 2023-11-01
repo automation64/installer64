@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0]
+
+### Added
+
+- ShellCheck: support for Ubuntu-22
+
+### Changed
+
+- ShellCheck: **breaking-change**
+  - replaced parameter `INST64_SHELLCHECK_FLAG_NATIVE` for `INST64_SHELLCHECK_METHOD`
+
 ## [2.0.0]
 
 ### Added
@@ -112,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers migrated from Container64 project
 
+[3.0.0]: https://github.com/automation64/installer64/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/automation64/installer64/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/automation64/installer64/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/automation64/installer64/compare/v1.4.0...v1.5.0
