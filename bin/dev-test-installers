@@ -15,6 +15,8 @@ source ./bin/dev-set || exit 1
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
 source "$DEV_CICD_BASHLIB64" || exit 1
 
+export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
+
 #
 # Functions
 #
@@ -55,6 +57,7 @@ function dev_test_run() {
 
 declare -u test_target="${1:-}"
 
+[[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_lib_enable
 bl64_check_parameter 'test_target' &&
   bl64_check_export 'DEV_CICD_TEST_CASES' &&
   bl64_cnt_setup ||
