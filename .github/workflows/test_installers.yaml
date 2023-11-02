@@ -9,9 +9,9 @@ on:
   push:
     branches:
       - "feature/**"
-    paths:
-      - "src/**"
-      - "test/**"
+    # paths:
+    #   - "src/**"
+    #   - "test/**"
 
 jobs:
   test-installers:
