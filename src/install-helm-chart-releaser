@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -45,26 +45,18 @@ export INST64_HCR_PLATFORM="${INST64_HCR_PLATFORM:-linux_amd64}"
 export INST64_HCR_SOURCE="${INST64_HCR_SOURCE:-https://github.com/helm/chart-releaser/releases/download}"
 export INST64_HCR_TARGET="${INST64_HCR_TARGET:-${INST64_OPT_ROOT}/chart-releaser}"
 export INST64_HCR_VERSION="${INST64_HCR_VERSION:-latest}"
+# Installation method
+export INST64_HCR_METHOD="${INST64_HCR_METHOD:-CUSTOM}"
+
+export INST64_HCR_REPO_NAME='chart-releaser'
+export INST64_HCR_REPO_OWNER='helm'
 
 #
 # Functions
 #
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_hcr_install() {
+function inst64_hcr_install_custom_package() {
   bl64_dbg_app_show_function
-  local repo_owner='helm'
-  local repo_name='chart-releaser'
   local package_prefix='chart-releaser'
   local package_sufix='.tar.gz'
   local package_name=''
@@ -78,7 +70,7 @@ function inst64_hcr_install() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   if [[ "$INST64_HCR_VERSION" == 'latest' ]]; then
-    INST64_HCR_VERSION="$(bl64_vcs_github_release_get_latest "$repo_owner" "$repo_name")" ||
+    INST64_HCR_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HCR_REPO_OWNER" "$INST64_HCR_REPO_NAME")" ||
       return $?
     INST64_HCR_VERSION="${INST64_HCR_VERSION#v}"
   fi
@@ -96,12 +88,30 @@ function inst64_hcr_install() {
 
   bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
   # shellcheck disable=SC2086
-  bl64_fs_run_ln $BL64_FS_SET_LN_SYMBOLIC "${INST64_HCR_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" ||
+  bl64_fs_create_symlink "${INST64_HCR_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
   return 0
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_hcr_install() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_HCR_METHOD" == 'CUSTOM' ]]; then
+    inst64_hcr_install_custom_package
+  fi
 }
 
 #######################################
@@ -120,7 +130,11 @@ function inst64_hcr_initialize() {
 
   bl64_arc_setup &&
     bl64_os_check_version \
+      "${BL64_OS_UB}-22" \
       "${BL64_OS_OL}-9" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HCR_METHOD' \
+      "$INST64_HCR_METHOD" \
+      'CUSTOM' &&
     bl64_check_privilege_root
 }
 
@@ -129,7 +143,6 @@ function inst64_hcr_initialize() {
 #
 
 declare inst64_hcr_installer_description='Install application: Helm Chart Releaser'
-declare -i inst64_hcr_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_hcr_installer_description"
@@ -137,7 +150,5 @@ bl64_msg_show_batch_start "$inst64_hcr_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_hcr_initialize &&
   inst64_hcr_install
-inst64_hcr_status=$?
 
-bl64_msg_show_batch_finish "$inst64_hcr_status" "$inst64_hcr_installer_description"
-exit $inst64_hcr_status
+bl64_msg_show_batch_finish $? "$inst64_hcr_installer_description"

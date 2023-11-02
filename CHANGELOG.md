@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ShellCheck: support for Ubuntu-22
+- KubeCTL: support for Ubuntu-22, Alpine3
+- Helm: support for Ubuntu-22
+- Helm Chart Releaser: support for Ubuntu-22
+- IstioCTL: support for Ubuntu-22
+- Krew: support for Ubuntu-22
+- ArgoCD CLI: support for Ubuntu-22
+- FluxCD CLI: support for Ubuntu-22
+- JenkinsX CLI: support for Ubuntu-22
+- Kubescape: support for Ubuntu-22
+- Azure CLI: support for Ubuntu-22
+- GCloud CLI: support for Ubuntu-22
+- AWS CLI: support for Ubuntu-22
 
 ### Changed
 

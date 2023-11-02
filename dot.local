@@ -6,9 +6,13 @@
 # * This file should be excluded from GIT
 # * Source before .env
 # * Template variables (X_VARIABLE_X) must be replaced to match project definition
-# * Template version: 1.0.0
+# * Template version: 1.1.0
 #
 
 # Project base location. Adjust to your local GIT repo
 DEV_ROOT="$(pwd)"
 export DEV_ROOT
+
+# CICD / Debug flag for 'bin/' scripts
+DEV_CICD_DEBUG=''
+export DEV_CICD_DEBUG

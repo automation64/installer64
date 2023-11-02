@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -41,23 +41,67 @@ source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the
 # Globals
 #
 
+# Installation method
+export INST64_GCLOUD_METHOD="${INST64_GCLOUD_METHOD:-EXTERNAL}"
+export INST64_GCLOUD_PLATFORM_RHEL="${INST64_GCLOUD_PLATFORM:-x86_64}"
+
+export INST64_GCLOUD_REPOSITORY_NAME='google-cloud-sdk'
+export INST64_GCLOUD_SOURCE_RHEL='https://packages.cloud.google.com/yum/repos'
+export INST64_GCLOUD_REPOSITORY_KEY_RHEL='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+export INST64_GCLOUD_SOURCE_DEB='https://packages.cloud.google.com/apt'
+export INST64_GCLOUD_REPOSITORY_KEY_DEB='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
+
 #
 # Functions
 #
 
-# repo definition: https://cloud.google.com/sdk/docs/install#rpm
-function inst64_gcloud_install_el8() {
-  local repository_name='google-cloud-cli'
-  local repository_platform='x86_64'
-  local repository_url="https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-${repository_platform}"
-  local repository_key='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
-  local packages='google-cloud-cli'
+function inst64_gcloud_select_packages() {
+  bl64_dbg_app_show_function
+  local packages=''
+  if bl64_os_match "$BL64_OS_OL"; then
+    packages='google-cloud-cli'
+  elif bl64_os_match "$BL64_OS_UB"; then
+    packages='google-cloud-cli'
+  fi
+  [[ -n "$packages" ]] && echo "$packages"
+}
 
-  bl64_msg_show_task 'Add YUM package repository'
-  bl64_pkg_repository_add "$repository_name" "$repository_url" "$repository_key" ||
+function inst64_gcloud_add_repository() {
+  local repository_url=''
+  local repository_key=''
+  local repository_extra_1=''
+  local repository_extra_2=''
+
+  bl64_msg_show_task 'Add external package repository'
+  if bl64_os_match "$BL64_OS_OL"; then
+    repository_url="${INST64_GCLOUD_SOURCE_RHEL}/cloud-sdk-el8-${INST64_GCLOUD_PLATFORM_RHEL}"
+    repository_key="$INST64_GCLOUD_REPOSITORY_KEY_RHEL"
+    bl64_pkg_repository_add "$INST64_GCLOUD_REPOSITORY_NAME" \
+      "$repository_url" "$repository_key" \
+      "$repository_extra_1" "$repository_extra_2"
+  elif bl64_os_match "${BL64_OS_UB}-22"; then
+    repository_url="${INST64_GCLOUD_SOURCE_DEB}"
+    repository_key="$INST64_GCLOUD_REPOSITORY_KEY_DEB"
+    repository_extra_1='cloud-sdk'
+    repository_extra_2='main'
+    bl64_pkg_deploy 'gnupg' 'lsb-release' &&
+      bl64_rxtx_run_curl -sLS "$repository_key" |
+      apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - &&
+      echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] ${repository_url} ${repository_extra_1} ${repository_extra_2}" |
+      "$BL64_OS_CMD_TEE" /etc/apt/sources.list.d/google-cloud-sdk.list >/dev/null
+  fi
+}
+
+function inst64_gcloud_install_external_packages() {
+  bl64_dbg_app_show_function
+  local packages=''
+
+  inst64_gcloud_add_repository ||
     return $?
 
   bl64_msg_show_task 'deploy packages'
+  packages="$(inst64_gcloud_select_packages)" ||
+    return $?
   # shellcheck disable=SC2086
   bl64_pkg_deploy $packages
 }
@@ -75,16 +119,9 @@ function inst64_gcloud_install_el8() {
 #######################################
 function inst64_gcloud_install() {
   bl64_dbg_app_show_function
-
-  if bl64_os_match "${BL64_OS_OL}"; then
-    inst64_gcloud_install_el8
+  if [[ "$INST64_GCLOUD_METHOD" == 'EXTERNAL' ]]; then
+    inst64_gcloud_install_external_packages
   fi
-  # shellcheck disable=SC2181
-  (($? != 0)) && return 1
-
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_cleanup_full
-  return 0
 }
 
 #######################################
@@ -101,7 +138,12 @@ function inst64_gcloud_install() {
 function inst64_gcloud_initialize() {
   bl64_dbg_app_show_function
 
-  bl64_os_check_version "${BL64_OS_OL}-9" &&
+  bl64_os_check_version \
+    "${BL64_OS_UB}-22" \
+    "${BL64_OS_OL}-9" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GCLOUD_METHOD' \
+      "$INST64_GCLOUD_METHOD" \
+      'EXTERNAL' &&
     bl64_check_privilege_root &&
     bl64_pkg_setup
 }
@@ -111,7 +153,6 @@ function inst64_gcloud_initialize() {
 #
 
 declare inst64_gcloud_installer_description='Install application: GCloud CLI'
-declare -i inst64_gcloud_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_gcloud_installer_description"
@@ -119,7 +160,5 @@ bl64_msg_show_batch_start "$inst64_gcloud_installer_description"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_gcloud_initialize &&
   inst64_gcloud_install
-inst64_gcloud_status=$?
 
-bl64_msg_show_batch_finish "$inst64_gcloud_status" "$inst64_gcloud_installer_description"
-exit $inst64_gcloud_status
+bl64_msg_show_batch_finish $? "$inst64_gcloud_installer_description"

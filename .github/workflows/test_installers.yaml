@@ -1,0 +1,37 @@
+---
+# Template: 3.0.0
+name: "Test / Installers"
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "feature/**"
+    paths:
+      - "src/**"
+      - "test/**"
+
+jobs:
+  test-installers:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - "ALP"
+          - "UB"
+          - "OL"
+    steps:
+
+      - name: "Check out repository code"
+        uses: "actions/checkout@main"
+
+      - name: "Prepare build environment"
+        run: "./bin/dev-lib-bashlib64"
+
+      - name: "Run tests"
+        shell: 'script -q -e -c "bash {0}"'
+        run: "./bin/dev-test-installers ${{matrix.target}}"
+...
