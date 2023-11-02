@@ -47,9 +47,9 @@ export INST64_GCLOUD_PLATFORM_RHEL="${INST64_GCLOUD_PLATFORM:-x86_64}"
 
 export INST64_GCLOUD_REPOSITORY_NAME='google-cloud-sdk'
 export INST64_GCLOUD_SOURCE_RHEL='https://packages.cloud.google.com/yum/repos'
-export INST64_GCLOUD_KEY_RHEL='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+export INST64_GCLOUD_REPOSITORY_KEY_RHEL='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
 export INST64_GCLOUD_SOURCE_DEB='https://packages.cloud.google.com/apt'
-export INST64_GCLOUD_KEY_DEB='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
+export INST64_GCLOUD_REPOSITORY_KEY_DEB='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
 
 #
 # Functions
@@ -75,19 +75,19 @@ function inst64_gcloud_add_repository() {
   bl64_msg_show_task 'Add external package repository'
   if bl64_os_match "$BL64_OS_OL"; then
     repository_url="${INST64_GCLOUD_SOURCE_RHEL}/cloud-sdk-el8-${INST64_GCLOUD_PLATFORM_RHEL}"
-    repository_key="$INST64_GCLOUD_KEY_RHEL"
+    repository_key="$INST64_GCLOUD_REPOSITORY_KEY_RHEL"
     bl64_pkg_repository_add "$INST64_GCLOUD_REPOSITORY_NAME" \
       "$repository_url" "$repository_key" \
       "$repository_extra_1" "$repository_extra_2"
   elif bl64_os_match "${BL64_OS_UB}-22"; then
     repository_url="${INST64_GCLOUD_SOURCE_DEB}"
-    repository_key="$INST64_GCLOUD_KEY_DEB"
+    repository_key="$INST64_GCLOUD_REPOSITORY_KEY_DEB"
     repository_extra_1='cloud-sdk'
     repository_extra_2='main'
-    curl "$repository_key" |
+    bl64_rxtx_run_curl -sLS "$repository_key" |
       apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - &&
       echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] ${repository_url} ${repository_extra_1} ${repository_extra_2}" |
-      tee /etc/apt/sources.list.d/google-cloud-sdk.list > /dev/null
+      "$BL64_OS_CMD_TEE" /etc/apt/sources.list.d/google-cloud-sdk.list > /dev/null
   fi
 }
 
