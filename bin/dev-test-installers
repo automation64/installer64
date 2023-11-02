@@ -20,13 +20,13 @@ source "$DEV_CICD_BASHLIB64" || exit 1
 #
 
 function dev_test_run() {
-  local container_image="$1"
+  local test_target="$1"
   local container_path_installer64='/opt/installer64'
   local container_path_bl64='/opt/bl64'
   local container_path_test='/test'
   local container_uri=''
-  local image_name="DEV_TEST_CONTAINER_${container_image}"
-  local test_list="DEV_TEST_LIST_${container_image}"
+  local image_name="DEV_TEST_CONTAINER_${test_target}"
+  local test_list="DEV_TEST_LIST_${test_target}"
   local test_file=''
 
   [[ ! -v "$image_name" ]] && bl64_msg_show_error "invalid container image CICD variable name (${image_name})" && return 1
@@ -53,14 +53,14 @@ function dev_test_run() {
 # Main
 #
 
-declare -u container_image="${1:-}"
+declare -u test_target="${1:-}"
 
-bl64_check_parameter 'container_image' &&
+bl64_check_parameter 'test_target' &&
   bl64_check_export 'DEV_CICD_TEST_CASES' &&
   bl64_cnt_setup ||
   exit 1
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start 'test-installer'
-dev_test_run "$container_image"
+dev_test_run "$test_target"
 bl64_msg_show_batch_finish $? 'test-installer'
