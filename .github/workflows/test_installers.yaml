@@ -17,6 +17,7 @@ jobs:
   test-installers:
     runs-on: "ubuntu-latest"
     strategy:
+      fail-fast: false
       matrix:
         target:
           - "ALP"
