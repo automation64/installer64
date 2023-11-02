@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         target:
-          - "APL"
+          - "ALP"
           - "UB"
           - "OL"
     steps:
