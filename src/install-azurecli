@@ -82,7 +82,8 @@ function inst64_azurecli_add_repository() {
     repository_url="$INST64_AZURECLI_SOURCE_DEB"
     repository_key="$INST64_AZURECLI_REPOSITORY_KEY_DEB"
     repository_extra_2='main'
-    bl64_rxtx_run_curl -sLS "$repository_key" |
+    bl64_pkg_deploy 'gnupg' 'lsb-release' &&
+      bl64_rxtx_run_curl -sLS "$repository_key" |
       gpg --dearmor | "$BL64_OS_CMD_TEE" "$repository_key_file" >/dev/null &&
       bl64_fs_run_chmod go+r "$repository_key_file" &&
       repository_extra_1="$(lsb_release -cs)" &&
