@@ -37,7 +37,7 @@ function dev_test_run() {
   container_uri="${DEV_CICD_TEST_REGISTRY}/${!image_name}"
   bl64_msg_show_info "target test container: ${container_uri}"
   for test_file in ${!test_list}; do
-    bl64_msg_show_task "run installer test (${test_file})"
+    bl64_msg_show_phase "run installer test (${test_file})"
     bl64_cnt_run \
       $BL64_CNT_SET_RM \
       $BL64_CNT_SET_TTY \
