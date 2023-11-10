@@ -45,23 +45,27 @@ Parameter name format: `INST64_<INSTALLER_NAME>_<PARAMETER_NAME>`
 
 Common parameters:
 
+- `INST64_<INSTALLER_NAME>_DEVELOPMENT`: install development components?. Applicable to packages that separates runtime and development.
+- `INST64_<INSTALLER_NAME>_METHOD`: installation method. See `Installation methods` section for further details
 - `INST64_<INSTALLER_NAME>_PLATFORM`: hardware platform (e.g.: linux_amd64, etc.)
+- `INST64_<INSTALLER_NAME>_REINSTALL`: for `BINARY` installation method only. Reinstall (replace) application if already present?.
 - `INST64_<INSTALLER_NAME>_SOURCE`: package source URL (e.g.: GitHub repository, Distro repository, etc.)
 - `INST64_<INSTALLER_NAME>_TARGET`: full path to the installation destination.
 - `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format.
-- `INST64_<INSTALLER_NAME>_METHOD`: installation method. See `Installation methods` section for further details
-- `INST64_<INSTALLER_NAME>_REINSTALL`: for `BINARY` installation method only. Reinstall (replace) application if already present?.
-- `INST64_<INSTALLER_NAME>_DEVELOPMENT`: install development components?. Applicable to packages that separates runtime and development.
 
 ### Installation methods
 
 _Installer64_ will implement the best available installation method for each application.
 The selection criteria is based on the following priority list:
 
-1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc
-2. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
-3. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
-4. `BINARY`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
+1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
+1. `EXTERNAL`: application is distributed using OS standard packages, stored in external package repository.
+1. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
+1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
+1. `BINARY`: application is distributed as a single pre-compiled binary. For example, GO based tools.
+1. `HELM`: application is distributed as a Helm package.
+1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package.
+1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
 
 ## Usage
 
