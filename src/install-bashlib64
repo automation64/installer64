@@ -28,10 +28,7 @@
 #
 
 # Base Installer64 parameters
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
 export INST64_DEBUG="${INST64_DEBUG:-}"
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 #
@@ -97,13 +94,13 @@ function inst64_bashlib64_open_binary_package() {
 
   echo "Task: install packages (${package_name})"
   [[ -f "$package_name" ]] &&
-    tar zxf "$package_name" ||
+    tar zxf "$package_name" &&
+    chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
     chown -R "${app_target_owner}:${app_target_owner}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
-  chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/*
   rm -f "$package_name"
   return 0
 }
@@ -174,9 +171,10 @@ function inst64_bashlib64_prepare() {
   echo "Task: prepare destination (${INST64_BASHLIB64_TARGET})"
   if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
     mkdir "$INST64_BASHLIB64_TARGET" &&
-      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET"
+      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET" ||
+      return $?
   fi
-  cd "$INST64_BASHLIB64_TARGET" || return 1
+  cd "$INST64_BASHLIB64_TARGET" || return $?
 }
 
 #######################################
