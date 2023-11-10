@@ -136,7 +136,7 @@ declare inst64_gitui_installer_description='Install application: GitUI'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_gitui_installer_description"
 
-[[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_gitui_initialize &&
   inst64_gitui_install
 bl64_msg_show_batch_finish $? "$inst64_gitui_installer_description"

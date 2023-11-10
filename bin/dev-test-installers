@@ -57,7 +57,7 @@ function dev_test_run() {
 
 declare -u test_target="${1:-}"
 
-[[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_lib_enable
+[[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 
 bl64_check_parameter 'test_target' &&
   bl64_check_export 'DEV_CICD_TEST_CASES' &&
