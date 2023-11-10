@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.3.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Repository: https://github.com/automation64/bashlib64
+# Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -38,12 +38,83 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Globals
 #
 
-export INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://raw.githubusercontent.com/automation64/bashlib64/main/bashlib64.bash}"
+# Installation method
+export INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
+export INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/automation64/bashlib64}"
 export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+export INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
+
+export INST64_BASHLIB64_PACKAGES='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
+export INST64_BASHLIB64_DOWNLOAD_TOOL='none'
+export INST64_BASHLIB64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
 
 #
 # Functions
 #
+
+function inst64_bashlib64_identify_latest() {
+  # shellcheck disable=SC2249
+  case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
+  'curl')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -s \
+      "$INST64_BASHLIB64_GH_API" |
+      grep '"tag_name":'
+    ;;
+  'wget')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -q -O- \
+      "$INST64_BASHLIB64_GH_API" |
+      grep '"tag_name":'
+    ;;
+  esac
+}
+
+function inst64_bashlib64_download_binary_package() {
+  local package_name="$1"
+  local package_url=''
+
+  package_url="${INST64_BASHLIB64_SOURCE}/releases/download/${INST64_BASHLIB64_VERSION}/${package_name}"
+  echo "Task: download package (${package_url})"
+  # shellcheck disable=SC2249
+  case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
+  'curl')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      --remote-name --location "$package_url"
+    ;;
+  'wget')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      "$package_url"
+    ;;
+  esac
+}
+
+function inst64_bashlib64_open_binary_package() {
+  local package_name="$1"
+  local app_target_owner='root'
+
+  echo "Task: install packages (${package_name})"
+  [[ -f "$package_name" ]] &&
+    tar zxf "$package_name" ||
+    return $?
+  if [[ "$EUID" == '0' ]]; then
+    chown -R "${app_target_owner}:${app_target_owner}" "${INST64_BASHLIB64_TARGET}" ||
+      return $?
+  fi
+  chmod 0644 "$INST64_BASHLIB64_TARGET"/*
+  rm -f "$package_name"
+  return 0
+}
+
+function inst64_bashlib64_install_binary_release() {
+  local package_name=''
+
+  for package_name in $INST64_BASHLIB64_PACKAGES; do
+    inst64_bashlib64_download_binary_package "$package_name" &&
+      inst64_bashlib64_open_binary_package "$package_name" ||
+      return $?
+  done
+}
 
 #######################################
 # Install application packages
@@ -57,23 +128,69 @@ export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl
 #   >0: unable to install package
 #######################################
 function inst64_bashlib64_install() {
-  local package_name='bashlib64.bash'
+  inst64_bashlib64_select_packages || return $?
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
+    inst64_bashlib64_install_binary_release
+  fi
+}
 
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_bashlib64_select_packages() {
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_BASHLIB64_VERSION" == 'latest' ]]; then
+      INST64_BASHLIB64_VERSION="$(inst64_bashlib64_identify_latest)" &&
+        INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION##*:??}" &&
+        INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION%%?,*}"
+    fi
+  fi
+  [[ -z "$INST64_BASHLIB64_VERSION" ]] && echo 'Error: unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_bashlib64_prepare() {
   echo "Task: prepare destination (${INST64_BASHLIB64_TARGET})"
   if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
     mkdir "$INST64_BASHLIB64_TARGET" &&
       chmod 755 "$INST64_BASHLIB64_TARGET"
   fi
   cd "$INST64_BASHLIB64_TARGET" || return 1
+}
 
-  echo "Task: install packages (${INST64_BASHLIB64_SOURCE})"
-  case "$inst64_bashlib64_download_tool" in
-  'curl') curl --remote-name --location "$INST64_BASHLIB64_SOURCE" || return $? ;;
-  'wget') wget "$INST64_BASHLIB64_SOURCE" || return $? ;;
-  *) return 1 ;;
-  esac
-
-  [[ -f "$package_name" ]] && chmod 644 "$package_name"
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_bashlib64_verify() {
+  echo 'Task: verify deployment'
+  BL64_LIB_CMD='1' bash "${INST64_BASHLIB64_TARGET}/bashlib64.bash" 'true'
 }
 
 #######################################
@@ -88,37 +205,38 @@ function inst64_bashlib64_install() {
 #   >: failed to initialize
 #######################################
 function inst64_bashlib64_initialize() {
-  if [[ "$EUID" != '0' ]]; then
-    echo 'Error: script must be run as root user'
+  [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
+    echo 'Error: unsupported installation method' &&
     return 1
-  fi
 
   if command -v 'curl' >/dev/null 2>&1; then
-    inst64_bashlib64_download_tool='curl'
+    INST64_BASHLIB64_DOWNLOAD_TOOL='curl'
   elif command -v 'wget' >/dev/null 2>&1; then
-    inst64_bashlib64_download_tool='wget'
+    INST64_BASHLIB64_DOWNLOAD_TOOL='wget'
   else
     echo 'Error: no donwload tool found (curl, wget)'
     return 1
   fi
+
 }
 
 #
 # Main
 #
 
-declare inst64_bashlib64_task_title='Install application: BashLib64'
+declare inst64_bashlib64_task_description='Install application: BashLib64'
 declare -i inst64_bashlib64_status=0
-declare inst64_bashlib64_download_tool='none'
 
-echo "Process: [${inst64_bashlib64_task_title}] started"
+echo "Process: [${inst64_bashlib64_task_description}] started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
 inst64_bashlib64_initialize &&
-  inst64_bashlib64_install
+  inst64_bashlib64_prepare &&
+  inst64_bashlib64_install &&
+  inst64_bashlib64_verify
 inst64_bashlib64_status=$?
 
 ((inst64_bashlib64_status == 0)) &&
-  echo "Process: [${inst64_bashlib64_task_title}] finished successfully" ||
-  echo "Process: [${inst64_bashlib64_task_title}] finished with errors: exit-status-${inst64_bashlib64_status}"
+  echo "Process: [${inst64_bashlib64_task_description}] finished successfully" ||
+  echo "Process: [${inst64_bashlib64_task_description}] finished with errors: exit-status-${inst64_bashlib64_status}"
 exit $inst64_bashlib64_status
