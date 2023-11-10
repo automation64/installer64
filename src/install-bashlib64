@@ -44,9 +44,11 @@ export INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/au
 export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
 export INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
-export INST64_BASHLIB64_PACKAGES='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
 export INST64_BASHLIB64_DOWNLOAD_TOOL='none'
 export INST64_BASHLIB64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
+export INST64_BASHLIB64_PACKAGES='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
+export INST64_BASHLIB64_TARGET_MODE_DIR='0755'
+export INST64_BASHLIB64_TARGET_MODE_FILE='0644'
 
 #
 # Functions
@@ -101,7 +103,7 @@ function inst64_bashlib64_open_binary_package() {
     chown -R "${app_target_owner}:${app_target_owner}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
-  chmod 0644 "$INST64_BASHLIB64_TARGET"/*
+  chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/*
   rm -f "$package_name"
   return 0
 }
@@ -172,7 +174,7 @@ function inst64_bashlib64_prepare() {
   echo "Task: prepare destination (${INST64_BASHLIB64_TARGET})"
   if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
     mkdir "$INST64_BASHLIB64_TARGET" &&
-      chmod 755 "$INST64_BASHLIB64_TARGET"
+      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET"
   fi
   cd "$INST64_BASHLIB64_TARGET" || return 1
 }
