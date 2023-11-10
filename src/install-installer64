@@ -27,8 +27,9 @@
 # Imports
 #
 
-# Base Installer64 parameters
+# Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
+# Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 #
@@ -37,8 +38,11 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 # Installation method
 export INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
+# Source repository
 export INST64_INSTALLER64_SOURCE="${INST64_INSTALLER64_SOURCE:-https://github.com/automation64/installer64}"
+# Target installation directory
 export INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/installer64}"
+# Target application version
 export INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 
 export INST64_INSTALLER64_DOWNLOAD_TOOL='none'

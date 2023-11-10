@@ -27,12 +27,16 @@
 # Imports
 #
 
-# Base Installer64 parameters
+# BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+# Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+# Base path for local applications
 export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+# Local applications binaries location
 export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
