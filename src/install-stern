@@ -46,6 +46,7 @@ source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the
 # Installation method
 export INST64_STERN_METHOD="${INST64_STERN_METHOD:-KREW}"
 
+export INST64_STERN_PACKAGES=''
 export INST64_STERN_K8S_KUBECONFIG="${INST64_STERN_K8S_KUBECONFIG:-$BL64_VAR_DEFAULT}"
 export INST64_STERN_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
 
@@ -55,16 +56,13 @@ export INST64_STERN_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
 
 function inst64_stern_install_krew_package() {
   bl64_dbg_app_show_function
-  local packages=''
 
   bl64_msg_show_task 'deploy application to local kubectl'
-  packages="$(inst64_stern_select_packages)" ||
-    return $?
   # shellcheck disable=SC2086
   bl64_k8s_run_kubectl_plugin \
     "$INST64_STERN_K8S_KUBECONFIG" \
     krew install \
-    $packages
+    $INST64_STERN_PACKAGES
 }
 
 #######################################
@@ -80,6 +78,7 @@ function inst64_stern_install_krew_package() {
 #######################################
 function inst64_stern_install() {
   bl64_dbg_app_show_function
+  inst64_stern_select_packages || return $?
   if [[ "$INST64_STERN_METHOD" == 'KREW' ]]; then
     inst64_stern_install_krew_package
   fi
@@ -98,12 +97,11 @@ function inst64_stern_install() {
 #######################################
 function inst64_stern_select_packages() {
   bl64_dbg_app_show_function
-  local packages=''
   if [[ "$INST64_STERN_METHOD" == 'KREW' ]]; then
-    packages='stern'
+    INST64_STERN_PACKAGES='stern'
   fi
-  [[ -z "$packages" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  echo "$packages"
+  [[ -z "$INST64_STERN_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
 }
 
 #######################################
