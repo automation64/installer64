@@ -56,6 +56,7 @@ export INST64_KSNIFF_METHOD="${INST64_KSNIFF_METHOD:-KREW}"
 export INST64_KSNIFF_K8S_KUBECONFIG="${INST64_KSNIFF_K8S_KUBECONFIG:-$BL64_VAR_DEFAULT}"
 export INST64_KSNIFF_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
 export INST64_KSNIFF_PACKAGES=''
+export INST64_KSNIFF_CLI_NAME='sniff'
 
 #
 # Functions
@@ -143,7 +144,7 @@ function inst64_ksniff_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   bl64_k8s_run_kubectl_plugin "$INST64_KSNIFF_K8S_KUBECONFIG" \
-    sniff --help > /dev/null
+    "$INST64_KSNIFF_CLI_NAME" --help > /dev/null
 }
 
 #######################################

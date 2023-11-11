@@ -56,6 +56,8 @@ export INST64_KUBEPUG_METHOD="${INST64_KUBEPUG_METHOD:-KREW}"
 export INST64_KUBEPUG_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
 export INST64_KUBEPUG_K8S_KUBECONFIG="${INST64_KUBEPUG_K8S_KUBECONFIG:-$BL64_VAR_DEFAULT}"
 export INST64_KUBEPUG_PACKAGES=''
+export INST64_KUBEPUG_CLI_NAME='deprecations'
+
 
 #
 # Functions
@@ -143,7 +145,7 @@ function inst64_kubepug_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   bl64_k8s_run_kubectl_plugin "$INST64_KUBEPUG_K8S_KUBECONFIG" \
-    deprecations version
+    "$INST64_KUBEPUG_CLI_NAME" version
 }
 
 #######################################
