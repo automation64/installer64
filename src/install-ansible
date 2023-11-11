@@ -27,15 +27,20 @@
 # Imports
 #
 
-# Base Installer64 parameters
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+# BashLib64 location
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
+# Base path for local applications
 export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+# Local applications binaries location
 export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
-source "$INST64_BASHLIB64" || { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+source "${INST64_BASHLIB64}/bashlib64.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
 #
 # Globals
@@ -147,7 +152,7 @@ declare inst64_ansible_installer_description='Install application: Ansible (dedi
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_ansible_installer_description"
 
-[[ -n "$INST64_DEBUG" ]] && bl64_dbg_lib_enable
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_ansible_initialize &&
   inst64_ansible_install
 

@@ -23,7 +23,7 @@ export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
 # Main
 #
 
-[[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_lib_enable
+[[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 
 bl64_check_export 'DEV_CICD_TESTMANSH' &&
   bl64_check_export 'DEV_BASE_SRC' ||

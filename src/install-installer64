@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 1.3.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -27,47 +27,96 @@
 # Imports
 #
 
-# Base Installer64 parameters
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64/bashlib64.bash}"
+# Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 #
 # Globals
 #
 
+# Installation method
+export INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
+# Source repository
 export INST64_INSTALLER64_SOURCE="${INST64_INSTALLER64_SOURCE:-https://github.com/automation64/installer64}"
+# Target installation directory
 export INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/installer64}"
+# Target application version
 export INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
+
+export INST64_INSTALLER64_DOWNLOAD_TOOL='none'
+export INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
+export INST64_INSTALLER64_PACKAGES=''
+export INST64_INSTALLER64_TARGET_MODE_DIR='0755'
+export INST64_INSTALLER64_TARGET_MODE_FILE='0755'
 
 #
 # Functions
 #
 
 function inst64_installer64_identify_latest() {
-  local github_query='https://api.github.com/repos/automation64/installer64/releases/latest'
+  # shellcheck disable=SC2249
   case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
-  'curl') curl -s "$github_query" ;;
-  'wget') wget -q -O- "$github_query" ;;
-  *) return 1 ;;
-  esac | \
-  grep '"tag_name": "v'
+  'curl')
+    "$INST64_INSTALLER64_DOWNLOAD_TOOL" \
+      -s \
+      "$INST64_INSTALLER64_GH_API" |
+      grep '"tag_name":'
+    ;;
+  'wget')
+    "$INST64_INSTALLER64_DOWNLOAD_TOOL" \
+      -q -O- \
+      "$INST64_INSTALLER64_GH_API" |
+      grep '"tag_name":'
+    ;;
+  esac
 }
 
-function inst64_installer64_select_version() {
-  local version_target=''
+function inst64_installer64_download_binary_package() {
+  local package_name="$1"
+  local package_url=''
 
-  if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
-    version_target="$(inst64_installer64_identify_latest)"
-    version_target="${version_target##*:??}"
-    version_target="${version_target%%?,*}"
-  else
-    version_target="$INST64_INSTALLER64_VERSION"
+  package_url="${INST64_INSTALLER64_SOURCE}/releases/download/${INST64_INSTALLER64_VERSION}/${package_name}"
+  echo "Task: download package (${package_url})"
+  # shellcheck disable=SC2249
+  case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
+  'curl')
+    "$INST64_INSTALLER64_DOWNLOAD_TOOL" \
+      --remote-name --location "$package_url"
+    ;;
+  'wget')
+    "$INST64_INSTALLER64_DOWNLOAD_TOOL" \
+      "$package_url"
+    ;;
+  esac
+}
+
+function inst64_installer64_open_binary_package() {
+  local package_name="$1"
+  local app_target_owner='root'
+
+  echo "Task: install packages (${package_name})"
+  [[ -f "$package_name" ]] &&
+    tar zxf "$package_name" &&
+    chmod "$INST64_INSTALLER64_TARGET_MODE_FILE" "$INST64_INSTALLER64_TARGET"/* ||
+    return $?
+  if [[ "$EUID" == '0' ]]; then
+    chown -R "${app_target_owner}:${app_target_owner}" "${INST64_INSTALLER64_TARGET}" ||
+      return $?
   fi
+  rm -f "$package_name"
+  return 0
+}
 
-  [[ -n "$version_target" ]] && echo "$version_target"
+function inst64_installer64_install_binary_release() {
+  local package_name=''
+
+  for package_name in $INST64_INSTALLER64_PACKAGES; do
+    inst64_installer64_download_binary_package "$package_name" &&
+      inst64_installer64_open_binary_package "$package_name" ||
+      return $?
+  done
 }
 
 #######################################
@@ -82,35 +131,73 @@ function inst64_installer64_select_version() {
 #   >0: unable to install package
 #######################################
 function inst64_installer64_install() {
-  local package_name='installer64-scripts.tgz'
-  local package_path='releases/download'
-  local package_url=''
-  local package_version=''
-  local app_target_owner='root'
+  inst64_installer64_select_packages || return $?
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    inst64_installer64_install_binary_release
+  fi
+}
 
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_installer64_select_packages() {
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    INST64_INSTALLER64_PACKAGES='installer64-scripts.tgz'
+    if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
+      INST64_INSTALLER64_VERSION="$(inst64_installer64_identify_latest)" &&
+        INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION##*:??}" &&
+        INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION%%?,*}"
+    fi
+  fi
+  [[ -z "$INST64_INSTALLER64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
+  [[ -z "$INST64_INSTALLER64_PACKAGES" ]] && echo 'Error: unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_installer64_prepare() {
   echo "Task: prepare destination (${INST64_INSTALLER64_TARGET})"
   if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
     mkdir "$INST64_INSTALLER64_TARGET" &&
-      chmod 755 "$INST64_INSTALLER64_TARGET"
-  fi
-  cd "$INST64_INSTALLER64_TARGET" || return 1
-
-  echo "Task: download package (${INST64_INSTALLER64_SOURCE})"
-  package_version="$(inst64_installer64_select_version)" || return $?
-  package_url="${INST64_INSTALLER64_SOURCE}/${package_path}/${package_version}/${package_name}"
-  case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
-  'curl') curl --remote-name --location "$package_url" || return $? ;;
-  'wget') wget "$package_url" || return $? ;;
-  *) return 1 ;;
-  esac
-
-  echo "Task: install package (${INST64_INSTALLER64_TARGET})"
-  if [[ -f "$package_name" ]]; then
-    tar zxf "$package_name" &&
-      chown -R "${app_target_owner}:${app_target_owner}" "${INST64_INSTALLER64_TARGET}" ||
+      chmod "$INST64_INSTALLER64_TARGET_MODE_DIR" "$INST64_INSTALLER64_TARGET" ||
       return $?
-    rm -f "$package_name"
   fi
+  cd "$INST64_INSTALLER64_TARGET" || return $?
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_installer64_verify() {
+  echo 'Task: verify deployment'
+  [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
+    [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]]
 }
 
 #######################################
@@ -125,10 +212,9 @@ function inst64_installer64_install() {
 #   >: failed to initialize
 #######################################
 function inst64_installer64_initialize() {
-  if [[ "$EUID" != '0' ]]; then
-    echo 'Error: script must be run as root user'
+  [[ "$INST64_INSTALLER64_METHOD" != 'BINARY' ]] &&
+    echo 'Error: unsupported installation method' &&
     return 1
-  fi
 
   if command -v 'curl' >/dev/null 2>&1; then
     INST64_INSTALLER64_DOWNLOAD_TOOL='curl'
@@ -138,24 +224,26 @@ function inst64_installer64_initialize() {
     echo 'Error: no donwload tool found (curl, wget)'
     return 1
   fi
+
 }
 
 #
 # Main
 #
 
-declare inst64_installer64_task_title='Install application: Installer64'
+declare inst64_installer64_task_description='Install application: Installer64'
 declare -i inst64_installer64_status=0
-declare INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 
-echo "Process: [${inst64_installer64_task_title}] started"
+echo "Process: [${inst64_installer64_task_description}] started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
 inst64_installer64_initialize &&
-  inst64_installer64_install
+  inst64_installer64_prepare &&
+  inst64_installer64_install &&
+  inst64_installer64_verify
 inst64_installer64_status=$?
 
 ((inst64_installer64_status == 0)) &&
-  echo "Process: [${inst64_installer64_task_title}] finished successfully" ||
-  echo "Process: [${inst64_installer64_task_title}] finished with errors: exit-status-${inst64_installer64_status}"
+  echo "Process: [${inst64_installer64_task_description}] finished successfully" ||
+  echo "Process: [${inst64_installer64_task_description}] finished with errors: exit-status-${inst64_installer64_status}"
 exit $inst64_installer64_status
