@@ -47,7 +47,7 @@ export INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
 export INST64_BASHLIB64_DOWNLOAD_TOOL='none'
 export INST64_BASHLIB64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
-export INST64_BASHLIB64_PACKAGES='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
+export INST64_BASHLIB64_PACKAGES=''
 export INST64_BASHLIB64_TARGET_MODE_DIR='0755'
 export INST64_BASHLIB64_TARGET_MODE_FILE='0644'
 
@@ -150,13 +150,15 @@ function inst64_bashlib64_install() {
 #######################################
 function inst64_bashlib64_select_packages() {
   if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
+    INST64_BASHLIB64_PACKAGES='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
     if [[ "$INST64_BASHLIB64_VERSION" == 'latest' ]]; then
       INST64_BASHLIB64_VERSION="$(inst64_bashlib64_identify_latest)" &&
         INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION##*:??}" &&
         INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION%%?,*}"
     fi
   fi
-  [[ -z "$INST64_BASHLIB64_VERSION" ]] && echo 'Error: unable to determine package name' && return 1
+  [[ -z "$INST64_BASHLIB64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
+  [[ -z "$INST64_BASHLIB64_PACKAGES" ]] && echo 'Error: unable to determine package name' && return 1
   return 0
 }
 

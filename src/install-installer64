@@ -47,7 +47,7 @@ export INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 
 export INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 export INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
-export INST64_INSTALLER64_PACKAGES='installer64-scripts.tgz'
+export INST64_INSTALLER64_PACKAGES=''
 export INST64_INSTALLER64_TARGET_MODE_DIR='0755'
 export INST64_INSTALLER64_TARGET_MODE_FILE='0755'
 
@@ -150,13 +150,15 @@ function inst64_installer64_install() {
 #######################################
 function inst64_installer64_select_packages() {
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    INST64_INSTALLER64_PACKAGES='installer64-scripts.tgz'
     if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
       INST64_INSTALLER64_VERSION="$(inst64_installer64_identify_latest)" &&
         INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION##*:??}" &&
         INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION%%?,*}"
     fi
   fi
-  [[ -z "$INST64_INSTALLER64_VERSION" ]] && echo 'Error: unable to determine package name' && return 1
+  [[ -z "$INST64_INSTALLER64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
+  [[ -z "$INST64_INSTALLER64_PACKAGES" ]] && echo 'Error: unable to determine package name' && return 1
   return 0
 }
 
