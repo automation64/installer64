@@ -10,4 +10,4 @@ sudo /opt/installer64/install-kubectl &&
   /opt/installer64/install-krew ||
   exit $?
 
-/opt/installer64/install-stern
+bash --login /opt/installer64/install-stern
