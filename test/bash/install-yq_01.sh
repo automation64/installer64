@@ -5,4 +5,4 @@ if [[ "$INST64_TEST_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-sudo /opt/installer64/install-popeye
+sudo /opt/installer64/install-yq
