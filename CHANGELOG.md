@@ -5,13 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0]
+
+### Changed
+
+- Enabled support for Ubuntu-22, Alpine-3, Oraclelinux-9:
+  - Cosign
+  - Crane
+  - Dockle
+  - Hadolint
+  - Lazydocker
+
 ## [3.2.0]
 
 ### Added
 
-- YQ installer
-- Pluto installer
-- Kubeconform installer
+- Installers:
+  - YQ
+  - Pluto
+  - Kubeconform
 
 ## [3.1.0]
 
@@ -29,8 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0]
 
-### Added
 
+### Changed
+
+- ShellCheck: **breaking-change**
+  - replaced parameter `INST64_SHELLCHECK_FLAG_NATIVE` for `INST64_SHELLCHECK_METHOD`
 - ShellCheck: support for Ubuntu-22
 - KubeCTL: support for Ubuntu-22, Alpine3
 - Helm: support for Ubuntu-22
@@ -44,11 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Azure CLI: support for Ubuntu-22
 - GCloud CLI: support for Ubuntu-22
 - AWS CLI: support for Ubuntu-22
-
-### Changed
-
-- ShellCheck: **breaking-change**
-  - replaced parameter `INST64_SHELLCHECK_FLAG_NATIVE` for `INST64_SHELLCHECK_METHOD`
 
 ## [2.0.0]
 
@@ -157,6 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers migrated from Container64 project
 
+[3.3.0]: https://github.com/automation64/installer64/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/automation64/installer64/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/automation64/installer64/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/automation64/installer64/compare/v2.0.0...v3.0.0
