@@ -1,5 +1,4 @@
 ---
-# Template: 3.0.0
 name: "Test / Installers"
 
 on:
@@ -29,7 +28,7 @@ jobs:
         uses: "actions/checkout@main"
 
       - name: "Prepare build environment"
-        run: "./bin/dev-lib-bashlib64"
+        run: "./bin/dev-lib-installer64 && ./bin/dev-lib-bashlib64"
 
       - name: "Run tests"
         shell: 'script -q -e -c "bash {0}"'

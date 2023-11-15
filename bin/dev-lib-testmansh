@@ -5,7 +5,7 @@
 # * Use to download or install external tools, libraries, etc
 # * Tools and libs should go to lib/
 # * Do not include operations that requires privileged access (i.e. sudo)
-# * Template: 2.2.0
+# * Template: 3.0.0
 #
 
 #
@@ -15,7 +15,7 @@
 # shellcheck source=SCRIPTDIR/dev-set
 source ./bin/dev-set || exit 1
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
-source "$DEV_CICD_BASHLIB64" || exit 1
+source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 
 export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
 

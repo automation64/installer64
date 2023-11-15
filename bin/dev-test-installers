@@ -13,7 +13,7 @@
 source ./bin/dev-set || exit 1
 
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
-source "$DEV_CICD_BASHLIB64" || exit 1
+source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 
 export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
 
