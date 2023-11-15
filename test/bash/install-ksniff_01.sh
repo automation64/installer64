@@ -6,8 +6,9 @@ if [[ "$INST64_TEST_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 # Install requirements
+export PATH="${HOME}/.krew/bin:$PATH"
 sudo /opt/installer64/install-kubectl &&
   /opt/installer64/install-krew ||
   exit $?
 
-bash --login /opt/installer64/install-ksniff
+/opt/installer64/install-ksniff
