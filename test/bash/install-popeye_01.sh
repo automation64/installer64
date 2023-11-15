@@ -5,10 +5,4 @@ if [[ "$INST64_TEST_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-# Install requirements
-export PATH="${HOME}/.krew/bin:$PATH"
-sudo /opt/installer64/install-kubectl &&
-  /opt/installer64/install-krew ||
-  exit $?
-
-/opt/installer64/install-popeye
+sudo /opt/installer64/install-popeye
