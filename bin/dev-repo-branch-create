@@ -11,12 +11,9 @@
 
 # shellcheck source=SCRIPTDIR/dev-set
 source ./bin/dev-set || exit 1
-source "${DEV_CICD_BASHLIB64}/bashlib64-module-os.bash" &&
-  source "${DEV_CICD_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${DEV_CICD_BASHLIB64}/bashlib64-module-txt.bash" &&
-  source "${DEV_CICD_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${DEV_CICD_BASHLIB64}/bashlib64-module-vcs.bash" &&
-  source "${DEV_CICD_BASHLIB64}/bashlib64-core.bash" ||
+
+# shellcheck source=SCRIPTDIR/../lib/bl64/bashlib64.bash
+source "${DEV_CICD_BASHLIB64}/bashlib64.bash" ||
   exit 1
 
 export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
