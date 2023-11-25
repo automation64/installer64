@@ -29,10 +29,10 @@ bl64_check_parameter 'image' &&
   exit $?
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start 'lab-installers'
+bl64_msg_show_batch_start 'lab'
 bl64_msg_show_task "open container sanbox (${image}->${lab_path})"
 bl64_cnt_run_interactive \
   --volume="${DEV_SRC}:${lab_path}" \
   --entrypoint="$entrypoint" \
   "${DEV_CICD_LAB_REGISTRY}/${image}"
-bl64_msg_show_batch_finish $? 'lab-installers'
+bl64_msg_show_batch_finish $? 'lab'
