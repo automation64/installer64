@@ -18,7 +18,7 @@ source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 # Main
 #
 
-declare image="${image:-base/alpine-3-base:latest}"
+declare image="${1:-base/alpine-3-base:latest}"
 declare entrypoint='bash'
 declare lab_path='/lab'
 
