@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Create branch from main
+# Update GIT repository
 #
-# * Template: 2.0.0
+# * Template: 1.0.0
 #
 
 #
@@ -28,12 +28,12 @@ bl64_check_export 'DEV_CICD_BRANCH_MAIN' &&
   exit $?
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start 'repo-branch-create'
+bl64_msg_show_batch_start 'repo-update'
 
 bl64_msg_show_task "switch to main branch (${DEV_CICD_BRANCH_MAIN})"
   bl64_vcs_run_git checkout "$DEV_CICD_BRANCH_MAIN" &&
-  bl64_msg_show_task "create branch (${dev_repo_branch_name})" &&
-  bl64_vcs_run_git checkout -b "$dev_repo_branch_name"
-  bl64_msg_show_task "register branch in origin (${DEV_CICD_REPO_ORIGIN_NAME}/${dev_repo_branch_name})" &&
-  bl64_vcs_run_git push --set-upstream "${DEV_CICD_REPO_ORIGIN_NAME}" "${dev_repo_branch_name}"
-bl64_msg_show_batch_finish $? 'repo-branch-create'
+  bl64_msg_show_task "pull latest changes from upstream (${DEV_CICD_REPO_UPSTREAM_NAME})" &&
+  bl64_vcs_run_git pull "$DEV_CICD_REPO_UPSTREAM_NAME" "$DEV_CICD_BRANCH_MAIN" &&
+  bl64_msg_show_task "push changes to origin (${DEV_CICD_REPO_ORIGIN_NAME})" &&
+  bl64_vcs_run_git push "${DEV_CICD_REPO_ORIGIN_NAME}" "$DEV_CICD_BRANCH_MAIN"
+bl64_msg_show_batch_finish $? 'repo-update'

@@ -2,10 +2,9 @@
 #
 # Lint shell source code
 #
-# * Use to lint shell source code
 # * Check is done using shellcheck
 # * TestManSH is used to manage linting environment
-# * Template: 3.0.0
+# * Template: 3.0.1
 #
 
 #
@@ -15,9 +14,7 @@
 # shellcheck source=SCRIPTDIR/dev-set
 source ./bin/dev-set || exit 1
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
-source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
-
-export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
+source "${DEV_CICD_BASHLIB64}/bashlib64-core.bash" || exit 1
 
 #
 # Main
@@ -30,6 +27,6 @@ bl64_check_export 'DEV_CICD_TESTMANSH' &&
   exit $?
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start 'lint-app'
+bl64_msg_show_batch_start 'lint-bash'
 "$DEV_CICD_TESTMANSH" -t -o -c "${DEV_BASE_SRC}"
-bl64_msg_show_batch_finish $? 'lint-app'
+bl64_msg_show_batch_finish $? 'lint-bash'
