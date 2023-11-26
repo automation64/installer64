@@ -165,7 +165,7 @@ function inst64_mkdocs_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_MKDOCS_METHOD" == 'PIP' ]]; then
-    "${INST64_MKDOCS_CLI_NAME}" --version
+    "${HOME}/.local/bin/${INST64_MKDOCS_CLI_NAME}" --version
   fi
 }
 
