@@ -67,9 +67,7 @@ function inst64_python_install_os_packages() {
   bl64_pkg_deploy $INST64_PYTHON_PACKAGES ||
     return $?
   if bl64_os_match "${BL64_OS_ALP}-3"; then
-    bl64_msg_show_warning 'pipx native package not available. Using PIP method as root for system wide'
-    pip3 install pipx ||
-      return $?
+    bl64_msg_show_warning 'pipx native package not available. PIPX installation method will not be available.'
   fi
   return 0
 }
@@ -152,12 +150,7 @@ function inst64_python_prepare() {
 function inst64_python_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  bl64_msg_show_subtask 'python3'
-  "$INST64_PYTHON_CLI_NAME" --version &&
-    bl64_msg_show_subtask 'pip' &&
-    pip3 --version &&
-    bl64_msg_show_subtask 'pipx' &&
-  pipx --version
+  "$INST64_PYTHON_CLI_NAME" --version
 }
 
 #######################################
