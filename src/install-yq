@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -42,7 +42,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+# shellcheck source-path=SCRIPTDIR/../lib/bl64
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -192,13 +192,15 @@ function inst64_yq_initialize() {
   bl64_dbg_app_show_function
   bl64_os_check_version \
     "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
-    "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
-    "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
+    "${BL64_OS_ALP}-3" \
+    "${BL64_OS_CNT}-7" "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+    "${BL64_OS_DEB}-9" "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
     "${BL64_OS_FD}-33" "${BL64_OS_FD}-34" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" "${BL64_OS_FD}-37" "${BL64_OS_FD}-38" "${BL64_OS_FD}-39" \
-    "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+    "${BL64_OS_OL}-7" "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
     "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
     "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" \
-    "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
+    "${BL64_OS_SLES}-15" \
+    "${BL64_OS_UB}-18" "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_YQ_METHOD' \
       "$INST64_YQ_METHOD" \
       'BINARY' &&

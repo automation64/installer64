@@ -40,7 +40,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+# shellcheck source-path=SCRIPTDIR/../lib/bl64
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -150,7 +150,7 @@ function inst64_python_prepare() {
 function inst64_python_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_PYTHON_CLI_NAME" --version
+  "/usr/bin/${INST64_PYTHON_CLI_NAME}" --version
 }
 
 #######################################

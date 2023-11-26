@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enabled support for Alpine3
 - MkDocs
   - Enabled support for Alpine3
+- YQ
+  - Enabled support for Alpine3, Centos7, OL7, SLES15, UB18, Deb9
 
 ## [3.3.0]
 

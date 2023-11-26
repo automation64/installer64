@@ -38,7 +38,7 @@ export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
-# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+# shellcheck source-path=SCRIPTDIR/../lib/bl64
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -107,16 +107,16 @@ function inst64_batscore_initialize() {
 
   bl64_vcs_setup &&
     bl64_os_check_version \
-      "${BL64_OS_ALM}" \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_CNT}" \
-      "${BL64_OS_DEB}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_RCK}" \
-      "${BL64_OS_RHEL}" \
-      "${BL64_OS_SLES}" \
-      "${BL64_OS_UB}" &&
+    "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
+    "${BL64_OS_ALP}-3" \
+    "${BL64_OS_CNT}-7" "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+    "${BL64_OS_DEB}-9" "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
+    "${BL64_OS_FD}-33" "${BL64_OS_FD}-34" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" "${BL64_OS_FD}-37" "${BL64_OS_FD}-38" "${BL64_OS_FD}-39" \
+    "${BL64_OS_OL}-7" "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+    "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+    "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" \
+    "${BL64_OS_SLES}-15" \
+    "${BL64_OS_UB}-18" "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
     bl64_check_privilege_root
 }
 
