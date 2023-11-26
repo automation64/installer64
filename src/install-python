@@ -150,7 +150,7 @@ function inst64_python_prepare() {
 function inst64_python_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_PYTHON_CLI_NAME" --version
+  "/usr/bin/${INST64_PYTHON_CLI_NAME}" --version
 }
 
 #######################################
