@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Python3
   - Enabled support for Alpine3
+- MkDocs
+  - Enabled support for Alpine3
 
 ## [3.3.0]
 
