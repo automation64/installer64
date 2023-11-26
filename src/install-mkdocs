@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 2.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -31,8 +31,6 @@
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
-# Installer64 location
-export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
 # Base path for local applications
 export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
@@ -42,7 +40,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
+# shellcheck source=SCRIPTDIR/../lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -50,53 +48,27 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
+# Installation method
+export INST64_MKDOCS_METHOD="${INST64_MKDOCS_METHOD:-PIP}"
 export INST64_MKDOCS_VERSION="${INST64_MKDOCS_VERSION:-latest}"
-# Use OS native package?
-export INST64_MKDOCS_FLAG_NATIVE="${INST64_MKDOCS_FLAG_NATIVE:-$BL64_VAR_OFF}"
+export INST64_MKDOCS_PIPX_BIN='/usr/bin/pipx'
+export INST64_MKDOCS_PACKAGES=''
+export INST64_MKDOCS_CLI_NAME='mkdocs'
 
 #
 # Functions
 #
 
-function inst64_mkdocs_select_packages() {
-  local packages=''
-  local version_target=''
-
-  if [[ "$INST64_MKDOCS_VERSION" == 'latest' ]]; then
-    version_target=''
-  else
-    version_target="==${INST64_MKDOCS_VERSION}.*"
-  fi
-  packages="mkdocs${version_target}"
-
-  # Add plugins and dependencies
-  packages="$packages Markdown"
-  packages="$packages mdx-truly-sane-lists"
-  packages="$packages mkdocs-autorefs"
-  packages="$packages mkdocs-awesome-pages-plugin"
-  packages="$packages mkdocs-exclude"
-  packages="$packages mkdocs-include-markdown-plugin"
-  packages="$packages mkdocs-markmap"
-  packages="$packages mkdocs-material"
-  packages="$packages mkdocs-mermaid2-plugin"
-  packages="$packages mkdocs-minify-plugin"
-  packages="$packages mkdocstrings"
-  packages="$packages Pygments"
-  packages="$packages pymdown-extensions"
-
-  [[ -n "$packages" ]] && echo "$packages"
-}
-
 function inst64_mkdocs_install_with_pip() {
-  local packages=''
-
-  packages="$(inst64_mkdocs_select_packages)" ||
-    return $?
-
-  # shellcheck disable=SC2086
+  bl64_dbg_app_show_function
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy $packages
+    bl64_py_pip_usr_deploy "$INST64_MKDOCS_PACKAGES"
+}
+
+function inst64_mkdocs_install_with_pipx() {
+  bl64_dbg_app_show_function
+  pipx install "$INST64_MKDOCS_PACKAGES"
 }
 
 #######################################
@@ -112,8 +84,87 @@ function inst64_mkdocs_install_with_pip() {
 #######################################
 function inst64_mkdocs_install() {
   bl64_dbg_app_show_function
+  inst64_mkdocs_select_packages || return $?
   bl64_msg_show_task 'deploy application'
-  inst64_mkdocs_install_with_pip
+  if [[ "$INST64_MKDOCS_METHOD" == 'PIPX' ]]; then
+    inst64_mkdocs_install_with_pipx
+  elif [[ "$INST64_MKDOCS_METHOD" == 'PIP' ]]; then
+    inst64_mkdocs_install_with_pip
+  fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_mkdocs_select_packages() {
+  bl64_dbg_app_show_function
+  local version_target=''
+
+  if [[ "$INST64_MKDOCS_METHOD" == 'PIPX' || "$INST64_MKDOCS_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_MKDOCS_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="==${INST64_MKDOCS_VERSION}.*"
+    fi
+    INST64_MKDOCS_PACKAGES="mkdocs${version_target}"
+    INST64_MKDOCS_PACKAGES+=' Markdown'
+    INST64_MKDOCS_PACKAGES+=' mdx-truly-sane-lists'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-autorefs'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-awesome-pages-plugin'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-exclude'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-include-markdown-plugin'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-markmap'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-material'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-mermaid2-plugin'
+    INST64_MKDOCS_PACKAGES+=' mkdocs-minify-plugin'
+    INST64_MKDOCS_PACKAGES+=' mkdocstrings'
+    INST64_MKDOCS_PACKAGES+=' Pygments'
+    INST64_MKDOCS_PACKAGES+=' pymdown-extensions'
+  fi
+  [[ -z "$INST64_MKDOCS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_mkdocs_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  bl64_py_setup
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_mkdocs_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_MKDOCS_CLI_NAME" --version
 }
 
 #######################################
@@ -125,17 +176,16 @@ function inst64_mkdocs_install() {
 #   Initializacion progress messages
 # Returns:
 #   0: initialization ok
-#   >: failed to initialize
+#   >: initialization failed
 #######################################
 function inst64_mkdocs_initialize() {
   bl64_dbg_app_show_function
-  [[ "$INST64_MKDOCS_FLAG_NATIVE" != "$BL64_VAR_OFF" ]] &&
-    bl64_msg_show_error 'OS native package installer is not supported. Using Python-PIP instead.' &&
-    return 1
-
   bl64_os_check_version \
+    "${BL64_OS_ALP}-3" \
     "${BL64_OS_UB}-22" &&
-    bl64_py_setup &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_MKDOCS_METHOD' \
+      "$INST64_MKDOCS_METHOD" \
+      'PIP' 'PIPX' &&
     bl64_check_privilege_not_root
 }
 
@@ -144,15 +194,13 @@ function inst64_mkdocs_initialize() {
 #
 
 declare inst64_mkdocs_installer_description='Install application: MKDocs'
-declare -i inst64_mkdocs_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_mkdocs_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_mkdocs_initialize &&
-  inst64_mkdocs_install
-inst64_mkdocs_status=$?
-
-bl64_msg_show_batch_finish "$inst64_mkdocs_status" "$inst64_mkdocs_installer_description"
-exit $inst64_mkdocs_status
+  inst64_mkdocs_prepare &&
+  inst64_mkdocs_install &&
+  inst64_mkdocs_verify
+bl64_msg_show_batch_finish $? "$inst64_mkdocs_installer_description"

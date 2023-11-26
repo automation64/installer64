@@ -1,6 +1,9 @@
 ---
 name: "Test / Installers"
 
+env:
+  DEV_CICD_DEBUG: ""
+
 on:
   pull_request:
     branches:
