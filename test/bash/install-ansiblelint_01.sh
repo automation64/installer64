@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 export INST64_ANSIBLELINT_PIPX="OFF"
 
