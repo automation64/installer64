@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers:
   - Ruby
   - GCC
+  - Jekyll
+  - SHFMT
 
 ## [3.4.0]
 
