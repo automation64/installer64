@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.0.0
+# Version: 2.0.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -107,11 +107,11 @@ function inst64_python_select_packages() {
   if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
     if bl64_os_match "${BL64_OS_UB}-22"; then
       INST64_PYTHON_PACKAGES='python3 python3-pip python3-venv pipx'
-      [[ "$INST64_PYTHON_DEVELOPMENT" == "$BL64_VAR_ON" ]] &&
+      bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
         INST64_PYTHON_PACKAGES="${INST64_PYTHON_PACKAGES} python3-dev build-essential"
     elif bl64_os_match "${BL64_OS_ALP}-3"; then
       INST64_PYTHON_PACKAGES='python3 py3-pip py3-virtualenv'
-      [[ "$INST64_PYTHON_DEVELOPMENT" == "$BL64_VAR_ON" ]] &&
+      bl64_lib_flag_is_enabled "$BL64_VAR_ON" &&
         INST64_PYTHON_PACKAGES="${INST64_PYTHON_PACKAGES} python3-dev py3-setuptools"
     fi
   fi
