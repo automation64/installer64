@@ -2,16 +2,16 @@
 #
 # Run test-cases
 #
-# * Template: 2.0.0
+# * Template: 2.0.1
 #
 
 #
 # Imports
 #
 
-# shellcheck source=SCRIPTDIR/dev-set
+# shellcheck source=bin/dev-set
 source ./bin/dev-set || exit 1
-# shellcheck source-path=SCRIPTDIR/../lib/bl64
+# shellcheck source=lib/bl64/bashlib64.bash
 source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 
 #
@@ -35,13 +35,14 @@ function dev_test_run() {
   bl64_msg_show_info "target test container: ${container_uri}"
   for test_file in ${!test_list}; do
     bl64_msg_show_phase "run installer test (${test_file})"
+    # shellcheck disable=SC2086
     bl64_cnt_run \
       $BL64_CNT_SET_RM \
       $BL64_CNT_SET_TTY \
       --env=INST64_TEST_ENVIRONMENT='ON' \
-      --volume="${DEV_SRC}:${container_path_installer64}" \
-      --volume="${DEV_CICD_BASHLIB64}:${container_path_bl64}" \
-      --volume="${DEV_TEST}:${container_path_test}" \
+      --mount "type=bind,source=${DEV_SRC},target=${container_path_installer64},readonly" \
+      --mount "type=bind,source=${DEV_CICD_BASHLIB64},target=${container_path_bl64},readonly" \
+      --mount "type=bind,source=${DEV_TEST},target=${container_path_test},readonly" \
       --entrypoint="${container_path_test}/${DEV_CICD_TEST_CASES}/${test_file}.sh" \
       "$container_uri" ||
       return $?

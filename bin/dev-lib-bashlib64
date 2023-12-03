@@ -2,10 +2,10 @@
 #
 # Update dev-time external tool: BashLib64
 #
-# * Template: 2.1.0
+# * Template: 2.1.1
 #
 
-# shellcheck source=SCRIPTDIR/dev-set
+# shellcheck source=bin/dev-set
 source ./bin/dev-set || exit 1
 
 [[ -z "$DEV_CICD_INSTALLER64_BIN" ]] &&
