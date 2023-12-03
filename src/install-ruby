@@ -86,6 +86,7 @@ function inst64_ruby_setup() {
 
   bl64_msg_show_task 'setup environment'
   bl64_msg_show_subtask "create user setup script (${destination})"
+  # shellcheck disable=SC2016
   printf \
     '#!/usr/bin/env sh
 #
