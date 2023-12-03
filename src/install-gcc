@@ -102,8 +102,6 @@ function inst64_gcc_select_packages() {
   if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
     if bl64_os_match "${BL64_OS_UB}-22"; then
       INST64_GCC_PACKAGES='build-essential'
-      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
-        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
     fi
   fi
   [[ -z "$INST64_GCC_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
