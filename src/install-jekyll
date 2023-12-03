@@ -143,6 +143,7 @@ function inst64_jekyll_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_JEKYLL_METHOD" == 'GEM' ]]; then
+    # shellcheck disable=SC2154
     "${GEM_HOME}/bin/${INST64_JEKYLL_CLI_NAME}" --version
   fi
 }
