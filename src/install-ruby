@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 2.0.0
+# Template: 2.0.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.0.1
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -40,7 +40,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source-path=SCRIPTDIR/../lib/bl64
+# shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -49,27 +49,57 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 # Installation method
-export INST64_PYTHON_METHOD="${INST64_PYTHON_METHOD:-NATIVE}"
+export INST64_RUBY_METHOD="${INST64_RUBY_METHOD:-NATIVE}"
 # Enable development packages?
-export INST64_PYTHON_DEVELOPMENT="${INST64_PYTHON_DEVELOPMENT:-$BL64_VAR_OFF}"
+export INST64_RUBY_DEVELOPMENT="${INST64_RUBY_DEVELOPMENT:-$BL64_VAR_OFF}"
 
-export INST64_PYTHON_PACKAGES=''
-export INST64_PYTHON_CLI_NAME='python3'
+export INST64_RUBY_PACKAGES=''
+export INST64_RUBY_CLI_NAME='ruby'
+export INST64_RUBY_ENV_NAME='ruby'
 
 #
 # Functions
 #
 
-function inst64_python_install_os_packages() {
+function inst64_ruby_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PYTHON_PACKAGES ||
-    return $?
-  if bl64_os_match "${BL64_OS_ALP}-3"; then
-    bl64_msg_show_warning 'pipx native package not available. PIPX installation method will not be available.'
-  fi
-  return 0
+  bl64_pkg_deploy $INST64_RUBY_PACKAGES
+}
+
+#######################################
+# Perform post installation setup
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Setup progress
+# Returns:
+#   0: setup completed ok
+#   >0: unable to setup
+#######################################
+function inst64_ruby_setup() {
+  bl64_dbg_app_show_function
+  local destination="${INST64_LOCAL_BIN}/installer64-${INST64_RUBY_ENV_NAME}.env"
+  local mode='0644'
+
+  bl64_msg_show_task 'setup environment'
+  bl64_msg_show_subtask "create user setup script (${destination})"
+  # shellcheck disable=SC2016
+  printf \
+    '#!/usr/bin/env sh
+#
+# Installer64 / Ruby
+#
+# * Setup user environment variables
+#
+
+GEM_HOME="${HOME}/gems"
+export GEM_HOME
+PATH="${GEM_HOME}/bin:${PATH}"
+' >"$destination" &&
+    bl64_fs_run_chmod "$mode" "$destination"
 }
 
 #######################################
@@ -83,11 +113,11 @@ function inst64_python_install_os_packages() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_python_install() {
+function inst64_ruby_install() {
   bl64_dbg_app_show_function
-  inst64_python_select_packages || return $?
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
-    inst64_python_install_os_packages
+  inst64_ruby_select_packages || return $?
+  if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
+    inst64_ruby_install_os_packages
   fi
 }
 
@@ -102,20 +132,16 @@ function inst64_python_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_python_select_packages() {
+function inst64_ruby_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
     if bl64_os_match "${BL64_OS_UB}-22"; then
-      INST64_PYTHON_PACKAGES='python3 python3-pip python3-venv pipx'
-      bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
-        INST64_PYTHON_PACKAGES="${INST64_PYTHON_PACKAGES} python3-dev build-essential"
-    elif bl64_os_match "${BL64_OS_ALP}-3"; then
-      INST64_PYTHON_PACKAGES='python3 py3-pip py3-virtualenv'
-      bl64_lib_flag_is_enabled "$BL64_VAR_ON" &&
-        INST64_PYTHON_PACKAGES="${INST64_PYTHON_PACKAGES} python3-dev py3-setuptools"
+      INST64_RUBY_PACKAGES='ruby ruby-rubygems'
+      bl64_lib_flag_is_enabled "$INST64_RUBY_DEVELOPMENT" &&
+        INST64_RUBY_PACKAGES="${INST64_RUBY_PACKAGES} ruby-dev"
     fi
   fi
-  [[ -z "$INST64_PYTHON_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_RUBY_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -130,7 +156,7 @@ function inst64_python_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_python_prepare() {
+function inst64_ruby_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   bl64_pkg_setup
@@ -147,10 +173,12 @@ function inst64_python_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_python_verify() {
+function inst64_ruby_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "/usr/bin/${INST64_PYTHON_CLI_NAME}" --version
+  if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
+    "/usr/bin/${INST64_RUBY_CLI_NAME}" --version
+  fi
 }
 
 #######################################
@@ -164,14 +192,13 @@ function inst64_python_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_python_initialize() {
+function inst64_ruby_initialize() {
   bl64_dbg_app_show_function
   bl64_os_check_version \
-    "${BL64_OS_UB}-22" \
-    "${BL64_OS_ALP}-3" &&
+    "${BL64_OS_UB}-22" &&
     bl64_check_privilege_root &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PYTHON_METHOD' \
-      "$INST64_PYTHON_METHOD" \
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_RUBY_METHOD' \
+      "$INST64_RUBY_METHOD" \
       'NATIVE'
 }
 
@@ -179,14 +206,15 @@ function inst64_python_initialize() {
 # Main
 #
 
-declare inst64_python_installer_description='Install application: Python'
+declare inst64_ruby_installer_description='Install application: Ruby'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_python_installer_description"
+bl64_msg_show_batch_start "$inst64_ruby_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_python_initialize &&
-  inst64_python_prepare &&
-  inst64_python_install &&
-  inst64_python_verify
-bl64_msg_show_batch_finish $? "$inst64_python_installer_description"
+inst64_ruby_initialize &&
+  inst64_ruby_prepare &&
+  inst64_ruby_install &&
+  inst64_ruby_setup &&
+  inst64_ruby_verify
+bl64_msg_show_batch_finish $? "$inst64_ruby_installer_description"

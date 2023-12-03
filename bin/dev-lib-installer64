@@ -2,10 +2,10 @@
 #
 # Update dev-time external tool: Installer64
 #
-# * Template: 1.4.0
+# * Template: 1.4.1
 #
 
-# shellcheck source=SCRIPTDIR/dev-set
+# shellcheck source=bin/dev-set
 source ./bin/dev-set || exit 1
 
 echo 'Deploy installer: Installer64'
