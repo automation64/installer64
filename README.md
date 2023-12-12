@@ -51,21 +51,22 @@ Common parameters:
 - `INST64_<INSTALLER_NAME>_REINSTALL`: for `BINARY` installation method only. Reinstall (replace) application if already present?.
 - `INST64_<INSTALLER_NAME>_SOURCE`: package source URL (e.g.: GitHub repository, Distro repository, etc.)
 - `INST64_<INSTALLER_NAME>_TARGET`: full path to the installation destination.
-- `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format.
+- `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format (x.y.z).
 
 ### Installation methods
 
 _Installer64_ will implement the best available installation method for each application.
 The selection criteria is based on the following priority list:
 
-1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
-1. `EXTERNAL`: application is distributed using OS standard packages, stored in external package repository.
-1. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
-1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
 1. `BINARY`: application is distributed as a single pre-compiled binary. For example, GO based tools.
+1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
+1. `EXTERNAL`: application is distributed using OS standard packages, stored in external package repository.
+1. `GEM`: applications is distributed as Ruby module. Installation is done user-wide.
 1. `HELM`: application is distributed as a Helm package.
 1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package.
-1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
+1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
+1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
+1. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
 
 ## Usage
 
@@ -83,35 +84,24 @@ INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
 
 - Bash: used by installer scripts.
 - Sudo: most installers will require privileged execution. Used if not already running as root.
-- BashLib64: automation library used by installer scripts.
 - Curl or Wget, Tar and GZip: used to download and unpack _Installer64_ and _BashLib64_
 
 ### Installation
 
 - Download _Installer64_ package:
   - Select target releases: [https://github.com/automation64/installer64/releases](https://github.com/automation64/installer64/releases)
-  - Download asset: `installer64-scripts.tgz`
+  - Download asset: `install-installer64`
 
 ```shell
-cd /tmp &&
-export TARGET_RELEASE='v1.1.0' &&
-curl -LO https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/installer64-scripts.tgz
+export TARGET_RELEASE='REPLACE_WITH_SELECTED_TARGET_RELEASE' &&
+curl -LO https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/install-installer64 &&
+chmod 755 install-installer64
 ```
 
-- Uncompress package:
+- Deploy _Installer64_ :
 
 ```shell
-test -f /tmp/installer64-scripts.tgz &&
-sudo mkdir /opt/installer64 &&
-sudo chmod 755 /opt/installer64 &&
-cd /opt/installer64 &&
-sudo tar zxf /tmp/installer64-scripts.tgz &&
-sudo chown -R root:root /opt/installer64
-```
-
-- Install _BashLib64_:
-
-```shell
+sudo ./install-installer64 &&
 sudo /opt/installer64/install-bashlib64
 ```
 
