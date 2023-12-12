@@ -103,12 +103,16 @@ function inst64_vault_install_external_packages() {
 function inst64_vault_setup() {
   bl64_dbg_app_show_function
   local setcap_bin='/usr/sbin/setcap'
+  local getcap_bin='/usr/sbin/getcap'
+  local vault_bin="/usr/bin/${INST64_VAULT_CLI_NAME}"
 
   bl64_msg_show_task 'setup environment'
   if [[ "$INST64_VAULT_METHOD" == 'EXTERNAL' ]]; then
     bl64_msg_show_warning 'removing cap_ipc_lock capability from CLI executable'
     bl64_dbg_app_show_comments 'rationale: https://developer.hashicorp.com/vault/docs/configuration#disable_mlock'
-    "$setcap_bin" -r "/usr/bin/${INST64_VAULT_CLI_NAME}"
+    if [[ -n "$("$getcap_bin" "$vault_bin")" ]]; then
+      "$setcap_bin" -r "$vault_bin"
+    fi
   fi
 }
 
