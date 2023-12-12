@@ -54,6 +54,7 @@ export INST64_VAULT_METHOD="${INST64_VAULT_METHOD:-EXTERNAL}"
 export INST64_VAULT_PLATFORM_YUM="${INST64_VAULT_PLATFORM_YUM:-\$basearch/stable}"
 
 export INST64_VAULT_REPOSITORY_NAME='hashicorp'
+# shellcheck disable=SC2016
 export INST64_VAULT_SOURCE_YUM='https://rpm.releases.hashicorp.com/RHEL/$releasever'
 export INST64_VAULT_REPOSITORY_KEY_YUM='https://rpm.releases.hashicorp.com/gpg'
 export INST64_VAULT_PACKAGES=''
