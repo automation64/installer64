@@ -90,6 +90,29 @@ function inst64_vault_install_external_packages() {
 }
 
 #######################################
+# Perform post installation setup
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Setup progress
+# Returns:
+#   0: setup completed ok
+#   >0: unable to setup
+#######################################
+function inst64_vault_setup() {
+  bl64_dbg_app_show_function
+  local setcap_bin='/usr/sbin/setcap'
+
+  bl64_msg_show_task 'setup environment'
+  if [[ "$INST64_VAULT_METHOD" == 'EXTERNAL' ]]; then
+    bl64_msg_show_warning 'removing cap_ipc_lock capability from CLI executable'
+    bl64_dbg_app_show_comments 'rationale: https://developer.hashicorp.com/vault/docs/configuration#disable_mlock'
+    "$setcap_bin" -r "/usr/bin/${INST64_VAULT_CLI_NAME}"
+  fi
+}
+
+#######################################
 # Install application packages
 #
 # Arguments:
@@ -161,6 +184,7 @@ function inst64_vault_prepare() {
 function inst64_vault_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
+  export SKIP_SETCAP='YES'
   if [[ "$INST64_VAULT_METHOD" == 'EXTERNAL' ]]; then
     "/usr/bin/${INST64_VAULT_CLI_NAME}" version
   fi
@@ -201,5 +225,6 @@ bl64_msg_show_batch_start "$inst64_vault_installer_description"
 inst64_vault_initialize &&
   inst64_vault_prepare &&
   inst64_vault_install &&
+  inst64_vault_setup &&
   inst64_vault_verify
 bl64_msg_show_batch_finish $? "$inst64_vault_installer_description"
