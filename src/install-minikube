@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -51,6 +51,8 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 export INST64_MINIKUBE_PLATFORM="${INST64_MINIKUBE_PLATFORM:-linux-amd64}"
 export INST64_MINIKUBE_TARGET="${INST64_MINIKUBE_TARGET:-${INST64_OPT_ROOT}/minikube}"
 export INST64_MINIKUBE_VERSION="${INST64_MINIKUBE_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_MINIKUBE_SYSTEM_WIDE="${INST64_MINIKUBE_SYSTEM_WIDE:-YES}"
 # Installation method
 export INST64_MINIKUBE_METHOD="${INST64_MINIKUBE_METHOD:-BINARY}"
 
@@ -58,6 +60,7 @@ export INST64_MINIKUBE_REPO_NAME='minikube'
 export INST64_MINIKUBE_REPO_OWNER='kubernetes'
 export INST64_MINIKUBE_PACKAGES=''
 export INST64_MINIKUBE_CLI_NAME='minikube'
+export INST64_MINIKUBE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_MINIKUBE_CLI_NAME}"
 
 #
 # Functions
@@ -79,13 +82,15 @@ function inst64_minikube_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
+  bl64_lib_flag_is_enabled "$INST64_MINIKUBE_SYSTEM_WIDE" || app_target_owner="$BL64_VAR_DEFAULT"
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_MINIKUBE_TARGET" &&
     bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_MINIKUBE_TARGET" "${work_path}/out/${app_cli_source}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
+  bl64_lib_flag_is_enabled "$INST64_MINIKUBE_SYSTEM_WIDE" || INST64_MINIKUBE_CLI_PATH="${INST64_MINIKUBE_TARGET}/${INST64_MINIKUBE_CLI_NAME}"
+  bl64_msg_show_task "publish application to searchable path (${INST64_MINIKUBE_CLI_PATH})"
   # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_MINIKUBE_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_MINIKUBE_CLI_NAME}" "$BL64_VAR_ON" ||
+  bl64_fs_create_symlink "${INST64_MINIKUBE_TARGET}/${app_cli_source}" "$INST64_MINIKUBE_CLI_PATH" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -172,7 +177,7 @@ function inst64_minikube_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_MINIKUBE_METHOD" == 'BINARY' ]]; then
-    "${INST64_LOCAL_BIN}/${INST64_MINIKUBE_CLI_NAME}" version
+    "${INST64_MINIKUBE_CLI_PATH}" version
   fi
 }
 
@@ -189,13 +194,16 @@ function inst64_minikube_verify() {
 #######################################
 function inst64_minikube_initialize() {
   bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_MINIKUBE_SYSTEM_WIDE"; then
+    bl64_check_privilege_root ||
+      return $?
+  fi
   bl64_os_check_version \
     "${BL64_OS_UB}-22" \
     "${BL64_OS_OL}-9" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_MINIKUBE_METHOD' \
       "$INST64_MINIKUBE_METHOD" \
-      'BINARY' &&
-    bl64_check_privilege_root
+      'BINARY'
 }
 
 #
