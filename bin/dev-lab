@@ -2,7 +2,7 @@
 #
 # Run interactive bash session in sandbox container
 #
-# * Template: 1.1.1
+# * Template: 1.2.0
 #
 
 #
@@ -18,7 +18,7 @@ source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 # Main
 #
 
-declare dev_lab_image="${1:-base/alpine-3-base:latest}"
+declare dev_lab_image="${1:-$DEV_CICD_LAB_IMAGE}"
 declare dev_lab_path_source='/source'
 declare dev_lab_path_project='/project'
 declare dev_lab_entrypoint='bash'
@@ -34,6 +34,7 @@ bl64_msg_show_batch_start 'lab'
 bl64_msg_show_task "open container sanbox (${dev_lab_image})"
 bl64_cnt_run_interactive \
   --entrypoint="$dev_lab_entrypoint" \
+  --workdir="$dev_lab_path_project" \
   --mount "type=bind,source=${DEV_SRC},target=${dev_lab_path_source},readonly" \
   --mount "type=bind,source=${DEV_ROOT},target=${dev_lab_path_project},readonly" \
   "${DEV_CICD_LAB_REGISTRY}/${dev_lab_image}"
