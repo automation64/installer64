@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers:
   Minikube
 
+### Changed
+
+- Helm
+  - Enabled support for Alpine3
+
 ## [3.6.0]
 
 ### Added
