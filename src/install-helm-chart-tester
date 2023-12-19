@@ -48,48 +48,45 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
-export INST64_NODEJS_PLATFORM="${INST64_NODEJS_PLATFORM:-linux-x64}"
-export INST64_NODEJS_SOURCE="${INST64_NODEJS_SOURCE:-https://nodejs.org/dist}"
-export INST64_NODEJS_TARGET="${INST64_NODEJS_TARGET:-${INST64_OPT_ROOT}/nodejs}"
-export INST64_NODEJS_VERSION="${INST64_NODEJS_VERSION:-20.10.0}"
+export INST64_HELMCT_PLATFORM="${INST64_HELMCT_PLATFORM:-linux_amd64}"
+export INST64_HELMCT_TARGET="${INST64_HELMCT_TARGET:-${INST64_OPT_ROOT}/helmct}"
+export INST64_HELMCT_VERSION="${INST64_HELMCT_VERSION:-latest}"
 # Installation method
-export INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
+export INST64_HELMCT_METHOD="${INST64_HELMCT_METHOD:-BINARY}"
 
-export INST64_NODEJS_PACKAGE_URL=''
-export INST64_NODEJS_INSTALLER=''
-export INST64_NODEJS_PACKAGES=''
-export INST64_NODEJS_CLI_NAME_NODE='node'
-export INST64_NODEJS_CLI_NAME_NPM='npm'
-export INST64_NODEJS_CLI_NAME_NPX='npx'
+export INST64_HELMCT_REPO_NAME='chart-testing'
+export INST64_HELMCT_REPO_OWNER='helm'
+export INST64_HELMCT_PACKAGES=''
+export INST64_HELMCT_CLI_NAME='ct'
 
 #
 # Functions
 #
 
-function inst64_nodejs_install_custom_package() {
+function inst64_helmct_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
-  local app_cli_source="${INST64_NODEJS_PACKAGES%.tar.gz}/bin"
-  local app_component=''
+  local app_cli_mode='0755'
+  local app_cli_source="${INST64_HELMCT_CLI_NAME}"
 
   bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" &&
-    bl64_rxtx_web_get_file "${INST64_NODEJS_PACKAGE_URL}/${INST64_NODEJS_PACKAGES}" "${work_path}/${INST64_NODEJS_PACKAGES}" ||
+  work_path="$(bl64_fs_create_tmpdir)" || return $?
+  bl64_rxtx_github_get_asset \
+    "$INST64_HELMCT_REPO_OWNER" "$INST64_HELMCT_REPO_NAME" "$INST64_HELMCT_VERSION" "$INST64_HELMCT_PACKAGES" "${work_path}/${INST64_HELMCT_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_HELMCT_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NODEJS_TARGET" &&
-    bl64_arc_open_tar "${work_path}/${INST64_NODEJS_PACKAGES}" "${INST64_NODEJS_TARGET}" ||
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_HELMCT_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_HELMCT_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
   bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
-    bl64_fs_create_symlink \
-      "${INST64_NODEJS_TARGET}/${app_cli_source}/$app_component" "${INST64_LOCAL_BIN}/${app_component}" "$BL64_VAR_ON" ||
-      return $?
-  done
+  # shellcheck disable=SC2086
+  bl64_fs_create_symlink "${INST64_HELMCT_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_HELMCT_CLI_NAME}" "$BL64_VAR_ON" ||
+    return $?
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
@@ -107,11 +104,11 @@ function inst64_nodejs_install_custom_package() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_nodejs_install() {
+function inst64_helmct_install() {
   bl64_dbg_app_show_function
-  inst64_nodejs_select_packages || return $?
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    inst64_nodejs_install_custom_package
+  inst64_helmct_select_packages || return $?
+  if [[ "$INST64_HELMCT_METHOD" == 'BINARY' ]]; then
+    inst64_helmct_install_binary_release
   fi
 }
 
@@ -126,17 +123,20 @@ function inst64_nodejs_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_nodejs_select_packages() {
+function inst64_helmct_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    package_prefix='node-'
+  if [[ "$INST64_HELMCT_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_HELMCT_VERSION" == 'latest' ]]; then
+      INST64_HELMCT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HELMCT_REPO_OWNER" "$INST64_HELMCT_REPO_NAME")" ||
+        return $?
+    fi
+    package_prefix='chart-testing_'
     package_sufix='.tar.gz'
-    INST64_NODEJS_PACKAGES="${package_prefix}v${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_sufix}"
-    INST64_NODEJS_PACKAGE_URL="${INST64_NODEJS_SOURCE}/v${INST64_NODEJS_VERSION}"
+    INST64_HELMCT_PACKAGES="${package_prefix}${INST64_HELMCT_VERSION#v}_${INST64_HELMCT_PLATFORM}${package_sufix}"
   fi
-  [[ -z "$INST64_NODEJS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_HELMCT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -151,7 +151,7 @@ function inst64_nodejs_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_nodejs_prepare() {
+function inst64_helmct_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   bl64_arc_setup
@@ -168,13 +168,11 @@ function inst64_nodejs_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_nodejs_verify() {
+function inst64_helmct_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    "${INST64_LOCAL_BIN}/${INST64_NODEJS_CLI_NAME_NODE}" --version &&
-      "${INST64_LOCAL_BIN}/${INST64_NODEJS_CLI_NAME_NPM}" --version &&
-      "${INST64_LOCAL_BIN}/${INST64_NODEJS_CLI_NAME_NPX}" --version
+  if [[ "$INST64_HELMCT_METHOD" == 'BINARY' ]]; then
+    "${INST64_LOCAL_BIN}/${INST64_HELMCT_CLI_NAME}" version
   fi
 }
 
@@ -189,13 +187,15 @@ function inst64_nodejs_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_nodejs_initialize() {
+function inst64_helmct_initialize() {
   bl64_dbg_app_show_function
   bl64_os_check_version \
-    "${BL64_OS_UB}-22" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_NODEJS_METHOD' \
-      "$INST64_NODEJS_METHOD" \
-      'CUSTOM' &&
+    "${BL64_OS_OL}-9" \
+    "${BL64_OS_UB}-22" \
+    "${BL64_OS_ALP}-3" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HELMCT_METHOD' \
+      "$INST64_HELMCT_METHOD" \
+      'BINARY' &&
     bl64_check_privilege_root
 }
 
@@ -203,14 +203,14 @@ function inst64_nodejs_initialize() {
 # Main
 #
 
-declare inst64_nodejs_installer_description='Install application: NodeJS'
+declare inst64_helmct_installer_description='Install application: Helm Chart Tester'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_nodejs_installer_description"
+bl64_msg_show_batch_start "$inst64_helmct_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_nodejs_initialize &&
-  inst64_nodejs_prepare &&
-  inst64_nodejs_install &&
-  inst64_nodejs_verify
-bl64_msg_show_batch_finish $? "$inst64_nodejs_installer_description"
+inst64_helmct_initialize &&
+  inst64_helmct_prepare &&
+  inst64_helmct_install &&
+  inst64_helmct_verify
+bl64_msg_show_batch_finish $? "$inst64_helmct_installer_description"
