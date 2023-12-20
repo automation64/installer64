@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added system-wide installation flag
   - Added support for Alpine3
 
+### Fixed
+
+- MongoDB CLI
+  - Os compatibility check
+
 ## [3.7.0]
 
 ### Added
