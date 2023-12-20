@@ -51,6 +51,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Installation method
 export INST64_MYSQLCLI_METHOD="${INST64_MYSQLCLI_METHOD:-EXTERNAL}"
 export INST64_MYSQLCLI_PLATFORM_YUM="${INST64_MYSQLCLI_PLATFORM_YUM:-x86_64}"
+export INST64_MYSQLCLI_VERSION="${INST64_MYSQLCLI_VERSION:-8}"
 
 export INST64_MYSQLCLI_REPOSITORY_NAME='mysql-tools-community'
 export INST64_MYSQLCLI_SOURCE_YUM='http://repo.mysql.com/yum/mysql-tools-community/el'
@@ -179,13 +180,16 @@ function inst64_mysqlcli_verify() {
 #######################################
 function inst64_mysqlcli_initialize() {
   bl64_dbg_app_show_function
-  bl64_os_check_version \
-    "${BL64_OS_OL}-9" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_MYSQLCLI_METHOD' \
-      "$INST64_MYSQLCLI_METHOD" \
-      'EXTERNAL' &&
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_MYSQLCLI_METHOD' \
+    "$INST64_MYSQLCLI_METHOD" \
+    'EXTERNAL' &&
     bl64_check_privilege_root &&
-    bl64_pkg_setup
+    bl64_pkg_setup ||
+    return $?
+  case "$INST64_MYSQLCLI_VERSION" in
+  '8') bl64_os_check_version "${BL64_OS_OL}-9" ;;
+  *) bl64_check_alert_unsupported "MySQL CLI Version: ${INST64_MYSQLCLI_VERSION}" ;;
+  esac
 }
 
 #
