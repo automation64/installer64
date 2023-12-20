@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.2.0
+# Template: 2.0.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
+# Version: 1.3.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -37,6 +37,8 @@ export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+# Location for temporary files
+export INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -47,11 +49,19 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 export INST64_KUBECTL_PLATFORM="${INST64_KUBECTL_PLATFORM:-linux/amd64}"
-export INST64_KUBECTL_SOURCE="${INST64_KUBECTL_SOURCE:-https://dl.k8s.io}"
+export INST64_KUBECTL_SOURCE="${INST64_KUBECTL_SOURCE:-https://dl.k8s.io/release}"
 export INST64_KUBECTL_TARGET="${INST64_KUBECTL_TARGET:-${INST64_OPT_ROOT}/kubectl}"
 export INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-stable}"
+# Install system wide? Requires root privilege
+export INST64_KUBECTL_SYSTEM_WIDE="${INST64_KUBECTL_SYSTEM_WIDE:-YES}"
 # Installation method
 export INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
+
+export INST64_KUBECTL_PACKAGE_URL=''
+export INST64_KUBECTL_INSTALLER=''
+export INST64_KUBECTL_PACKAGES=''
+export INST64_KUBECTL_CLI_NAME='kubectl'
+export INST64_KUBECTL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBECTL_CLI_NAME}"
 
 #
 # Functions
@@ -59,32 +69,22 @@ export INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
 
 function inst64_kubectl_install_custom_package() {
   bl64_dbg_app_show_function
-  local package_name='kubectl'
-  local package_url=''
-  local package_url_stable="${INST64_KUBECTL_SOURCE}/release/stable.txt"
+  local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
-  local app_cli_mode='0755'
-  local app_cli='kubectl'
-  local app_cli_release=''
+  local app_cli_source="${INST64_KUBECTL_CLI_NAME}-${INST64_KUBECTL_VERSION}"
 
-  bl64_msg_show_task 'download application'
-  if [[ "$INST64_KUBECTL_VERSION" == 'stable' ]]; then
-    INST64_KUBECTL_VERSION="$(bl64_rxtx_run_curl $BL64_RXTX_SET_CURL_SILENT $BL64_RXTX_SET_CURL_REDIRECT "$package_url_stable")"
-    [[ -z "$INST64_KUBECTL_VERSION" ]] && bl64_msg_show_error "unable to determine stable version (${package_url_stable})" &&
-      return 1
-    INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION#v}"
-  fi
-  package_url="${INST64_KUBECTL_SOURCE}/release/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
-  app_cli_release="${app_cli}-${INST64_KUBECTL_VERSION}"
-
+  bl64_msg_show_task 'deploy application'
+  bl64_lib_flag_is_enabled "$INST64_KUBECTL_SYSTEM_WIDE" || app_target_owner="$BL64_VAR_DEFAULT"
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBECTL_TARGET" &&
-    bl64_rxtx_web_get_file "${package_url}/${package_name}" "${INST64_KUBECTL_TARGET}/${app_cli_release}" "$BL64_VAR_OFF" "$app_cli_mode" ||
+    bl64_rxtx_web_get_file \
+      "${INST64_KUBECTL_PACKAGE_URL}/${INST64_KUBECTL_PACKAGES}" "${INST64_KUBECTL_TARGET}/${app_cli_source}" "$BL64_VAR_OFF" "$app_target_mode" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_KUBECTL_TARGET}/${app_cli_release}" "${INST64_LOCAL_BIN}/${app_cli}" "$BL64_VAR_ON"
+  bl64_lib_flag_is_enabled "$INST64_KUBECTL_SYSTEM_WIDE" || INST64_KUBECTL_CLI_PATH="${INST64_KUBECTL_TARGET}/${INST64_KUBECTL_CLI_NAME}"
+  bl64_msg_show_task "publish application to searchable path (${INST64_KUBECTL_CLI_PATH})"
+  bl64_fs_create_symlink \
+      "${INST64_KUBECTL_TARGET}/${app_cli_source}" "$INST64_KUBECTL_CLI_PATH" "$BL64_VAR_ON"
 }
 
 #######################################
@@ -100,9 +100,74 @@ function inst64_kubectl_install_custom_package() {
 #######################################
 function inst64_kubectl_install() {
   bl64_dbg_app_show_function
-
+  inst64_kubectl_select_packages || return $?
   if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
     inst64_kubectl_install_custom_package
+  fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_kubectl_select_packages() {
+  bl64_dbg_app_show_function
+  local package_prefix=''
+  local package_sufix=''
+  if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
+    if [[ "$INST64_KUBECTL_VERSION" == 'stable' ]]; then
+      INST64_KUBECTL_VERSION="$(bl64_rxtx_run_curl $BL64_RXTX_SET_CURL_SILENT $BL64_RXTX_SET_CURL_REDIRECT "${INST64_KUBECTL_SOURCE}/stable.txt")"
+      [[ -z "$INST64_KUBECTL_VERSION" ]] && bl64_msg_show_error 'unable to determine package version' && return 1
+      INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION#v}"
+    fi
+    package_prefix='kubectl'
+    package_sufix=''
+    INST64_KUBECTL_PACKAGES="${package_prefix}${package_sufix}"
+    INST64_KUBECTL_PACKAGE_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
+  fi
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_kubectl_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  bl64_arc_setup
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_kubectl_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
+    "$INST64_KUBECTL_CLI_PATH" version --client=true
   fi
 }
 
@@ -115,18 +180,21 @@ function inst64_kubectl_install() {
 #   Initializacion progress messages
 # Returns:
 #   0: initialization ok
-#   >: failed to initialize
+#   >: initialization failed
 #######################################
 function inst64_kubectl_initialize() {
   bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_KUBECTL_SYSTEM_WIDE"; then
+    bl64_check_privilege_root ||
+      return $?
+  fi
   bl64_os_check_version \
     "${BL64_OS_ALP}-3" \
     "${BL64_OS_OL}-9" \
     "${BL64_OS_UB}-22" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KUBECTL_METHOD' \
       "$INST64_KUBECTL_METHOD" \
-      'CUSTOM' &&
-    bl64_check_privilege_root
+      'CUSTOM'
 }
 
 #
@@ -140,6 +208,7 @@ bl64_msg_show_batch_start "$inst64_kubectl_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_kubectl_initialize &&
-  inst64_kubectl_install
-
+  inst64_kubectl_prepare &&
+  inst64_kubectl_install &&
+  inst64_kubectl_verify
 bl64_msg_show_batch_finish $? "$inst64_kubectl_installer_description"
