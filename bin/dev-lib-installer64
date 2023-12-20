@@ -2,13 +2,20 @@
 #
 # Update dev-time external tool: Installer64
 #
-# * Template: 1.4.1
+# * Template: 1.4.2
+#
+
+#
+# Imports
 #
 
 # shellcheck source=bin/dev-set
 source ./bin/dev-set || exit 1
 
-echo 'Deploy installer: Installer64'
+#
+# Main
+#
+
 export INST64_INSTALLER64_TARGET="$DEV_CICD_INSTALLER64_TARGET"
 cd "$DEV_LIB" &&
   curl -LO "$DEV_CICD_INSTALLER64_URL" &&

@@ -2,7 +2,7 @@
 #
 # Update dev-time external tool: TestManSH
 #
-# * Template: 3.0.1
+# * Template: 3.1.0
 #
 
 #
@@ -15,6 +15,16 @@ source ./bin/dev-set || exit 1
 source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 
 #
+# Functions
+#
+
+function dev_lib_deploy() {
+  bl64_msg_show_task 'download TestManSH'
+  bl64_rxtx_web_get_file \
+    "$DEV_CICD_TESTMANSH_REPO" "$DEV_CICD_TESTMANSH" "$BL64_VAR_ON" '0777'
+}
+
+#
 # Main
 #
 
@@ -25,5 +35,6 @@ bl64_check_export 'DEV_CICD_TESTMANSH' &&
   exit $?
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_task 'download TestManSH'
-bl64_rxtx_web_get_file "$DEV_CICD_TESTMANSH_REPO" "$DEV_CICD_TESTMANSH" "$BL64_VAR_ON" '0777'
+bl64_msg_show_batch_start 'lib-testmansh'
+dev_lib_deploy
+bl64_msg_show_batch_finish $? 'lib-testmansh'
