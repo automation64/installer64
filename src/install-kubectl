@@ -69,7 +69,6 @@ export INST64_KUBECTL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBECTL_CLI_NAME}"
 
 function inst64_kubectl_install_custom_package() {
   bl64_dbg_app_show_function
-  local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
   local app_cli_source="${INST64_KUBECTL_CLI_NAME}-${INST64_KUBECTL_VERSION}"
