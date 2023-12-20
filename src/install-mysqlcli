@@ -55,7 +55,7 @@ export INST64_MYSQLCLI_VERSION="${INST64_MYSQLCLI_VERSION:-8}"
 
 export INST64_MYSQLCLI_REPOSITORY_NAME='mysql-tools-community'
 export INST64_MYSQLCLI_SOURCE_YUM='http://repo.mysql.com/yum/mysql-tools-community/el'
-export INST64_MYSQLCLI_REPOSITORY_KEY_YUM='https://repo.mysql.com/RPM-GPG-KEY-mysql-2023'
+export INST64_MYSQLCLI_REPOSITORY_KEY_YUM='https://repo.mysql.com/RPM-GPG-KEY-mysql-2022'
 export INST64_MYSQLCLI_PACKAGES=''
 export INST64_MYSQLCLI_NAME='mysqlsh'
 export INST64_MYSQLCLI_PATH=''
