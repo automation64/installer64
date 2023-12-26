@@ -63,16 +63,16 @@ export INST64_PRECOMMIT_CLI_PATH=''
 
 function inst64_precommit_install_with_pip() {
   bl64_dbg_app_show_function
+  INST64_PRECOMMIT_CLI_PATH="${HOME}/.local/bin/${INST64_PRECOMMIT_CLI_NAME}"
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy "$INST64_PRECOMMIT_PACKAGES" &&
-    INST64_PRECOMMIT_CLI_PATH="${HOME}/.local/bin/${INST64_PRECOMMIT_CLI_NAME}"
+    bl64_py_pip_usr_deploy "$INST64_PRECOMMIT_PACKAGES"
 }
 
 function inst64_precommit_install_with_pipx() {
   bl64_dbg_app_show_function
-  pipx install "$INST64_PRECOMMIT_PACKAGES" &&
-    INST64_PRECOMMIT_CLI_PATH="${INST64_PRECOMMIT_CLI_NAME}"
+  INST64_PRECOMMIT_CLI_PATH="${INST64_PRECOMMIT_CLI_NAME}"
+  pipx install "$INST64_PRECOMMIT_PACKAGES"
 }
 
 #######################################
