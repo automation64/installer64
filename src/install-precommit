@@ -176,8 +176,11 @@ function inst64_precommit_initialize() {
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PRECOMMIT_METHOD' \
       "$INST64_PRECOMMIT_METHOD" \
       'PIP' &&
-    bl64_check_privilege_not_root &&
+    bl64_check_privilege_not_root ||
+    return $?
+  if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' ]]; then
     bl64_check_command "$INST64_PRECOMMIT_PIPX_BIN"
+  fi
 }
 
 #
