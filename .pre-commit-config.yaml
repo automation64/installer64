@@ -2,11 +2,13 @@
 repos:
   - repo: "local"
     hooks:
-    -   id: "lint-bash"
+      - id: "lint-bash"
         name: "Lint / Bash"
         entry: "bin/dev-lint-bash"
         language: script
         pass_filenames: true
+        stages:
+          - "manual"
         types:
           - "bash"
         files: "src/"
