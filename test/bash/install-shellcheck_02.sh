@@ -6,4 +6,6 @@ if [[ "$INST64_TEST_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 export INST64_SHELLCHECK_METHOD='BINARY'
+sudo apt update &&
+sudo apt install xz-utils
 sudo -E /opt/installer64/install-shellcheck
