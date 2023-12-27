@@ -3,7 +3,7 @@
 # Pack application for delivery
 #
 # * Use to create a distributable package of the application
-# * Template: 2.1.1
+# * Template: 2.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -38,17 +38,27 @@ export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
 
 function dev_pack_create() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task "create distributable package (${DEV_PACK_FULL_PATH})"
+  local bundle="${DEV_PACK_STORE}/${DEV_PACK_NAME}"
+
+  bl64_msg_show_task 'prepare packages destination'
+  bl64_fs_rm_full "$DEV_PACK_STORE"
+  bl64_fs_create_dir "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$DEV_PACK_STORE" ||
+    return $?
+
+  bl64_msg_show_task 'copy stand-alone installer'
+  bl64_fs_copy_files \
+    '0755' \
+    "$BL64_VAR_DEFAULT" \
+    "$BL64_VAR_DEFAULT" \
+    "$DEV_PACK_STORE" \
+    "${DEV_SRC}/install-installer64" ||
+    return $?
+
+  bl64_msg_show_task 'create installer bundle'
   bl64_arc_run_tar \
-    czf "$DEV_PACK_FULL_PATH" \
+    czf "$bundle" \
     $BL64_ARC_SET_TAR_VERBOSE \
-    -C "$DEV_SRC" . &&
-    bl64_fs_copy_files \
-      '0755' \
-      "$BL64_VAR_DEFAULT" \
-      "$BL64_VAR_DEFAULT" \
-      "$DEV_BUILD" \
-      "${DEV_SRC}/install-installer64"
+    -C "$DEV_SRC" .
 }
 
 #
@@ -57,7 +67,8 @@ function dev_pack_create() {
 
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 
-bl64_check_export 'DEV_PACK_FULL_PATH' &&
+bl64_check_export 'DEV_PACK_STORE' &&
+  bl64_check_export 'DEV_PACK_NAME' &&
   bl64_arc_setup || exit 1
 
 bl64_msg_all_enable_verbose
