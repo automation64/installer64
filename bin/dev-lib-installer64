@@ -2,7 +2,7 @@
 #
 # Update dev-time external tool: Installer64
 #
-# * Template: 1.4.2
+# * Template: 1.5.0
 #
 
 #
@@ -19,5 +19,6 @@ source ./bin/dev-set || exit 1
 export INST64_INSTALLER64_TARGET="$DEV_CICD_INSTALLER64_TARGET"
 cd "$DEV_LIB" &&
   curl -LO "$DEV_CICD_INSTALLER64_URL" &&
-  chmod 755 "$DEV_CICD_INSTALLER64_BIN" &&
-  "$DEV_CICD_INSTALLER64_BIN"
+  chmod 755 'install-installer64' &&
+  './install-installer64' &&
+  rm -f 'install-installer64'
