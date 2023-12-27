@@ -38,7 +38,6 @@ export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-}"
 
 function dev_pack_create() {
   bl64_dbg_app_show_function
-  local bundle="${DEV_PACK_STORE}/${DEV_PACK_NAME}"
 
   bl64_msg_show_task 'prepare packages destination'
   bl64_fs_rm_full "$DEV_PACK_STORE"
@@ -51,12 +50,12 @@ function dev_pack_create() {
     "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" \
     "$DEV_PACK_STORE" \
-    "${DEV_SRC}/install-installer64" ||
+    "${DEV_SRC}/${DEV_PACK_NAME_INSTALLER}" ||
     return $?
 
   bl64_msg_show_task 'create installer bundle'
   bl64_arc_run_tar \
-    czf "$bundle" \
+    czf "${DEV_PACK_STORE}/${DEV_PACK_NAME_BUNDLE}" \
     $BL64_ARC_SET_TAR_VERBOSE \
     -C "$DEV_SRC" .
 }
@@ -68,7 +67,8 @@ function dev_pack_create() {
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 
 bl64_check_export 'DEV_PACK_STORE' &&
-  bl64_check_export 'DEV_PACK_NAME' &&
+  bl64_check_export 'DEV_PACK_NAME_BUNDLE' &&
+  bl64_check_export 'DEV_PACK_NAME_INSTALLER' &&
   bl64_arc_setup || exit 1
 
 bl64_msg_all_enable_verbose
