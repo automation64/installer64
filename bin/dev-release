@@ -36,7 +36,8 @@ source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
 function dev_release_get_changes() {
   bl64_dbg_app_show_function "$@"
   local tag="$1"
-  bl64_txt_run_awk -v tag="$tag" '
+  bl64_dbg_app_show_comments 'remove prefix from tag to match semver version on changelog'
+  bl64_txt_run_awk -v tag="${tag#v}" '
   BEGIN {
       section = 0
       pattern = "## \\[" tag "\\]"
@@ -77,7 +78,7 @@ function dev_release() {
       --notes-file="$notes" \
       --title="$tag" \
       "$tag" &&
-      bl64_msg_show_task "Upload release assets (${tag})" &&
+      bl64_msg_show_task "Upload release assets (${DEV_PACK_STORE})" &&
       "$DEV_CICD_RELEASE_GH_BIN" \
         release upload \
         --repo="${DEV_CICD_RELEASE_REPO_OWNER}/${DEV_CICD_RELEASE_REPO_NAME}" \
