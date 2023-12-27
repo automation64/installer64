@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.0.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -73,8 +73,10 @@ function inst64_kubeseal_install_binary_release() {
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_KUBESEAL_REPO_OWNER" "$INST64_KUBESEAL_REPO_NAME" "$INST64_KUBESEAL_VERSION" "$INST64_KUBESEAL_PACKAGES" "${work_path}/${INST64_KUBESEAL_PACKAGES}" &&
+
+  bl64_rxtx_web_get_file \
+    "${BL64_RXTX_GITHUB_URL}/${INST64_KUBESEAL_REPO_OWNER}/${INST64_KUBESEAL_REPO_NAME}/releases/download/${INST64_KUBESEAL_VERSION}/${INST64_KUBESEAL_PACKAGES}" \
+    "${work_path}/${INST64_KUBESEAL_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_KUBESEAL_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -129,7 +131,16 @@ function inst64_kubeseal_select_packages() {
   local package_sufix=''
   if [[ "$INST64_KUBESEAL_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_KUBESEAL_VERSION" == 'latest' ]]; then
-      INST64_KUBESEAL_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KUBESEAL_REPO_OWNER" "$INST64_KUBESEAL_REPO_NAME")" ||
+      bl64_dbg_app_show_comments 'this repo is not using correctly latest release. The latest version number is stored in the tag list'
+      INST64_KUBESEAL_VERSION="$(
+        bl64_vcs_github_run_api "/repos/${INST64_KUBESEAL_REPO_OWNER}/${INST64_KUBESEAL_REPO_NAME}/tags" |
+          bl64_txt_run_awk ${BL64_TXT_SET_AWS_FS} ':' '/"name": / {
+              gsub(/[ ",]/,"", $2)
+              print $2
+              exit 10
+              }'
+        (( $? == 10 ))
+      )" ||
         return $?
     fi
     package_prefix='kubeseal-'
