@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.2.0
+# Template: 2.1.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.0.0
+# Version: 2.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -37,6 +37,8 @@ export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+# Location for temporary files
+export INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -48,31 +50,69 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 
 # Installation method
 export INST64_SHELLCHECK_METHOD="${INST64_SHELLCHECK_METHOD:-NATIVE}"
+# Enable development packages?
+export INST64_SHELLCHECK_DEVELOPMENT="${INST64_SHELLCHECK_DEVELOPMENT:-$BL64_VAR_OFF}"
+
+export INST64_SHELLCHECK_PLATFORM="${INST64_SHELLCHECK_PLATFORM:-linux.x86_64}"
+export INST64_SHELLCHECK_TARGET="${INST64_SHELLCHECK_TARGET:-${INST64_OPT_ROOT}/shellcheck}"
+export INST64_SHELLCHECK_VERSION="${INST64_SHELLCHECK_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_SHELLCHECK_SYSTEM_WIDE="${INST64_SHELLCHECK_SYSTEM_WIDE:-YES}"
+
+export INST64_SHELLCHECK_PACKAGES=''
+export INST64_SHELLCHECK_CLI_NAME='shellcheck'
+export INST64_SHELLCHECK_CLI_PATH=''
+
+export INST64_SHELLCHECK_REPO_NAME='shellcheck'
+export INST64_SHELLCHECK_REPO_OWNER='koalaman'
 
 #
 # Functions
 #
 
-function inst64_shellcheck_select_packages() {
+function inst64_shellcheck_install_binary_release() {
   bl64_dbg_app_show_function
-  local packages=''
-  if bl64_os_match "${BL64_OS_ALP}"; then
-    packages='shellcheck'
-  elif bl64_os_match "${BL64_OS_UB}"; then
-    packages='shellcheck'
+  local work_path=''
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli_source="${INST64_SHELLCHECK_CLI_NAME}"
+
+  if bl64_lib_flag_is_enabled "$INST64_SHELLCHECK_SYSTEM_WIDE"; then
+    INST64_SHELLCHECK_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_SHELLCHECK_CLI_NAME}"
+  else
+    INST64_SHELLCHECK_CLI_PATH="${INST64_SHELLCHECK_TARGET}/${INST64_SHELLCHECK_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
   fi
-  [[ -n "$packages" ]] && echo "$packages"
+
+  bl64_msg_show_task 'download application'
+  work_path="$(bl64_fs_create_tmpdir)" || return $?
+  bl64_rxtx_github_get_asset \
+    "$INST64_SHELLCHECK_REPO_OWNER" "$INST64_SHELLCHECK_REPO_NAME" "$INST64_SHELLCHECK_VERSION" "$INST64_SHELLCHECK_PACKAGES" "${work_path}/${INST64_SHELLCHECK_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_SHELLCHECK_PACKAGES}" "${work_path}" ||
+    return $?
+
+  bl64_msg_show_task 'deploy application'
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_SHELLCHECK_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_SHELLCHECK_TARGET" "${work_path}/${INST64_SHELLCHECK_CLI_NAME}-${INST64_SHELLCHECK_VERSION}/${app_cli_source}" ||
+    return $?
+
+  bl64_msg_show_task "publish application to searchable path (${INST64_SHELLCHECK_CLI_PATH})"
+  # shellcheck disable=SC2086
+  bl64_fs_create_symlink "${INST64_SHELLCHECK_TARGET}/${app_cli_source}" "$INST64_SHELLCHECK_CLI_PATH" "$BL64_VAR_ON" ||
+    return $?
+
+  bl64_msg_show_task 'cleanup temporary files'
+  bl64_fs_rm_tmpdir "$work_path"
+  return 0
 }
 
 function inst64_shellcheck_install_os_packages() {
   bl64_dbg_app_show_function
-  local packages=''
-
   bl64_msg_show_task 'deploy packages'
-  packages="$(inst64_shellcheck_select_packages)" ||
-    return $?
+  INST64_SHELLCHECK_CLI_PATH="/usr/bin/${INST64_SHELLCHECK_CLI_NAME}"
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $packages
+  bl64_pkg_deploy $INST64_SHELLCHECK_PACKAGES
 }
 
 #######################################
@@ -88,10 +128,84 @@ function inst64_shellcheck_install_os_packages() {
 #######################################
 function inst64_shellcheck_install() {
   bl64_dbg_app_show_function
-
+  inst64_shellcheck_select_packages || return $?
   if [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
     inst64_shellcheck_install_os_packages
+  elif [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
+    inst64_shellcheck_install_binary_release
   fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_shellcheck_select_packages() {
+  bl64_dbg_app_show_function
+  local package_prefix=''
+  local package_sufix=''
+  if [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
+    if bl64_os_match "${BL64_OS_ALP}"; then
+      INST64_SHELLCHECK_PACKAGES='shellcheck'
+    elif bl64_os_match "${BL64_OS_UB}"; then
+      INST64_SHELLCHECK_PACKAGES='shellcheck'
+    fi
+  elif [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_SHELLCHECK_VERSION" == 'latest' ]]; then
+      INST64_SHELLCHECK_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_SHELLCHECK_REPO_OWNER" "$INST64_SHELLCHECK_REPO_NAME")" ||
+        return $?
+    fi
+    package_prefix='shellcheck-'
+    package_sufix='.tar.xz'
+    INST64_SHELLCHECK_PACKAGES="${package_prefix}${INST64_SHELLCHECK_VERSION}.${INST64_SHELLCHECK_PLATFORM}${package_sufix}"
+  fi
+  [[ -z "$INST64_SHELLCHECK_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_shellcheck_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  if [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
+    bl64_pkg_setup
+  elif [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
+    bl64_arc_setup
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_shellcheck_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_SHELLCHECK_CLI_PATH" --version
 }
 
 #######################################
@@ -103,32 +217,37 @@ function inst64_shellcheck_install() {
 #   Initializacion progress messages
 # Returns:
 #   0: initialization ok
-#   >: failed to initialize
+#   >: initialization failed
 #######################################
 function inst64_shellcheck_initialize() {
   bl64_dbg_app_show_function
 
+  if bl64_lib_flag_is_enabled "$INST64_SHELLCHECK_SYSTEM_WIDE" || [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
+    bl64_check_privilege_root ||
+      return $?
+  fi
+
   bl64_os_check_version \
     "${BL64_OS_ALP}-3" \
     "${BL64_OS_UB}-22" &&
-    bl64_check_privilege_root &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SHELLCHECK_METHOD' \
       "$INST64_SHELLCHECK_METHOD" \
-      'NATIVE' &&
-    bl64_pkg_setup
+      'NATIVE' \
+      'BINARY'
 }
 
 #
 # Main
 #
 
-declare inst64_shellcheck_installer_description='Install application: Shellcheck'
+declare inst64_shellcheck_installer_description='Install application: ShellCheck'
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_shellcheck_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_shellcheck_initialize &&
-  inst64_shellcheck_install
-
+  inst64_shellcheck_prepare &&
+  inst64_shellcheck_install &&
+  inst64_shellcheck_verify
 bl64_msg_show_batch_finish $? "$inst64_shellcheck_installer_description"

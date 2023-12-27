@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 2.0.1
+# Template: 2.1.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.1
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -47,47 +47,54 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 # Globals
 #
-
-export INST64_KUBESEAL_PLATFORM="${INST64_KUBESEAL_PLATFORM:-linux-amd64}"
-export INST64_KUBESEAL_TARGET="${INST64_KUBESEAL_TARGET:-${INST64_OPT_ROOT}/kubeseal}"
-export INST64_KUBESEAL_VERSION="${INST64_KUBESEAL_VERSION:-latest}"
+https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
+export INST64_KIND_PLATFORM="${INST64_KIND_PLATFORM:-linux-amd64}"
+export INST64_KIND_TARGET="${INST64_KIND_TARGET:-${INST64_OPT_ROOT}/kind}"
+export INST64_KIND_VERSION="${INST64_KIND_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_KIND_SYSTEM_WIDE="${INST64_KIND_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_KUBESEAL_METHOD="${INST64_KUBESEAL_METHOD:-BINARY}"
+export INST64_KIND_METHOD="${INST64_KIND_METHOD:-BINARY}"
 
-export INST64_KUBESEAL_REPO_NAME='sealed-secrets'
-export INST64_KUBESEAL_REPO_OWNER='bitnami-labs'
-export INST64_KUBESEAL_PACKAGES=''
-export INST64_KUBESEAL_CLI_NAME='kubeseal'
+export INST64_KIND_REPO_NAME='kind'
+export INST64_KIND_REPO_OWNER='kubernetes-sigs'
+export INST64_KIND_PACKAGES=''
+export INST64_KIND_CLI_NAME='kind'
+export INST64_KIND_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_kubeseal_install_binary_release() {
+function inst64_kind_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_KUBESEAL_CLI_NAME}"
+  local app_cli_source="${INST64_KIND_PACKAGES}"
+
+  if bl64_lib_flag_is_enabled "$INST64_KIND_SYSTEM_WIDE"; then
+    INST64_KIND_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KIND_CLI_NAME}"
+  else
+    INST64_KIND_CLI_PATH="${INST64_KIND_TARGET}/${INST64_KIND_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
+  fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
-
-  bl64_rxtx_web_get_file \
-    "${BL64_RXTX_GITHUB_URL}/${INST64_KUBESEAL_REPO_OWNER}/${INST64_KUBESEAL_REPO_NAME}/releases/download/${INST64_KUBESEAL_VERSION}/${INST64_KUBESEAL_PACKAGES}" \
-    "${work_path}/${INST64_KUBESEAL_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_KUBESEAL_PACKAGES}" "${work_path}" ||
+  bl64_rxtx_github_get_asset \
+    "$INST64_KIND_REPO_OWNER" "$INST64_KIND_REPO_NAME" "$INST64_KIND_VERSION" "$INST64_KIND_PACKAGES" "${work_path}/${INST64_KIND_PACKAGES}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBESEAL_TARGET" &&
-    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBESEAL_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_KIND_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_KIND_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
+  bl64_msg_show_task "publish application to searchable path (${INST64_KIND_CLI_PATH})"
   # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_KUBESEAL_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_KUBESEAL_CLI_NAME}" "$BL64_VAR_ON" ||
+  bl64_fs_create_symlink "${INST64_KIND_TARGET}/${app_cli_source}" "$INST64_KIND_CLI_PATH" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -106,11 +113,11 @@ function inst64_kubeseal_install_binary_release() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_kubeseal_install() {
+function inst64_kind_install() {
   bl64_dbg_app_show_function
-  inst64_kubeseal_select_packages || return $?
-  if [[ "$INST64_KUBESEAL_METHOD" == 'BINARY' ]]; then
-    inst64_kubeseal_install_binary_release
+  inst64_kind_select_packages || return $?
+  if [[ "$INST64_KIND_METHOD" == 'BINARY' ]]; then
+    inst64_kind_install_binary_release
   fi
 }
 
@@ -125,29 +132,20 @@ function inst64_kubeseal_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_kubeseal_select_packages() {
+function inst64_kind_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_KUBESEAL_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_KUBESEAL_VERSION" == 'latest' ]]; then
-      bl64_dbg_app_show_comments 'this repo is not using correctly latest release. The latest version number is stored in the tag list'
-      INST64_KUBESEAL_VERSION="$(
-        bl64_vcs_github_run_api "/repos/${INST64_KUBESEAL_REPO_OWNER}/${INST64_KUBESEAL_REPO_NAME}/tags" |
-          bl64_txt_run_awk ${BL64_TXT_SET_AWS_FS} ':' '/"name": / {
-              gsub(/[ ",]/,"", $2)
-              print $2
-              exit 10
-              }'
-        (( $? == 10 ))
-      )" ||
+  if [[ "$INST64_KIND_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_KIND_VERSION" == 'latest' ]]; then
+      INST64_KIND_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KIND_REPO_OWNER" "$INST64_KIND_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='kubeseal-'
-    package_sufix='.tar.gz'
-    INST64_KUBESEAL_PACKAGES="${package_prefix}${INST64_KUBESEAL_VERSION#v}-${INST64_KUBESEAL_PLATFORM}${package_sufix}"
+    package_prefix='kind-'
+    package_sufix=''
+    INST64_KIND_PACKAGES="${package_prefix}${INST64_KIND_PLATFORM}${package_sufix}"
   fi
-  [[ -z "$INST64_KUBESEAL_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_KIND_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -162,7 +160,7 @@ function inst64_kubeseal_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_kubeseal_prepare() {
+function inst64_kind_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   bl64_arc_setup
@@ -179,12 +177,10 @@ function inst64_kubeseal_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_kubeseal_verify() {
+function inst64_kind_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  if [[ "$INST64_KUBESEAL_METHOD" == 'BINARY' ]]; then
-    "${INST64_LOCAL_BIN}/${INST64_KUBESEAL_CLI_NAME}" --version
-  fi
+  "$INST64_KIND_CLI_PATH" version
 }
 
 #######################################
@@ -198,28 +194,32 @@ function inst64_kubeseal_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_kubeseal_initialize() {
+function inst64_kind_initialize() {
   bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_KIND_SYSTEM_WIDE"; then
+    bl64_check_privilege_root ||
+      return $?
+  fi
   bl64_os_check_version \
+    "${BL64_OS_UB}-22" \
     "${BL64_OS_OL}-9" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KUBESEAL_METHOD' \
-      "$INST64_KUBESEAL_METHOD" \
-      'BINARY' &&
-    bl64_check_privilege_root
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KIND_METHOD' \
+      "$INST64_KIND_METHOD" \
+      'BINARY'
 }
 
 #
 # Main
 #
 
-declare inst64_kubeseal_installer_description='Install application: Sealed Secrets KubeSeal'
+declare inst64_kind_installer_description='Install application: K8S Kind'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_kubeseal_installer_description"
+bl64_msg_show_batch_start "$inst64_kind_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_kubeseal_initialize &&
-  inst64_kubeseal_prepare &&
-  inst64_kubeseal_install &&
-  inst64_kubeseal_verify
-bl64_msg_show_batch_finish $? "$inst64_kubeseal_installer_description"
+inst64_kind_initialize &&
+  inst64_kind_prepare &&
+  inst64_kind_install &&
+  inst64_kind_verify
+bl64_msg_show_batch_finish $? "$inst64_kind_installer_description"

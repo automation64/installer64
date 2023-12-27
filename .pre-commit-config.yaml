@@ -1,0 +1,19 @@
+---
+repos:
+  - repo: "local"
+    hooks:
+      - id: "lint-bash"
+        name: "Lint / Bash"
+        entry: "bin/dev-lint-bash"
+        language: script
+        pass_filenames: true
+        fail_fast: true
+        verbose: true
+        require_serial: true
+        stages:
+          - "manual"
+          - "pre-commit"
+        types:
+          - "bash"
+        files: "src/"
+...

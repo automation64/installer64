@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.0]
+
+### Added
+
+- Installers
+  - Kind
+  - PreCommit
+- ShellCheck
+  - Added binary installation method
+
+### Fixed
+
+- KubeSeal
+  - Replaced method for getting latest version: use tag instead of release query as the latest release may be from a different package
+- Popeye
+  - Default platform name
+
 ## [3.8.0]
 
 ### Added
@@ -226,6 +243,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers migrated from Container64 project
 
+[3.9.0]: https://github.com/automation64/installer64/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/automation64/installer64/compare/v3.7.0...v3.8.0
 [3.7.0]: https://github.com/automation64/installer64/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/automation64/installer64/compare/v3.5.0...v3.6.0
