@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - KubeSeal
   - Replaced method for getting latest version: use tag instead of release query as the latest release may be from a different package
+- Popeye
+  - Default platform name
 
 ## [3.8.0]
 
