@@ -6,7 +6,7 @@
 # * Duplication will add and remove files from destination as needed
 # * Excluded from duplication: GIT metadata (.git) and temporary locations (tmp, lib)
 # * Operation is done using rsync tool
-# * Template: 2.0.0
+# * Template: 3.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -53,7 +53,7 @@ function dev_repo_duplicate() {
   fi
 
   # shellcheck disable=SC2086
-  "$DEV_CICD_REPO_RSYNC_BIN" \
+  "$DEV_LIB_RSYNC_BIN" \
     ${dev_repo_dry_run} \
     --one-file-system \
     --human-readable \
@@ -84,8 +84,8 @@ declare dev_repo_destination="${1:-}"
 declare dev_repo_dry_run="${2:-}"
 
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
-bl64_check_export 'DEV_CICD_REPO_RSYNC_BIN' &&
-  bl64_check_command "$DEV_CICD_REPO_RSYNC_BIN" &&
+bl64_check_export 'DEV_LIB_RSYNC_BIN' &&
+  bl64_check_command_search_path "$DEV_LIB_RSYNC_BIN" &&
   bl64_check_parameter 'dev_repo_destination' &&
   bl64_check_directory "$dev_repo_destination" ||
   exit $?
