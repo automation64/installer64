@@ -2,7 +2,7 @@
 #######################################
 # Release application version
 #
-# * Template: 1.0.0
+# * Template: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -28,6 +28,12 @@
 source ./bin/dev-set || exit 1
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
+
+#
+# Globals
+#
+
+export DEV_PACK_STORE="${DEV_PACK_STORE:-}"
 
 #
 # Functions
@@ -57,6 +63,41 @@ function dev_release_get_changes() {
   ' "$DEV_CICD_REPO_CHANGELOG"
 }
 
+function dev_release_create() {
+  bl64_dbg_app_show_function "$@"
+  local tag="$1"
+  local notes="$2"
+
+  bl64_msg_show_task "Create GitHub Release (${tag})"
+  "$DEV_LIB_GH_BIN" \
+    release create \
+    --latest \
+    --verify-tag \
+    --repo="${DEV_CICD_RELEASE_REPO_OWNER}/${DEV_CICD_RELEASE_REPO_NAME}" \
+    --target="$DEV_CICD_BRANCH_MAIN" \
+    --notes-file="$notes" \
+    --title="$tag" \
+    "$tag"
+}
+
+function dev_release_upload() {
+  bl64_dbg_app_show_function "$@"
+  local tag="$1"
+
+  [[ -z "$DEV_PACK_STORE" ]] && return 0
+  bl64_check_export 'DEV_PACK_NAME_INSTALLER' &&
+    bl64_check_export 'DEV_PACK_NAME_BUNDLE' ||
+    return $?
+
+  bl64_msg_show_task "Upload release assets (${DEV_PACK_STORE})" &&
+    "$DEV_LIB_GH_BIN" \
+      release upload \
+      --repo="${DEV_CICD_RELEASE_REPO_OWNER}/${DEV_CICD_RELEASE_REPO_NAME}" \
+      "$tag" \
+      "${DEV_PACK_STORE}/${DEV_PACK_NAME_INSTALLER}" \
+      "${DEV_PACK_STORE}/${DEV_PACK_NAME_BUNDLE}"
+}
+
 function dev_release() {
   bl64_dbg_app_show_function "$@"
   local tag="$1"
@@ -68,23 +109,8 @@ function dev_release() {
   [[ ! -s "$notes" ]] && bl64_msg_show_error 'Unable to extract changelog for the requested tag' && status=1
 
   if ((status == 0)); then
-    bl64_msg_show_task "Create GitHub Release (${tag})"
-    "$DEV_CICD_RELEASE_GH_BIN" \
-      release create \
-      --latest \
-      --verify-tag \
-      --repo="${DEV_CICD_RELEASE_REPO_OWNER}/${DEV_CICD_RELEASE_REPO_NAME}" \
-      --target="$DEV_CICD_BRANCH_MAIN" \
-      --notes-file="$notes" \
-      --title="$tag" \
-      "$tag" &&
-      bl64_msg_show_task "Upload release assets (${DEV_PACK_STORE})" &&
-      "$DEV_CICD_RELEASE_GH_BIN" \
-        release upload \
-        --repo="${DEV_CICD_RELEASE_REPO_OWNER}/${DEV_CICD_RELEASE_REPO_NAME}" \
-        "$tag" \
-        "${DEV_PACK_STORE}/${DEV_PACK_NAME_INSTALLER}" \
-        "${DEV_PACK_STORE}/${DEV_PACK_NAME_BUNDLE}"
+    dev_release_create "$tag" "$notes" &&
+      dev_release_upload "$tag"
     status=$?
   fi
   bl64_fs_rm_tmpfile "$notes"
@@ -99,14 +125,12 @@ declare dev_release_tag="${1:-}"
 
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 bl64_check_parameter 'dev_release_tag' &&
-  bl64_check_export 'DEV_CICD_RELEASE_GH_BIN' &&
+  bl64_check_export 'DEV_LIB_GH_BIN' &&
   bl64_check_export 'DEV_CICD_BRANCH_MAIN' &&
-  bl64_check_export 'DEV_PACK_STORE' &&
   bl64_check_export 'DEV_CICD_RELEASE_REPO_OWNER' &&
   bl64_check_export 'DEV_CICD_RELEASE_REPO_NAME' &&
-  bl64_check_directory "$DEV_PACK_STORE" &&
-  bl64_check_command "$DEV_CICD_RELEASE_GH_BIN" ||
-  return $?
+  bl64_check_command_search_path "$DEV_LIB_GH_BIN" ||
+  exit $?
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start 'release'

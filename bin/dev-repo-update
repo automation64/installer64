@@ -2,7 +2,7 @@
 #######################################
 # Update GIT repository
 #
-# * Template: 1.1.0
+# * Template: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -42,12 +42,14 @@ function dev_repo_update() {
 
   if [[ -n "$DEV_CICD_REPO_UPSTREAM_NAME" ]]; then
     bl64_msg_show_task "pull latest changes from upstream (${DEV_CICD_REPO_UPSTREAM_NAME})"
-    bl64_vcs_run_git pull "$DEV_CICD_REPO_UPSTREAM_NAME" "$DEV_CICD_BRANCH_MAIN" &&
+    bl64_vcs_run_git fetch "$DEV_CICD_REPO_UPSTREAM_NAME" &&
+      bl64_vcs_run_git pull "$DEV_CICD_REPO_UPSTREAM_NAME" "$DEV_CICD_BRANCH_MAIN" &&
       bl64_msg_show_task "push changes to origin (${DEV_CICD_REPO_ORIGIN_NAME})"
     bl64_vcs_run_git push "${DEV_CICD_REPO_ORIGIN_NAME}" "$DEV_CICD_BRANCH_MAIN"
   else
     bl64_msg_show_task "pull latest changes from origin (${DEV_CICD_REPO_ORIGIN_NAME})"
-    bl64_vcs_run_git pull "$DEV_CICD_REPO_ORIGIN_NAME" "$DEV_CICD_BRANCH_MAIN"
+    bl64_vcs_run_git fetch "$DEV_CICD_REPO_ORIGIN_NAME" &&
+      bl64_vcs_run_git pull "$DEV_CICD_REPO_ORIGIN_NAME" "$DEV_CICD_BRANCH_MAIN"
   fi
 }
 

@@ -4,7 +4,7 @@
 #
 # * Check is done using shellcheck
 # * TestManSH is used to manage linting environment
-# * Template: 4.2.0
+# * Template: 5.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -41,7 +41,7 @@ function dev_lint_bash() {
   local dev_lint_current=''
   for dev_lint_current in $dev_lint_target; do
     bl64_msg_show_phase "lint Bash target (${dev_lint_current})"
-    "$DEV_CICD_TESTMANSH" -t -a -c "$dev_lint_current"
+    "$DEV_LIB_TESTMANSH_BIN" -t -a -c "$dev_lint_current"
   done
 }
 
@@ -56,8 +56,8 @@ declare dev_lint_current=''
 
 bl64_check_parameter 'dev_lint_target' &&
   bl64_check_export 'DEV_CICD_LINT_BASH_CFG' &&
-  bl64_check_export 'DEV_CICD_TESTMANSH' &&
-  bl64_check_command "$DEV_CICD_TESTMANSH" ||
+  bl64_check_export 'DEV_LIB_TESTMANSH_BIN' &&
+  bl64_check_command_search_path "$DEV_LIB_TESTMANSH_BIN" ||
   exit $?
 
 bl64_msg_all_enable_verbose
