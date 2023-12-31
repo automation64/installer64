@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.0.0
+# Version: 2.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -130,7 +130,7 @@ function inst64_ansible_initialize() {
     bl64_msg_show_error 'OS native package installer is not supported. Using Python-PIP instead.' &&
     return 1
 
-  bl64_os_check_version \
+  bl64_os_check_compatibility \
     "${BL64_OS_ALM}-8" \
     "${BL64_OS_CNT}-8" \
     "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
