@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/bashlib64
-# Version: 2.0.0
+# Version: 2.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -83,10 +83,13 @@ function inst64_bashlib64_download_binary_package() {
   case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
   'curl')
     "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
-      --remote-name --location "$package_url"
+      -L \
+      -o "/tmp/${package_name}" \
+      "$package_url"
     ;;
   'wget')
     "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -O "/tmp/${package_name}" \
       "$package_url"
     ;;
   esac
@@ -97,15 +100,15 @@ function inst64_bashlib64_open_binary_package() {
   local app_target_owner='root'
 
   echo "Task: install packages (${package_name})"
-  [[ -f "$package_name" ]] &&
-    tar zxf "$package_name" &&
+  [[ -f "/tmp/${package_name}" ]] &&
+    tar zx -C "$INST64_BASHLIB64_TARGET" -f "/tmp/${package_name}" &&
     chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
     chown -R "${app_target_owner}:${app_target_owner}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
-  rm -f "$package_name"
+  rm -f "/tmp/${package_name}"
   return 0
 }
 
@@ -180,7 +183,6 @@ function inst64_bashlib64_prepare() {
       chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET" ||
       return $?
   fi
-  cd "$INST64_BASHLIB64_TARGET" || return $?
 }
 
 #######################################

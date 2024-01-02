@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -171,7 +171,7 @@ function inst64_precommit_verify() {
 #######################################
 function inst64_precommit_initialize() {
   bl64_dbg_app_show_function
-  bl64_os_check_version \
+  bl64_os_check_compatibility \
     "${BL64_OS_UB}-22" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PRECOMMIT_METHOD' \
       "$INST64_PRECOMMIT_METHOD" \

@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.10.0]
+
+### Changed
+
+- Added OS version compatibility mode to allow non-tested OS versions (same distro)
+  - install-ansible
+  - install-ansiblelint
+  - install-argocd
+  - install-argocdcli
+  - install-awscli
+  - install-batscore
+  - install-cosign
+  - install-crane
+  - install-dockle
+  - install-fluxcdcli
+  - install-gcc
+  - install-gitui
+  - install-go
+  - install-hadolint
+  - install-helm
+  - install-helm-chart-releaser
+  - install-helm-chart-tester
+  - install-hugo
+  - install-istioctl
+  - install-jekyll
+  - install-jenkinsxcli
+  - install-k9s
+  - install-kind
+  - install-krew
+  - install-ksniff
+  - install-kubeconform
+  - install-kubectl
+  - install-kubelinter
+  - install-kubepug
+  - install-kubescape
+  - install-kubeseal
+  - install-lazydocker
+  - install-lnav
+  - install-minikube
+  - install-mkdocs
+  - install-nodejs
+  - install-pluto
+  - install-podman
+  - install-popeye
+  - install-precommit
+  - install-python
+  - install-ruby
+  - install-shellcheck
+  - install-shfmt
+  - install-stern
+  - install-tflint
+  - install-tfsec
+  - install-yamllint
+  - install-yq
+
+### Fixed
+
+- Installer64
+  - Post-install error when providing relative path for target directory
+  - Package download error when current directory is read-only: now use temporary writable location
+- Bashlib64
+  - Post-install error when providing relative path for target directory
+  - Package download error when current directory is read-only: now use temporary writable location
+
 ## [3.9.0]
 
 ### Added
@@ -243,6 +307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers migrated from Container64 project
 
+[3.10.0]: https://github.com/automation64/installer64/compare/v3.9.0...v3.10.0
 [3.9.0]: https://github.com/automation64/installer64/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/automation64/installer64/compare/v3.7.0...v3.8.0
 [3.7.0]: https://github.com/automation64/installer64/compare/v3.6.0...v3.7.0
