@@ -83,10 +83,13 @@ function inst64_bashlib64_download_binary_package() {
   case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
   'curl')
     "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
-      --remote-name --location "$package_url"
+      -L \
+      -o "/tmp/${package_name}" \
+      "$package_url"
     ;;
   'wget')
     "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -O "/tmp/${package_name}" \
       "$package_url"
     ;;
   esac
@@ -97,15 +100,15 @@ function inst64_bashlib64_open_binary_package() {
   local app_target_owner='root'
 
   echo "Task: install packages (${package_name})"
-  [[ -f "$package_name" ]] &&
-    tar zx -C "$INST64_BASHLIB64_TARGET" -f "$package_name" &&
+  [[ -f "/tmp/${package_name}" ]] &&
+    tar zx -C "$INST64_BASHLIB64_TARGET" -f "/tmp/${package_name}" &&
     chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
     chown -R "${app_target_owner}:${app_target_owner}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
-  rm -f "$package_name"
+  rm -f "/tmp/${package_name}"
   return 0
 }
 

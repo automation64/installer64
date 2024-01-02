@@ -62,8 +62,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Installer64, Bashlib64
-  - Package post-extraction for non full-path target case
+- Installer64
+  - Post-install error when providing relative path for target directory
+  - Package download error when current directory is read-only: now use temporary writable location
+- Bashlib64
+  - Post-install error when providing relative path for target directory
+  - Package download error when current directory is read-only: now use temporary writable location
 
 ## [3.9.0]
 
