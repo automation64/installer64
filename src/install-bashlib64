@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/bashlib64
-# Version: 2.0.0
+# Version: 2.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -98,7 +98,7 @@ function inst64_bashlib64_open_binary_package() {
 
   echo "Task: install packages (${package_name})"
   [[ -f "$package_name" ]] &&
-    tar zxf "$package_name" &&
+    tar zx -C "$INST64_BASHLIB64_TARGET" -f "$package_name" &&
     chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
@@ -180,7 +180,6 @@ function inst64_bashlib64_prepare() {
       chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET" ||
       return $?
   fi
-  cd "$INST64_BASHLIB64_TARGET" || return $?
 }
 
 #######################################
