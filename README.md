@@ -101,8 +101,7 @@ chmod 755 install-installer64
 - Deploy _Installer64_ :
 
 ```shell
-sudo ./install-installer64 &&
-sudo /opt/installer64/install-bashlib64
+sudo ./install-installer64
 ```
 
 ## Contributing

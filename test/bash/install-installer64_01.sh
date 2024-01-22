@@ -7,5 +7,6 @@ if [[ "$INST64_TEST_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
+export INST64_BASHLIB64_TARGET='/usr/local/lib/bl64'
 export INST64_INSTALLER64_TARGET='/usr/local/lib/inst64'
 sudo -E /opt/installer64/install-installer64

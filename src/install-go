@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 1.2.0
+# Template: 2.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,10 +29,23 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
-# Installer64 location
-export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
 # Base path for local applications
 export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
@@ -42,18 +55,19 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
 export INST64_GO_PLATFORM="${INST64_GO_PLATFORM:-linux-amd64}"
 export INST64_GO_SOURCE="${INST64_GO_SOURCE:-https://go.dev/dl}"
 export INST64_GO_TARGET="${INST64_GO_TARGET:-${INST64_OPT_ROOT}/go}"
-export INST64_GO_VERSION="${INST64_GO_VERSION:-21.2}"
+export INST64_GO_VERSION="${INST64_GO_VERSION:-1.21.2}"
+# Install system wide? Requires root privilege
+export INST64_GO_SYSTEM_WIDE="${INST64_GO_SYSTEM_WIDE:-YES}"
+# Installation method
+export INST64_GO_METHOD="${INST64_GO_METHOD:-BINARY}"
+
+export INST64_GO_PACKAGE_URL=''
+export INST64_GO_PACKAGES=''
+export INST64_GO_CLI_NAME='go'
+export INST64_GO_CLI_PATH=''
 
 #
 # Functions
@@ -61,22 +75,35 @@ export INST64_GO_VERSION="${INST64_GO_VERSION:-21.2}"
 
 function inst64_go_install_binary_release() {
   bl64_dbg_app_show_function
-  local package_prefix='go1'
-  local package_sufix='tar.gz'
-  local package_name="${package_prefix}.${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_sufix}"
   local work_path=''
-  local app_cli='go'
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli_source="${INST64_GO_CLI_NAME}"
+
+  if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
+    INST64_GO_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_GO_CLI_NAME}"
+  else
+    INST64_GO_CLI_PATH="${INST64_GO_TARGET}/${INST64_GO_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
+  fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_web_get_file "${INST64_GO_SOURCE}/${package_name}" "${work_path}/${package_name}" &&
-    bl64_arc_open_tar "${work_path}/${package_name}" "${INST64_OPT_ROOT}" ||
+  bl64_rxtx_web_get_file \
+    "${INST64_GO_PACKAGE_URL}/${INST64_GO_PACKAGES}" "${work_path}/${INST64_GO_PACKAGES}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  # shellcheck disable=SC2086
-  bl64_fs_run_ln $BL64_FS_SET_LN_SYMBOLIC "${INST64_GO_TARGET}/bin/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" ||
+  bl64_msg_show_task 'deploy application'
+  bl64_arc_open_tar "${work_path}/${INST64_GO_PACKAGES}" "${INST64_OPT_ROOT}" ||
     return $?
+
+  if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_GO_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_create_symlink "${INST64_GO_TARGET}/bin/${app_cli_source}" "$INST64_GO_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
@@ -96,7 +123,71 @@ function inst64_go_install_binary_release() {
 #######################################
 function inst64_go_install() {
   bl64_dbg_app_show_function
-  inst64_go_install_binary_release
+  inst64_go_select_packages || return $?
+  if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
+    inst64_go_install_binary_release
+  fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_go_select_packages() {
+  bl64_dbg_app_show_function
+  local package_prefix=''
+  local package_sufix=''
+  if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
+    package_prefix='go'
+    package_sufix='tar.gz'
+    INST64_GO_PACKAGES="${package_prefix}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_sufix}"
+    INST64_GO_PACKAGE_URL="${INST64_GO_SOURCE}"
+  fi
+  [[ -z "$INST64_GO_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_go_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
+    bl64_arc_setup
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_go_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_GO_CLI_PATH" version
 }
 
 #######################################
@@ -108,26 +199,42 @@ function inst64_go_install() {
 #   Initializacion progress messages
 # Returns:
 #   0: initialization ok
-#   >: failed to initialize
+#   >: initialization failed
 #######################################
 function inst64_go_initialize() {
   bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
+    bl64_check_privilege_root ||
+      return $?
+  fi
   bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" &&
-    bl64_arc_setup &&
-    bl64_check_privilege_root
+    "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
+    "${BL64_OS_ALP}-3" \
+    "${BL64_OS_CNT}-7" "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+    "${BL64_OS_DEB}-9" "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
+    "${BL64_OS_FD}-33" "${BL64_OS_FD}-34" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" "${BL64_OS_FD}-37" "${BL64_OS_FD}-38" "${BL64_OS_FD}-39" \
+    "${BL64_OS_OL}-7" "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+    "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+    "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" \
+    "${BL64_OS_SLES}-15" \
+    "${BL64_OS_UB}-18" "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GO_METHOD' \
+      "$INST64_GO_METHOD" \
+      'BINARY'
 }
 
 #
 # Main
 #
 
-declare inst64_go_installer_description='Install application: Go'
+declare inst64_go_installer_description='Install application: GoLang'
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_go_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_go_initialize &&
-  inst64_go_install
+  inst64_go_prepare &&
+  inst64_go_install &&
+  inst64_go_verify
 bl64_msg_show_batch_finish $? "$inst64_go_installer_description"

@@ -41,6 +41,16 @@
 
 - Add/update test-cases in: `test/`
 
+## Release new version
+
+- Determine new semver number for the release
+- Add release notes to `CHANGELOG.md`
+- Create release GIT tag
+
+```shell
+./bin/dev-repo-tag <NEW_RELEASE>
+```
+
 ## Repositories
 
 - Project GIT repository: [https://github.com/automation64/installer64.git](https://github.com/automation64/installer64.git)
