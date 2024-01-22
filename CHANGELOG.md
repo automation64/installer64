@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.12.0]
 
+### Fixed
+
+- MySQL CLI
+  - Replaced deprecated repo key
+
 ### Changed
 
 - Go
