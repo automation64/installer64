@@ -11,5 +11,5 @@ if [[ -d "$target" ]]; then
   sudo rm -rf "$target"
 fi
 
-export INST64_BASHLIB64_TARGET=/usr/local/lib/bl64
+export INST64_BASHLIB64_TARGET='/usr/local/lib/bl64'
 sudo -E /opt/installer64/install-bashlib64
