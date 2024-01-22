@@ -83,12 +83,14 @@ function inst64_installer64_download_binary_package() {
   case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
   'curl')
     "$INST64_INSTALLER64_DOWNLOAD_TOOL" \
+      -s \
       -L \
       -o "/tmp/${package_name}" \
       "$package_url"
     ;;
   'wget')
     "$INST64_INSTALLER64_DOWNLOAD_TOOL" \
+      -q \
       -O "/tmp/${package_name}" \
       "$package_url"
     ;;
@@ -136,7 +138,8 @@ function inst64_installer64_install_binary_release() {
 function inst64_installer64_install() {
   inst64_installer64_select_packages || return $?
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
-    inst64_installer64_install_binary_release
+    inst64_installer64_install_binary_release &&
+    "${INST64_INSTALLER64_TARGET}/install-bashlib64"
   fi
 }
 
