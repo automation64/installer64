@@ -83,12 +83,14 @@ function inst64_bashlib64_download_binary_package() {
   case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
   'curl')
     "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -s \
       -L \
       -o "/tmp/${package_name}" \
       "$package_url"
     ;;
   'wget')
     "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -q \
       -O "/tmp/${package_name}" \
       "$package_url"
     ;;
