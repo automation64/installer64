@@ -61,14 +61,16 @@ export INST64_MKDOCS_CLI_NAME='mkdocs'
 
 function inst64_mkdocs_install_with_pip() {
   bl64_dbg_app_show_function
+  # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy "$INST64_MKDOCS_PACKAGES"
+    bl64_py_pip_usr_deploy $INST64_MKDOCS_PACKAGES
 }
 
 function inst64_mkdocs_install_with_pipx() {
   bl64_dbg_app_show_function
-  pipx install "$INST64_MKDOCS_PACKAGES"
+  # shellcheck disable=SC2086
+  pipx install $INST64_MKDOCS_PACKAGES
 }
 
 #######################################
