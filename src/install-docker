@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+# Template: 2.2.0
+#######################################
+# Installer64 / Package installer
+#
+# Author: SerDigital64 (https://github.com/serdigital64)
+# Repository: https://github.com/automation64/installer64
+# Version: 1.0.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# BashLib64 location
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64
+source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
+# Enable debugging? Set to YES to enable
+export INST64_DEBUG="${INST64_DEBUG:-}"
+# Base path for local applications
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+# Local applications binaries location
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Base path for 3rd party applications
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+# Location for temporary files
+export INST64_TMP="${INST64_TMP:-/tmp}"
+
+# Installation method
+export INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-EXTERNAL}"
+#export INST64_DOCKER_PLATFORM_APT="${INST64_DOCKER_PLATFORM_APT:-X_REPO_PLATFORM_X}"
+
+export INST64_DOCKER_REPOSITORY_NAME='docker'
+export INST64_DOCKER_SOURCE_APT='https://download.docker.com/linux/ubuntu'
+export INST64_DOCKER_REPOSITORY_KEY_APT='https://download.docker.com/linux/ubuntu/gpg'
+export INST64_DOCKER_PACKAGES=''
+export INST64_DOCKER_CLI_NAME='docker'
+export INST64_DOCKER_CLI_PATH=''
+
+#
+# Functions
+#
+
+function inst64_docker_add_repository() {
+  bl64_dbg_app_show_function
+  local repository_url=''
+  local repository_key=''
+  local repository_extra_1=''
+  local repository_extra_2=''
+
+  if bl64_os_match "${BL64_OS_UB}"; then
+    repository_url="$INST64_DOCKER_SOURCE_APT"
+    repository_key="$INST64_DOCKER_REPOSITORY_KEY_APT"
+    repository_extra_1='mantic'
+    repository_extra_2='stable'
+  fi
+
+  bl64_msg_show_task 'Add external package repository'
+  bl64_pkg_repository_add "$INST64_DOCKER_REPOSITORY_NAME" \
+    "$repository_url" "$repository_key" \
+    "$repository_extra_1" "$repository_extra_2"
+}
+
+function inst64_docker_install_external_packages() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'deploy packages'
+  INST64_DOCKER_CLI_PATH="/usr/bin/${INST64_DOCKER_CLI_NAME}"
+  # shellcheck disable=SC2086
+  bl64_pkg_deploy $INST64_DOCKER_PACKAGES
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_docker_install() {
+  bl64_dbg_app_show_function
+  inst64_docker_select_packages || return $?
+  if [[ "$INST64_DOCKER_METHOD" == 'EXTERNAL' ]]; then
+    inst64_docker_install_external_packages
+  fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_docker_select_packages() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_DOCKER_METHOD" == 'EXTERNAL' ]]; then
+    if bl64_os_match "${BL64_OS_UB}"; then
+      INST64_DOCKER_PACKAGES='docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin'
+    fi
+  fi
+  [[ -z "$INST64_DOCKER_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_docker_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  if [[ "$INST64_DOCKER_METHOD" == 'EXTERNAL' ]]; then
+    bl64_pkg_setup &&
+      bl64_cryp_setup &&
+      inst64_docker_add_repository
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_docker_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_DOCKER_CLI_PATH" version
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: initialization failed
+#######################################
+function inst64_docker_initialize() {
+  bl64_dbg_app_show_function
+  bl64_os_check_compatibility \
+    "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
+    bl64_check_privilege_root &&
+    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_DOCKER_METHOD' \
+      "$INST64_DOCKER_METHOD" \
+      'EXTERNAL'
+}
+
+#
+# Main
+#
+
+declare inst64_docker_installer_description='Install application: Docker'
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$inst64_docker_installer_description"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
+inst64_docker_initialize &&
+  inst64_docker_prepare &&
+  inst64_docker_install &&
+  inst64_docker_verify
+bl64_msg_show_batch_finish $? "$inst64_docker_installer_description"
