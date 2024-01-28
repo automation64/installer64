@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -30,7 +30,8 @@
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64
-source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
@@ -156,8 +157,8 @@ function inst64_ghcli_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
-    bl64_pkg_setup
-    inst64_ghcli_add_repository
+    bl64_pkg_setup &&
+      inst64_ghcli_add_repository
   fi
 }
 
