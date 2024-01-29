@@ -79,9 +79,10 @@ function inst64_ansiblelint_install_with_pip() {
   packages="$(inst64_ansiblelint_select_packages)" ||
     return $?
 
+  # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy "$packages"
+    bl64_py_pip_usr_deploy $packages
 }
 
 function inst64_ansiblelint_install_with_pipx() {
@@ -90,7 +91,8 @@ function inst64_ansiblelint_install_with_pipx() {
   packages="$(inst64_ansiblelint_select_packages)" ||
     return $?
 
-  pipx install "$packages"
+  # shellcheck disable=SC2086
+  pipx install $packages
 }
 
 #######################################

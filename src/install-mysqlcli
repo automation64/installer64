@@ -36,6 +36,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -62,7 +63,7 @@ export INST64_MYSQLCLI_VERSION="${INST64_MYSQLCLI_VERSION:-8}"
 
 export INST64_MYSQLCLI_REPOSITORY_NAME='mysql-tools-community'
 export INST64_MYSQLCLI_SOURCE_YUM='http://repo.mysql.com/yum/mysql-tools-community/el'
-bl64_dbg_app_show_comment 'deprecated: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022'
+bl64_dbg_app_show_comments 'deprecated: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022'
 export INST64_MYSQLCLI_REPOSITORY_KEY_YUM='https://repo.mysql.com/RPM-GPG-KEY-mysql-2023'
 export INST64_MYSQLCLI_PACKAGES=''
 export INST64_MYSQLCLI_CLI_NAME='mysqlsh'
@@ -192,6 +193,7 @@ function inst64_mysqlcli_initialize() {
     "$INST64_MYSQLCLI_METHOD" \
     'EXTERNAL' &&
     bl64_check_privilege_root &&
+    bl64_cryp_setup &&
     bl64_pkg_setup ||
     return $?
   case "$INST64_MYSQLCLI_VERSION" in
