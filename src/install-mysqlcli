@@ -36,6 +36,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -192,6 +193,7 @@ function inst64_mysqlcli_initialize() {
     "$INST64_MYSQLCLI_METHOD" \
     'EXTERNAL' &&
     bl64_check_privilege_root &&
+    bl64_cryp_setup &&
     bl64_pkg_setup ||
     return $?
   case "$INST64_MYSQLCLI_VERSION" in
