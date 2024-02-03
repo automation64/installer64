@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #######################################
-# Create and push GIT tag
+# Dev / GIT / Create and push GIT tag
 #
-# * Main branch only
-# * Template: 1.1.0
+# * Works on the main branch
+# * Version: 2.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -26,9 +26,11 @@
 #
 
 # shellcheck source=bin/dev-set
-source ./bin/dev-set || exit 1
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${DEV_CICD_BASHLIB64}/bashlib64.bash" || exit 1
+source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2>&1 && exit 1; }
+# shellcheck source-path=bin
+source ./bin/dev-env-git || exit 1
+# shellcheck source=lib/bl64/bashlib64-core.bash
+source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-core.bash" || exit 1
 
 #
 # Functions
@@ -55,18 +57,18 @@ function dev_repo_get_changes() {
     print $0
     next
   }
-  ' "$DEV_CICD_REPO_CHANGELOG"
+  ' "$DEV_BASE_CHANGELOG"
 }
 
-function dev_repo_tag() {
+function dev_git_tag_create() {
   bl64_dbg_app_show_function "$@"
   local new_tag="$1"
   local include_changelog="$2"
   local message=''
   local -i status=0
 
-  bl64_msg_show_task "switch to main branch (${DEV_CICD_BRANCH_MAIN})"
-  bl64_vcs_run_git checkout "$DEV_CICD_BRANCH_MAIN" ||
+  bl64_msg_show_task "switch to main branch (${DEV_GIT_BRANCH_MAIN})"
+  bl64_vcs_run_git checkout "$DEV_GIT_BRANCH_MAIN" ||
     return $?
 
   bl64_msg_show_task "create tag (${new_tag})"
@@ -82,14 +84,26 @@ function dev_repo_tag() {
       return $?
   fi
 
-  bl64_msg_show_task "push tag to origin (${DEV_CICD_REPO_ORIGIN_NAME})"
-  bl64_vcs_run_git push "$DEV_CICD_REPO_ORIGIN_NAME" "$new_tag" ||
+  bl64_msg_show_task "push tag to origin (${DEV_GIT_REMOTE_ORIGIN})"
+  bl64_vcs_run_git push "$DEV_GIT_REMOTE_ORIGIN" "$new_tag" ||
     return $?
 
-  if [[ -n "$DEV_CICD_REPO_UPSTREAM_NAME" ]]; then
-    bl64_msg_show_task "push tag to upstream (${DEV_CICD_REPO_UPSTREAM_NAME})"
-    bl64_vcs_run_git push "$DEV_CICD_REPO_UPSTREAM_NAME" "$new_tag"
+  if [[ -n "$DEV_GIT_REMOTE_UPSTREAM" ]]; then
+    bl64_msg_show_task "push tag to upstream (${DEV_GIT_REMOTE_UPSTREAM})"
+    bl64_vcs_run_git push "$DEV_GIT_REMOTE_UPSTREAM" "$new_tag"
   fi
+}
+
+function dev_git_initialize() {
+  bl64_dbg_app_show_function "$@"
+  local dev_repo_new_tag="$1"
+  local dev_repo_include_changelog="$2"
+  if bl64_lib_flag_is_enabled "$include_changelog"; then
+    bl64_check_file "$(pwd)/${DEV_BASE_CHANGELOG}" ||
+      return $?
+  fi
+  bl64_check_parameter 'dev_repo_new_tag' &&
+    bl64_vcs_setup
 }
 
 #
@@ -100,14 +114,9 @@ declare dev_repo_new_tag="${1:-}"
 declare dev_repo_include_changelog="${2:-$BL64_VAR_OFF}"
 
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
-
-bl64_check_parameter 'dev_repo_new_tag' &&
-  bl64_check_export 'DEV_CICD_BRANCH_MAIN' &&
-  bl64_check_export 'DEV_CICD_REPO_ORIGIN_NAME' &&
-  bl64_vcs_setup ||
-  exit $?
+dev_git_initialize "$dev_repo_new_tag" "$dev_repo_include_changelog" || exit $?
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start 'repo-tag'
-dev_repo_tag "$dev_repo_new_tag" "$dev_repo_include_changelog"
-bl64_msg_show_batch_finish $? 'repo-tag'
+bl64_msg_show_batch_start 'dev-git-tag-create'
+dev_git_tag_create "$dev_repo_new_tag" "$dev_repo_include_changelog"
+bl64_msg_show_batch_finish $? 'dev-git-tag-create'
