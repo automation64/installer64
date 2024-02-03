@@ -2,7 +2,7 @@
 
 export INST64_ANSIBLELINT_PIPX="OFF"
 
-if [[ "$INST64_TEST_ENVIRONMENT" != 'ON' ]]; then
+if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   echo 'Error: invalid test environment'
   exit 1
 fi
