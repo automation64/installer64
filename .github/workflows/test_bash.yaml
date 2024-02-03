@@ -31,7 +31,7 @@ jobs:
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
-      - name: "Prepare build environment"
+      - name: "Prepare dev environment"
         run: "./bin/dev-lib-installer64 && ./bin/dev-lib-testmansh"
 
       - name: "Run tests"
