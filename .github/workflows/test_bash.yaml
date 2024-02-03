@@ -35,5 +35,8 @@ jobs:
         run: "./bin/dev-lib-installer64 && ./bin/dev-lib-testmansh"
 
       - name: "Run tests"
-        run: "source ./bin/dev-set && ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_BASE_TEST}/${{matrix.target}}"
+        run: |
+          source ./bin/dev-set &&
+          source ./bin/dev-env-bash &&
+          ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/${{matrix.target}}
 ...
