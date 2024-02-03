@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+#######################################
+# Dev / Pack / Custom / Create installer packages
+#
+# * Template: 2.3.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# shellcheck source=bin/dev-set
+source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2>&1 && exit 1; }
+# shellcheck source-path=bin
+source ./bin/dev-env-custom &&
+# shellcheck source-path=lib/bl64
+source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-arc.bash" &&
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-txt.bash" &&
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fmt.bash" &&
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fs.bash" &&
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-core.bash" || exit 1
+
+#
+# Globals
+#
+
+#
+# Functions
+#
+
+function dev_pack_custom() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task "prepare packages destination (${DEV_PACK_CUSTOM_STORE})"
+  bl64_fs_rm_full "$DEV_PACK_CUSTOM_STORE"
+  bl64_fs_create_dir \
+    "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$DEV_PACK_CUSTOM_STORE" ||
+    return $?
+
+  bl64_msg_show_task "copy stand-alone installer (${DEV_PACK_CUSTOM_NAME_INSTALLER})"
+  bl64_fs_copy_files \
+    '0755' \
+    "$BL64_VAR_DEFAULT" \
+    "$BL64_VAR_DEFAULT" \
+    "$DEV_PACK_CUSTOM_STORE" \
+    "${DEV_PATH_SRC}/${DEV_PACK_CUSTOM_NAME_INSTALLER}" ||
+    return $?
+
+  bl64_msg_show_task "create installer bundle (${DEV_PACK_CUSTOM_NAME_BUNDLE})"
+  bl64_arc_run_tar \
+    czf "${DEV_PACK_CUSTOM_STORE}/${DEV_PACK_CUSTOM_NAME_BUNDLE}" \
+    $BL64_ARC_SET_TAR_VERBOSE \
+    -C "$DEV_PATH_SRC" .
+}
+
+function dev_pack_initialize() {
+  bl64_dbg_app_show_function
+  bl64_arc_setup
+}
+
+#
+# Main
+#
+
+[[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start 'dev-pack-custom'
+dev_pack_initialize &&
+  dev_pack_custom
+bl64_msg_show_batch_finish $? 'dev-pack-custom'
