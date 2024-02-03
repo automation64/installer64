@@ -28,8 +28,8 @@
 source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2>&1 && exit 1; }
 # shellcheck source-path=bin
 source ./bin/dev-env-custom &&
-# shellcheck source-path=lib/bl64
-source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-arc.bash" &&
+  # shellcheck source-path=lib/bl64
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-arc.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-txt.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fmt.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fs.bash" &&
@@ -69,7 +69,10 @@ function dev_pack_custom() {
 
 function dev_pack_initialize() {
   bl64_dbg_app_show_function
-  bl64_arc_setup
+  bl64_check_export 'DEV_PACK_CUSTOM_NAME_BUNDLE' &&
+    bl64_check_export 'DEV_PACK_CUSTOM_NAME_INSTALLER' &&
+    bl64_check_export 'DEV_PACK_CUSTOM_STORE' &&
+    bl64_arc_setup
 }
 
 #

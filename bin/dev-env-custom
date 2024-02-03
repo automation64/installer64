@@ -27,10 +27,10 @@
 #
 
 # Pack / Custom / Package name
-export DEV_PACK_CUSTOM_NAME_BUNDLE='installer64-scripts.tgz'
-export DEV_PACK_CUSTOM_NAME_INSTALLER='install-installer64'
+export DEV_PACK_CUSTOM_NAME_BUNDLE="${DEV_PACK_CUSTOM_NAME_BUNDLE:-}"
+export DEV_PACK_CUSTOM_NAME_INSTALLER="${DEV_PACK_CUSTOM_NAME_INSTALLER:-}"
 # Pack / Custom / Packages destination
-export DEV_PACK_CUSTOM_STORE="${DEV_PATH_BUILD}/pack"
+export DEV_PACK_CUSTOM_STORE="${DEV_PACK_CUSTOM_STORE:-}"
 
 #
 # Locals
