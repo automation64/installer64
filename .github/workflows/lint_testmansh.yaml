@@ -26,9 +26,6 @@ jobs:
       - name: "Prepare build environment"
         run: "./bin/dev-lib-installer64 && ./bin/dev-lib-testmansh"
 
-      - name: "Build app"
-        run: "./bin/dev-build-bash"
-
       - name: "Lint app"
         run: "./bin/dev-lint-testmansh"
 ...
