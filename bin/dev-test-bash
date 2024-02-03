@@ -63,7 +63,8 @@ function dev_test_run() {
     --mount "type=bind,source=${DEV_PATH_ROOT},target=${DEV_ENV_CONTAINER_PATH_ROOT},readonly" \
     --mount "type=bind,source=${DEV_PATH_TEST},target=${DEV_ENV_CONTAINER_PATH_TEST},readonly" \
     --entrypoint="${DEV_ENV_CONTAINER_PATH_ROOT}/${test_file}" \
-    "${DEV_ENV_BASH_REGISTRY}/${container_path}"
+    "${DEV_ENV_BASH_REGISTRY}/${container_path}" ||
+    return $?
 }
 
 function dev_test_bash() {
@@ -74,14 +75,17 @@ function dev_test_bash() {
   local current=''
   local tests=''
 
+  bl64_dbg_app_show_comments 'define target tests'
   if [[ -z "$target" ]]; then
     target="$DEV_TEST_BASH_CASES"
+  fi
+  if [[ -d "$target" ]]; then
+    bl64_dbg_app_show_comments "look for tests (${target})"
     tests="$(bl64_fs_find_files "$target")" ||
       return $?
   else
     tests="$target"
   fi
-
   bl64_msg_show_info "test container: ${container}"
   for current in $tests; do
     dev_test_run "${container}" "$current" ||

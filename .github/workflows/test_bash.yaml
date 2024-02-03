@@ -38,6 +38,5 @@ jobs:
         run: |
           source ./bin/dev-set &&
           source ./bin/dev-env-bash &&
-          ls -lR test/bash &&
           ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/${{matrix.target}}
 ...
