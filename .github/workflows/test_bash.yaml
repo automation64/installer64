@@ -1,5 +1,6 @@
 ---
-name: "Test / Installers"
+# Template: 1.0.0
+name: "Test / Bash"
 
 env:
   DEV_CICD_DEBUG: ""
@@ -13,27 +14,26 @@ on:
       - "feature/**"
     paths:
       - "src/**"
-      - "test/**"
+      - "test/bash/**"
 
 jobs:
-  test-installers:
+  test-bash:
     runs-on: "ubuntu-latest"
     strategy:
       fail-fast: false
       matrix:
         target:
-          - "ALP"
-          - "UB"
-          - "OL"
+          - "ALPINE"
+          - "UBUNTU"
+          - "OEL"
     steps:
 
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
       - name: "Prepare build environment"
-        run: "./bin/dev-lib-installer64 && ./bin/dev-lib-bashlib64"
+        run: "./bin/dev-lib-base"
 
       - name: "Run tests"
-        shell: 'script -q -e -c "bash {0}"'
-        run: "./bin/dev-test-installers ${{matrix.target}}"
+        run: "source ./bin/dev-set && ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_BASE_TEST}/${{matrix.target}}"
 ...
