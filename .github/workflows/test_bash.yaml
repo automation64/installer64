@@ -1,0 +1,42 @@
+---
+# Template: 1.0.0
+name: "Test / Bash"
+
+env:
+  DEV_CICD_DEBUG: ""
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "feature/**"
+    paths:
+      - "src/**"
+      - "test/bash/**"
+
+jobs:
+  test-bash:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - "ALPINE"
+          - "UBUNTU"
+          - "OEL"
+    steps:
+
+      - name: "Check out repository code"
+        uses: "actions/checkout@main"
+
+      - name: "Prepare dev environment"
+        run: "./bin/dev-lib-installer64 && ./bin/dev-lib-testmansh"
+
+      - name: "Run tests"
+        run: |
+          source ./bin/dev-set &&
+          source ./bin/dev-env-bash &&
+          ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/${{matrix.target}}
+...

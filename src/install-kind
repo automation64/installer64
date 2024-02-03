@@ -47,7 +47,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 # Globals
 #
-https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
+
 export INST64_KIND_PLATFORM="${INST64_KIND_PLATFORM:-linux-amd64}"
 export INST64_KIND_TARGET="${INST64_KIND_TARGET:-${INST64_OPT_ROOT}/kind}"
 export INST64_KIND_VERSION="${INST64_KIND_VERSION:-latest}"
