@@ -8,4 +8,4 @@ fi
 export INST64_COSIGN_SYSTEM_WIDE='NO'
 export INST64_COSIGN_TARGET="${HOME}/test"
 
-/opt/installer64/install-cosign
+${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-cosign

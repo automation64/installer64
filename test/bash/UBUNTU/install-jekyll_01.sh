@@ -6,10 +6,10 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 export INST64_RUBY_DEVELOPMENT='ON'
-sudo /opt/installer64/install-gcc &&
-  sudo -E /opt/installer64/install-ruby ||
+sudo ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-gcc &&
+  sudo -E ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-ruby ||
   exit $?
 
 source /usr/local/bin/installer64-ruby.env
 
-/opt/installer64/install-jekyll
+${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-jekyll

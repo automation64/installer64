@@ -12,4 +12,4 @@ if [[ -d "$target" ]]; then
 fi
 
 export INST64_BASHLIB64_TARGET='/usr/local/lib/bl64'
-sudo -E /opt/installer64/install-bashlib64
+sudo -E ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-bashlib64

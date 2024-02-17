@@ -5,5 +5,5 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-sudo /opt/installer64/install-ruby
+sudo ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-ruby
 

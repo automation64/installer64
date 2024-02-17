@@ -7,8 +7,8 @@ fi
 
 # Install requirements
 export PATH="${HOME}/.krew/bin:$PATH"
-sudo /opt/installer64/install-kubectl &&
-  /opt/installer64/install-krew ||
+sudo ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-kubectl &&
+  ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-krew ||
   exit $?
 
-/opt/installer64/install-stern
+${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-stern
