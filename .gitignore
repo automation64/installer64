@@ -1,7 +1,7 @@
 #
 # GIT Ignore
 #
-# * Template version: 1.2.0
+# * Template version: 1.2.1
 #
 
 # VScode
@@ -22,9 +22,9 @@
 # Local variables
 /.local
 
-# Keep placeholder for empty directories
-!/**/.gitkeep
-
 #
 # Project specific exclusions
 #
+
+# Keep placeholder for empty directories
+!/**/.gitkeep
