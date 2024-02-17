@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - DUF
   - GPing
 
+### Changed
+
+- KubeConform
+  - Updated OS compatibility
+- KubeLinter
+  - Updated OS compatibility
+
 ## [3.13.0]
 
 ### Added
