@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - FZF
   - HTTPie
   - EZA
+  - DUF
 
 ## [3.13.0]
 
