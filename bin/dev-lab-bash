@@ -2,7 +2,7 @@
 #######################################
 # Dev / Lab / Bash / Open sandbox environment
 #
-# * Version: 1.1.0
+# * Version: 1.1.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -44,9 +44,9 @@ function dev_lab_open() {
   bl64_msg_show_task "open sanbox environment (${dev_lab_image})"
   bl64_cnt_run_interactive \
     --entrypoint="$dev_lab_entrypoint" \
-    --workdir="$DEV_ENV_CONTAINER_PATH_ROOT" \
-    --mount "type=bind,source=${DEV_PATH_SRC},target=${DEV_ENV_CONTAINER_PATH_SRC},readonly" \
-    --mount "type=bind,source=${DEV_PATH_ROOT},target=${DEV_ENV_CONTAINER_PATH_ROOT},readonly" \
+    --workdir="$DEV_ENV_BASH_CONTAINER_PATH_ROOT" \
+    --mount "type=bind,source=${DEV_PATH_SRC},target=${DEV_ENV_BASH_CONTAINER_PATH_SRC},readonly" \
+    --mount "type=bind,source=${DEV_PATH_ROOT},target=${DEV_ENV_BASH_CONTAINER_PATH_ROOT},readonly" \
     "${DEV_ENV_BASH_REGISTRY}/${dev_lab_image}"
 }
 
@@ -59,7 +59,7 @@ function dev_lab_initialize() {
 # Main
 #
 
-declare dev_lab_image="${1:-${DEV_LAB_BASH_IMAGE}}"
+declare dev_lab_image="${1:-${DEV_LAB_BASH_CONTAINER}}"
 
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 bl64_msg_all_enable_verbose

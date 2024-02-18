@@ -8,4 +8,4 @@ fi
 export INST64_HELM_SYSTEM_WIDE='NO'
 export INST64_HELM_TARGET="${HOME}/test"
 
-/opt/installer64/install-helm
+/source/install-helm

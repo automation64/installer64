@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Template: 2.2.0
+# Snippet: install-github-release-3.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
+# Version: 1.3.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,7 +30,7 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
-# shellcheck source-path=lib/bl64
+# shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
@@ -76,16 +77,12 @@ export INST64_GO_CLI_PATH=''
 function inst64_go_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
-  local app_target_mode='0755'
-  local app_target_owner='root'
-  local app_cli_mode='0755'
   local app_cli_source="${INST64_GO_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
     INST64_GO_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_GO_CLI_NAME}"
   else
     INST64_GO_CLI_PATH="${INST64_GO_TARGET}/${INST64_GO_CLI_NAME}"
-    app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
@@ -203,24 +200,28 @@ function inst64_go_verify() {
 #######################################
 function inst64_go_initialize() {
   bl64_dbg_app_show_function
-  if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
-    bl64_check_privilege_root ||
-      return $?
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GO_METHOD' \
+    "$INST64_GO_METHOD" \
+    'BINARY' ||
+    return $?
+
+  if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_os_check_compatibility \
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_CNT}" \
+      "${BL64_OS_DEB}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_RHEL}" \
+      "${BL64_OS_SLES}" \
+      "${BL64_OS_UB}"
   fi
-  bl64_os_check_compatibility \
-    "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
-    "${BL64_OS_ALP}-3" \
-    "${BL64_OS_CNT}-7" "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
-    "${BL64_OS_DEB}-9" "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
-    "${BL64_OS_FD}-33" "${BL64_OS_FD}-34" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" "${BL64_OS_FD}-37" "${BL64_OS_FD}-38" "${BL64_OS_FD}-39" \
-    "${BL64_OS_OL}-7" "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
-    "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
-    "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" \
-    "${BL64_OS_SLES}-15" \
-    "${BL64_OS_UB}-18" "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GO_METHOD' \
-      "$INST64_GO_METHOD" \
-      'BINARY'
 }
 
 #

@@ -5,4 +5,4 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-/opt/installer64/install-krew
+/source/install-krew

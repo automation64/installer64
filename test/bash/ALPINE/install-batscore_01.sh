@@ -16,4 +16,4 @@ if [[ -L "$bats_file" ]]; then
   sudo rm "$bats_file"
 fi
 
-sudo /opt/installer64/install-batscore
+sudo /source/install-batscore

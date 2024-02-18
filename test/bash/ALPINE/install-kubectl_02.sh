@@ -8,4 +8,4 @@ fi
 export INST64_KUBECTL_SYSTEM_WIDE='NO'
 export INST64_KUBECTL_TARGET="${HOME}/test"
 
-/opt/installer64/install-kubectl
+/source/install-kubectl

@@ -8,4 +8,4 @@ fi
 export INST64_ACT_SYSTEM_WIDE='NO'
 export INST64_ACT_TARGET="${HOME}/test"
 
-/opt/installer64/install-act
+/source/install-act

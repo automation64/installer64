@@ -8,4 +8,4 @@ fi
 export INST64_MINIKUBE_SYSTEM_WIDE='NO'
 export INST64_MINIKUBE_TARGET="${HOME}/test"
 
-/opt/installer64/install-minikube
+/source/install-minikube
