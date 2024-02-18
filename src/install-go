@@ -205,7 +205,7 @@ function inst64_go_initialize() {
     'BINARY' ||
     return $?
 
-  if [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
