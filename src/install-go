@@ -76,9 +76,6 @@ export INST64_GO_CLI_PATH=''
 function inst64_go_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
-  local app_target_mode='0755'
-  local app_target_owner='root'
-  local app_cli_mode='0755'
   local app_cli_source="${INST64_GO_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_GO_SYSTEM_WIDE"; then
