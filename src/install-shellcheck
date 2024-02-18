@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Template: 2.1.0
+# Template: 2.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.2.0
+# Version: 2.3.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,6 +29,22 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
@@ -40,31 +56,22 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
-# Installation method
-export INST64_SHELLCHECK_METHOD="${INST64_SHELLCHECK_METHOD:-NATIVE}"
-# Enable development packages?
-export INST64_SHELLCHECK_DEVELOPMENT="${INST64_SHELLCHECK_DEVELOPMENT:-$BL64_VAR_OFF}"
-
 export INST64_SHELLCHECK_PLATFORM="${INST64_SHELLCHECK_PLATFORM:-linux.x86_64}"
 export INST64_SHELLCHECK_TARGET="${INST64_SHELLCHECK_TARGET:-${INST64_OPT_ROOT}/shellcheck}"
 export INST64_SHELLCHECK_VERSION="${INST64_SHELLCHECK_VERSION:-latest}"
 # Install system wide? Requires root privilege
 export INST64_SHELLCHECK_SYSTEM_WIDE="${INST64_SHELLCHECK_SYSTEM_WIDE:-YES}"
+# Installation method
+export INST64_SHELLCHECK_METHOD="${INST64_SHELLCHECK_METHOD:-NATIVE}"
+# Enable development packages?
+export INST64_SHELLCHECK_DEVELOPMENT="${INST64_SHELLCHECK_DEVELOPMENT:-$BL64_VAR_OFF}"
+
+export INST64_SHELLCHECK_REPO_NAME='shellcheck'
+export INST64_SHELLCHECK_REPO_OWNER='koalaman'
 
 export INST64_SHELLCHECK_PACKAGES=''
 export INST64_SHELLCHECK_CLI_NAME='shellcheck'
 export INST64_SHELLCHECK_CLI_PATH=''
-
-export INST64_SHELLCHECK_REPO_NAME='shellcheck'
-export INST64_SHELLCHECK_REPO_OWNER='koalaman'
 
 #
 # Functions
@@ -97,10 +104,12 @@ function inst64_shellcheck_install_binary_release() {
     bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_SHELLCHECK_TARGET" "${work_path}/${INST64_SHELLCHECK_CLI_NAME}-${INST64_SHELLCHECK_VERSION}/${app_cli_source}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_SHELLCHECK_CLI_PATH})"
-  # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_SHELLCHECK_TARGET}/${app_cli_source}" "$INST64_SHELLCHECK_CLI_PATH" "$BL64_VAR_ON" ||
-    return $?
+  if bl64_lib_flag_is_enabled "$INST64_SHELLCHECK_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_SHELLCHECK_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_create_symlink "${INST64_SHELLCHECK_TARGET}/${app_cli_source}" "$INST64_SHELLCHECK_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
