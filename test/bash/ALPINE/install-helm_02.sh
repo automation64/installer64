@@ -8,4 +8,4 @@ fi
 export INST64_HELM_SYSTEM_WIDE='NO'
 export INST64_HELM_TARGET="${HOME}/test"
 
-${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-helm
+/source/install-helm

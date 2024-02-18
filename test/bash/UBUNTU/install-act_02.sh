@@ -8,4 +8,4 @@ fi
 export INST64_ACT_SYSTEM_WIDE='NO'
 export INST64_ACT_TARGET="${HOME}/test"
 
-${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-act
+/source/install-act

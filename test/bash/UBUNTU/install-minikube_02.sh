@@ -8,4 +8,4 @@ fi
 export INST64_MINIKUBE_SYSTEM_WIDE='NO'
 export INST64_MINIKUBE_TARGET="${HOME}/test"
 
-${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-minikube
+/source/install-minikube

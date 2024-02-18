@@ -16,4 +16,4 @@ if [[ -L "$bats_file" ]]; then
   sudo rm "$bats_file"
 fi
 
-sudo ${DEV_ENV_BASH_CONTAINER_PATH_SRC}/install-batscore
+sudo /source/install-batscore
