@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Template: 2.2.0
+# Snippet: install-os-package-2.5.0
+# Snippet: install-github-release-3.2.0
 #######################################
 # Installer64 / Package installer
 #
@@ -165,6 +167,8 @@ function inst64_shellcheck_select_packages() {
       INST64_SHELLCHECK_PACKAGES='shellcheck'
     elif bl64_os_match "${BL64_OS_UB}"; then
       INST64_SHELLCHECK_PACKAGES='shellcheck'
+    elif bl64_os_match "${BL64_OS_OL}"; then
+      INST64_SHELLCHECK_PACKAGES='shellcheck'
     fi
   elif [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_SHELLCHECK_VERSION" == 'latest' ]]; then
@@ -231,18 +235,27 @@ function inst64_shellcheck_verify() {
 function inst64_shellcheck_initialize() {
   bl64_dbg_app_show_function
 
-  if bl64_lib_flag_is_enabled "$INST64_SHELLCHECK_SYSTEM_WIDE" || [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root ||
-      return $?
-  fi
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SHELLCHECK_METHOD' \
+    "$INST64_SHELLCHECK_METHOD" \
+    'NATIVE' \
+    'BINARY' ||
+    return $?
 
-  bl64_os_check_compatibility \
-    "${BL64_OS_ALP}-3" \
-    "${BL64_OS_UB}-22" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SHELLCHECK_METHOD' \
-      "$INST64_SHELLCHECK_METHOD" \
-      'NATIVE' \
-      'BINARY'
+  if [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SHELLCHECK_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_os_check_compatibility \
+      "$BL64_OS_ALP" \
+      "$BL64_OS_UB" \
+      "$BL64_OS_OL"
+  elif [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
+    bl64_os_check_compatibility \
+      "${BL64_OS_ALP}-3" \
+      "${BL64_OS_UB}-22" \
+      "${BL64_OS_OL}-9"
+  fi
 }
 
 #
