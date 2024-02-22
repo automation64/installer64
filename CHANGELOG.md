@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installer
   - Bat
 
+### Changed
+
+- AWS CLI
+  - Published aws_complete to searchable path
+
 ## [3.14.0]
 
 ### Added
