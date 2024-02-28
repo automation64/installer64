@@ -75,6 +75,7 @@ export INST64_TERRAFORM_REPO_NAME='terraform'
 export INST64_TERRAFORM_REPO_OWNER='hashicorp'
 
 export INST64_TERRAFORM_REPOSITORY_NAME='hashicorp'
+# shellcheck disable=SC2016
 export INST64_TERRAFORM_SOURCE_RHEL='https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable'
 export INST64_TERRAFORM_REPOSITORY_KEY_RHEL='https://rpm.releases.hashicorp.com/gpg'
 
