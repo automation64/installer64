@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.5.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -56,55 +56,55 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_TFLINT_PLATFORM="${INST64_TFLINT_PLATFORM:-linux_amd64}"
-export INST64_TFLINT_TARGET="${INST64_TFLINT_TARGET:-${INST64_OPT_ROOT}/tflint}"
-export INST64_TFLINT_VERSION="${INST64_TFLINT_VERSION:-latest}"
+export INST64_ZOXIDE_PLATFORM="${INST64_ZOXIDE_PLATFORM:-x86_64-unknown-linux-musl}"
+export INST64_ZOXIDE_TARGET="${INST64_ZOXIDE_TARGET:-${INST64_OPT_ROOT}/zoxide}"
+export INST64_ZOXIDE_VERSION="${INST64_ZOXIDE_VERSION:-latest}"
 # Install system wide? Requires root privilege
-export INST64_TFLINT_SYSTEM_WIDE="${INST64_TFLINT_SYSTEM_WIDE:-YES}"
+export INST64_ZOXIDE_SYSTEM_WIDE="${INST64_ZOXIDE_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_TFLINT_METHOD="${INST64_TFLINT_METHOD:-BINARY}"
+export INST64_ZOXIDE_METHOD="${INST64_ZOXIDE_METHOD:-BINARY}"
 
-export INST64_TFLINT_REPO_NAME='tflint'
-export INST64_TFLINT_REPO_OWNER='terraform-linters'
-export INST64_TFLINT_PACKAGES=''
-export INST64_TFLINT_CLI_NAME='tflint'
-export INST64_TFLINT_CLI_PATH=''
+export INST64_ZOXIDE_REPO_NAME='zoxide'
+export INST64_ZOXIDE_REPO_OWNER='ajeetdsouza'
+export INST64_ZOXIDE_PACKAGES=''
+export INST64_ZOXIDE_CLI_NAME='zoxide'
+export INST64_ZOXIDE_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_tflint_install_binary_release() {
+function inst64_zoxide_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_TFLINT_CLI_NAME}"
+  local app_cli_source='zoxide'
 
-  if bl64_lib_flag_is_enabled "$INST64_TFLINT_SYSTEM_WIDE"; then
-    INST64_TFLINT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TFLINT_CLI_NAME}"
+  if bl64_lib_flag_is_enabled "$INST64_ZOXIDE_SYSTEM_WIDE"; then
+    INST64_ZOXIDE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ZOXIDE_CLI_NAME}"
   else
-    INST64_TFLINT_CLI_PATH="${INST64_TFLINT_TARGET}/${INST64_TFLINT_CLI_NAME}"
+    INST64_ZOXIDE_CLI_PATH="${INST64_ZOXIDE_TARGET}/${INST64_ZOXIDE_CLI_NAME}"
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_TFLINT_REPO_OWNER" "$INST64_TFLINT_REPO_NAME" "$INST64_TFLINT_VERSION" "$INST64_TFLINT_PACKAGES" "${work_path}/${INST64_TFLINT_PACKAGES}" &&
-    bl64_arc_open_zip "${work_path}/${INST64_TFLINT_PACKAGES}" "${work_path}" ||
+    "$INST64_ZOXIDE_REPO_OWNER" "$INST64_ZOXIDE_REPO_NAME" "$INST64_ZOXIDE_VERSION" "$INST64_ZOXIDE_PACKAGES" "${work_path}/${INST64_ZOXIDE_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_ZOXIDE_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_TFLINT_TARGET" &&
-    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_TFLINT_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_ZOXIDE_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_ZOXIDE_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_TFLINT_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_TFLINT_CLI_PATH})"
+  if bl64_lib_flag_is_enabled "$INST64_ZOXIDE_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_ZOXIDE_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_TFLINT_TARGET}/${INST64_TFLINT_CLI_NAME}" "$INST64_TFLINT_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_create_symlink "${INST64_ZOXIDE_TARGET}/${INST64_ZOXIDE_CLI_NAME}" "$INST64_ZOXIDE_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -124,11 +124,11 @@ function inst64_tflint_install_binary_release() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_tflint_install() {
+function inst64_zoxide_install() {
   bl64_dbg_app_show_function
-  inst64_tflint_select_packages || return $?
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
-    inst64_tflint_install_binary_release
+  inst64_zoxide_select_packages || return $?
+  if [[ "$INST64_ZOXIDE_METHOD" == 'BINARY' ]]; then
+    inst64_zoxide_install_binary_release
   fi
 }
 
@@ -143,20 +143,20 @@ function inst64_tflint_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_tflint_select_packages() {
+function inst64_zoxide_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_TFLINT_VERSION" == 'latest' ]]; then
-      INST64_TFLINT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_TFLINT_REPO_OWNER" "$INST64_TFLINT_REPO_NAME")" ||
+  if [[ "$INST64_ZOXIDE_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_ZOXIDE_VERSION" == 'latest' ]]; then
+      INST64_ZOXIDE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_ZOXIDE_REPO_OWNER" "$INST64_ZOXIDE_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='tflint_'
-    package_sufix='.zip'
-    INST64_TFLINT_PACKAGES="${package_prefix}${INST64_TFLINT_PLATFORM}${package_sufix}"
+    package_prefix='zoxide-0.9.4-'
+    package_sufix='.tar.gz'
+    INST64_ZOXIDE_PACKAGES="${package_prefix}${INST64_ZOXIDE_PLATFORM}${package_sufix}"
   fi
-  [[ -z "$INST64_TFLINT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_ZOXIDE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -171,10 +171,10 @@ function inst64_tflint_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_tflint_prepare() {
+function inst64_zoxide_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_ZOXIDE_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi
 }
@@ -190,10 +190,10 @@ function inst64_tflint_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_tflint_verify() {
+function inst64_zoxide_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_TFLINT_CLI_PATH" --version
+  "$INST64_ZOXIDE_CLI_PATH" --version
 }
 
 #######################################
@@ -207,15 +207,15 @@ function inst64_tflint_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_tflint_initialize() {
+function inst64_zoxide_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_TFLINT_METHOD' \
-    "$INST64_TFLINT_METHOD" \
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ZOXIDE_METHOD' \
+    "$INST64_ZOXIDE_METHOD" \
     'BINARY' ||
     return $?
 
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_TFLINT_SYSTEM_WIDE"; then
+  if [[ "$INST64_ZOXIDE_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_ZOXIDE_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
@@ -231,14 +231,14 @@ function inst64_tflint_initialize() {
 # Main
 #
 
-declare inst64_tflint_installer_description='Install application: TFlint'
+declare inst64_zoxide_installer_description='Install application: Zoxide'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_tflint_installer_description"
+bl64_msg_show_batch_start "$inst64_zoxide_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_tflint_initialize &&
-  inst64_tflint_prepare &&
-  inst64_tflint_install &&
-  inst64_tflint_verify
-bl64_msg_show_batch_finish $? "$inst64_tflint_installer_description"
+inst64_zoxide_initialize &&
+  inst64_zoxide_prepare &&
+  inst64_zoxide_install &&
+  inst64_zoxide_verify
+bl64_msg_show_batch_finish $? "$inst64_zoxide_installer_description"
