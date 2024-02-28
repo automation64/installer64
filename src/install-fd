@@ -133,7 +133,7 @@ function inst64_fd_select_platform() {
       if bl64_os_match "${BL64_OS_ALP}"; then
         INST64_FD_PLATFORM='i686-unknown-linux-musl'
       elif bl64_os_match "${BL64_OS_FD}" "${BL64_OS_OL}" "${BL64_OS_UB}"; then
-        INST64_FD_PLATFORM='i686-unknown-linux-gnu'
+        INST64_FD_PLATFORM='i686-unknown-linux-musl'
       fi
     fi
   fi
