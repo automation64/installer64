@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Template: 2.0.0
+# Template: 2.2.0
+# Snippet: install-github-release-3.2.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.3.0
+# Version: 1.4.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,10 +30,23 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
-# Installer64 location
-export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
 # Base path for local applications
 export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
@@ -42,18 +56,11 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-
-#
-# Globals
-#
-
 export INST64_YQ_PLATFORM="${INST64_YQ_PLATFORM:-linux_amd64}"
 export INST64_YQ_TARGET="${INST64_YQ_TARGET:-${INST64_OPT_ROOT}/yq}"
 export INST64_YQ_VERSION="${INST64_YQ_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_YQ_SYSTEM_WIDE="${INST64_YQ_SYSTEM_WIDE:-YES}"
 # Installation method
 export INST64_YQ_METHOD="${INST64_YQ_METHOD:-BINARY}"
 
@@ -61,6 +68,7 @@ export INST64_YQ_REPO_NAME='yq'
 export INST64_YQ_REPO_OWNER='mikefarah'
 export INST64_YQ_PACKAGES=''
 export INST64_YQ_CLI_NAME='yq'
+export INST64_YQ_CLI_PATH=''
 
 #
 # Functions
@@ -74,6 +82,13 @@ function inst64_yq_install_binary_release() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_YQ_CLI_NAME}_${INST64_YQ_PLATFORM}"
 
+  if bl64_lib_flag_is_enabled "$INST64_YQ_SYSTEM_WIDE"; then
+    INST64_YQ_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_YQ_CLI_NAME}"
+  else
+    INST64_YQ_CLI_PATH="${INST64_YQ_TARGET}/${INST64_YQ_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
+  fi
+
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
@@ -86,10 +101,12 @@ function inst64_yq_install_binary_release() {
     bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_YQ_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_YQ_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_YQ_CLI_NAME}" "$BL64_VAR_ON" ||
-    return $?
+  if bl64_lib_flag_is_enabled "$INST64_YQ_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_YQ_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_create_symlink "${INST64_YQ_TARGET}/${app_cli_source}" "$INST64_YQ_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
@@ -157,7 +174,9 @@ function inst64_yq_select_packages() {
 function inst64_yq_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  bl64_arc_setup
+  if [[ "$INST64_YQ_METHOD" == 'BINARY' ]]; then
+    bl64_arc_setup
+  fi
 }
 
 #######################################
@@ -174,7 +193,7 @@ function inst64_yq_prepare() {
 function inst64_yq_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "${INST64_LOCAL_BIN}/${INST64_YQ_CLI_NAME}" --version
+  "$INST64_YQ_CLI_PATH" --version
 }
 
 #######################################
@@ -190,28 +209,36 @@ function inst64_yq_verify() {
 #######################################
 function inst64_yq_initialize() {
   bl64_dbg_app_show_function
-  bl64_os_check_compatibility \
-    "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
-    "${BL64_OS_ALP}-3" \
-    "${BL64_OS_CNT}-7" "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
-    "${BL64_OS_DEB}-9" "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
-    "${BL64_OS_FD}-33" "${BL64_OS_FD}-34" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" "${BL64_OS_FD}-37" "${BL64_OS_FD}-38" "${BL64_OS_FD}-39" \
-    "${BL64_OS_OL}-7" "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
-    "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
-    "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" \
-    "${BL64_OS_SLES}-15" \
-    "${BL64_OS_UB}-18" "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_YQ_METHOD' \
-      "$INST64_YQ_METHOD" \
-      'BINARY' &&
-    bl64_check_privilege_root
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_YQ_METHOD' \
+    "$INST64_YQ_METHOD" \
+    'BINARY' ||
+    return $?
+
+  if [[ "$INST64_YQ_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_YQ_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_os_check_compatibility \
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_AMZ}" \
+      "${BL64_OS_CNT}" \
+      "${BL64_OS_DEB}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_RHEL}" \
+      "${BL64_OS_SLES}" \
+      "${BL64_OS_UB}"
+  fi
 }
 
 #
 # Main
 #
 
-declare inst64_yq_installer_description='Install application: YQ'
+declare inst64_yq_installer_description='Install application: YQ - YAML Query'
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_yq_installer_description"

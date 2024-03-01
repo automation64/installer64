@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.18.0]
+
+### Changed
+
+- YQ
+  - Update OS compatibility list
+- Batscore
+  - Update OS compatibility list
+
 ## [3.17.0]
 
 ### Added
@@ -402,6 +411,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers migrated from Container64 project
 
+[3.18.0]: https://github.com/automation64/installer64/compare/v3.17.0...v3.18.0
+[3.18.0]: https://github.com/automation64/installer64/compare/v3.17.0...v3.18.0
 [3.17.0]: https://github.com/automation64/installer64/compare/v3.16.0...v3.17.0
 [3.16.0]: https://github.com/automation64/installer64/compare/v3.15.0...v3.16.0
 [3.15.0]: https://github.com/automation64/installer64/compare/v3.14.0...v3.15.0
