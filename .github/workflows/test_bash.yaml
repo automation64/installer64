@@ -24,6 +24,7 @@ jobs:
       matrix:
         target:
           - "ALPINE"
+          - "FEDORA"
           - "UBUNTU"
           - "OEL"
     steps:
