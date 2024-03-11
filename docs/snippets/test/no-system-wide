@@ -1,0 +1,6 @@
+# X_CODE_PLACEHOLDER_1_X
+
+export INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE='NO'
+export INST64_X_APP_NAME_CAPS_X_TARGET="${HOME}/test"
+
+/opt/installer64/install-X_APP_NAME_X

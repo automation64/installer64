@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # Template: 2.2.0
-# Snippet: install-os-package-2.5.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.3.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -30,16 +29,7 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
-# shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+# X_IMPORTS_PLACEHOLDER_X
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
 #
@@ -57,25 +47,14 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# Installation method
-export INST64_YAMLLINT_METHOD="${INST64_YAMLLINT_METHOD:-NATIVE}"
-# Enable development packages?
-export INST64_YAMLLINT_DEVELOPMENT="${INST64_YAMLLINT_DEVELOPMENT:-$BL64_VAR_OFF}"
-export INST64_YAMLLINT_PACKAGES=''
-export INST64_YAMLLINT_CLI_NAME='yamllint'
-export INST64_YAMLLINT_CLI_PATH=''
+# X_GLOBALS_PLACEHOLDER_X
+export INST64_X_APP_NAME_CAPS_X_PACKAGES=''
+export INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
+export INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 
 #
 # Functions
 #
-
-function inst64_yamllint_install_os_packages() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'deploy packages'
-  INST64_YAMLLINT_CLI_PATH="/usr/bin/${INST64_YAMLLINT_CLI_NAME}"
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_YAMLLINT_PACKAGES
-}
 
 #######################################
 # Install application packages
@@ -88,12 +67,10 @@ function inst64_yamllint_install_os_packages() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_yamllint_install() {
+function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  inst64_yamllint_select_packages || return $?
-  if [[ "$INST64_YAMLLINT_METHOD" == 'NATIVE' ]]; then
-    inst64_yamllint_install_os_packages
-  fi
+  inst64_X_APP_NAME_X_select_packages || return $?
+  # X_INSTALL_PLACEHOLDER_X
 }
 
 #######################################
@@ -107,14 +84,10 @@ function inst64_yamllint_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_yamllint_select_packages() {
+function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_YAMLLINT_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match "$BL64_OS_UB" "$BL64_OS_ALP"; then
-      INST64_YAMLLINT_PACKAGES='yamllint'
-    fi
-  fi
-  [[ -z "$INST64_YAMLLINT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  # X_SELECT_PKG_PLACEHOLDER_X
+  [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -129,12 +102,10 @@ function inst64_yamllint_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_yamllint_prepare() {
+function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_YAMLLINT_METHOD" == 'NATIVE' ]]; then
-    bl64_pkg_setup
-  fi
+  # X_PREPARE_PLACEHOLDER_X
 }
 
 #######################################
@@ -148,10 +119,11 @@ function inst64_yamllint_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_yamllint_verify() {
+function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_YAMLLINT_CLI_PATH" --version
+  # X_VERIFY_PLACEHOLDER_X
+  # example # "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
 }
 
 #######################################
@@ -165,33 +137,24 @@ function inst64_yamllint_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_yamllint_initialize() {
+function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_YAMLLINT_METHOD' \
-    "$INST64_YAMLLINT_METHOD" \
-    'NATIVE' ||
-    return $?
-
-  if [[ "$INST64_YAMLLINT_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
-    bl64_os_check_compatibility \
-      "${BL64_OS_ALP}-3" \
-      "${BL64_OS_UB}-22"
-  fi
+  # X_INIT_PLACEHOLDER_X
 }
 
 #
 # Main
 #
 
-declare inst64_yamllint_installer_description='Install application: YAMLLint'
+declare inst64_X_APP_NAME_X_installer_description='Install application: X_APP_FULL_NAME_X'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_yamllint_installer_description"
+bl64_msg_show_batch_start "$inst64_X_APP_NAME_X_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_yamllint_initialize &&
-  inst64_yamllint_prepare &&
-  inst64_yamllint_install &&
-  inst64_yamllint_verify
-bl64_msg_show_batch_finish $? "$inst64_yamllint_installer_description"
+inst64_X_APP_NAME_X_initialize &&
+  inst64_X_APP_NAME_X_prepare &&
+  inst64_X_APP_NAME_X_install &&
+  inst64_X_APP_NAME_X_verify
+  # X_MAIN_POST_VERIFY_PLACEHOLDER_X
+bl64_msg_show_batch_finish $? "$inst64_X_APP_NAME_X_installer_description"
