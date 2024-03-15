@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- KubeLinter
+  - Update OS compatibility list
 - ArgoCD CLI
   - Update OS compatibility list
 

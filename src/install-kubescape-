@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.3.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -56,55 +56,55 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_KUBELINTER_PLATFORM="${INST64_KUBELINTER_PLATFORM:-}"
-export INST64_KUBELINTER_TARGET="${INST64_KUBELINTER_TARGET:-${INST64_OPT_ROOT}/kubelinter}"
-export INST64_KUBELINTER_VERSION="${INST64_KUBELINTER_VERSION:-latest}"
+export INST64_KUBESCAPE_PLATFORM="${INST64_KUBESCAPE_PLATFORM:-}"
+export INST64_KUBESCAPE_TARGET="${INST64_KUBESCAPE_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
+export INST64_KUBESCAPE_VERSION="${INST64_KUBESCAPE_VERSION:-latest}"
 # Install system wide? Requires root privilege
-export INST64_KUBELINTER_SYSTEM_WIDE="${INST64_KUBELINTER_SYSTEM_WIDE:-YES}"
+export INST64_KUBESCAPE_SYSTEM_WIDE="${INST64_KUBESCAPE_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_KUBELINTER_METHOD="${INST64_KUBELINTER_METHOD:-BINARY}"
+export INST64_KUBESCAPE_METHOD="${INST64_KUBESCAPE_METHOD:-BINARY}"
 
-export INST64_KUBELINTER_REPO_NAME='kube-linter'
-export INST64_KUBELINTER_REPO_OWNER='stackrox'
-export INST64_KUBELINTER_PACKAGES=''
-export INST64_KUBELINTER_CLI_NAME='kube-linter'
-export INST64_KUBELINTER_CLI_PATH=''
+export INST64_KUBESCAPE_REPO_NAME='X_REPO_NAME_X'
+export INST64_KUBESCAPE_REPO_OWNER='X_REPO_OWNER_X'
+export INST64_KUBESCAPE_PACKAGES=''
+export INST64_KUBESCAPE_CLI_NAME='X_CLI_NAME_X'
+export INST64_KUBESCAPE_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_kubelinter_install_binary_release() {
+function inst64_X_APP_NAME_X_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_KUBELINTER_CLI_NAME}"
+  local app_cli_source="${INST64_KUBESCAPE_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_KUBELINTER_SYSTEM_WIDE"; then
-    INST64_KUBELINTER_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBELINTER_CLI_NAME}"
+  if bl64_lib_flag_is_enabled "$INST64_KUBESCAPE_SYSTEM_WIDE"; then
+    INST64_KUBESCAPE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBESCAPE_CLI_NAME}"
   else
-    INST64_KUBELINTER_CLI_PATH="${INST64_KUBELINTER_TARGET}/${INST64_KUBELINTER_CLI_NAME}"
+    INST64_KUBESCAPE_CLI_PATH="${INST64_KUBESCAPE_TARGET}/${INST64_KUBESCAPE_CLI_NAME}"
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_KUBELINTER_REPO_OWNER" "$INST64_KUBELINTER_REPO_NAME" "$INST64_KUBELINTER_VERSION" "$INST64_KUBELINTER_PACKAGES" "${work_path}/${INST64_KUBELINTER_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_KUBELINTER_PACKAGES}" "${work_path}" ||
+    "$INST64_KUBESCAPE_REPO_OWNER" "$INST64_KUBESCAPE_REPO_NAME" "$INST64_KUBESCAPE_VERSION" "$INST64_KUBESCAPE_PACKAGES" "${work_path}/${INST64_KUBESCAPE_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_KUBESCAPE_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBELINTER_TARGET" &&
-    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBELINTER_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBESCAPE_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_KUBESCAPE_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_KUBELINTER_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_KUBELINTER_CLI_PATH})"
+  if bl64_lib_flag_is_enabled "$INST64_KUBESCAPE_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_KUBESCAPE_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_KUBELINTER_TARGET}/${INST64_KUBELINTER_CLI_NAME}" "$INST64_KUBELINTER_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_create_symlink "${INST64_KUBESCAPE_TARGET}/${INST64_KUBESCAPE_CLI_NAME}" "$INST64_KUBESCAPE_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -126,12 +126,12 @@ function inst64_kubelinter_install_binary_release() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-function inst64_kubelinter_select_platform() {
+function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_KUBELINTER_METHOD" == 'BINARY' ]]; then
-    [[ -z "$INST64_KUBELINTER_PLATFORM" ]] && INST64_KUBELINTER_PLATFORM='linux'
+  if [[ "$INST64_KUBESCAPE_METHOD" == 'BINARY' ]]; then
+      [[ -z "$INST64_KUBESCAPE_PLATFORM" ]] && INST64_KUBESCAPE_PLATFORM='X_PLATFORM_X'
   fi
-  [[ -z "$INST64_KUBELINTER_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  [[ -z "$INST64_KUBESCAPE_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -146,13 +146,13 @@ function inst64_kubelinter_select_platform() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_kubelinter_install() {
+function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  inst64_kubelinter_select_platform &&
-    inst64_kubelinter_select_packages ||
+  inst64_X_APP_NAME_X_select_platform &&
+    inst64_X_APP_NAME_X_select_packages ||
     return $?
-  if [[ "$INST64_KUBELINTER_METHOD" == 'BINARY' ]]; then
-    inst64_kubelinter_install_binary_release
+  if [[ "$INST64_KUBESCAPE_METHOD" == 'BINARY' ]]; then
+    inst64_X_APP_NAME_X_install_binary_release
   fi
 }
 
@@ -167,20 +167,21 @@ function inst64_kubelinter_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_kubelinter_select_packages() {
+function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_KUBELINTER_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_KUBELINTER_VERSION" == 'latest' ]]; then
-      INST64_KUBELINTER_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KUBELINTER_REPO_OWNER" "$INST64_KUBELINTER_REPO_NAME")" ||
+  if [[ "$INST64_KUBESCAPE_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_KUBESCAPE_VERSION" == 'latest' ]]; then
+      INST64_KUBESCAPE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KUBESCAPE_REPO_OWNER" "$INST64_KUBESCAPE_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='kube-linter-'
-    package_sufix='.tar.gz'
-    INST64_KUBELINTER_PACKAGES="${package_prefix}${INST64_KUBELINTER_PLATFORM}${package_sufix}"
+    package_prefix='X_PACKAGE_PREFIX_X'
+    package_sufix='X_PACKAGE_SUFIX_X'
+    # example # INST64_KUBESCAPE_PACKAGES="${package_prefix}${INST64_KUBESCAPE_VERSION}${INST64_KUBESCAPE_PLATFORM}${package_sufix}"
+    # example # INST64_KUBESCAPE_PACKAGES="${package_prefix}${INST64_KUBESCAPE_PLATFORM}${package_sufix}"
   fi
-  [[ -z "$INST64_KUBELINTER_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_KUBESCAPE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -195,10 +196,10 @@ function inst64_kubelinter_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_kubelinter_prepare() {
+function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_KUBELINTER_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_KUBESCAPE_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi
 }
@@ -214,10 +215,10 @@ function inst64_kubelinter_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_kubelinter_verify() {
+function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_KUBELINTER_CLI_PATH" version
+  "$INST64_KUBESCAPE_CLI_PATH" --version
 }
 
 #######################################
@@ -231,23 +232,20 @@ function inst64_kubelinter_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_kubelinter_initialize() {
+function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KUBELINTER_METHOD' \
-    "$INST64_KUBELINTER_METHOD" \
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KUBESCAPE_METHOD' \
+    "$INST64_KUBESCAPE_METHOD" \
     'BINARY' ||
     return $?
 
-  if [[ "$INST64_KUBELINTER_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_KUBELINTER_SYSTEM_WIDE"; then
+  if [[ "$INST64_KUBESCAPE_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_KUBESCAPE_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
     bl64_os_check_compatibility \
-      "$BL64_OS_ALP" \
-      "$BL64_OS_FD" \
-      "$BL64_OS_UB" \
-      "$BL64_OS_OL"
+      "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
   fi
 }
 
@@ -255,14 +253,14 @@ function inst64_kubelinter_initialize() {
 # Main
 #
 
-declare inst64_kubelinter_installer_description='Install application: Kube-Linter'
+declare inst64_X_APP_NAME_X_installer_description='Install application: X_APP_FULL_NAME_X'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_kubelinter_installer_description"
+bl64_msg_show_batch_start "$inst64_X_APP_NAME_X_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_kubelinter_initialize &&
-  inst64_kubelinter_prepare &&
-  inst64_kubelinter_install &&
-  inst64_kubelinter_verify
-bl64_msg_show_batch_finish $? "$inst64_kubelinter_installer_description"
+inst64_X_APP_NAME_X_initialize &&
+  inst64_X_APP_NAME_X_prepare &&
+  inst64_X_APP_NAME_X_install &&
+  inst64_X_APP_NAME_X_verify
+bl64_msg_show_batch_finish $? "$inst64_X_APP_NAME_X_installer_description"
