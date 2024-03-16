@@ -24,7 +24,7 @@ jobs:
         run: "./bin/dev-lib-installer64"
 
       - name: "Prepare distributable package"
-        run: "./bin/dev-pack-custom"
+        run: "./bin/dev-pack-project"
 
       - name: "Create release"
         run: "./bin/dev-release-github ${GITHUB_REF_NAME}"

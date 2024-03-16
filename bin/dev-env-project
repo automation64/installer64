@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #######################################
-# Dev / Env / Custom / Shared environment variables
+# Dev / Env / Project / Shared environment variables
 #
 # * Version: 1.0.0
 #
@@ -26,11 +26,11 @@
 # * Use .env file to override values
 #
 
-# Pack / Custom / Package name
-export DEV_PACK_CUSTOM_NAME_BUNDLE="${DEV_PACK_CUSTOM_NAME_BUNDLE:-}"
-export DEV_PACK_CUSTOM_NAME_INSTALLER="${DEV_PACK_CUSTOM_NAME_INSTALLER:-}"
-# Pack / Custom / Packages destination
-export DEV_PACK_CUSTOM_STORE="${DEV_PACK_CUSTOM_STORE:-}"
+# Pack / Project / Package name
+export DEV_PACK_PROJECT_NAME_BUNDLE="${DEV_PACK_PROJECT_NAME_BUNDLE:-}"
+export DEV_PACK_PROJECT_NAME_INSTALLER="${DEV_PACK_PROJECT_NAME_INSTALLER:-}"
+# Pack / Project / Packages destination
+export DEV_PACK_PROJECT_STORE="${DEV_PACK_PROJECT_STORE:-}"
 
 #
 # Locals

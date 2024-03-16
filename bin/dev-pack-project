@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #######################################
-# Dev / Pack / Custom / Create installer packages
+# Dev / Pack / Project / Create installer packages
 #
 # * Template: 2.3.0
 #
@@ -27,7 +27,7 @@
 # shellcheck source=bin/dev-set
 source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2>&1 && exit 1; }
 # shellcheck source-path=bin
-source ./bin/dev-env-custom &&
+source ./bin/dev-env-project &&
   # shellcheck source-path=lib/bl64
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-arc.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-txt.bash" &&
@@ -45,33 +45,33 @@ source ./bin/dev-env-custom &&
 
 function dev_pack_custom() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task "prepare packages destination (${DEV_PACK_CUSTOM_STORE})"
-  bl64_fs_rm_full "$DEV_PACK_CUSTOM_STORE"
+  bl64_msg_show_task "prepare packages destination (${DEV_PACK_PROJECT_STORE})"
+  bl64_fs_rm_full "$DEV_PACK_PROJECT_STORE"
   bl64_fs_create_dir \
-    "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$DEV_PACK_CUSTOM_STORE" ||
+    "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$DEV_PACK_PROJECT_STORE" ||
     return $?
 
-  bl64_msg_show_task "copy stand-alone installer (${DEV_PACK_CUSTOM_NAME_INSTALLER})"
+  bl64_msg_show_task "copy stand-alone installer (${DEV_PACK_PROJECT_NAME_INSTALLER})"
   bl64_fs_copy_files \
     '0755' \
     "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" \
-    "$DEV_PACK_CUSTOM_STORE" \
-    "${DEV_PATH_SRC}/${DEV_PACK_CUSTOM_NAME_INSTALLER}" ||
+    "$DEV_PACK_PROJECT_STORE" \
+    "${DEV_PATH_SRC}/${DEV_PACK_PROJECT_NAME_INSTALLER}" ||
     return $?
 
-  bl64_msg_show_task "create installer bundle (${DEV_PACK_CUSTOM_NAME_BUNDLE})"
+  bl64_msg_show_task "create installer bundle (${DEV_PACK_PROJECT_NAME_BUNDLE})"
   bl64_arc_run_tar \
-    czf "${DEV_PACK_CUSTOM_STORE}/${DEV_PACK_CUSTOM_NAME_BUNDLE}" \
+    czf "${DEV_PACK_PROJECT_STORE}/${DEV_PACK_PROJECT_NAME_BUNDLE}" \
     $BL64_ARC_SET_TAR_VERBOSE \
     -C "$DEV_PATH_SRC" .
 }
 
 function dev_pack_initialize() {
   bl64_dbg_app_show_function
-  bl64_check_export 'DEV_PACK_CUSTOM_NAME_BUNDLE' &&
-    bl64_check_export 'DEV_PACK_CUSTOM_NAME_INSTALLER' &&
-    bl64_check_export 'DEV_PACK_CUSTOM_STORE' &&
+  bl64_check_export 'DEV_PACK_PROJECT_NAME_BUNDLE' &&
+    bl64_check_export 'DEV_PACK_PROJECT_NAME_INSTALLER' &&
+    bl64_check_export 'DEV_PACK_PROJECT_STORE' &&
     bl64_arc_setup
 }
 
@@ -82,7 +82,7 @@ function dev_pack_initialize() {
 [[ -n "$DEV_CICD_DEBUG" ]] && bl64_dbg_all_enable
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start 'dev-pack-custom'
+bl64_msg_show_batch_start 'dev-pack-project'
 dev_pack_initialize &&
   dev_pack_custom
-bl64_msg_show_batch_finish $? 'dev-pack-custom'
+bl64_msg_show_batch_finish $? 'dev-pack-project'
