@@ -111,7 +111,7 @@ function inst64_nodejs_install_custom_package() {
         return $?
     done
   else
-    bl64_msg_show_task "publish application to searchable path (${INST64_NODEJS_CLI_PATH})"
+    bl64_msg_show_task "publish generic application name (${INST64_NODEJS_CLI_PATH})"
     bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NODEJS_CLI_PATH" ||
       return $?
     for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
