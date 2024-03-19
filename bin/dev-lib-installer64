@@ -55,6 +55,5 @@ cd "$DEV_PATH_LIB" &&
 
 rm -f \
   'install-installer64' \
-  "${DEV_LIB_BASHLIB64_TARGET}/bashlib64.bash" \
   "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-opt.bash"
 :

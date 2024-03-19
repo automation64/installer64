@@ -53,5 +53,4 @@ echo 'dev-lib-bashlib64: Task: remove BashLib64 older versions'
 echo 'dev-lib-bashlib64: Task: download Installer64'
 "${DEV_LIB_INSTALLER64_TARGET}/install-bashlib64" &&
     rm -f \
-        "${DEV_LIB_BASHLIB64_TARGET}/bashlib64.bash" \
         "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-opt.bash"
