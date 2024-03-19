@@ -55,7 +55,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_HTTPIE_PLATFORM="${INST64_HTTPIE_PLATFORM:-X_APP_PLATFORM_X}"
+export INST64_HTTPIE_PLATFORM="${INST64_HTTPIE_PLATFORM:-}"
 export INST64_HTTPIE_TARGET="${INST64_HTTPIE_TARGET:-${INST64_OPT_ROOT}/httpie}"
 export INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-latest}"
 # Install system wide? Requires root privilege

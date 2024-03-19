@@ -113,7 +113,6 @@ function inst64_bat_install_binary_release() {
   return 0
 }
 
-# X_STAND_ALONE_FUNCTIONS_X #
 #######################################
 # Selects platform ID
 #

@@ -1,4 +1,4 @@
-# Snippet: install-external-package-3.3.0
+# Snippet: install-external-package-3.4.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -8,6 +8,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
 
 # X_GLOBALS_PLACEHOLDER_X
+export INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
 # Installation method
 export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-EXTERNAL}"
 # Enable development packages?
@@ -82,3 +83,8 @@ function inst64_X_APP_NAME_X_install_external_packages() {
     bl64_os_check_compatibility \
       "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
   fi
+
+# X_PLATFORM_SELECTION_PLACEHOLDER_X #
+if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
+    # example # [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
+fi

@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Template: 2.0.1
+# Template: 2.2.0
+# Snippet: install-custom-package-4.2.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,6 +30,21 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
@@ -40,18 +56,12 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
-export INST64_NODEJS_PLATFORM="${INST64_NODEJS_PLATFORM:-linux-x64}"
+export INST64_NODEJS_PLATFORM="${INST64_NODEJS_PLATFORM:-}"
 export INST64_NODEJS_SOURCE="${INST64_NODEJS_SOURCE:-https://nodejs.org/dist}"
 export INST64_NODEJS_TARGET="${INST64_NODEJS_TARGET:-${INST64_OPT_ROOT}/nodejs}"
 export INST64_NODEJS_VERSION="${INST64_NODEJS_VERSION:-20.10.0}"
+# Install system wide? Requires root privilege
+export INST64_NODEJS_SYSTEM_WIDE="${INST64_NODEJS_SYSTEM_WIDE:-YES}"
 # Installation method
 export INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
 
@@ -61,6 +71,7 @@ export INST64_NODEJS_PACKAGES=''
 export INST64_NODEJS_CLI_NAME_NODE='node'
 export INST64_NODEJS_CLI_NAME_NPM='npm'
 export INST64_NODEJS_CLI_NAME_NPX='npx'
+export INST64_NODEJS_CLI_PATH=''
 
 #
 # Functions
@@ -74,9 +85,17 @@ function inst64_nodejs_install_custom_package() {
   local app_cli_source="${INST64_NODEJS_PACKAGES%.tar.gz}/bin"
   local app_component=''
 
+  if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
+    INST64_NODEJS_CLI_PATH="${INST64_LOCAL_BIN}"
+  else
+    INST64_NODEJS_CLI_PATH="${INST64_NODEJS_TARGET}/bin"
+    app_target_owner="$BL64_VAR_DEFAULT"
+  fi
+
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
-    bl64_rxtx_web_get_file "${INST64_NODEJS_PACKAGE_URL}/${INST64_NODEJS_PACKAGES}" "${work_path}/${INST64_NODEJS_PACKAGES}" ||
+    bl64_rxtx_web_get_file \
+      "${INST64_NODEJS_PACKAGE_URL}/${INST64_NODEJS_PACKAGES}" "${work_path}/${INST64_NODEJS_PACKAGES}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -84,15 +103,48 @@ function inst64_nodejs_install_custom_package() {
     bl64_arc_open_tar "${work_path}/${INST64_NODEJS_PACKAGES}" "${INST64_NODEJS_TARGET}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
-    bl64_fs_create_symlink \
-      "${INST64_NODEJS_TARGET}/${app_cli_source}/$app_component" "${INST64_LOCAL_BIN}/${app_component}" "$BL64_VAR_ON" ||
+  if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_NODEJS_CLI_PATH})"
+    for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
+      bl64_fs_create_symlink \
+        "${INST64_NODEJS_TARGET}/${app_cli_source}/$app_component" "${INST64_NODEJS_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
+        return $?
+    done
+  else
+    bl64_msg_show_task "publish generic application name (${INST64_NODEJS_CLI_PATH})"
+    bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NODEJS_CLI_PATH" ||
       return $?
-  done
+    for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
+      bl64_fs_create_symlink \
+        "${INST64_NODEJS_TARGET}/${app_cli_source}/$app_component" "${INST64_NODEJS_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
+        return $?
+    done
+  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_nodejs_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+    [[ -z "$INST64_NODEJS_PLATFORM" ]] && INST64_NODEJS_PLATFORM='linux-x64'
+  fi
+  [[ -z "$INST64_NODEJS_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -109,7 +161,9 @@ function inst64_nodejs_install_custom_package() {
 #######################################
 function inst64_nodejs_install() {
   bl64_dbg_app_show_function
-  inst64_nodejs_select_packages || return $?
+  inst64_nodejs_select_platform &&
+    inst64_nodejs_select_packages ||
+    return $?
   if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
     inst64_nodejs_install_custom_package
   fi
@@ -135,6 +189,7 @@ function inst64_nodejs_select_packages() {
     package_sufix='.tar.gz'
     INST64_NODEJS_PACKAGES="${package_prefix}v${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_sufix}"
     INST64_NODEJS_PACKAGE_URL="${INST64_NODEJS_SOURCE}/v${INST64_NODEJS_VERSION}"
+    [[ -z "$INST64_NODEJS_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi
   [[ -z "$INST64_NODEJS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -154,7 +209,9 @@ function inst64_nodejs_select_packages() {
 function inst64_nodejs_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  bl64_arc_setup
+  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+    bl64_arc_setup
+  fi
 }
 
 #######################################
@@ -171,11 +228,9 @@ function inst64_nodejs_prepare() {
 function inst64_nodejs_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    "${INST64_LOCAL_BIN}/${INST64_NODEJS_CLI_NAME_NODE}" --version &&
-      "${INST64_LOCAL_BIN}/${INST64_NODEJS_CLI_NAME_NPM}" --version &&
-      "${INST64_LOCAL_BIN}/${INST64_NODEJS_CLI_NAME_NPX}" --version
-  fi
+  "${INST64_NODEJS_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NODE}" --version &&
+    "${INST64_NODEJS_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NPM}" --version &&
+    "${INST64_NODEJS_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NPX}" --version
 }
 
 #######################################
@@ -191,12 +246,21 @@ function inst64_nodejs_verify() {
 #######################################
 function inst64_nodejs_initialize() {
   bl64_dbg_app_show_function
-  bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_NODEJS_METHOD' \
-      "$INST64_NODEJS_METHOD" \
-      'CUSTOM' &&
-    bl64_check_privilege_root
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_NODEJS_METHOD' \
+    "$INST64_NODEJS_METHOD" \
+    'CUSTOM' ||
+    return $?
+
+  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_os_check_compatibility \
+      "${BL64_OS_UB}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_FD}"
+  fi
 }
 
 #

@@ -215,5 +215,4 @@ inst64_ghcli_initialize &&
   inst64_ghcli_prepare &&
   inst64_ghcli_install &&
   inst64_ghcli_verify
-# X_MAIN_PLACEHOLDER_X
 bl64_msg_show_batch_finish $? "$inst64_ghcli_installer_description"
