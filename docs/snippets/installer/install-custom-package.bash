@@ -1,4 +1,4 @@
-# Snippet: install-custom-package-4.1.1
+# Snippet: install-custom-package-4.2.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -12,7 +12,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
 
 # X_GLOBALS_PLACEHOLDER_X
-export INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-X_APP_PLATFORM_X}"
+export INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
 export INST64_X_APP_NAME_CAPS_X_SOURCE="${INST64_X_APP_NAME_CAPS_X_SOURCE:-X_APP_REPO_X}"
 export INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
 export INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-X_APP_VERSION_X}"
@@ -100,4 +100,9 @@ function inst64_X_APP_NAME_X_install_custom_package() {
     fi
     bl64_os_check_compatibility \
       "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
+  fi
+
+  # X_PLATFORM_SELECTION_PLACEHOLDER_X #
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+      # example # [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
   fi
