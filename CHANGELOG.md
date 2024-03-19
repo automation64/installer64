@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update OS compatibility list
 - Kubeconform
   - Update OS compatibility list
+- Trivy
+  - Update OS compatibility list
 
 ## [3.21.0]
 
