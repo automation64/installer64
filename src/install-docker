@@ -58,7 +58,6 @@ export INST64_TMP="${INST64_TMP:-/tmp}"
 
 # Installation method
 export INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-EXTERNAL}"
-#export INST64_DOCKER_PLATFORM_APT="${INST64_DOCKER_PLATFORM_APT:-X_REPO_PLATFORM_X}"
 
 export INST64_DOCKER_REPOSITORY_NAME='docker'
 export INST64_DOCKER_SOURCE_APT='https://download.docker.com/linux/ubuntu'
