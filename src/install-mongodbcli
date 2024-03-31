@@ -167,4 +167,5 @@ inst64_mongodbcli_initialize &&
 inst64_mongodbcli_status=$?
 
 bl64_msg_show_batch_finish "$inst64_mongodbcli_status" "$inst64_mongodbcli_installer_description"
+# shellcheck disable=SC2086
 exit $inst64_mongodbcli_status

@@ -196,6 +196,7 @@ function inst64_terragrunt_prepare() {
   bl64_msg_show_task 'prepare deployment'
   inst64_terragrunt_select_platform &&
     inst64_terragrunt_select_packages ||
+    return $?
   if [[ "$INST64_TERRAGRUNT_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi

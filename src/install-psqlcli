@@ -170,4 +170,5 @@ inst64_psqlcli_initialize &&
 inst64_psqlcli_status=$?
 
 bl64_msg_show_batch_finish "$inst64_psqlcli_status" "$inst64_psqlcli_installer_description"
+# shellcheck disable=SC2086
 exit $inst64_psqlcli_status

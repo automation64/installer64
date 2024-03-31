@@ -122,6 +122,7 @@ function inst64_kubectl_select_packages() {
   local package_sufix=''
   if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_KUBECTL_VERSION" == 'stable' ]]; then
+      # shellcheck disable=SC2086
       INST64_KUBECTL_VERSION="$(bl64_rxtx_run_curl $BL64_RXTX_SET_CURL_SILENT $BL64_RXTX_SET_CURL_REDIRECT "${INST64_KUBECTL_SOURCE}/stable.txt")"
       [[ -z "$INST64_KUBECTL_VERSION" ]] && bl64_msg_show_error 'unable to determine package version' && return 1
       INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION#v}"

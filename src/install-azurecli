@@ -95,7 +95,7 @@ function inst64_azurecli_add_repository() {
       bl64_fs_run_chmod go+r "$repository_key_file" &&
       repository_extra_1="$(lsb_release -cs)" &&
       echo "deb [signed-by=${repository_key_file}] ${repository_url} ${repository_extra_1} ${repository_extra_2}" |
-      "$BL64_OS_CMD_TEE" /etc/apt/sources.list.d/${INST64_AZURECLI_REPOSITORY_NAME}.list >/dev/null
+      "$BL64_OS_CMD_TEE" "/etc/apt/sources.list.d/${INST64_AZURECLI_REPOSITORY_NAME}.list" >/dev/null
   fi
 }
 

@@ -79,8 +79,6 @@ function inst64_neovim_install_binary_release() {
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
-  local app_cli_mode='0755'
-  local app_cli_source="${INST64_NEOVIM_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_NEOVIM_SYSTEM_WIDE"; then
     INST64_NEOVIM_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_NEOVIM_CLI_NAME}"

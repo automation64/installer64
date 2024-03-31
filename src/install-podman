@@ -121,4 +121,5 @@ inst64_podman_initialize &&
 inst64_podman_status=$?
 
 bl64_msg_show_batch_finish "$inst64_podman_status" "$inst64_podman_installer_description"
+# shellcheck disable=SC2086
 exit $inst64_podman_status

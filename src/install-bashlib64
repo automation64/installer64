@@ -249,4 +249,5 @@ inst64_bashlib64_status=$?
 ((inst64_bashlib64_status == 0)) &&
   echo "Process: [${inst64_bashlib64_task_description}] finished successfully" ||
   echo "Process: [${inst64_bashlib64_task_description}] finished with errors: exit-status-${inst64_bashlib64_status}"
+# shellcheck disable=SC2086
 exit $inst64_bashlib64_status

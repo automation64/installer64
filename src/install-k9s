@@ -135,4 +135,5 @@ inst64_k9s_initialize &&
 inst64_k9s_status=$?
 
 bl64_msg_show_batch_finish "$inst64_k9s_status" "$inst64_k9s_installer_description"
+# shellcheck disable=SC2086
 exit $inst64_k9s_status
