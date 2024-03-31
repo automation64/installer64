@@ -5,4 +5,5 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-/source/install-bashit
+sudo dnf install zsh
+/source/install-ohmyzsh
