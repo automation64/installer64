@@ -21,7 +21,7 @@ function inst64_X_APP_NAME_X_select_platform() {
   return 0
 }
 
-# X_INSTALL_PLACEHOLDER_X
+# X_PREPARE_PLACEHOLDER_X
   inst64_X_APP_NAME_X_select_platform &&
     inst64_X_APP_NAME_X_select_packages ||
     return $?

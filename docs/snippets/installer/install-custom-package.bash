@@ -22,7 +22,7 @@ export INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE="${INST64_X_APP_NAME_CAPS_X_SYSTEM_W
 export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
 
 export INST64_X_APP_NAME_CAPS_X_PACKAGE_URL=''
-export INST64_X_APP_NAME_CAPS_X_INSTALLER=''
+export INST64_X_APP_NAME_CAPS_X_INSTALLER='X_INSTALLER_X'
 
 # X_STAND_ALONE_FUNCTIONS_X #
 function inst64_X_APP_NAME_X_install_custom_package() {
@@ -41,15 +41,17 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
   bl64_rxtx_web_get_file \
-    "${INST64_X_APP_NAME_CAPS_X_PACKAGE_URL}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" &&
+    "${INST64_X_APP_NAME_CAPS_X_PACKAGE_URL}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
+    "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
+    'YES' \
+    "$app_target_mode" &&
 # example #    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
 # example #    bl64_arc_open_zip "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    # delete-me # Modify the following line to match the custom installer path
-    # example # "${$work_path}/${INST64_X_APP_NAME_CAPS_X_INSTALLER}" ||
+    "${work_path}/${INST64_X_APP_NAME_CAPS_X_INSTALLER}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
