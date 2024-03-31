@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.23.0]
+
+### Added
+
+- Installer
+  - Terragrunt
+
 ## [3.22.1]
 
 ### Added
@@ -221,6 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Post-install error when providing relative path for target directory
   - Package download error when current directory is read-only: now use temporary writable location
 
+[3.23.0]: https://github.com/automation64/installer64/compare/v3.22.1...v3.23.0
 [3.22.1]: https://github.com/automation64/installer64/compare/v3.21.0...v3.22.1
 [3.21.0]: https://github.com/automation64/installer64/compare/v3.20.0...v3.21.0
 [3.20.0]: https://github.com/automation64/installer64/compare/v3.19.0...v3.20.0
