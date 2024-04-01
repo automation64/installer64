@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - OhMyZSH
   - Zoho Vault
   - Gitleaks
+  - Trufflehog
 
 ## [3.22.1]
 
