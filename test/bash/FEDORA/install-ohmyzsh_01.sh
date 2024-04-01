@@ -5,5 +5,5 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-sudo dnf install zsh
+sudo dnf install --assumeyes zsh
 /source/install-ohmyzsh
