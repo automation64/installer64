@@ -46,7 +46,8 @@ function dev_lib_project() {
     "$DEV_PATH_SRC" \
     "$DEV_PATH_TEST" \
     '.env' \
-    '.local'
+    '.local' \
+    '.shellcheckrc'
 }
 
 function dev_lib_initialize() {
