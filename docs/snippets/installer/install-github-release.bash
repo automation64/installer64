@@ -102,7 +102,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
       "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
   fi
 
-  # X_PLATFORM_SELECTION_PLACEHOLDER_X #
+# X_PLATFORM_SELECTION_PLACEHOLDER_X #
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
       # example # [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
   fi
