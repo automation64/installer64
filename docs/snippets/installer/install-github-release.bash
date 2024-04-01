@@ -1,4 +1,4 @@
-# Snippet: install-github-release-3.2.1
+# Snippet: install-github-release-3.2.2
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -54,7 +54,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_create_symlink "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -102,7 +102,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
       "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
   fi
 
-  # X_PLATFORM_SELECTION_PLACEHOLDER_X #
+# X_PLATFORM_SELECTION_PLACEHOLDER_X #
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
       # example # [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
   fi

@@ -132,6 +132,7 @@ function inst64_kubeseal_select_packages() {
   if [[ "$INST64_KUBESEAL_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_KUBESEAL_VERSION" == 'latest' ]]; then
       bl64_dbg_app_show_comments 'this repo is not using correctly latest release. The latest version number is stored in the tag list'
+    # shellcheck disable=SC2086
       INST64_KUBESEAL_VERSION="$(
         bl64_vcs_github_run_api "/repos/${INST64_KUBESEAL_REPO_OWNER}/${INST64_KUBESEAL_REPO_NAME}/tags" |
           bl64_txt_run_awk ${BL64_TXT_SET_AWS_FS} ':' '/"name": / {

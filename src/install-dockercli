@@ -124,4 +124,5 @@ inst64_docker_initialize &&
 inst64_docker_status=$?
 
 bl64_msg_show_batch_finish "$inst64_docker_status" "$inst64_docker_installer_description"
+# shellcheck disable=SC2086
 exit $inst64_docker_status

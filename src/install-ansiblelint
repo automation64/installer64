@@ -155,4 +155,5 @@ inst64_ansiblelint_initialize &&
 inst64_ansiblelint_status=$?
 
 bl64_msg_show_batch_finish "$inst64_ansiblelint_status" "$inst64_ansiblelint_installer_description"
+# shellcheck disable=SC2086
 exit $inst64_ansiblelint_status

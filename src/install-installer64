@@ -251,4 +251,5 @@ inst64_installer64_status=$?
 ((inst64_installer64_status == 0)) &&
   echo "Process: [${inst64_installer64_task_description}] finished successfully" ||
   echo "Process: [${inst64_installer64_task_description}] finished with errors: exit-status-${inst64_installer64_status}"
+# shellcheck disable=SC2086
 exit $inst64_installer64_status
