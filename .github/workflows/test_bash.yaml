@@ -27,10 +27,17 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - "ALPINE"
-          - "FEDORA"
-          - "UBUNTU"
+          - "ALM"
+          - "ALP"
+          - "AMZ"
+          - "CNT"
+          - "DEB"
+          - "FD"
           - "OEL"
+          - "RCK"
+          - "RHEL"
+          - "SLES"
+          - "UB"
     steps:
 
       - name: "Check out repository code"
@@ -39,9 +46,15 @@ jobs:
       - name: "Prepare dev environment"
         run: "./bin/dev-lib-installer64 && ./bin/dev-lib-testmansh"
 
-      - name: "Run tests"
+      - name: "Run OS specific tests"
         run: |
           source ./bin/dev-set &&
           source ./bin/dev-env-bash &&
           ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/${{matrix.target}}
+
+      - name: "Run Linux generic tests"
+        run: |
+          source ./bin/dev-set &&
+          source ./bin/dev-env-bash &&
+          ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/LNX
 ...
