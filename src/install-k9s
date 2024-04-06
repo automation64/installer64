@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Template: 1.1.0
+# Template: 2.3.0
+# Snippet: install-github-release-3.2.2
+# Snippet: select-platform-1.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
+# Version: 1.3.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,6 +31,21 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
@@ -37,22 +54,87 @@ export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+# Location for temporary files
+export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
-export INST64_K9S_PLATFORM="${INST64_K9S_PLATFORM:-Linux_amd64}"
+export INST64_K9S_PLATFORM="${INST64_K9S_PLATFORM:-}"
 export INST64_K9S_TARGET="${INST64_K9S_TARGET:-${INST64_OPT_ROOT}/k9s}"
 export INST64_K9S_VERSION="${INST64_K9S_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_K9S_SYSTEM_WIDE="${INST64_K9S_SYSTEM_WIDE:-YES}"
+# Installation method
+export INST64_K9S_METHOD="${INST64_K9S_METHOD:-BINARY}"
+
+export INST64_K9S_REPO_NAME='k9s'
+export INST64_K9S_REPO_OWNER='derailed'
+export INST64_K9S_PACKAGES=''
+export INST64_K9S_CLI_NAME='k9s'
+export INST64_K9S_CLI_PATH=''
 
 #
 # Functions
 #
+
+function inst64_k9s_install_binary_release() {
+  bl64_dbg_app_show_function
+  local work_path=''
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli_source="${INST64_K9S_CLI_NAME}"
+
+  if bl64_lib_flag_is_enabled "$INST64_K9S_SYSTEM_WIDE"; then
+    INST64_K9S_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_K9S_CLI_NAME}"
+  else
+    INST64_K9S_CLI_PATH="${INST64_K9S_TARGET}/${INST64_K9S_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
+  fi
+
+  bl64_msg_show_task 'download application'
+  work_path="$(bl64_fs_create_tmpdir)" || return $?
+  bl64_rxtx_github_get_asset \
+    "$INST64_K9S_REPO_OWNER" "$INST64_K9S_REPO_NAME" "$INST64_K9S_VERSION" "$INST64_K9S_PACKAGES" "${work_path}/${INST64_K9S_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_K9S_PACKAGES}" "${work_path}" ||
+    return $?
+
+  bl64_msg_show_task 'deploy application'
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_K9S_TARGET" &&
+    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_K9S_TARGET" "${work_path}/${app_cli_source}" ||
+    return $?
+
+  if bl64_lib_flag_is_enabled "$INST64_K9S_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_K9S_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_create_symlink "${INST64_K9S_TARGET}/${INST64_K9S_CLI_NAME}" "$INST64_K9S_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
+
+  bl64_msg_show_task 'cleanup temporary files'
+  bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_k9s_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_K9S_METHOD" == 'BINARY' ]]; then
+      [[ -z "$INST64_K9S_PLATFORM" ]] && INST64_K9S_PLATFORM='Linux_amd64'
+  fi
+  [[ -z "$INST64_K9S_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  return 0
+}
 
 #######################################
 # Install application packages
@@ -67,36 +149,77 @@ export INST64_K9S_VERSION="${INST64_K9S_VERSION:-latest}"
 #######################################
 function inst64_k9s_install() {
   bl64_dbg_app_show_function
-  local repo_owner='derailed'
-  local repo_name='k9s'
-  local package_prefix='k9s_'
-  local package_sufix='.tar.gz'
-  local package_name="${package_prefix}${INST64_K9S_PLATFORM}${package_sufix}"
-  local work_path=''
-  local app_target_mode='0755'
-  local app_target_owner='root'
-  local app_cli_mode='0755'
-  local app_cli='k9s'
-
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset "$repo_owner" "$repo_name" "$INST64_K9S_VERSION" "$package_name" "${work_path}/${package_name}" &&
-    bl64_arc_open_tar "${work_path}/${package_name}" "${work_path}" ||
+  inst64_k9s_select_platform &&
+    inst64_k9s_select_packages ||
     return $?
+  if [[ "$INST64_K9S_METHOD" == 'BINARY' ]]; then
+    inst64_k9s_install_binary_release
+  fi
+}
 
-  bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_K9S_TARGET" &&
-    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_K9S_TARGET" "${work_path}/${app_cli}" ||
-    return $?
-
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  # shellcheck disable=SC2086
-  bl64_fs_run_ln $BL64_FS_SET_LN_SYMBOLIC "${INST64_K9S_TARGET}/${app_cli}" "${INST64_LOCAL_BIN}/${app_cli}" ||
-    return $?
-
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_k9s_select_packages() {
+  bl64_dbg_app_show_function
+  local package_prefix=''
+  local package_sufix=''
+  if [[ "$INST64_K9S_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_K9S_VERSION" == 'latest' ]]; then
+      INST64_K9S_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_K9S_REPO_OWNER" "$INST64_K9S_REPO_NAME")" ||
+        return $?
+    fi
+    package_prefix='k9s_'
+    package_sufix='.tar.gz'
+    INST64_K9S_PACKAGES="${package_prefix}${INST64_K9S_PLATFORM}${package_sufix}"
+  fi
+  [[ -z "$INST64_K9S_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_k9s_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  inst64_k9s_select_packages || return $?
+  if [[ "$INST64_K9S_METHOD" == 'BINARY' ]]; then
+    bl64_arc_setup
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_k9s_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_K9S_CLI_PATH" version
 }
 
 #######################################
@@ -108,15 +231,33 @@ function inst64_k9s_install() {
 #   Initializacion progress messages
 # Returns:
 #   0: initialization ok
-#   >: failed to initialize
+#   >: initialization failed
 #######################################
 function inst64_k9s_initialize() {
   bl64_dbg_app_show_function
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_K9S_METHOD' \
+    "$INST64_K9S_METHOD" \
+    'BINARY' ||
+    return $?
 
-  bl64_arc_setup &&
+  if [[ "$INST64_K9S_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_K9S_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
     bl64_os_check_compatibility \
-      "${BL64_OS_OL}-9" &&
-    bl64_check_privilege_root
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_AMZ}" \
+      "${BL64_OS_CNT}" \
+      "${BL64_OS_DEB}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_RHEL}" \
+      "${BL64_OS_SLES}" \
+      "${BL64_OS_UB}"
+  fi
 }
 
 #
@@ -124,16 +265,13 @@ function inst64_k9s_initialize() {
 #
 
 declare inst64_k9s_installer_description='Install application: K9S'
-declare -i inst64_k9s_status=0
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_k9s_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_k9s_initialize &&
-  inst64_k9s_install
-inst64_k9s_status=$?
-
-bl64_msg_show_batch_finish "$inst64_k9s_status" "$inst64_k9s_installer_description"
-# shellcheck disable=SC2086
-exit $inst64_k9s_status
+  inst64_k9s_prepare &&
+  inst64_k9s_install &&
+  inst64_k9s_verify
+bl64_msg_show_batch_finish $? "$inst64_k9s_installer_description"

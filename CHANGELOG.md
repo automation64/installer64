@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installer
   - EKSCTL
 
+### Changed
+
+- Update OS compatibility
+  - AWS Shell
+  - BashIt
+  - Gitleaks
+  - Hashicorp Packer
+  - K9S
+  - NeoVIM
+  - OhMyZSH
+  - Packer
+  - Starship
+  - Terragrunt
+  - Trufflehog
+  - Zoho Vault
+
 ## [3.23.0]
 
 ### Added
