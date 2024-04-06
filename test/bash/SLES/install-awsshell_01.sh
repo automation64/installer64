@@ -1,0 +1,1 @@
+../RHEL/install-awsshell_01.sh
