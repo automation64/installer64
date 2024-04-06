@@ -5,4 +5,8 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-sudo /source/install-yq
+# Fake ZSH to by-pass installer pre-req check
+sudo touch /bin/zsh
+sudo chmod 755 /bin/zsh
+
+/source/install-ohmyzsh

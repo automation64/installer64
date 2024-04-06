@@ -3,7 +3,7 @@
 # Dev / Test / Bash / Simple test runner
 #
 # * Run tests in test/bash using containers
-# * Version: 1.0.1
+# * Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -88,7 +88,8 @@ function dev_test_bash() {
   fi
   bl64_msg_show_info "test container: ${container}"
   for current in $tests; do
-    dev_test_run "${container}" "$current" ||
+    [[ "$current" =~ [.]gitkeep$ ]] && continue
+    dev_test_run "$container" "$current" ||
       return $?
   done
 }

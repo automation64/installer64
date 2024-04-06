@@ -30,6 +30,8 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -51,13 +53,14 @@ function inst64_X_APP_NAME_X_install_custom_package() {
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    "${work_path}/${INST64_X_APP_NAME_CAPS_X_INSTALLER}" ||
+    # example # bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
+    # example # "${work_path}/${INST64_X_APP_NAME_CAPS_X_INSTALLER}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_create_symlink "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 

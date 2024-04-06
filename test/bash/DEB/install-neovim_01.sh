@@ -5,5 +5,4 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-# X_CODE_PLACEHOLDER_1_X
-# example # sudo /source/install-X_INSTALLER_X
+sudo /source/install-neovim
