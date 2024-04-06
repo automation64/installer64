@@ -6,3 +6,4 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 # X_CODE_PLACEHOLDER_1_X
+# example # sudo /source/install-X_INSTALLER_X
