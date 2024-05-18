@@ -24,7 +24,7 @@
 - Download dev support scripts
 
   ```shell
-  ./bin/dev-lib
+  ./bin/dev-lib-base
   ```
 
 - Load dev environment variables

@@ -24,8 +24,10 @@ _Warning_: _Installer64_ is not inteded for regular OS environments (i.e.: VMs, 
 _Installer64_ is configured by default to use the following standard directory structure:
 
 - `/opt`: base location for optional applications.
-- `/opt/<APPLICATION>`: installed optional application. _Installer64_ will use this for non-os provided applications.
-- `/usr/local/bin`: searchable path for executables. _Installer64_ will use this to symlink non-os provided application executables.
+- `/opt/<APPLICATION>`: application installation directory.
+- `/usr/local/bin`: used to provide easy to access sym-links to the installer application and related .env file.
+- `$HOME`: base location for user-wide applications.
+- `$HOME/.local/bin`: XDG standard user path. Same as `/usr/local/bin`, but user-wide.
 
 ### Base Installer64 parameters
 
