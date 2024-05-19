@@ -81,7 +81,7 @@ function inst64_ruby_install_os_packages() {
 #   0: setup completed ok
 #   >0: unable to setup
 #######################################
-function inst64_X_APP_NAME_X_setup() {
+function inst64_ruby_setup() {
   bl64_dbg_app_show_function
   local mode='0644'
 
