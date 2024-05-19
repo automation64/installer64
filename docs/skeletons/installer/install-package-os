@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
 # Snippet: install-os-package-3.0.0
-# Snippet: select-platform-1.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.2.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -59,23 +58,23 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
 # Installation method
-export INST64_PYTHON_METHOD="${INST64_PYTHON_METHOD:-NATIVE}"
+export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
 # Enable development packages?
-export INST64_PYTHON_DEVELOPMENT="${INST64_PYTHON_DEVELOPMENT:-$BL64_VAR_OFF}"
-export INST64_PYTHON_PACKAGES=''
-export INST64_PYTHON_CLI_NAME='python3'
-export INST64_PYTHON_CLI_PATH=''
+export INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-$BL64_VAR_OFF}"
+export INST64_X_APP_NAME_CAPS_X_PACKAGES=''
+export INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
+export INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_python_install_os_packages() {
+function inst64_X_APP_NAME_X_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
-  INST64_PYTHON_CLI_PATH="/usr/bin/${INST64_PYTHON_CLI_NAME}"
+  INST64_X_APP_NAME_CAPS_X_CLI_PATH="/usr/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PYTHON_PACKAGES
+  bl64_pkg_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
 }
 
 #######################################
@@ -89,10 +88,10 @@ function inst64_python_install_os_packages() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_python_install() {
+function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
-    inst64_python_install_os_packages
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    inst64_X_APP_NAME_X_install_os_packages
   fi
 }
 
@@ -107,24 +106,16 @@ function inst64_python_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_python_select_packages() {
+function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match "$BL64_OS_UB"; then
-      INST64_PYTHON_PACKAGES='python3 python3-pip python3-venv pipx'
-      bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
-        INST64_PYTHON_PACKAGES+=" python3-dev build-essential"
-    elif bl64_os_match "$BL64_OS_ALP"; then
-      INST64_PYTHON_PACKAGES='python3 py3-pip py3-virtualenv'
-      bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
-        INST64_PYTHON_PACKAGES+=" python3-dev py3-setuptools"
-    elif bl64_os_match "${BL64_OS_OL}"; then
-      INST64_PYTHON_PACKAGES='python3 python3-pip'
-      bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
-        INST64_PYTHON_PACKAGES+=" python3-setuptools"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    if bl64_os_match "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"; then
+      INST64_X_APP_NAME_CAPS_X_PACKAGES='X_OS_PACKAGE_LIST_X'
+      bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
+        INST64_X_APP_NAME_CAPS_X_PACKAGES="${INST64_X_APP_NAME_CAPS_X_PACKAGES} X_OS_PACKAGE_LIST_X"
     fi
   fi
-  [[ -z "$INST64_PYTHON_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -139,12 +130,12 @@ function inst64_python_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_python_prepare() {
+function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_python_select_packages ||
+  inst64_X_APP_NAME_X_select_packages ||
     return $?
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
     bl64_pkg_setup
   fi
 }
@@ -160,10 +151,11 @@ function inst64_python_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_python_verify() {
+function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_PYTHON_CLI_PATH" --version
+  # X_VERIFY_PLACEHOLDER_X
+  # example # "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
 }
 
 #######################################
@@ -177,19 +169,17 @@ function inst64_python_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_python_initialize() {
+function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PYTHON_METHOD' \
-    "$INST64_PYTHON_METHOD" \
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
+    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
     'NATIVE' ||
     return $?
 
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
       bl64_os_check_compatibility \
-        "${BL64_OS_OL}" \
-        "${BL64_OS_UB}" \
-        "${BL64_OS_ALP}"
+        "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
   fi
 }
 
@@ -197,14 +187,15 @@ function inst64_python_initialize() {
 # Main
 #
 
-declare inst64_python_installer_description='Install application: Python3'
+declare inst64_X_APP_NAME_X_installer_description='Install application: X_APP_FULL_NAME_X'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_python_installer_description"
+bl64_msg_show_batch_start "$inst64_X_APP_NAME_X_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_python_initialize &&
-  inst64_python_prepare &&
-  inst64_python_install &&
-  inst64_python_verify
-bl64_msg_show_batch_finish $? "$inst64_python_installer_description"
+inst64_X_APP_NAME_X_initialize &&
+  inst64_X_APP_NAME_X_prepare &&
+  inst64_X_APP_NAME_X_install &&
+  inst64_X_APP_NAME_X_verify
+# X_MAIN_POST_VERIFY_PLACEHOLDER_X
+bl64_msg_show_batch_finish $? "$inst64_X_APP_NAME_X_installer_description"
