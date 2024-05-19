@@ -103,10 +103,6 @@ PATH="${GEM_HOME}/bin:${PATH}"
     bl64_fs_run_chmod "$mode" "$INST64_RUBY_ENV" ||
     return $?
 
-  if bl64_bsh_env_store_is_present; then
-    bl64_bsh_env_store_publish "$INST64_RUBY_ENV" ||
-      return $?
-  fi
   return 0
 }
 
