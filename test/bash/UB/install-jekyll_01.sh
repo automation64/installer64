@@ -10,6 +10,6 @@ sudo /source/install-gcc &&
   sudo -E /source/install-ruby ||
   exit $?
 
-source /usr/local/bin/installer64-ruby.env
+source /usr/local/bin/ruby.env
 
 /source/install-jekyll
