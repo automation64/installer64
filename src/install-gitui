@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.1.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -50,7 +50,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
-export INST64_GITUI_PLATFORM="${INST64_GITUI_PLATFORM:-linux-musl}"
+export INST64_GITUI_PLATFORM="${INST64_GITUI_PLATFORM:-linux-x86_64}"
 export INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-${INST64_OPT_ROOT}/gitui}"
 export INST64_GITUI_VERSION="${INST64_GITUI_VERSION:-latest}"
 
