@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - KubeNT
+  - Exoscale CLI
 
 ### Changed
 
@@ -18,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added .env file to .local/bin for PATH and app variables
 - Ruby
   - Added .env.d support
+
+### Fixed
+
+- GitUI
+  - Update platform ID
 
 ## [3.24.0]
 
