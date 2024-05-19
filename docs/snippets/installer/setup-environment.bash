@@ -43,9 +43,11 @@ X_SHELL_VAR_DECLARATIONS_PLACEHOLDER_X
     bl64_fs_run_chmod "$mode" "$INST64_X_APP_NAME_CAPS_X_ENV" ||
     return $?
 
-  if bl64_bsh_env_store_is_present; then
-    bl64_bsh_env_store_publish "$INST64_X_APP_NAME_CAPS_X_ENV" ||
-      return $?
+  if ! bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+    if bl64_bsh_env_store_is_present; then
+      bl64_bsh_env_store_publish "$INST64_X_APP_NAME_CAPS_X_ENV" ||
+        return $?
+    fi
   fi
   return 0
 }
