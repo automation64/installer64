@@ -40,6 +40,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -107,7 +109,14 @@ export KREW_ROOT
 
 PATH="$PATH:$KREW_ROOT/bin"
 ' >"$INST64_KREW_ENV" &&
-    bl64_fs_run_chmod "$mode" "$INST64_KREW_ENV"
+    bl64_fs_run_chmod "$mode" "$INST64_KREW_ENV" ||
+    return $?
+
+  if bl64_bsh_env_store_is_present; then
+    bl64_bsh_env_store_publish "$INST64_KREW_ENV" ||
+      return $?
+  fi
+  return 0
 }
 
 function inst64_krew_install_custom_package() {
@@ -239,7 +248,7 @@ function inst64_krew_verify() {
   bl64_msg_show_task 'verify deployment'
   # shellcheck disable=SC1090
   source "$INST64_KREW_ENV" &&
-  "$INST64_KREW_CLI_PATH" version
+    "$INST64_KREW_CLI_PATH" version
 }
 
 #######################################
