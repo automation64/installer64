@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Krew
   - Added .env file to .local/bin for PATH and app variables
+- Ruby
+  - Added .env.d support
 
 ## [3.24.0]
 
@@ -26,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update OS compatibility
+- Updated OS compatibility
   - AWS Shell
   - BashIt
   - Gitleaks
@@ -66,24 +68,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - NodeJS
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - HadoLint
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - Kubeconform
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - Trivy
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.21.0]
 
 ### Changed
 
 - KubeScape
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - KubeLinter
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - ArgoCD CLI
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ### Removed
 
@@ -94,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - YAMLLint
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.19.0]
 
@@ -109,9 +111,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - YQ
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - Batscore
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.17.0]
 
@@ -124,18 +126,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - TFSec
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - TFLint
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - LNav
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.16.0]
 
 ### Changed
 
 - Terraform
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.15.0]
 
@@ -180,7 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - GitHub CLI
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.12.0]
 
@@ -192,7 +194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Go
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ### Added
 
