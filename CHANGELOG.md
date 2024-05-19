@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.25.0]
+
+### Added
+
+- Installer
+  - KubeNT
+  - Exoscale CLI
+
+### Changed
+
+- Krew
+  - Added .env file to .local/bin for PATH and app variables
+- Ruby
+  - Added .env.d support
+
+### Fixed
+
+- GitUI
+  - Update platform ID
+
 ## [3.24.0]
 
 ### Added
@@ -14,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update OS compatibility
+- Updated OS compatibility
   - AWS Shell
   - BashIt
   - Gitleaks
@@ -54,24 +74,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - NodeJS
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - HadoLint
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - Kubeconform
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - Trivy
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.21.0]
 
 ### Changed
 
 - KubeScape
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - KubeLinter
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - ArgoCD CLI
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ### Removed
 
@@ -82,7 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - YAMLLint
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.19.0]
 
@@ -97,9 +117,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - YQ
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - Batscore
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.17.0]
 
@@ -112,18 +132,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - TFSec
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - TFLint
-  - Update OS compatibility list
+  - Updated OS compatibility list
 - LNav
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.16.0]
 
 ### Changed
 
 - Terraform
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.15.0]
 
@@ -168,7 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - GitHub CLI
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ## [3.12.0]
 
@@ -180,7 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Go
-  - Update OS compatibility list
+  - Updated OS compatibility list
 
 ### Added
 
@@ -259,19 +279,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bashlib64
   - Post-install error when providing relative path for target directory
   - Package download error when current directory is read-only: now use temporary writable location
-
-[3.24.0]: https://github.com/automation64/installer64/compare/v3.23.0...v3.24.0
-[3.23.0]: https://github.com/automation64/installer64/compare/v3.22.1...v3.23.0
-[3.22.1]: https://github.com/automation64/installer64/compare/v3.21.0...v3.22.1
-[3.21.0]: https://github.com/automation64/installer64/compare/v3.20.0...v3.21.0
-[3.20.0]: https://github.com/automation64/installer64/compare/v3.19.0...v3.20.0
-[3.19.0]: https://github.com/automation64/installer64/compare/v3.18.0...v3.19.0
-[3.18.0]: https://github.com/automation64/installer64/compare/v3.17.0...v3.18.0
-[3.17.0]: https://github.com/automation64/installer64/compare/v3.16.0...v3.17.0
-[3.16.0]: https://github.com/automation64/installer64/compare/v3.15.0...v3.16.0
-[3.15.0]: https://github.com/automation64/installer64/compare/v3.14.0...v3.15.0
-[3.14.0]: https://github.com/automation64/installer64/compare/v3.13.0...v3.14.0
-[3.13.0]: https://github.com/automation64/installer64/compare/v3.12.0...v3.13.0
-[3.12.0]: https://github.com/automation64/installer64/compare/v3.11.0...v3.12.0
-[3.11.0]: https://github.com/automation64/installer64/compare/v3.10.0...v3.11.0
-[3.10.0]: https://github.com/automation64/installer64/compare/v3.9.0...v3.10.0
