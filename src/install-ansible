@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Template: 1.2.0
+# Template: 2.3.0
+# Snippet: install-python-3.2.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.1.0
+# Version: 3.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,6 +30,20 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
@@ -37,59 +52,41 @@ export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
 export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+# Location for temporary files
+export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
-# Ansible core version
+# X_GLOBALS_PLACEHOLDER_X
 export INST64_ANSIBLE_VERSION="${INST64_ANSIBLE_VERSION:-latest}"
-# Use OS native package?
-export INST64_ANSIBLE_FLAG_NATIVE="${INST64_ANSIBLE_FLAG_NATIVE:-$BL64_VAR_OFF}"
-# Use Python PIPX?
-export INST64_ANSIBLE_PIPX="${INST64_ANSIBLE_PIPX:-$BL64_VAR_ON}"
+# Installation method
+export INST64_ANSIBLE_METHOD="${INST64_ANSIBLE_METHOD:-PIP}"
+
+export INST64_ANSIBLE_PIPX_BIN="${INST64_ANSIBLE_PIPX_BIN:-pipx}"
+export INST64_ANSIBLE_PACKAGES=''
+export INST64_ANSIBLE_CLI_NAME='ansible'
+export INST64_ANSIBLE_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_ansible_select_packages() {
-  local packages=''
-  local version_target=''
-
-  if [[ "$INST64_ANSIBLE_VERSION" == 'latest' ]]; then
-    version_target=''
-  else
-    version_target="==${INST64_ANSIBLE_VERSION}.*"
-  fi
-  packages="ansible-core${version_target}"
-  [[ -n "$packages" ]] && echo "$packages"
-}
-
 function inst64_ansible_install_with_pip() {
-  local packages=''
+  bl64_dbg_app_show_function
 
-  packages="$(inst64_ansible_select_packages)" ||
-    return $?
-
+  bl64_msg_show_task 'deploy application'
+  INST64_ANSIBLE_CLI_PATH="${HOME}/.local/bin/${INST64_ANSIBLE_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy $packages
+    bl64_py_pip_usr_deploy $INST64_ANSIBLE_PACKAGES
 }
 
 function inst64_ansible_install_with_pipx() {
-  local packages=''
+  bl64_dbg_app_show_function
 
-  packages="$(inst64_ansible_select_packages)" ||
-    return $?
-
+  bl64_msg_show_task 'deploy application'
+  INST64_ANSIBLE_CLI_PATH="${INST64_ANSIBLE_CLI_NAME}"
   # shellcheck disable=SC2086
-  pipx install $packages
+  "$INST64_ANSIBLE_PIPX_BIN" install $INST64_ANSIBLE_PACKAGES
 }
 
 #######################################
@@ -105,13 +102,75 @@ function inst64_ansible_install_with_pipx() {
 #######################################
 function inst64_ansible_install() {
   bl64_dbg_app_show_function
-
-  bl64_msg_show_task 'deploy application'
-  if [[ "$INST64_ANSIBLE_PIPX" == "$BL64_VAR_ON" ]]; then
+  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' ]]; then
     inst64_ansible_install_with_pipx
-  else
+  elif [[ "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
     inst64_ansible_install_with_pip
   fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_ansible_select_packages() {
+  bl64_dbg_app_show_function
+  local version_target=''
+
+  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' || "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_ANSIBLE_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="==${INST64_ANSIBLE_VERSION}.*"
+    fi
+    INST64_ANSIBLE_PACKAGES="ansible-core${version_target}"
+  fi
+  [[ -z "$INST64_ANSIBLE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_ansible_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  inst64_ansible_select_packages || return $?
+  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' || "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
+    bl64_py_setup
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_ansible_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_ANSIBLE_CLI_PATH" --version
 }
 
 #######################################
@@ -123,39 +182,48 @@ function inst64_ansible_install() {
 #   Initializacion progress messages
 # Returns:
 #   0: initialization ok
-#   >: failed to initialize
+#   >: initialization failed
 #######################################
 function inst64_ansible_initialize() {
   bl64_dbg_app_show_function
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ANSIBLE_METHOD' \
+    "$INST64_ANSIBLE_METHOD" \
+    'PIP' 'PIPX' ||
+    return $?
 
-  [[ "$INST64_ANSIBLE_FLAG_NATIVE" != "$BL64_VAR_OFF" ]] &&
-    bl64_msg_show_error 'OS native package installer is not supported. Using Python-PIP instead.' &&
-    return 1
-
-  bl64_os_check_compatibility \
-    "${BL64_OS_ALM}-8" \
-    "${BL64_OS_CNT}-8" \
-    "${BL64_OS_DEB}-10" "${BL64_OS_DEB}-11" \
-    "${BL64_OS_FD}-33" "${BL64_OS_FD}-35" "${BL64_OS_FD}-36" \
-    "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
-    "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
-    "${BL64_OS_RHEL}-8" \
-    "${BL64_OS_UB}-20" "${BL64_OS_UB}-21" "${BL64_OS_UB}-22" &&
+  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' || "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' ]]; then
+      bl64_bsh_command_is_executable "$INST64_ANSIBLE_PIPX_BIN" ||
+      return $?
+    fi
     bl64_check_privilege_not_root &&
-    bl64_py_setup
+      bl64_os_check_compatibility \
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_AMZ}" \
+      "${BL64_OS_CNT}" \
+      "${BL64_OS_DEB}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_RHEL}" \
+      "${BL64_OS_SLES}" \
+      "${BL64_OS_UB}"
+  fi
 }
 
 #
 # Main
 #
 
-declare inst64_ansible_installer_description='Install application: Ansible (dedicated user)'
+declare inst64_ansible_installer_description='Install application: Ansible'
 
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_ansible_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_ansible_initialize &&
-  inst64_ansible_install
-
+  inst64_ansible_prepare &&
+  inst64_ansible_install &&
+  inst64_ansible_verify
 bl64_msg_show_batch_finish $? "$inst64_ansible_installer_description"
