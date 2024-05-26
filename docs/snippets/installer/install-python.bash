@@ -1,4 +1,4 @@
-# Snippet: install-python-3.2.0
+# Snippet: install-python-3.2.1
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -6,6 +6,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
 
 # X_GLOBALS_PLACEHOLDER_X
@@ -13,7 +15,7 @@ export INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-lat
 # Installation method
 export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PIP}"
 
-export INST64_X_APP_NAME_CAPS_X_PIPX_BIN='/usr/bin/pipx'
+export INST64_X_APP_NAME_CAPS_X_PIPX_BIN="${INST64_X_APP_NAME_CAPS_X_PIPX_BIN:-pipx}"
 
 # X_STAND_ALONE_FUNCTIONS_X #
 function inst64_X_APP_NAME_X_install_with_pip() {
@@ -21,9 +23,10 @@ function inst64_X_APP_NAME_X_install_with_pip() {
 
   bl64_msg_show_task 'deploy application'
   INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy "$INST64_X_APP_NAME_CAPS_X_PACKAGES"
+    bl64_py_pip_usr_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
 }
 
 function inst64_X_APP_NAME_X_install_with_pipx() {
@@ -31,7 +34,8 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
 
   bl64_msg_show_task 'deploy application'
   INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-  "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install "$INST64_X_APP_NAME_CAPS_X_PACKAGES"
+  # shellcheck disable=SC2086
+  "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install $INST64_X_APP_NAME_CAPS_X_PACKAGES
 }
 
 # X_INSTALL_PLACEHOLDER_X
@@ -70,7 +74,7 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
-      bl64_check_command "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
+      bl64_bsh_command_is_executable "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
       return $?
     fi
     bl64_check_privilege_not_root &&

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
-# Snippet: install-os-package-3.0.0
+# Snippet: install-python-3.2.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -31,14 +31,12 @@
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -57,24 +55,38 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
+# X_GLOBALS_PLACEHOLDER_X
+export INST64_PGCLI_VERSION="${INST64_PGCLI_VERSION:-latest}"
 # Installation method
-export INST64_GCC_METHOD="${INST64_GCC_METHOD:-NATIVE}"
-# Enable development packages?
-export INST64_GCC_DEVELOPMENT="${INST64_GCC_DEVELOPMENT:-$BL64_VAR_OFF}"
-export INST64_GCC_PACKAGES=''
-export INST64_GCC_CLI_NAME='gcc'
-export INST64_GCC_CLI_PATH=''
+export INST64_PGCLI_METHOD="${INST64_PGCLI_METHOD:-PIP}"
+
+export INST64_PGCLI_PIPX_BIN="${INST64_PGCLI_PIPX_BIN:-pipx}"
+export INST64_PGCLI_PACKAGES=''
+export INST64_PGCLI_CLI_NAME='pgcli'
+export INST64_PGCLI_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_gcc_install_os_packages() {
+function inst64_pgcli_install_with_pip() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'deploy packages'
-  INST64_GCC_CLI_PATH="/usr/bin/${INST64_GCC_CLI_NAME}"
+
+  bl64_msg_show_task 'deploy application'
+  INST64_PGCLI_CLI_PATH="${HOME}/.local/bin/${INST64_PGCLI_CLI_NAME}"
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_GCC_PACKAGES
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_py_pip_usr_prepare &&
+    bl64_py_pip_usr_deploy $INST64_PGCLI_PACKAGES
+}
+
+function inst64_pgcli_install_with_pipx() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  INST64_PGCLI_CLI_PATH="${INST64_PGCLI_CLI_NAME}"
+  # shellcheck disable=SC2086
+  "$INST64_PGCLI_PIPX_BIN" install $INST64_PGCLI_PACKAGES
 }
 
 #######################################
@@ -88,10 +100,12 @@ function inst64_gcc_install_os_packages() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_gcc_install() {
+function inst64_pgcli_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    inst64_gcc_install_os_packages
+  if [[ "$INST64_PGCLI_METHOD" == 'PIPX' ]]; then
+    inst64_pgcli_install_with_pipx
+  elif [[ "$INST64_PGCLI_METHOD" == 'PIP' ]]; then
+    inst64_pgcli_install_with_pip
   fi
 }
 
@@ -106,24 +120,20 @@ function inst64_gcc_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_gcc_select_packages() {
+function inst64_pgcli_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match "${BL64_OS_UB}"; then
-      INST64_GCC_PACKAGES='build-essential'
-      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
-        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
-    elif bl64_os_match "${BL64_OS_OL}"; then
-      INST64_GCC_PACKAGES='gcc'
-      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
-        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
-    elif bl64_os_match "${BL64_OS_FD}"; then
-      INST64_GCC_PACKAGES='gcc'
-      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
-        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
+  local version_target=''
+
+  if [[ "$INST64_PGCLI_METHOD" == 'PIPX' || "$INST64_PGCLI_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_PGCLI_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="==${INST64_PGCLI_VERSION}.*"
     fi
+    bl64_dbg_app_show_comments 'psycopg explicit install to avoid ImportError: no pq wrapper available error'
+    INST64_PGCLI_PACKAGES="pgcli${version_target} psycopg[binary,pool]"
   fi
-  [[ -z "$INST64_GCC_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PGCLI_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -138,13 +148,12 @@ function inst64_gcc_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_gcc_prepare() {
+function inst64_pgcli_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_gcc_select_packages ||
-    return $?
-  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    bl64_pkg_setup
+  inst64_pgcli_select_packages || return $?
+  if [[ "$INST64_PGCLI_METHOD" == 'PIPX' || "$INST64_PGCLI_METHOD" == 'PIP' ]]; then
+    bl64_py_setup
   fi
 }
 
@@ -159,10 +168,10 @@ function inst64_gcc_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_gcc_verify() {
+function inst64_pgcli_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_GCC_CLI_PATH" --version
+  "$INST64_PGCLI_CLI_PATH" --version
 }
 
 #######################################
@@ -176,19 +185,23 @@ function inst64_gcc_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_gcc_initialize() {
+function inst64_pgcli_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GCC_METHOD' \
-    "$INST64_GCC_METHOD" \
-    'NATIVE' ||
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PGCLI_METHOD' \
+    "$INST64_PGCLI_METHOD" \
+    'PIP' 'PIPX' ||
     return $?
 
-  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
+  if [[ "$INST64_PGCLI_METHOD" == 'PIPX' || "$INST64_PGCLI_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_PGCLI_METHOD" == 'PIPX' ]]; then
+      bl64_bsh_command_is_executable "$INST64_PGCLI_PIPX_BIN" ||
+      return $?
+    fi
+    bl64_check_privilege_not_root &&
       bl64_os_check_compatibility \
-        "${BL64_OS_OL}" \
-        "${BL64_OS_FD}" \
-        "${BL64_OS_UB}"
+      "${BL64_OS_OL}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_UB}"
   fi
 }
 
@@ -196,14 +209,14 @@ function inst64_gcc_initialize() {
 # Main
 #
 
-declare inst64_gcc_installer_description='Install application: GCC'
+declare inst64_pgcli_installer_description='Install application: PGCLI'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_gcc_installer_description"
+bl64_msg_show_batch_start "$inst64_pgcli_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_gcc_initialize &&
-  inst64_gcc_prepare &&
-  inst64_gcc_install &&
-  inst64_gcc_verify
-bl64_msg_show_batch_finish $? "$inst64_gcc_installer_description"
+inst64_pgcli_initialize &&
+  inst64_pgcli_prepare &&
+  inst64_pgcli_install &&
+  inst64_pgcli_verify
+bl64_msg_show_batch_finish $? "$inst64_pgcli_installer_description"

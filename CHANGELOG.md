@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.27.0]
+
+### Added
+
+- Installer
+  - PIPX
+  - LazyGit
+  - PGCLI
+  - LocalStack
+  - PGAdmin
+
+### Changed
+
+- GCC
+  - Update OS list: OEL, FD
+
+### Removed
+
+- Python
+  - PIPX is no longer installed in UB. A separate installer was created to install as pip module: install-pipx
+
 ## [3.26.0]
 
 ### Changed

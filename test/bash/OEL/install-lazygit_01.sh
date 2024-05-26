@@ -1,0 +1,1 @@
+../UB/install-lazygit_01.sh

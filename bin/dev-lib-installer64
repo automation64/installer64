@@ -2,7 +2,7 @@
 #######################################
 # Dev / Lib / Installer64 / Download
 #
-# * Version: 3.2.0
+# * Version: 3.2.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -54,6 +54,5 @@ cd "$DEV_PATH_LIB" &&
   exit $?
 
 rm -f \
-  'install-installer64' \
-  "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-opt.bash"
+  'install-installer64'
 :
