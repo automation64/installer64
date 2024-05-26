@@ -10,12 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Installer
+  - PIPX
   - LazyGit
 
 ### Changed
 
 - GCC
   - Update OS list: OEL, FD
+
+### Removed
+
+- Python
+  - PIPX is no longer installed in UB. A separate installer was created to install as pip module: install-pipx
 
 ## [3.26.0]
 
