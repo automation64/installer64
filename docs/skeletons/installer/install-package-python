@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
-# Snippet: install-python-3.2.0
+# Snippet: install-python-3.2.1
 #######################################
 # Installer64 / Package installer
 #
@@ -35,6 +35,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -58,7 +60,7 @@ export INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-lat
 # Installation method
 export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PIP}"
 
-export INST64_X_APP_NAME_CAPS_X_PIPX_BIN='/usr/bin/pipx'
+export INST64_X_APP_NAME_CAPS_X_PIPX_BIN="${INST64_X_APP_NAME_CAPS_X_PIPX_BIN:-pipx}"
 export INST64_X_APP_NAME_CAPS_X_PACKAGES=''
 export INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
 export INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
@@ -193,7 +195,7 @@ function inst64_X_APP_NAME_X_initialize() {
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
-      bl64_check_command "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
+      bl64_bsh_command_is_executable "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
       return $?
     fi
     bl64_check_privilege_not_root &&
