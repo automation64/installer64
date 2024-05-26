@@ -2,7 +2,7 @@
 #######################################
 # Dev / Lib / Bashlib64 / Download
 #
-# * Version: 4.3.0
+# * Version: 4.3.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -51,6 +51,4 @@ echo 'dev-lib-bashlib64: Task: remove BashLib64 older versions'
 [[ -d "$DEV_LIB_BASHLIB64_TARGET" ]] && rm -Rf "$DEV_LIB_BASHLIB64_TARGET"
 
 echo 'dev-lib-bashlib64: Task: download Installer64'
-"${DEV_LIB_INSTALLER64_TARGET}/install-bashlib64" &&
-    rm -f \
-        "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-opt.bash"
+"${DEV_LIB_INSTALLER64_TARGET}/install-bashlib64"
