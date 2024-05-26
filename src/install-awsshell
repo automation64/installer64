@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
-# Snippet: install-python-3.2.0
+# Snippet: install-python-3.2.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -35,6 +35,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -58,7 +60,7 @@ export INST64_AWSSHELL_VERSION="${INST64_AWSSHELL_VERSION:-latest}"
 # Installation method
 export INST64_AWSSHELL_METHOD="${INST64_AWSSHELL_METHOD:-PIP}"
 
-export INST64_AWSSHELL_PIPX_BIN='/usr/bin/pipx'
+export INST64_AWSSHELL_PIPX_BIN="${INST64_AWSSHELL_PIPX_BIN:-pipx}"
 export INST64_AWSSHELL_PACKAGES=''
 export INST64_AWSSHELL_CLI_NAME='aws-shell'
 export INST64_AWSSHELL_CLI_PATH=''
@@ -72,9 +74,10 @@ function inst64_awsshell_install_with_pip() {
 
   bl64_msg_show_task 'deploy application'
   INST64_AWSSHELL_CLI_PATH="${HOME}/.local/bin/${INST64_AWSSHELL_CLI_NAME}"
+  # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy "$INST64_AWSSHELL_PACKAGES"
+    bl64_py_pip_usr_deploy $INST64_AWSSHELL_PACKAGES
 }
 
 function inst64_awsshell_install_with_pipx() {
@@ -82,7 +85,8 @@ function inst64_awsshell_install_with_pipx() {
 
   bl64_msg_show_task 'deploy application'
   INST64_AWSSHELL_CLI_PATH="${INST64_AWSSHELL_CLI_NAME}"
-  "$INST64_AWSSHELL_PIPX_BIN" install "$INST64_AWSSHELL_PACKAGES"
+  # shellcheck disable=SC2086
+  "$INST64_AWSSHELL_PIPX_BIN" install $INST64_AWSSHELL_PACKAGES
 }
 
 #######################################
@@ -118,6 +122,7 @@ function inst64_awsshell_install() {
 #######################################
 function inst64_awsshell_select_packages() {
   bl64_dbg_app_show_function
+  local version_legacy='X_LEGACY_VERSION_X'
   local version_target=''
 
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then
@@ -189,8 +194,8 @@ function inst64_awsshell_initialize() {
 
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' ]]; then
-      bl64_check_command "$INST64_AWSSHELL_PIPX_BIN" ||
-        return $?
+      bl64_bsh_command_is_executable "$INST64_AWSSHELL_PIPX_BIN" ||
+      return $?
     fi
     bl64_check_privilege_not_root &&
       bl64_os_check_compatibility \
@@ -204,7 +209,6 @@ function inst64_awsshell_initialize() {
         "${BL64_OS_RCK}" \
         "${BL64_OS_RHEL}" \
         "${BL64_OS_UB}"
-    bl64_dbg_app_show_comments 'installation fails in SLES with distro python'
   fi
 }
 

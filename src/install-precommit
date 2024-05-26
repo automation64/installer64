@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Template: 2.1.0
+# Template: 2.3.0
+# Snippet: install-python-3.2.1
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,6 +30,20 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
@@ -40,19 +55,12 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
+# X_GLOBALS_PLACEHOLDER_X
+export INST64_PRECOMMIT_VERSION="${INST64_PRECOMMIT_VERSION:-latest}"
 # Installation method
 export INST64_PRECOMMIT_METHOD="${INST64_PRECOMMIT_METHOD:-PIP}"
-export INST64_PRECOMMIT_VERSION="${INST64_PRECOMMIT_VERSION:-latest}"
-export INST64_PRECOMMIT_PIPX_BIN='/usr/bin/pipx'
 
+export INST64_PRECOMMIT_PIPX_BIN="${INST64_PRECOMMIT_PIPX_BIN:-pipx}"
 export INST64_PRECOMMIT_PACKAGES=''
 export INST64_PRECOMMIT_CLI_NAME='pre-commit'
 export INST64_PRECOMMIT_CLI_PATH=''
@@ -61,8 +69,10 @@ export INST64_PRECOMMIT_CLI_PATH=''
 # Functions
 #
 
-function inst64_precommit_install_with_pip() {
+function inst64_pre-commit_install_with_pip() {
   bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
   INST64_PRECOMMIT_CLI_PATH="${HOME}/.local/bin/${INST64_PRECOMMIT_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
@@ -70,11 +80,13 @@ function inst64_precommit_install_with_pip() {
     bl64_py_pip_usr_deploy $INST64_PRECOMMIT_PACKAGES
 }
 
-function inst64_precommit_install_with_pipx() {
+function inst64_pre-commit_install_with_pipx() {
   bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
   INST64_PRECOMMIT_CLI_PATH="${INST64_PRECOMMIT_CLI_NAME}"
   # shellcheck disable=SC2086
-  pipx install $INST64_PRECOMMIT_PACKAGES
+  "$INST64_PRECOMMIT_PIPX_BIN" install $INST64_PRECOMMIT_PACKAGES
 }
 
 #######################################
@@ -88,14 +100,12 @@ function inst64_precommit_install_with_pipx() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_precommit_install() {
+function inst64_pre-commit_install() {
   bl64_dbg_app_show_function
-  inst64_precommit_select_packages || return $?
-  bl64_msg_show_task 'deploy application'
   if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' ]]; then
-    inst64_precommit_install_with_pipx
+    inst64_pre-commit_install_with_pipx
   elif [[ "$INST64_PRECOMMIT_METHOD" == 'PIP' ]]; then
-    inst64_precommit_install_with_pip
+    inst64_pre-commit_install_with_pip
   fi
 }
 
@@ -110,8 +120,9 @@ function inst64_precommit_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_precommit_select_packages() {
+function inst64_pre-commit_select_packages() {
   bl64_dbg_app_show_function
+  local version_legacy='X_LEGACY_VERSION_X'
   local version_target=''
 
   if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' || "$INST64_PRECOMMIT_METHOD" == 'PIP' ]]; then
@@ -137,10 +148,13 @@ function inst64_precommit_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_precommit_prepare() {
+function inst64_pre-commit_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  bl64_py_setup
+  inst64_pre-commit_select_packages || return $?
+  if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' || "$INST64_PRECOMMIT_METHOD" == 'PIP' ]]; then
+    bl64_py_setup
+  fi
 }
 
 #######################################
@@ -154,7 +168,7 @@ function inst64_precommit_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_precommit_verify() {
+function inst64_pre-commit_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   "$INST64_PRECOMMIT_CLI_PATH" --version
@@ -171,17 +185,23 @@ function inst64_precommit_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_precommit_initialize() {
+function inst64_pre-commit_initialize() {
   bl64_dbg_app_show_function
-  bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PRECOMMIT_METHOD' \
-      "$INST64_PRECOMMIT_METHOD" \
-      'PIP' &&
-    bl64_check_privilege_not_root ||
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PRECOMMIT_METHOD' \
+    "$INST64_PRECOMMIT_METHOD" \
+    'PIP' 'PIPX' ||
     return $?
-  if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' ]]; then
-    bl64_check_command "$INST64_PRECOMMIT_PIPX_BIN"
+
+  if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' || "$INST64_PRECOMMIT_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' ]]; then
+      bl64_bsh_command_is_executable "$INST64_PRECOMMIT_PIPX_BIN" ||
+      return $?
+    fi
+    bl64_check_privilege_not_root &&
+      bl64_os_check_compatibility \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_UB}"
   fi
 }
 
@@ -189,14 +209,14 @@ function inst64_precommit_initialize() {
 # Main
 #
 
-declare inst64_precommit_installer_description='Install application: PreCommit'
+declare inst64_awsshell_installer_description='Install application: PreCommit'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_precommit_installer_description"
+bl64_msg_show_batch_start "$inst64_awsshell_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_precommit_initialize &&
-  inst64_precommit_prepare &&
-  inst64_precommit_install &&
-  inst64_precommit_verify
-bl64_msg_show_batch_finish $? "$inst64_precommit_installer_description"
+inst64_pre-commit_initialize &&
+  inst64_pre-commit_prepare &&
+  inst64_pre-commit_install &&
+  inst64_pre-commit_verify
+bl64_msg_show_batch_finish $? "$inst64_awsshell_installer_description"
