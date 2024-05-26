@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Template: 2.0.1
+# Template: 2.3.0
+# Snippet: install-os-package-3.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -29,6 +30,22 @@
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
@@ -40,21 +57,13 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
 # Installation method
 export INST64_GCC_METHOD="${INST64_GCC_METHOD:-NATIVE}"
 # Enable development packages?
 export INST64_GCC_DEVELOPMENT="${INST64_GCC_DEVELOPMENT:-$BL64_VAR_OFF}"
-
 export INST64_GCC_PACKAGES=''
 export INST64_GCC_CLI_NAME='gcc'
+export INST64_GCC_CLI_PATH=''
 
 #
 # Functions
@@ -63,6 +72,7 @@ export INST64_GCC_CLI_NAME='gcc'
 function inst64_gcc_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
+  INST64_GCC_CLI_PATH="/usr/bin/${INST64_GCC_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_pkg_deploy $INST64_GCC_PACKAGES
 }
@@ -80,7 +90,6 @@ function inst64_gcc_install_os_packages() {
 #######################################
 function inst64_gcc_install() {
   bl64_dbg_app_show_function
-  inst64_gcc_select_packages || return $?
   if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
     inst64_gcc_install_os_packages
   fi
@@ -100,8 +109,18 @@ function inst64_gcc_install() {
 function inst64_gcc_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match "$BL64_OS_UB"; then
+    if bl64_os_match "${BL64_OS_UB}"; then
       INST64_GCC_PACKAGES='build-essential'
+      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
+        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
+    elif bl64_os_match "${BL64_OS_OL}"; then
+      INST64_GCC_PACKAGES='gcc'
+      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
+        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
+    elif bl64_os_match "${BL64_OS_FD}"; then
+      INST64_GCC_PACKAGES='gcc'
+      bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
+        INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
     fi
   fi
   [[ -z "$INST64_GCC_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
@@ -122,7 +141,11 @@ function inst64_gcc_select_packages() {
 function inst64_gcc_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  bl64_pkg_setup
+  inst64_gcc_select_packages ||
+    return $?
+  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
+    bl64_pkg_setup
+  fi
 }
 
 #######################################
@@ -139,9 +162,7 @@ function inst64_gcc_prepare() {
 function inst64_gcc_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    "/usr/bin/${INST64_GCC_CLI_NAME}" --version
-  fi
+  "$INST64_GCC_CLI_PATH" --version
 }
 
 #######################################
@@ -157,12 +178,18 @@ function inst64_gcc_verify() {
 #######################################
 function inst64_gcc_initialize() {
   bl64_dbg_app_show_function
-  bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" &&
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GCC_METHOD' \
+    "$INST64_GCC_METHOD" \
+    'NATIVE' ||
+    return $?
+
+  if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GCC_METHOD' \
-      "$INST64_GCC_METHOD" \
-      'NATIVE'
+      bl64_os_check_compatibility \
+        "${BL64_OS_OL}" \
+        "${BL64_OS_FD}" \
+        "${BL64_OS_UB}"
+  fi
 }
 
 #
