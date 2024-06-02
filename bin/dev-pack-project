@@ -47,10 +47,11 @@ function dev_pack_create() {
   bl64_dbg_app_show_function
   bl64_msg_show_task "create dstributable bundle (${DEV_PACK_PROJECT_BUNDLE})"
   # shellcheck disable=SC2086
-  bl64_arc_run_tar \
-    czf "${DEV_PACK_PROJECT_STORE}/${DEV_PACK_PROJECT_BUNDLE}" \
-    $BL64_ARC_SET_TAR_VERBOSE \
-    -C "$DEV_PACK_PROJECT_STAGING" .
+  cd "$DEV_PACK_PROJECT_STAGING" &&
+    bl64_arc_run_tar \
+      czf "${DEV_PACK_PROJECT_STORE}/${DEV_PACK_PROJECT_BUNDLE}" \
+      $BL64_ARC_SET_TAR_VERBOSE \
+      *
 }
 
 function dev_pack() {
