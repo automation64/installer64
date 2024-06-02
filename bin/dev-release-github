@@ -136,5 +136,5 @@ declare dev_release_tag="${1:-}"
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start 'dev-release-github'
 dev_release_initialize &&
-  dev_release_get_changes "$dev_release_tag"
+  dev_release "$dev_release_tag"
 bl64_msg_show_batch_finish $? 'dev-release-github'
