@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Snippet: install-git-repo-1.0.0
+# Snippet: install-git-repo-1.0.1
 # Template: 2.3.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.1.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -89,7 +89,7 @@ function inst64_bashit_install_git_repo() {
 
   bl64_msg_show_task 'deploy application'
   if bl64_lib_flag_is_enabled "$INST64_BASHIT_SYSTEM_WIDE"; then
-    bl64_fs_fix_permissions "$app_target_mode" "$app_target_mode" \
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
       "$INST64_BASHIT_TARGET" ||
       return $?
   fi

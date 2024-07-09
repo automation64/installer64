@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.2.0
+# Version: 2.2.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -100,7 +100,7 @@ function inst64_batscore_install_custom_package() {
       "$INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT" '.' "$INST64_BATSCORE_TARGET_HELPERS/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}" "$BL64_VAR_DEFAULT" 'master' &&
     bl64_rxtx_git_get_dir \
       "$INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILE" '.' "$INST64_BATSCORE_TARGET_HELPERS/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}" "$BL64_VAR_DEFAULT" 'master' &&
-    bl64_fs_fix_permissions "$app_target_mode" "$app_target_mode" "$INST64_BATSCORE_TARGET" ||
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" "$INST64_BATSCORE_TARGET" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_BATSCORE_SYSTEM_WIDE"; then
