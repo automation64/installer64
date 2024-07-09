@@ -7,7 +7,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.0.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -102,7 +102,8 @@ function inst64_sysden64_install_custom_package() {
     bl64_fs_rm_full "$INST64_SYSDEN64_TARGET"
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_SYSDEN64_TARGET" &&
     bl64_arc_open_tar "${work_path}/${INST64_SYSDEN64_PACKAGES}" "$INST64_SYSDEN64_TARGET" &&
-    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$INST64_SYSDEN64_TARGET" ||
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
+      "$INST64_SYSDEN64_TARGET" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
