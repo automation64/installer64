@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installer
   - DevBin64
 
+### Fixed
+
+- FZF
+  - Updated package name
+
 ## [3.30.0]
 
 ### Added
