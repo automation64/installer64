@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Template: 2.2.0
-# Snippet: install-custom-package-4.1.1
+# Template: 2.3.0
+# Snippet: install-custom-package-4.2.0
+# Snippet: select-platform-1.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.2.1
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -26,7 +27,7 @@
 
 #
 # Imports
-#
+#docs/skeletons/installer/install-package-custom
 
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
@@ -56,59 +57,73 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_BATSCORE_SOURCE="${INST64_BATSCORE_SOURCE:-https://github.com/bats-core}"
-export INST64_BATSCORE_TARGET="${INST64_BATSCORE_TARGET:-${INST64_OPT_ROOT}/bats-core}"
+export INST64_DEVBIN64_PLATFORM="${INST64_DEVBIN64_PLATFORM:-}"
+export INST64_DEVBIN64_TARGET="${INST64_DEVBIN64_TARGET:-${INST64_OPT_ROOT}/devbin64}"
+export INST64_DEVBIN64_VERSION="${INST64_DEVBIN64_VERSION:-latest}"
 # Install system wide? Requires root privilege
-export INST64_BATSCORE_SYSTEM_WIDE="${INST64_BATSCORE_SYSTEM_WIDE:-YES}"
+export INST64_DEVBIN64_SYSTEM_WIDE="${INST64_DEVBIN64_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_BATSCORE_METHOD="${INST64_BATSCORE_METHOD:-CUSTOM}"
+export INST64_DEVBIN64_METHOD="${INST64_DEVBIN64_METHOD:-CUSTOM}"
 
-export INST64_BATSCORE_TARGET_HELPERS="${INST64_BATSCORE_TARGET}/test_helper"
+export INST64_DEVBIN64_REPO_NAME='devbin64'
+export INST64_DEVBIN64_REPO_OWNER='automation64'
 
-export INST64_BATSCORE_PACKAGE_URL=''
-export INST64_BATSCORE_PACKAGE_URL_PLUGIN_SUPPORT=''
-export INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT=''
-export INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILEexport=''
-export INST64_BATSCORE_PACKAGES=''
-export INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT=''
-export INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT=''
-export INST64_BATSCORE_PACKAGES_PLUGIN_FILE=''
-export INST64_BATSCORE_CLI_NAME='bats'
-export INST64_BATSCORE_CLI_PATH=''
+export INST64_DEVBIN64_PACKAGE_URL=''
+export INST64_DEVBIN64_INSTALLER=''
+export INST64_DEVBIN64_PACKAGES=''
+export INST64_DEVBIN64_CLI_NAME=''
+export INST64_DEVBIN64_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_batscore_install_custom_package() {
+function inst64_devbin64_install_custom_package() {
   bl64_dbg_app_show_function
+  local work_path=''
   local app_target_mode='0755'
+  local app_target_owner='root'
 
-  if bl64_lib_flag_is_enabled "$INST64_BATSCORE_SYSTEM_WIDE"; then
-    INST64_BATSCORE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_BATSCORE_CLI_NAME}"
+  if bl64_lib_flag_is_enabled "$INST64_DEVBIN64_SYSTEM_WIDE"; then
+    INST64_DEVBIN64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_DEVBIN64_CLI_NAME}"
   else
-    INST64_BATSCORE_CLI_PATH="${INST64_BATSCORE_TARGET}/${INST64_BATSCORE_CLI_NAME}"
+    INST64_DEVBIN64_CLI_PATH="${INST64_DEVBIN64_TARGET}/${INST64_DEVBIN64_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
-  bl64_msg_show_task 'deploy application'
-  bl64_rxtx_git_get_dir \
-    "$INST64_BATSCORE_PACKAGE_URL" '.' "$INST64_BATSCORE_TARGET" "$BL64_VAR_DEFAULT" 'master' &&
-    bl64_fs_mkdir_full "${INST64_BATSCORE_TARGET_HELPERS}" &&
-    bl64_rxtx_git_get_dir \
-      "$INST64_BATSCORE_PACKAGE_URL_PLUGIN_SUPPORT" '.' "$INST64_BATSCORE_TARGET_HELPERS/${INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT}" "$BL64_VAR_DEFAULT" 'master' &&
-    bl64_rxtx_git_get_dir \
-      "$INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT" '.' "$INST64_BATSCORE_TARGET_HELPERS/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}" "$BL64_VAR_DEFAULT" 'master' &&
-    bl64_rxtx_git_get_dir \
-      "$INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILE" '.' "$INST64_BATSCORE_TARGET_HELPERS/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}" "$BL64_VAR_DEFAULT" 'master' &&
-    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" "$INST64_BATSCORE_TARGET" ||
+  bl64_msg_show_task 'download application'
+  work_path="$(bl64_fs_create_tmpdir)" &&
+    bl64_rxtx_github_get_asset \
+      "$INST64_DEVBIN64_REPO_OWNER" "$INST64_DEVBIN64_REPO_NAME" "$INST64_DEVBIN64_VERSION" "$INST64_DEVBIN64_PACKAGES" "${work_path}/${INST64_DEVBIN64_PACKAGES}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_BATSCORE_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_BATSCORE_CLI_PATH})"
-    # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_BATSCORE_TARGET}/bin/${INST64_BATSCORE_CLI_NAME}" "$INST64_BATSCORE_CLI_PATH" "$BL64_VAR_ON" ||
-      return $?
-  fi
+  bl64_msg_show_task 'deploy application'
+  [[ -d "$INST64_DEVBIN64_TARGET" ]] &&
+    bl64_fs_rm_full "$INST64_DEVBIN64_TARGET"
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_DEVBIN64_TARGET" &&
+    bl64_arc_open_tar "${work_path}/${INST64_DEVBIN64_PACKAGES}" "$INST64_DEVBIN64_TARGET" ||
+    return $?
+
+  bl64_msg_show_task 'cleanup temporary files'
+  bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_devbin64_select_platform() {
+  bl64_dbg_app_show_function
   return 0
 }
 
@@ -123,11 +138,10 @@ function inst64_batscore_install_custom_package() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_batscore_install() {
+function inst64_devbin64_install() {
   bl64_dbg_app_show_function
-  inst64_batscore_select_packages || return $?
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
-    inst64_batscore_install_custom_package
+  if [[ "$INST64_DEVBIN64_METHOD" == 'CUSTOM' ]]; then
+    inst64_devbin64_install_custom_package
   fi
 }
 
@@ -142,18 +156,16 @@ function inst64_batscore_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_batscore_select_packages() {
+function inst64_devbin64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
-    INST64_BATSCORE_PACKAGES='bats-core'
-    INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT='bats-support'
-    INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT='bats-assert'
-    INST64_BATSCORE_PACKAGES_PLUGIN_FILE='bats-file'
-    INST64_BATSCORE_PACKAGE_URL="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES}.git"
-    INST64_BATSCORE_PACKAGE_URL_PLUGIN_SUPPORT="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT}.git"
-    INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}.git"
-    INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILE="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}.git"
+  local package_prefix=''
+  local package_sufix=''
+  if [[ "$INST64_DEVBIN64_METHOD" == 'CUSTOM' ]]; then
+    package_prefix='devbin64'
+    package_sufix='.tar.gz'
+    INST64_DEVBIN64_PACKAGES="${package_prefix}${package_sufix}"
   fi
+  [[ -z "$INST64_DEVBIN64_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -168,10 +180,13 @@ function inst64_batscore_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_batscore_prepare() {
+function inst64_devbin64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
+  inst64_devbin64_select_platform &&
+    inst64_devbin64_select_packages ||
+    return $?
+  if [[ "$INST64_DEVBIN64_METHOD" == 'CUSTOM' ]]; then
     bl64_arc_setup
   fi
 }
@@ -187,10 +202,11 @@ function inst64_batscore_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_batscore_verify() {
+function inst64_devbin64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_BATSCORE_CLI_PATH" --version
+  [[ -d "$INST64_DEVBIN64_TARGET" ]] &&
+    [[ -x "${INST64_DEVBIN64_TARGET}/bin/dev-bootstrap" ]]
 }
 
 #######################################
@@ -204,15 +220,15 @@ function inst64_batscore_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_batscore_initialize() {
+function inst64_devbin64_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_BATSCORE_METHOD' \
-    "$INST64_BATSCORE_METHOD" \
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_DEVBIN64_METHOD' \
+    "$INST64_DEVBIN64_METHOD" \
     'CUSTOM' ||
     return $?
 
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_BATSCORE_SYSTEM_WIDE"; then
+  if [[ "$INST64_DEVBIN64_METHOD" == 'CUSTOM' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_DEVBIN64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
@@ -235,14 +251,14 @@ function inst64_batscore_initialize() {
 # Main
 #
 
-declare inst64_batscore_installer_description='Install application: Batscore'
+declare inst64_devbin64_installer_description='Install application: DevBin64'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_batscore_installer_description"
+bl64_msg_show_batch_start "$inst64_devbin64_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_batscore_initialize &&
-  inst64_batscore_prepare &&
-  inst64_batscore_install &&
-  inst64_batscore_verify
-bl64_msg_show_batch_finish $? "$inst64_batscore_installer_description"
+inst64_devbin64_initialize &&
+  inst64_devbin64_prepare &&
+  inst64_devbin64_install &&
+  inst64_devbin64_verify
+bl64_msg_show_batch_finish $? "$inst64_devbin64_installer_description"

@@ -1,4 +1,4 @@
-# Snippet: install-git-repo-1.0.0
+# Snippet: install-git-repo-1.0.1
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -47,7 +47,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
   "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
     return $?
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
-    bl64_fs_fix_permissions "$app_target_mode" "$app_target_mode" \
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
       "$INST64_X_APP_NAME_CAPS_X_TARGET" ||
       return $?
   fi

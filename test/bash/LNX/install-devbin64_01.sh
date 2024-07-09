@@ -5,6 +5,6 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-export INST64_SYSDEN64_SYSTEM_WIDE=NO
-export INST64_SYSDEN64_TARGET="$HOME/sysden64"
-/source/install-sysden64
+export INST64_DEVBIN64_SYSTEM_WIDE=NO
+export INST64_DEVBIN64_TARGET="$HOME/devbin64"
+/source/install-devbin64
