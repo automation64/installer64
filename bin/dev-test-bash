@@ -3,7 +3,7 @@
 # Dev / Test / Bash / Simple test runner
 #
 # * Run tests in test/bash using containers
-# * Version: 1.0.1
+# * Version: 1.0.2
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -30,7 +30,9 @@ source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2
 # shellcheck source-path=bin
 source ./bin/dev-env-bash || exit 1
 # shellcheck source-path=lib/bl64
-source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fmt.bash" &&
+source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-xsv.bash" &&
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-bsh.bash" &&
+  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fmt.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-txt.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fs.bash" &&
   source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-cnt.bash" &&
@@ -95,7 +97,8 @@ function dev_test_bash() {
 
 function dev_test_initialize() {
   bl64_dbg_app_show_function
-  bl64_cnt_setup
+  bl64_cnt_setup &&
+    bl64_check_directory "$DEV_TEST_BASH_CASES"
 }
 
 #

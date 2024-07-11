@@ -14,8 +14,8 @@
 /tmp/*
 /vault/*
 
-/.local
-/.secrets
+/.local.env
+/.secrets.env
 
 #
 # Project specific exclusions
