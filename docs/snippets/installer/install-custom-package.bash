@@ -8,6 +8,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
 
