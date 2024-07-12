@@ -1,7 +1,7 @@
 #
 # GIT Ignore
 #
-# * Template version: 1.3.0
+# * Template version: 2.0.0
 #
 
 #
@@ -14,8 +14,8 @@
 /tmp/*
 /vault/*
 
-/.local
-/.secrets
+/.local.env
+/.secrets.env
 
 #
 # Project specific exclusions
