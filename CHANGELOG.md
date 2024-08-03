@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installer
   - delta
   - ctop
+  - hwatch
 
 ## [3.32.2]
 
