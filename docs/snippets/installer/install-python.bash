@@ -1,4 +1,4 @@
-# Snippet: install-python-3.2.1
+# Snippet: install-python-3.2.2
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -25,7 +25,6 @@ function inst64_X_APP_NAME_X_install_with_pip() {
   INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_prepare &&
     bl64_py_pip_usr_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
 }
 

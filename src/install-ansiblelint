@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
-# Snippet: install-python-3.2.1
+# Snippet: install-python-3.2.2
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
+# Version: 1.2.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -76,7 +76,6 @@ function inst64_ansiblelint_install_with_pip() {
   INST64_ANSIBLELINT_CLI_PATH="${HOME}/.local/bin/${INST64_ANSIBLELINT_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_prepare &&
     bl64_py_pip_usr_deploy $INST64_ANSIBLELINT_PACKAGES
 }
 
