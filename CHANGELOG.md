@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ctop
   - hwatch
 
+### Fixed
+
+- HTTPie
+  - Change default version to 3.2.2 to avoid missing asset on source repo
+
 ## [3.32.2]
 
 ### Added
