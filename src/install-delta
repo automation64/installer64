@@ -133,7 +133,7 @@ function inst64_delta_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_DELTA_METHOD" == 'BINARY' ]]; then
       if [[ -z "$INST64_DELTA_PLATFORM" ]]; then
-        if bl64_os_match "${BL64_OS_ALP}"; then
+        if bl64_os_match "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
           INST64_DELTA_PLATFORM='x86_64-unknown-linux-musl'
         else
           INST64_DELTA_PLATFORM='x86_64-unknown-linux-gnu'
