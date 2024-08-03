@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - HTTPie
   - Change default version to 3.2.2 to avoid missing asset on source repo
+- MKDocs
+  - Refactor to install instead of deploy pip modules to avoid installing buggy setup-tools module (72.x)
 
 ## [3.32.2]
 
