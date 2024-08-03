@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.1.0
+# Version: 2.1.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -63,8 +63,7 @@ function inst64_mkdocs_install_with_pip() {
   bl64_dbg_app_show_function
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_prepare &&
-    bl64_py_pip_usr_deploy $INST64_MKDOCS_PACKAGES
+    bl64_py_pip_usr_install $INST64_MKDOCS_PACKAGES
 }
 
 function inst64_mkdocs_install_with_pipx() {
