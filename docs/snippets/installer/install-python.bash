@@ -49,10 +49,11 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
   local version_target=''
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    if bl64_os_match "${X_BL64_OS_ID_X}"; then
-      bl64_msg_show_alert "fixing package version_target for compatibility to target OS (${version_legacy})"
-      version_target="==${version_legacy}.*"
-    elif [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
+    # optional # if bl64_os_match "${X_BL64_OS_ID_X}"; then
+    # optional #   bl64_msg_show_alert "fixing package version_target for compatibility to target OS (${version_legacy})"
+    # optional #   version_target="==${version_legacy}.*"
+    # optional # elif [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
+    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       version_target=''
     else
       version_target="==${INST64_X_APP_NAME_CAPS_X_VERSION}.*"
