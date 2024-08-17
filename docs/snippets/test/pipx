@@ -1,0 +1,9 @@
+# X_CODE_PLACEHOLDER_1_X
+
+# Prepare PIPX
+export PATH="$PATH:/home/$HOME/.local/bin"
+/source/install-pipx
+
+# Run test
+export INST64_MKDOCSX_APP_NAME_CAPS_X_METHOD='PIPX'
+/source/install-X_APP_NAME_X
