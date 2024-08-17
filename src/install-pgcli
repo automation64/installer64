@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.1
+# Version: 1.0.2
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -193,7 +193,7 @@ function inst64_pgcli_initialize() {
 
   if [[ "$INST64_PGCLI_METHOD" == 'PIPX' || "$INST64_PGCLI_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_PGCLI_METHOD" == 'PIPX' ]]; then
-      bl64_bsh_command_is_executable "$INST64_PGCLI_PIPX_BIN" ||
+      bl64_check_command_search_path "$INST64_PGCLI_PIPX_BIN" ||
       return $?
     fi
     bl64_check_privilege_not_root &&
