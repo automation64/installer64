@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.34.1]
+## [3.35.0]
+
+### Added
+
+- LazyDocker
+  - Full bl64 compatible Linux flavors
+
+### Changed
+
+- MKDocs
+  - Separated main package from plugins
+
+## [3.34.0]
 
 ### Added
 
@@ -15,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - MKDocs
-  - Alpine, Ubuntu installer
+  - Alpine installer
 
 ## [3.33.0]
 
