@@ -1,4 +1,4 @@
-# Snippet: install-python-3.2.2
+# Snippet: install-python-4.0.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -25,7 +25,14 @@ function inst64_X_APP_NAME_X_install_with_pip() {
   INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
+    bl64_py_pip_usr_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES ||
+    return $?
+  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_X_APP_NAME_CAPS_X_PACKAGES_POST ||
+      return $?
+  fi
+  return 0
 }
 
 function inst64_X_APP_NAME_X_install_with_pipx() {
@@ -34,7 +41,14 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
   bl64_msg_show_task 'deploy application'
   INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   # shellcheck disable=SC2086
-  "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install $INST64_X_APP_NAME_CAPS_X_PACKAGES
+  "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install $INST64_X_APP_NAME_CAPS_X_PACKAGES ||
+    return $?
+  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" inject $INST64_X_APP_NAME_CAPS_X_PACKAGES $INST64_X_APP_NAME_CAPS_X_PACKAGES_POST ||
+      return $?
+  fi
+  return 0
 }
 
 # X_INSTALL_PLACEHOLDER_X
