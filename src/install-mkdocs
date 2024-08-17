@@ -221,7 +221,7 @@ function inst64_mkdocs_initialize() {
 
   if [[ "$INST64_MKDOCS_METHOD" == 'PIPX' || "$INST64_MKDOCS_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_MKDOCS_METHOD" == 'PIPX' ]]; then
-      bl64_bsh_command_is_executable "$INST64_MKDOCS_PIPX_BIN" ||
+      bl64_check_command_search_path "$INST64_MKDOCS_PIPX_BIN" ||
         return $?
     fi
     bl64_check_privilege_not_root &&
