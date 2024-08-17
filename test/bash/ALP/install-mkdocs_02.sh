@@ -6,7 +6,7 @@ if [[ "$_DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 # Prepare PIPX
-export PATH="$PATH:/home/$HOME/.local/bin"
+export PATH="${PATH}:${HOME}/.local/bin"
 /source/install-pipx
 
 # Run test

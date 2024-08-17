@@ -1,7 +1,7 @@
 # X_CODE_PLACEHOLDER_1_X
 
 # Prepare PIPX
-export PATH="$PATH:/home/$HOME/.local/bin"
+export PATH="${PATH}:${HOME}/.local/bin"
 /source/install-pipx
 
 # Run test
