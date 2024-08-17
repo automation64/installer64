@@ -89,7 +89,7 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
-      bl64_bsh_command_is_executable "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
+      bl64_check_command_search_path "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
       return $?
     fi
     bl64_check_privilege_not_root &&
