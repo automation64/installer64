@@ -83,13 +83,8 @@ function inst64_pgadmin_install_with_pipx() {
 
   bl64_msg_show_task 'deploy application'
   INST64_PGADMIN_CLI_PATH="${INST64_PGADMIN_CLI_NAME}"
-  if [[ -n "$INST64_PGADMIN_PACKAGES_PRE" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_PGADMIN_PIPX_BIN" install --preinstall $INST64_PGADMIN_PACKAGES_PRE $INST64_PGADMIN_PACKAGES
-  else
-    # shellcheck disable=SC2086
-    "$INST64_PGADMIN_PIPX_BIN" install $INST64_PGADMIN_PACKAGES
-  fi
+  # shellcheck disable=SC2086
+  "$INST64_PGADMIN_PIPX_BIN" install $INST64_PGADMIN_PACKAGES
 }
 
 #######################################
@@ -128,10 +123,9 @@ function inst64_pgadmin_select_packages() {
   local version_target=''
 
   if [[ "$INST64_PGADMIN_METHOD" == 'PIPX' || "$INST64_PGADMIN_METHOD" == 'PIP' ]]; then
-    bl64_dbg_app_show_comments 'downgrading pip to avoid 24.2 issues'
-    INST64_PGADMIN_PACKAGES_PRE='pip==24.0'
     if [[ "$INST64_PGADMIN_VERSION" == 'latest' ]]; then
-      version_target=''
+      version_target='<8.10'
+      bl64_msg_show_alert "fixing package version_target to avoid pip related compatibility issues (${version_target})"
     else
       version_target="==${INST64_PGADMIN_VERSION}.*"
     fi
