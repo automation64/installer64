@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.2
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -55,10 +55,9 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# X_GLOBALS_PLACEHOLDER_X
 export INST64_PGADMIN_VERSION="${INST64_PGADMIN_VERSION:-latest}"
 # Installation method
-export INST64_PGADMIN_METHOD="${INST64_PGADMIN_METHOD:-PIP}"
+export INST64_PGADMIN_METHOD="${INST64_PGADMIN_METHOD:-PIPX}"
 
 export INST64_PGADMIN_PIPX_BIN="${INST64_PGADMIN_PIPX_BIN:-pipx}"
 export INST64_PGADMIN_PACKAGES=''
@@ -84,8 +83,13 @@ function inst64_pgadmin_install_with_pipx() {
 
   bl64_msg_show_task 'deploy application'
   INST64_PGADMIN_CLI_PATH="${INST64_PGADMIN_CLI_NAME}"
-  # shellcheck disable=SC2086
-  "$INST64_PGADMIN_PIPX_BIN" install $INST64_PGADMIN_PACKAGES
+  if [[ -n "$INST64_PGADMIN_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_PGADMIN_PIPX_BIN" install --preinstall $INST64_PGADMIN_PACKAGES_PRE $INST64_PGADMIN_PACKAGES
+  else
+    # shellcheck disable=SC2086
+    "$INST64_PGADMIN_PIPX_BIN" install $INST64_PGADMIN_PACKAGES
+  fi
 }
 
 #######################################
@@ -124,6 +128,8 @@ function inst64_pgadmin_select_packages() {
   local version_target=''
 
   if [[ "$INST64_PGADMIN_METHOD" == 'PIPX' || "$INST64_PGADMIN_METHOD" == 'PIP' ]]; then
+    bl64_dbg_app_show_comments 'downgrading pip to avoid 24.2 issues'
+    INST64_PGADMIN_PACKAGES_PRE='pip==24.0'
     if [[ "$INST64_PGADMIN_VERSION" == 'latest' ]]; then
       version_target=''
     else

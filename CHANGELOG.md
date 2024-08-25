@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Kind
   - Multi OS support
 
+### Fixed
+
+- PGAdmin
+  - PIPX: Using PIP 24.0 to avoid PIP 24.2 issues
+
 ## [3.35.0]
 
 ### Added
