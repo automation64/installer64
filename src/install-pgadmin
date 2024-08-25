@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.2
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -55,7 +55,6 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# X_GLOBALS_PLACEHOLDER_X
 export INST64_PGADMIN_VERSION="${INST64_PGADMIN_VERSION:-latest}"
 # Installation method
 export INST64_PGADMIN_METHOD="${INST64_PGADMIN_METHOD:-PIP}"
@@ -125,7 +124,8 @@ function inst64_pgadmin_select_packages() {
 
   if [[ "$INST64_PGADMIN_METHOD" == 'PIPX' || "$INST64_PGADMIN_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_PGADMIN_VERSION" == 'latest' ]]; then
-      version_target=''
+      version_target='<8.10'
+      bl64_msg_show_alert "fixing package version_target to avoid pip related compatibility issues (${version_target})"
     else
       version_target="==${INST64_PGADMIN_VERSION}.*"
     fi

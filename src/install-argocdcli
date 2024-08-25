@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Template: 2.2.0
-# Snippet: install-github-release-3.2.1
+# Template: 2.3.0
+# Snippet: install-github-release-3.2.4
+# Snippet: select-platform-1.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.3.0
+# Version: 1.4.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -31,14 +32,14 @@
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -99,7 +100,7 @@ function inst64_argocdcli_install_binary_release() {
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_ARGOCDCLI_TARGET" &&
-    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_ARGOCDCLI_TARGET" "${work_path}/${app_cli_source}" ||
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_ARGOCDCLI_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_ARGOCDCLI_SYSTEM_WIDE"; then
@@ -203,6 +204,7 @@ function inst64_argocdcli_select_packages() {
 function inst64_argocdcli_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
+  inst64_argocdcli_select_packages || return $?
   if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi
@@ -249,10 +251,17 @@ function inst64_argocdcli_initialize() {
         return $?
     fi
     bl64_os_check_compatibility \
-      "$BL64_OS_ALP" \
-      "$BL64_OS_UB" \
-      "$BL64_OS_FD" \
-      "$BL64_OS_OL"
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_AMZ}" \
+      "${BL64_OS_CNT}" \
+      "${BL64_OS_DEB}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_RHEL}" \
+      "${BL64_OS_SLES}" \
+      "${BL64_OS_UB}"
   fi
 }
 

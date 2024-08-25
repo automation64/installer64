@@ -101,7 +101,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
         return $?
     fi
     bl64_os_check_compatibility \
-      "${BL64_OS_X_OS_TAG_X}-X_OS_VERSION_X"
+      # X_OS_VERSION_TAG_X
   fi
 
 # X_PLATFORM_SELECTION_PLACEHOLDER_X #
