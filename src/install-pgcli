@@ -55,7 +55,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# export INST64_PGCLI_VERSION="${INST64_PGCLI_VERSION:-latest}"
+export INST64_PGCLI_VERSION="${INST64_PGCLI_VERSION:-latest}"
 # Installation method
 export INST64_PGCLI_METHOD="${INST64_PGCLI_METHOD:-PIP}"
 

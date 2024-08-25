@@ -53,7 +53,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# export INST64_PIPX_VERSION="${INST64_PIPX_VERSION:-latest}"
+export INST64_PIPX_VERSION="${INST64_PIPX_VERSION:-latest}"
 # Installation method
 export INST64_PIPX_METHOD="${INST64_PIPX_METHOD:-PIP}"
 
