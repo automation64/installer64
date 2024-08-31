@@ -2,7 +2,7 @@
 #######################################
 # Dev / Env / Bash / Shared environment variables
 #
-# * Version: 1.2.0
+# * Version: 1.4.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -47,7 +47,9 @@
     # Test / Bash / Container where the test will run
     export DEV_TEST_BASH_CONTAINER="${DEV_TEST_BASH_CONTAINER:-bash-test/alpine-3-bash-test}"
     # Test / Bash / Path to test cases. Relative to DEV_PATH_ROOT
-    export DEV_TEST_BASH_CASES="${DEV_TEST_BASH_CASES:-${DEV_BASE_TEST}/bash}"
+    export DEV_TEST_BASH_CASES="${DEV_BASE_TEST}/bash"
+    # Test / Bash / Flag for marking container environment
+    export DEV_TEST_BASH_CONTAINER_ENVIRONMENT='OFF'
 }
 
 #
