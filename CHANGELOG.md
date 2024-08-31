@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers
   - ruff
+- Helm
+  - Multi OS support
 
 ### Fixed
 
-- PGAdmin: fixed function wrong name
+- PGAdmin
+  - Fixed function wrong name
 
 ### Added
 
