@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers
   - ruff
 
-## [3.36.0]
+### Fixed
+
+- PGAdmin: fixed function wrong name
 
 ### Added
 

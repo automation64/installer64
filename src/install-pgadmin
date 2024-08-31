@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
+# Version: 1.1.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -125,7 +125,7 @@ function inst64_pgadmin_select_packages() {
   if [[ "$INST64_PGADMIN_METHOD" == 'PIPX' || "$INST64_PGADMIN_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_PGADMIN_VERSION" == 'latest' ]]; then
       version_target='<8.10'
-      bl64_msg_show_alert "fixing package version_target to avoid pip related compatibility issues (${version_target})"
+      bl64_msg_show_warning "fixing package version_target to avoid pip related compatibility issues (${version_target})"
     else
       version_target="==${INST64_PGADMIN_VERSION}.*"
     fi
