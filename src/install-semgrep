@@ -55,7 +55,6 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-# X_GLOBALS_PLACEHOLDER_X
 export INST64_SEMGREP_VERSION="${INST64_SEMGREP_VERSION:-latest}"
 # Installation method
 export INST64_SEMGREP_METHOD="${INST64_SEMGREP_METHOD:-PIP}"
@@ -147,7 +146,6 @@ function inst64_semgrep_install() {
 #######################################
 function inst64_semgrep_select_packages() {
   bl64_dbg_app_show_function
-  local version_legacy='X_LEGACY_VERSION_X'
   local version_target=''
 
   if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' || "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
