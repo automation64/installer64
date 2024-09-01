@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - SQLMap
   - TestSSL
   - Capa
+  - gRPCurl
 - Helm
   - Multi OS support
 
