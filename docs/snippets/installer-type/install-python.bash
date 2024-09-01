@@ -85,6 +85,7 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
 
 # X_PREPARE_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
+    inst64_X_APP_NAME_X_select_packages &&
     bl64_py_setup
   fi
 

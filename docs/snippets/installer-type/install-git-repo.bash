@@ -77,6 +77,11 @@ function inst64_X_APP_NAME_X_install_git_repo() {
     INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
   fi
 
+# X_PREPARE_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    inst64_X_APP_NAME_X_select_packages
+  fi
+
 # X_INIT_PLACEHOLDER_X
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
     "$INST64_X_APP_NAME_CAPS_X_METHOD" \
