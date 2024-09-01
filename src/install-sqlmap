@@ -186,7 +186,7 @@ function inst64_sqlmap_prepare() {
 function inst64_sqlmap_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_SQLMAP_CLI_PATH" --version
+  python3 "$INST64_SQLMAP_CLI_PATH" --version
 }
 
 #######################################
