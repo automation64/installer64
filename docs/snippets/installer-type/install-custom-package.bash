@@ -53,8 +53,7 @@ function inst64_X_APP_NAME_X_install_custom_package() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    # X_INSTALL_DEPLOYMENT_PLACEHOLDER_X
+  # X_INSTALL_DEPLOYMENT_PLACEHOLDER_X
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
