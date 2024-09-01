@@ -51,7 +51,6 @@ function dev_lib_normalize() {
     "$DEV_PATH_SRC" \
     "$DEV_PATH_TEST" \
     "$DEV_BASE_ENV" \
-    "$DEV_BASE_LOCAL" \
     '.shellcheckrc'
 }
 

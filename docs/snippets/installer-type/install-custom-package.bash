@@ -49,15 +49,11 @@ function inst64_X_APP_NAME_X_install_custom_package() {
     "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
     'YES' \
     "$app_target_mode" &&
-# example #    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
-# example #    bl64_arc_open_zip "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+    # X_INSTALL_DOWNLOAD_PLACEHOLDER_X
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    # example # bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
-    # example # "${work_path}/${INST64_X_APP_NAME_CAPS_X_INSTALLER}" ||
-    return $?
+  # X_INSTALL_DEPLOYMENT_PLACEHOLDER_X
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
@@ -82,10 +78,8 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     package_prefix='X_PACKAGE_PREFIX_X'
     package_sufix='X_PACKAGE_SUFIX_X'
-    # delete-me # Modify the following line to properly form the package name
-    INST64_X_APP_NAME_CAPS_X_PACKAGES="${package_prefix}${INST64_X_APP_NAME_CAPS_X_VERSION}${INST64_X_APP_NAME_CAPS_X_PLATFORM}${package_sufix}"
-    # delete-me # Modify the following line to properly form the package url
-    INST64_X_APP_NAME_CAPS_X_PACKAGE_URL="${INST64_X_APP_NAME_CAPS_X_SOURCE}/v${INST64_X_APP_NAME_CAPS_X_VERSION}"
+    # X_PACKAGE_NAME_PLACEHOLDER_X
+    # X_PACKAGE_URL_PLACEHOLDER_X
     [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi
 
@@ -111,5 +105,5 @@ function inst64_X_APP_NAME_X_install_custom_package() {
 
   # X_PLATFORM_SELECTION_PLACEHOLDER_X #
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-      # example # [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X #
   fi

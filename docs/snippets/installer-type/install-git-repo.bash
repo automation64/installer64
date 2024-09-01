@@ -1,4 +1,4 @@
-# Snippet: install-git-repo-1.0.1
+# Snippet: install-git-repo-1.1.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -28,6 +28,8 @@ export INST64_X_APP_NAME_CAPS_X_INSTALLER=''
 function inst64_X_APP_NAME_X_install_git_repo() {
   bl64_dbg_app_show_function
   local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -46,10 +48,12 @@ function inst64_X_APP_NAME_X_install_git_repo() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
-    return $?
+  if [[ -n "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ]]; then
+    "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
+      return $?
+  fi
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
-    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
       "$INST64_X_APP_NAME_CAPS_X_TARGET" ||
       return $?
   fi
@@ -57,7 +61,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_create_symlink "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -71,7 +75,12 @@ function inst64_X_APP_NAME_X_install_git_repo() {
 
 # X_SELECT_PKG_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    INST64_X_APP_NAME_CAPS_X_PACKAGES="$INST64_X_APP_NAME_CAPS_X_GIT_REPO"
+    INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
+  fi
+
+# X_PREPARE_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    inst64_X_APP_NAME_X_select_packages
   fi
 
 # X_INIT_PLACEHOLDER_X

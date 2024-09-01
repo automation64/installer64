@@ -44,7 +44,7 @@ jobs:
         uses: "actions/checkout@main"
 
       - name: "Prepare dev environment"
-        run: "./bin/dev-lib-installer64 && ./bin/dev-lib-testmansh"
+        run: "./bin/dev-lib-base && ./bin/dev-lib-testmansh"
 
       - name: "Run OS specific tests"
         run: |

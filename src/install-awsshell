@@ -120,7 +120,6 @@ function inst64_awsshell_install() {
 #######################################
 function inst64_awsshell_select_packages() {
   bl64_dbg_app_show_function
-  local version_legacy='X_LEGACY_VERSION_X'
   local version_target=''
 
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then

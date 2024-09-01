@@ -176,8 +176,7 @@ function inst64_X_APP_NAME_X_select_packages() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     package_prefix='X_PACKAGE_PREFIX_X'
     package_sufix='X_PACKAGE_SUFIX_X'
-    # example # INST64_X_APP_NAME_CAPS_X_PACKAGES="${package_prefix}${INST64_X_APP_NAME_CAPS_X_VERSION}${INST64_X_APP_NAME_CAPS_X_PLATFORM}${package_sufix}"
-    # example # INST64_X_APP_NAME_CAPS_X_PACKAGE_URL="${INST64_X_APP_NAME_CAPS_X_SOURCE}/v${INST64_X_APP_NAME_CAPS_X_VERSION}"
+    # X_PACKAGE_NAME_PLACEHOLDER_X
     [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1

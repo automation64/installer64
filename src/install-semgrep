@@ -1,0 +1,248 @@
+#!/usr/bin/env bash
+# Template: 2.3.0
+# Snippet: install-python-4.0.0
+#######################################
+# Installer64 / Package installer
+#
+# Author: SerDigital64 (https://github.com/serdigital64)
+# Repository: https://github.com/automation64/installer64
+# Version: 1.0.0
+#
+#######################################
+# Copyright [2023] [serdigital64@gmail.com]
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# BashLib64 location
+export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
+# Enable debugging? Set to YES to enable
+export INST64_DEBUG="${INST64_DEBUG:-}"
+# Base path for local applications
+export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+# Local applications binaries location
+export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Base path for 3rd party applications
+export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+# Location for temporary files
+export INST64_TMP="${INST64_TMP:-/tmp}"
+
+export INST64_SEMGREP_VERSION="${INST64_SEMGREP_VERSION:-latest}"
+# Installation method
+export INST64_SEMGREP_METHOD="${INST64_SEMGREP_METHOD:-PIP}"
+
+export INST64_SEMGREP_PIPX_BIN="${INST64_SEMGREP_PIPX_BIN:-pipx}"
+export INST64_SEMGREP_PACKAGES=''
+export INST64_SEMGREP_PACKAGES_POST=''
+export INST64_SEMGREP_CLI_NAME='semgrep'
+export INST64_SEMGREP_CLI_PATH=''
+
+#
+# Functions
+#
+
+function inst64_semgrep_install_with_pip() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  INST64_SEMGREP_CLI_PATH="${HOME}/.local/bin/${INST64_SEMGREP_CLI_NAME}"
+  if [[ -n "$INST64_SEMGREP_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_SEMGREP_PACKAGES_PRE ||
+      return $?
+  fi
+  # shellcheck disable=SC2086
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_py_pip_usr_deploy $INST64_SEMGREP_PACKAGES ||
+    return $?
+  if [[ -n "$INST64_SEMGREP_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_SEMGREP_PACKAGES_POST ||
+      return $?
+  fi
+  return 0
+}
+
+function inst64_semgrep_install_with_pipx() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  INST64_SEMGREP_CLI_PATH="${INST64_SEMGREP_CLI_NAME}"
+  if [[ -n "$INST64_SEMGREP_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_SEMGREP_PIPX_BIN" install --preinstall $INST64_SEMGREP_PACKAGES_PRE $INST64_SEMGREP_PACKAGES ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    "$INST64_SEMGREP_PIPX_BIN" inject $INST64_SEMGREP_PACKAGES $INST64_SEMGREP_PACKAGES_PRE ||
+      return $?
+  fi
+  if [[ -n "$INST64_SEMGREP_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_SEMGREP_PIPX_BIN" inject $INST64_SEMGREP_PACKAGES $INST64_SEMGREP_PACKAGES_POST ||
+      return $?
+  fi
+  return 0
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_semgrep_install() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' ]]; then
+    inst64_semgrep_install_with_pipx
+  elif [[ "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
+    inst64_semgrep_install_with_pip
+  fi
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_semgrep_select_packages() {
+  bl64_dbg_app_show_function
+  local version_target=''
+
+  if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' || "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_SEMGREP_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="==${INST64_SEMGREP_VERSION}.*"
+    fi
+    INST64_SEMGREP_PACKAGES="semgrep${version_target}"
+    INST64_SEMGREP_PACKAGES_PRE=''
+    INST64_SEMGREP_PACKAGES_POST=''
+  fi
+  [[ -z "$INST64_SEMGREP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_semgrep_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+  inst64_semgrep_select_packages || return $?
+  if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' || "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
+    bl64_py_setup
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_semgrep_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_SEMGREP_CLI_PATH" --version
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: initialization failed
+#######################################
+function inst64_semgrep_initialize() {
+  bl64_dbg_app_show_function
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SEMGREP_METHOD' \
+    "$INST64_SEMGREP_METHOD" \
+    'PIP' 'PIPX' ||
+    return $?
+
+  if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' || "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' ]]; then
+      bl64_check_command_search_path "$INST64_SEMGREP_PIPX_BIN" ||
+      return $?
+    fi
+    bl64_check_privilege_not_root &&
+      bl64_os_check_compatibility \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_UB}"
+  fi
+}
+
+#
+# Main
+#
+
+declare inst64_semgrep_installer_description='Install application: SemGrep'
+
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$inst64_semgrep_installer_description"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
+inst64_semgrep_initialize &&
+  inst64_semgrep_prepare &&
+  inst64_semgrep_install &&
+  inst64_semgrep_verify
+bl64_msg_show_batch_finish $? "$inst64_semgrep_installer_description"
