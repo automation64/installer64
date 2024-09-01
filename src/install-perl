@@ -145,8 +145,6 @@ function inst64_perl_select_packages() {
         INST64_PERL_PACKAGES="${INST64_PERL_PACKAGES} libperl-dev"
     elif bl64_os_match "$BL64_OS_SLES"; then
       INST64_PERL_PACKAGES='perl'
-      bl64_lib_flag_is_enabled "$INST64_PERL_DEVELOPMENT" &&
-        INST64_PERL_PACKAGES="${INST64_PERL_PACKAGES} perl-devel"
     elif bl64_os_match "${BL64_OS_ALM}" "${BL64_OS_AMZ}" "${BL64_OS_CNT}" "${BL64_OS_FD}" "${BL64_OS_OL}" "${BL64_OS_RCK}" "${BL64_OS_RHEL}"; then
       INST64_PERL_PACKAGES='perl'
       bl64_lib_flag_is_enabled "$INST64_PERL_DEVELOPMENT" &&
