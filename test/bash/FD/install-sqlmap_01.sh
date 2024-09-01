@@ -1,0 +1,1 @@
+../UB/install-sqlmap_01.sh
