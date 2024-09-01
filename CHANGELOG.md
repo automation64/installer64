@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - TestSSL
   - Capa
   - gRPCurl
+  - Perl
 - Helm
   - Multi OS support
 
