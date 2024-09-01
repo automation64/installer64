@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Zellij
   - SQLMap
   - TestSSL
+  - Capa
 - Helm
   - Multi OS support
 
