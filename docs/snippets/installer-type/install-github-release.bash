@@ -1,4 +1,4 @@
-# Snippet: install-github-release-3.2.4
+# Snippet: install-github-release-3.3.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -33,6 +33,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   local app_target_owner='root'
   local app_cli_mode='0755'
   local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  local app_work_path="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}-${INST64_X_APP_NAME_CAPS_X_PLATFORM}/${app_cli_source}"
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -50,7 +51,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_work_path}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
