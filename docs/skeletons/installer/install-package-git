@@ -149,7 +149,7 @@ function inst64_X_APP_NAME_X_install() {
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    INST64_X_APP_NAME_CAPS_X_PACKAGES="$INST64_X_APP_NAME_CAPS_X_GIT_REPO"
+    INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
