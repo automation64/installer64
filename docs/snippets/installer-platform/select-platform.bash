@@ -20,8 +20,3 @@ function inst64_X_APP_NAME_X_select_platform() {
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
-
-# X_PREPARE_PLACEHOLDER_X
-  inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_select_packages ||
-    return $?
