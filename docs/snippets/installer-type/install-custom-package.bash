@@ -1,4 +1,4 @@
-# Snippet: install-web-tgz-3.1.2
+# Snippet: install-custom-package-4.2.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -21,12 +21,13 @@ export INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-X_A
 # Install system wide? Requires root privilege
 export INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE="${INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BINARY}"
+export INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
 
 export INST64_X_APP_NAME_CAPS_X_PACKAGE_URL=''
+export INST64_X_APP_NAME_CAPS_X_INSTALLER='X_INSTALLER_X'
 
 # X_STAND_ALONE_FUNCTIONS_X #
-function inst64_X_APP_NAME_X_install_binary_release() {
+function inst64_X_APP_NAME_X_install_custom_package() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -42,18 +43,18 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   fi
 
   bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
+  work_path="$(bl64_fs_create_tmpdir)" &&
   bl64_rxtx_web_get_file \
-    "${INST64_X_APP_NAME_CAPS_X_PACKAGE_URL}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" &&
-# example #    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
-# example #    bl64_arc_open_zip "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+    "${INST64_X_APP_NAME_CAPS_X_PACKAGE_URL}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
+    "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
+    'YES' \
+    "$app_target_mode" &&
+    # X_INSTALL_DOWNLOAD_PLACEHOLDER_X
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    bl64_fs_path_copy \
-      "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
-    return $?
+    # X_INSTALL_DEPLOYMENT_PLACEHOLDER_X
 
   if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
@@ -67,43 +68,43 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   return 0
 }
 
-# X_PLATFORM_SELECTION_PLACEHOLDER_X #
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-      # example # [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
-  fi
-
 # X_INSTALL_PLACEHOLDER_X
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    inst64_X_APP_NAME_X_install_binary_release
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    inst64_X_APP_NAME_X_install_custom_package
   fi
 
 # X_SELECT_PKG_PLACEHOLDER_X
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     package_prefix='X_PACKAGE_PREFIX_X'
     package_sufix='X_PACKAGE_SUFIX_X'
-    # example # INST64_X_APP_NAME_CAPS_X_PACKAGES="${package_prefix}${INST64_X_APP_NAME_CAPS_X_VERSION}${INST64_X_APP_NAME_CAPS_X_PLATFORM}${package_sufix}"
-    # example # INST64_X_APP_NAME_CAPS_X_PACKAGE_URL="${INST64_X_APP_NAME_CAPS_X_SOURCE}/v${INST64_X_APP_NAME_CAPS_X_VERSION}"
+    # X_PACKAGE_NAME_PLACEHOLDER_X
+    # X_PACKAGE_URL_PLACEHOLDER_X
     [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi
 
 # X_PREPARE_PLACEHOLDER_X
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     bl64_arc_setup
   fi
 
 # X_INIT_PLACEHOLDER_X
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
     "$INST64_X_APP_NAME_CAPS_X_METHOD" \
-    'BINARY' ||
+    'CUSTOM' ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
     bl64_os_check_compatibility \
       # X_OS_VERSION_TAG_X
+  fi
+
+  # X_PLATFORM_SELECTION_PLACEHOLDER_X #
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X #
   fi

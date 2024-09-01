@@ -70,14 +70,9 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
   fi
 
 # X_SELECT_PKG_PLACEHOLDER_X
-  local version_legacy='X_LEGACY_VERSION_X'
   local version_target=''
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    # optional # if bl64_os_match "${X_BL64_OS_ID_X}"; then
-    # optional #   bl64_msg_show_alert "fixing package version_target for compatibility to target OS (${version_legacy})"
-    # optional #   version_target="==${version_legacy}.*"
-    # optional # elif [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       version_target=''
     else

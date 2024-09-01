@@ -111,7 +111,7 @@ function inst64_X_APP_NAME_X_install() {
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match # X_OS_VERSION_TAG_X; then
+    if bl64_os_match $X_OS_VERSION_TAG_X; then
       INST64_X_APP_NAME_CAPS_X_PACKAGES='X_OS_PACKAGE_LIST_X'
       bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
         INST64_X_APP_NAME_CAPS_X_PACKAGES="${INST64_X_APP_NAME_CAPS_X_PACKAGES} X_OS_PACKAGE_LIST_X"
@@ -156,8 +156,7 @@ function inst64_X_APP_NAME_X_prepare() {
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  # X_VERIFY_PLACEHOLDER_X
-  # example # "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
+  "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
 }
 
 #######################################
@@ -199,5 +198,4 @@ inst64_X_APP_NAME_X_initialize &&
   inst64_X_APP_NAME_X_prepare &&
   inst64_X_APP_NAME_X_install &&
   inst64_X_APP_NAME_X_verify
-# X_MAIN_POST_VERIFY_PLACEHOLDER_X
 bl64_msg_show_batch_finish $? "$inst64_X_APP_NAME_X_installer_description"
