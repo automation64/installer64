@@ -246,18 +246,6 @@ function inst64_X_APP_NAME_X_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
-    bl64_os_check_compatibility \
-      "${BL64_OS_ALM}" \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_AMZ}" \
-      "${BL64_OS_CNT}" \
-      "${BL64_OS_DEB}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_RCK}" \
-      "${BL64_OS_RHEL}" \
-      "${BL64_OS_SLES}" \
-      "${BL64_OS_UB}"
   fi
 }
 
