@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 3.0.2
+# Version: 3.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -194,19 +194,7 @@ function inst64_ansible_initialize() {
       bl64_check_command_search_path "$INST64_ANSIBLE_PIPX_BIN" ||
       return $?
     fi
-    bl64_check_privilege_not_root &&
-      bl64_os_check_compatibility \
-      "${BL64_OS_ALM}" \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_AMZ}" \
-      "${BL64_OS_CNT}" \
-      "${BL64_OS_DEB}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_RCK}" \
-      "${BL64_OS_RHEL}" \
-      "${BL64_OS_SLES}" \
-      "${BL64_OS_UB}"
+    bl64_check_privilege_not_root
   fi
 }
 
