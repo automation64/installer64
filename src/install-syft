@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
-# Snippet: install-custom-package-4.2.0
+# Snippet: install-github-release-3.4.0
 # Snippet: select-platform-1.0.0
-# Snippet: setup-environment-2.0.0
 #######################################
 # Installer64 / Package installer
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.1.0
+# Version: 1.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -33,17 +32,15 @@
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -62,81 +59,58 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_KREW_PLATFORM="${INST64_KREW_PLATFORM:-}"
-export INST64_KREW_TARGET="${INST64_KREW_TARGET:-${INST64_OPT_ROOT}/krew}"
-export INST64_KREW_VERSION="${INST64_KREW_VERSION:-latest}"
+export INST64_SYFT_PLATFORM="${INST64_SYFT_PLATFORM:-}"
+export INST64_SYFT_TARGET="${INST64_SYFT_TARGET:-${INST64_OPT_ROOT}/syft}"
+export INST64_SYFT_VERSION="${INST64_SYFT_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_SYFT_SYSTEM_WIDE="${INST64_SYFT_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_KREW_METHOD="${INST64_KREW_METHOD:-CUSTOM}"
+export INST64_SYFT_METHOD="${INST64_SYFT_METHOD:-BINARY}"
 
-export INST64_KREW_ENV='kubectl-krew.env'
-export INST64_KREW_REPO_NAME='krew'
-export INST64_KREW_REPO_OWNER='kubernetes-sigs'
-export INST64_KREW_INSTALLER=''
-export INST64_KREW_PACKAGES=''
-export INST64_KREW_CLI_NAME='kubectl-krew'
-export INST64_KREW_CLI_PATH=''
+export INST64_SYFT_REPO_NAME='syft'
+export INST64_SYFT_REPO_OWNER='anchore'
+export INST64_SYFT_PACKAGES=''
+export INST64_SYFT_CLI_NAME='syft'
+export INST64_SYFT_CLI_PATH=''
 
 #
 # Functions
 #
 
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
-function inst64_krew_setup() {
-  bl64_dbg_app_show_function
-  local mode='0644'
-
-  bl64_msg_show_task 'setup application environment'
-  INST64_KREW_ENV="${HOME}/.local/bin/${INST64_KREW_ENV}"
-  bl64_msg_show_subtask "create shell env file (${INST64_KREW_ENV})"
-  # shellcheck disable=SC2016
-  printf '#!/usr/bin/env sh
-#
-# Krew
-#
-# * Define application environment variables
-#
-
-KREW_ROOT="$HOME/.krew"
-export KREW_ROOT
-
-PATH="$PATH:$KREW_ROOT/bin"
-' >"$INST64_KREW_ENV" &&
-    bl64_fs_run_chmod "$mode" "$INST64_KREW_ENV" ||
-    return $?
-
-  if bl64_bsh_env_store_is_present; then
-    bl64_bsh_env_store_publish "$INST64_KREW_ENV" ||
-      return $?
-  fi
-  return 0
-}
-
-function inst64_krew_install_custom_package() {
+function inst64_syft_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_mode='0755'
+  local app_cli_source="${INST64_SYFT_CLI_NAME}"
+  local app_work_path="${app_cli_source}"
 
-  INST64_KREW_CLI_PATH="${HOME}/.krew/bin/${INST64_KREW_CLI_NAME}"
+  if bl64_lib_flag_is_enabled "$INST64_SYFT_SYSTEM_WIDE"; then
+    INST64_SYFT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_SYFT_CLI_NAME}"
+  else
+    INST64_SYFT_CLI_PATH="${INST64_SYFT_TARGET}/${INST64_SYFT_CLI_NAME}"
+    app_target_owner="$BL64_VAR_DEFAULT"
+  fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_KREW_REPO_OWNER" "$INST64_KREW_REPO_NAME" "$INST64_KREW_VERSION" "$INST64_KREW_PACKAGES" "${work_path}/${INST64_KREW_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_KREW_PACKAGES}" "${work_path}" ||
+    "$INST64_SYFT_REPO_OWNER" "$INST64_SYFT_REPO_NAME" "$INST64_SYFT_VERSION" "$INST64_SYFT_PACKAGES" "${work_path}/${INST64_SYFT_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_SYFT_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  "${work_path}/${INST64_KREW_INSTALLER}" install krew ||
+  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_SYFT_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_SYFT_TARGET" "${work_path}/${app_work_path}" ||
     return $?
+
+  if bl64_lib_flag_is_enabled "$INST64_SYFT_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_SYFT_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_create_symlink "${INST64_SYFT_TARGET}/${app_cli_source}" "$INST64_SYFT_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
@@ -156,12 +130,12 @@ function inst64_krew_install_custom_package() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-function inst64_krew_select_platform() {
+function inst64_syft_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    [[ -z "$INST64_KREW_PLATFORM" ]] && INST64_KREW_PLATFORM='linux_amd64'
+  if [[ "$INST64_SYFT_METHOD" == 'BINARY' ]]; then
+    [[ -z "$INST64_SYFT_PLATFORM" ]] && INST64_SYFT_PLATFORM='linux_amd64'
   fi
-  [[ -z "$INST64_KREW_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  [[ -z "$INST64_SYFT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -176,10 +150,10 @@ function inst64_krew_select_platform() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_krew_install() {
+function inst64_syft_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    inst64_krew_install_custom_package
+  if [[ "$INST64_SYFT_METHOD" == 'BINARY' ]]; then
+    inst64_syft_install_binary_release
   fi
 }
 
@@ -194,21 +168,20 @@ function inst64_krew_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_krew_select_packages() {
+function inst64_syft_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    if [[ "$INST64_KREW_VERSION" == 'latest' ]]; then
-      INST64_KREW_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KREW_REPO_OWNER" "$INST64_KREW_REPO_NAME")" ||
+  if [[ "$INST64_SYFT_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_SYFT_VERSION" == 'latest' ]]; then
+      INST64_SYFT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_SYFT_REPO_OWNER" "$INST64_SYFT_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='krew-'
+    package_prefix='syft_'
     package_sufix='.tar.gz'
-    INST64_KREW_PACKAGES="${package_prefix}${INST64_KREW_PLATFORM}${package_sufix}"
-    INST64_KREW_INSTALLER="${package_prefix}${INST64_KREW_PLATFORM}"
+    INST64_SYFT_PACKAGES="${package_prefix}${INST64_SYFT_VERSION#v}_${INST64_SYFT_PLATFORM}${package_sufix}"
   fi
-  [[ -z "$INST64_KREW_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_SYFT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -223,14 +196,13 @@ function inst64_krew_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_krew_prepare() {
+function inst64_syft_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_krew_select_platform &&
-    inst64_krew_select_packages ||
-    return $?
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    bl64_arc_setup
+  if [[ "$INST64_SYFT_METHOD" == 'BINARY' ]]; then
+    inst64_syft_select_platform &&
+      inst64_syft_select_packages &&
+      bl64_arc_setup
   fi
 }
 
@@ -245,12 +217,10 @@ function inst64_krew_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_krew_verify() {
+function inst64_syft_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  # shellcheck disable=SC1090
-  source "$INST64_KREW_ENV" &&
-    "$INST64_KREW_CLI_PATH" version
+  "$INST64_SYFT_CLI_PATH" --version
 }
 
 #######################################
@@ -264,17 +234,18 @@ function inst64_krew_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_krew_initialize() {
+function inst64_syft_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KREW_METHOD' \
-    "$INST64_KREW_METHOD" \
-    'CUSTOM' ||
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SYFT_METHOD' \
+    "$INST64_SYFT_METHOD" \
+    'BINARY' ||
     return $?
 
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    bl64_check_privilege_not_root &&
-      bl64_arc_setup ||
-      return $?
+  if [[ "$INST64_SYFT_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYFT_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
   fi
 }
 
@@ -282,15 +253,14 @@ function inst64_krew_initialize() {
 # Main
 #
 
-declare inst64_krew_installer_description='Install application: Krew'
+declare inst64_syft_installer_description='Install application: Syft'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_krew_installer_description"
+bl64_msg_show_batch_start "$inst64_syft_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_krew_initialize &&
-  inst64_krew_prepare &&
-  inst64_krew_install &&
-  inst64_krew_setup &&
-  inst64_krew_verify
-bl64_msg_show_batch_finish $? "$inst64_krew_installer_description"
+inst64_syft_initialize &&
+  inst64_syft_prepare &&
+  inst64_syft_install &&
+  inst64_syft_verify
+bl64_msg_show_batch_finish $? "$inst64_syft_installer_description"

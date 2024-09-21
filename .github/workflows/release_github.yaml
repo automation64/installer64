@@ -1,5 +1,5 @@
 ---
-# Template: 1.1.0
+# Template: 1.1.2
 name: "Release / GitHub"
 
 concurrency:
@@ -24,7 +24,7 @@ jobs:
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
-      - name: "Prepare dev environment"
+      - name: "Prepare environment"
         run: "./bin/dev-lib-base"
 
       - name: "Prepare distributable package"

@@ -1,13 +1,6 @@
 ---
-# Template: 1.0.2
-name: "Lint / ShellCheck"
-
-concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
-
-env:
-  DEV_CICD_DEBUG: ""
+# Template: 1.0.0
+name: "SAST / GitLeaks"
 
 on:
   pull_request:
@@ -16,11 +9,9 @@ on:
   push:
     branches:
       - "feature/**"
-    paths:
-      - "src/**"
 
 jobs:
-  lint-shellcheck:
+  sast-GitLeaks:
     runs-on: "ubuntu-latest"
     steps:
 
@@ -30,6 +21,9 @@ jobs:
       - name: "Prepare environment"
         run: "./bin/dev-lib-base"
 
-      - name: "Run tests"
-        run: "./bin/dev-lint-shellcheck"
+      - name: "Download tools"
+        run: "./bin/dev-lib-gitleaks"
+
+      - name: "Run SAST"
+        run: "./bin/dev-sast-gitleaks"
 ...

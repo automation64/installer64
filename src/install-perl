@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.1.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -139,7 +139,7 @@ function inst64_perl_select_packages() {
       INST64_PERL_PACKAGES='perl'
       bl64_lib_flag_is_enabled "$INST64_PERL_DEVELOPMENT" &&
         INST64_PERL_PACKAGES="${INST64_PERL_PACKAGES} perl-dev"
-    elif bl64_os_match "$BL64_OS_DEB" "$BL64_OS_UB"; then
+    elif bl64_os_match "$BL64_OS_DEB" "$BL64_OS_KL" "$BL64_OS_UB"; then
       INST64_PERL_PACKAGES='perl'
       bl64_lib_flag_is_enabled "$INST64_PERL_DEVELOPMENT" &&
         INST64_PERL_PACKAGES="${INST64_PERL_PACKAGES} libperl-dev"
@@ -220,6 +220,7 @@ function inst64_perl_initialize() {
         "${BL64_OS_CNT}" \
         "${BL64_OS_DEB}" \
         "${BL64_OS_FD}" \
+        "${BL64_OS_KL}" \
         "${BL64_OS_OL}" \
         "${BL64_OS_RCK}" \
         "${BL64_OS_RHEL}" \

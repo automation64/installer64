@@ -1,5 +1,5 @@
 ---
-# Template: 1.1.0
+# Template: 1.1.2
 name: "Test / Bash"
 
 concurrency:
@@ -33,6 +33,7 @@ jobs:
           - "CNT"
           - "DEB"
           - "FD"
+          - "KL"
           - "OEL"
           - "RCK"
           - "RHEL"
@@ -43,8 +44,8 @@ jobs:
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
-      - name: "Prepare dev environment"
-        run: "./bin/dev-lib-base && ./bin/dev-lib-testmansh"
+      - name: "Prepare environment"
+        run: "./bin/dev-lib-base"
 
       - name: "Run OS specific tests"
         run: |
