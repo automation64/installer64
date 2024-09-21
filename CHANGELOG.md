@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Perl
   - Added Kali
+- Python
+  - Added Kali
 - Krew
+  - Changed to multiplatform
+- OhMyZsh
   - Changed to multiplatform
 
 ## [3.38.0]
