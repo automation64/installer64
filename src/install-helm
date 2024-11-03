@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
+# Template: 2.3.1
 # Snippet: install-custom-package-4.2.0
 # Snippet: select-platform-1.0.0
 #######################################
@@ -107,7 +107,7 @@ function inst64_helm_install_custom_package() {
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_HELM_TARGET" &&
-    bl64_fs_path_copy "$BL64_VAR_DEFAULT" "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_HELM_TARGET" "${work_path}/${INST64_HELM_PLATFORM}/${app_cli_source}" ||
+    bl64_fs_path_copy "$app_target_mode" "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_HELM_TARGET" "${work_path}/${INST64_HELM_PLATFORM}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_HELM_SYSTEM_WIDE"; then
