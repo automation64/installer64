@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.1.0
+# Version: 2.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -50,6 +50,8 @@ export INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/inst
 export INST64_INSTALLER64_PACKAGES=''
 export INST64_INSTALLER64_TARGET_MODE_DIR='0755'
 export INST64_INSTALLER64_TARGET_MODE_FILE='0755'
+
+export INST64_INSTALLER64_VERSION_FILE="${INST64_INSTALLER64_TARGET}/version"
 
 #
 # Functions
@@ -202,7 +204,8 @@ function inst64_installer64_prepare() {
 function inst64_installer64_verify() {
   echo 'Task: verify deployment'
   [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
-    [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]]
+    [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] &&
+    echo "$INST64_INSTALLER64_VERSION" > "$INST64_INSTALLER64_VERSION_FILE"
 }
 
 #######################################

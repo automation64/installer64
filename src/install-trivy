@@ -92,7 +92,7 @@ function inst64_trivy_add_repository() {
   local repository_extra_1=''
   local repository_extra_2=''
 
-  if bl64_os_match "${BL64_OS_OL}"; then
+  if bl64_os_is_distro "${BL64_OS_OL}"; then
     repository_url="${INST64_TRIVY_SOURCE_YUM}/${INST64_TRIVY_PLATFORM}"
     repository_key="$INST64_TRIVY_REPOSITORY_KEY_YUM"
   fi
@@ -134,8 +134,8 @@ function inst64_trivy_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_TRIVY_TARGET" &&
-    bl64_fs_copy_files "$app_cli_mode" "$app_target_owner" "$app_target_owner" "$INST64_TRIVY_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_TRIVY_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_TRIVY_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_TRIVY_SYSTEM_WIDE"; then
@@ -218,7 +218,7 @@ function inst64_trivy_select_packages() {
     package_sufix='.tar.gz'
     INST64_TRIVY_PACKAGES="${package_prefix}${INST64_TRIVY_VERSION#v}_${INST64_TRIVY_PLATFORM}${package_sufix}"
   elif [[ "$INST64_TRIVY_METHOD" == 'EXTERNAL' ]]; then
-    if bl64_os_match "${BL64_OS_OL}"; then
+    if bl64_os_is_distro "${BL64_OS_OL}"; then
       INST64_TRIVY_PACKAGES='trivy'
     fi
   fi

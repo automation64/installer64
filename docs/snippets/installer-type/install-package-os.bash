@@ -36,7 +36,7 @@ function inst64_X_APP_NAME_X_install_os_packages() {
 
 # X_SELECT_PKG_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match $X_OS_VERSION_TAG_X; then
+    if bl64_os_is_distro $X_OS_VERSION_TAG_X; then
       INST64_X_APP_NAME_CAPS_X_PACKAGES='X_OS_PACKAGE_LIST_X'
       bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
         INST64_X_APP_NAME_CAPS_X_PACKAGES="${INST64_X_APP_NAME_CAPS_X_PACKAGES} X_OS_PACKAGE_LIST_X"
@@ -45,7 +45,9 @@ function inst64_X_APP_NAME_X_install_os_packages() {
 
 # X_PREPARE_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    bl64_pkg_setup
+    inst64_X_APP_NAME_X_select_platform &&
+      inst64_X_APP_NAME_X_select_packages &&
+      bl64_pkg_setup
   fi
 
 # X_INIT_PLACEHOLDER_X

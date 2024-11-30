@@ -63,9 +63,9 @@ export INST64_GCLOUD_REPOSITORY_KEY_DEB='https://packages.cloud.google.com/apt/d
 function inst64_gcloud_select_packages() {
   bl64_dbg_app_show_function
   local packages=''
-  if bl64_os_match "$BL64_OS_OL"; then
+  if bl64_os_is_distro "$BL64_OS_OL"; then
     packages='google-cloud-cli'
-  elif bl64_os_match "$BL64_OS_UB"; then
+  elif bl64_os_is_distro "$BL64_OS_UB"; then
     packages='google-cloud-cli'
   fi
   [[ -n "$packages" ]] && echo "$packages"
@@ -78,13 +78,13 @@ function inst64_gcloud_add_repository() {
   local repository_extra_2=''
 
   bl64_msg_show_task 'Add external package repository'
-  if bl64_os_match "$BL64_OS_OL"; then
+  if bl64_os_is_distro "$BL64_OS_OL"; then
     repository_url="${INST64_GCLOUD_SOURCE_RHEL}/cloud-sdk-el8-${INST64_GCLOUD_PLATFORM_RHEL}"
     repository_key="$INST64_GCLOUD_REPOSITORY_KEY_RHEL"
     bl64_pkg_repository_add "$INST64_GCLOUD_REPOSITORY_NAME" \
       "$repository_url" "$repository_key" \
       "$repository_extra_1" "$repository_extra_2"
-  elif bl64_os_match "${BL64_OS_UB}-22"; then
+  elif bl64_os_is_distro "${BL64_OS_UB}-22"; then
     repository_url="${INST64_GCLOUD_SOURCE_DEB}"
     repository_key="$INST64_GCLOUD_REPOSITORY_KEY_DEB"
     repository_extra_1='cloud-sdk'

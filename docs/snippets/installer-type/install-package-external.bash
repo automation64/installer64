@@ -1,8 +1,15 @@
-# Snippet: install-external-package-3.4.0
+# Snippet: install-external-package-3.4.1
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
@@ -26,11 +33,11 @@ function inst64_X_APP_NAME_X_add_repository() {
   local repository_extra_1=''
   local repository_extra_2=''
 
-  if bl64_os_match # X_OS_VERSION_TAG_X; then
+  if bl64_os_is_distro # X_OS_VERSION_TAG_X; then
     # delete-me # For YUM. Remove if not used
     repository_url="${INST64_X_APP_NAME_CAPS_X_SOURCE_X_REPO_TYPE_CAPS_X}"
     repository_key="$INST64_X_APP_NAME_CAPS_X_REPOSITORY_KEY_X_REPO_TYPE_CAPS_X"
-  elif bl64_os_match # X_OS_VERSION_TAG_X; then
+  elif bl64_os_is_distro # X_OS_VERSION_TAG_X; then
     # delete-me # For APT. Remove if not used
     repository_url="${INST64_X_APP_NAME_CAPS_X_SOURCE_X_REPO_TYPE_CAPS_X}"
     repository_key="$INST64_X_APP_NAME_CAPS_X_REPOSITORY_KEY_X_REPO_TYPE_CAPS_X"
@@ -52,29 +59,34 @@ function inst64_X_APP_NAME_X_install_external_packages() {
   bl64_pkg_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
 }
 
-# X_INSTALL_PLACEHOLDER_X
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    inst64_X_APP_NAME_X_install_external_packages
-  fi
-
 # X_SELECT_PKG_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    if bl64_os_match # X_OS_VERSION_TAG_X; then
+    if bl64_os_is_distro # X_OS_VERSION_TAG_X; then
       INST64_X_APP_NAME_CAPS_X_PACKAGES='X_OS_PACKAGE_LIST_X'
       bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
         INST64_X_APP_NAME_CAPS_X_PACKAGES="${INST64_X_APP_NAME_CAPS_X_PACKAGES} X_OS_PACKAGE_LIST_X"
     fi
   fi
 
+# X_PLATFORM_SELECTION_PLACEHOLDER_X #
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X #
+  fi
+
+# X_INSTALL_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
+    inst64_X_APP_NAME_X_install_external_packages
+  fi
+
 # X_PREPARE_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    bl64_pkg_setup &&
-      inst64_X_APP_NAME_X_add_repository
+    inst64_X_APP_NAME_X_add_repository &&
+      bl64_pkg_setup
   fi
 
 # X_INIT_PLACEHOLDER_X
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_TERRAFORM_METHOD' \
-    "$INST64_TERRAFORM_METHOD" \
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
+    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
     'EXTERNAL' ||
     return $?
 
@@ -83,8 +95,3 @@ function inst64_X_APP_NAME_X_install_external_packages() {
     bl64_os_check_compatibility \
       # X_OS_VERSION_TAG_X
   fi
-
-# X_PLATFORM_SELECTION_PLACEHOLDER_X #
-if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    # X_PLATFORM_SELECTION_PLACEHOLDER_X #
-fi
