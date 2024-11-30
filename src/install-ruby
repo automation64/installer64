@@ -139,7 +139,7 @@ function inst64_ruby_install() {
 function inst64_ruby_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match "$BL64_OS_UB"; then
+    if bl64_os_is_distro "$BL64_OS_UB"; then
       INST64_RUBY_PACKAGES='ruby ruby-rubygems'
       bl64_lib_flag_is_enabled "$INST64_RUBY_DEVELOPMENT" &&
         INST64_RUBY_PACKAGES="${INST64_RUBY_PACKAGES} ruby-dev"

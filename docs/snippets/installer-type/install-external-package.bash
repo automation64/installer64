@@ -26,11 +26,11 @@ function inst64_X_APP_NAME_X_add_repository() {
   local repository_extra_1=''
   local repository_extra_2=''
 
-  if bl64_os_match # X_OS_VERSION_TAG_X; then
+  if bl64_os_is_distro # X_OS_VERSION_TAG_X; then
     # delete-me # For YUM. Remove if not used
     repository_url="${INST64_X_APP_NAME_CAPS_X_SOURCE_X_REPO_TYPE_CAPS_X}"
     repository_key="$INST64_X_APP_NAME_CAPS_X_REPOSITORY_KEY_X_REPO_TYPE_CAPS_X"
-  elif bl64_os_match # X_OS_VERSION_TAG_X; then
+  elif bl64_os_is_distro # X_OS_VERSION_TAG_X; then
     # delete-me # For APT. Remove if not used
     repository_url="${INST64_X_APP_NAME_CAPS_X_SOURCE_X_REPO_TYPE_CAPS_X}"
     repository_key="$INST64_X_APP_NAME_CAPS_X_REPOSITORY_KEY_X_REPO_TYPE_CAPS_X"
@@ -59,7 +59,7 @@ function inst64_X_APP_NAME_X_install_external_packages() {
 
 # X_SELECT_PKG_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    if bl64_os_match # X_OS_VERSION_TAG_X; then
+    if bl64_os_is_distro # X_OS_VERSION_TAG_X; then
       INST64_X_APP_NAME_CAPS_X_PACKAGES='X_OS_PACKAGE_LIST_X'
       bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
         INST64_X_APP_NAME_CAPS_X_PACKAGES="${INST64_X_APP_NAME_CAPS_X_PACKAGES} X_OS_PACKAGE_LIST_X"

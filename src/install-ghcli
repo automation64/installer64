@@ -81,10 +81,10 @@ function inst64_ghcli_add_repository() {
   local repository_extra_1=''
   local repository_extra_2=''
 
-  if bl64_os_match "${BL64_OS_OL}"; then
+  if bl64_os_is_distro "${BL64_OS_OL}"; then
     repository_url="${INST64_GHCLI_SOURCE_YUM}"
     repository_key="$INST64_GHCLI_REPOSITORY_KEY_YUM"
-  elif bl64_os_match "${BL64_OS_UB}"; then
+  elif bl64_os_is_distro "${BL64_OS_UB}"; then
     repository_url="${INST64_GHCLI_SOURCE_APT}"
     repository_key="$INST64_GHCLI_REPOSITORY_KEY_APT"
     repository_extra_1='stable'

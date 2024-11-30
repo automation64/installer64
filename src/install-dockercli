@@ -79,7 +79,7 @@ function inst64_docker_install_centos() {
 #######################################
 function inst64_docker_install() {
   bl64_dbg_app_show_function
-  if bl64_os_match "${BL64_OS_OL}"; then
+  if bl64_os_is_distro "${BL64_OS_OL}"; then
     inst64_docker_install_centos
   fi
   # shellcheck disable=SC2181

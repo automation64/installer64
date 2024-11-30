@@ -111,15 +111,15 @@ function inst64_gcc_install() {
 function inst64_gcc_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_match "${BL64_OS_UB}"; then
+    if bl64_os_is_distro "${BL64_OS_UB}"; then
       INST64_GCC_PACKAGES='build-essential'
       bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
         INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
-    elif bl64_os_match "${BL64_OS_OL}"; then
+    elif bl64_os_is_distro "${BL64_OS_OL}"; then
       INST64_GCC_PACKAGES='gcc'
       bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
         INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"
-    elif bl64_os_match "${BL64_OS_FD}"; then
+    elif bl64_os_is_distro "${BL64_OS_FD}"; then
       INST64_GCC_PACKAGES='gcc'
       bl64_lib_flag_is_enabled "$INST64_GCC_DEVELOPMENT" &&
         INST64_GCC_PACKAGES="${INST64_GCC_PACKAGES}"

@@ -97,7 +97,7 @@ function inst64_awscli_install_custom_package() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_AWSCLI_TARGET" &&
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_AWSCLI_TARGET" &&
     bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     "${work_path}/$INST64_AWSCLI_INSTALLER" \
       --bin-dir "${INST64_AWSCLI_TARGET}/bin" \

@@ -59,7 +59,7 @@ function inst64_mongodbcli_install_v5() {
   local repository_key=''
   local packages=''
 
-  if bl64_os_match "${BL64_OS_OL}-8" "${BL64_OS_OL}-9"; then
+  if bl64_os_is_distro "${BL64_OS_OL}-8" "${BL64_OS_OL}-9"; then
     bl64_msg_show_task 'Add YUM package repository'
     repository_name='mongodb-org-5.0'
     repository_platform='x86_64'
@@ -83,7 +83,7 @@ function inst64_mongodbcli_install_v6() {
   local repository_key=''
   local packages=''
 
-  if bl64_os_match "${BL64_OS_OL}-8" "${BL64_OS_OL}-9"; then
+  if bl64_os_is_distro "${BL64_OS_OL}-8" "${BL64_OS_OL}-9"; then
     bl64_msg_show_task 'Add YUM package repository'
     repository_name='mongodb-org-6.0'
     repository_platform='x86_64'

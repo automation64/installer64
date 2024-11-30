@@ -101,8 +101,8 @@ function inst64_sysden64_install_custom_package() {
 
   bl64_msg_show_task 'deploy application'
   [[ -d "$INST64_SYSDEN64_TARGET" ]] &&
-    bl64_fs_rm_full "$INST64_SYSDEN64_TARGET"
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_SYSDEN64_TARGET" &&
+    bl64_fs_path_remove "$INST64_SYSDEN64_TARGET"
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_SYSDEN64_TARGET" &&
     bl64_arc_open_tar "${work_path}/${INST64_SYSDEN64_PACKAGES}" "$INST64_SYSDEN64_TARGET" &&
     bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
       "$INST64_SYSDEN64_TARGET" ||

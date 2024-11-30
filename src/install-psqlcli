@@ -56,7 +56,7 @@ function inst64_psqlcli_install_v13() {
   local repository=''
   local packages=''
 
-  if bl64_os_match "${BL64_OS_OL}-8"; then
+  if bl64_os_is_distro "${BL64_OS_OL}-8"; then
     repository='https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
     packages='postgresql13'
     bl64_msg_show_task 'Disable built-in postgresql yum repository'
@@ -64,7 +64,7 @@ function inst64_psqlcli_install_v13() {
     bl64_pkg_run_dnf $BL64_PKG_SET_ASSUME_YES module disable postgresql &&
       bl64_msg_show_task 'Add postgresql.org yum repository' &&
       bl64_pkg_deploy "$repository"
-  elif bl64_os_match "${BL64_OS_OL}-9"; then
+  elif bl64_os_is_distro "${BL64_OS_OL}-9"; then
     repository='https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
     packages='postgresql13'
     bl64_msg_show_task 'Disable built-in postgresql yum repository'
@@ -85,7 +85,7 @@ function inst64_psqlcli_install_v15() {
   local packages=''
   local repository=''
 
-  if bl64_os_match "${BL64_OS_OL}-9"; then
+  if bl64_os_is_distro "${BL64_OS_OL}-9"; then
     repository='https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
     packages='postgresql15'
     bl64_msg_show_task 'Disable built-in postgresql yum repository'

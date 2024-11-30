@@ -82,7 +82,7 @@ function inst64_mysqlcli_add_repository() {
   local repository_extra_1=''
   local repository_extra_2=''
 
-  if bl64_os_match "${BL64_OS_OL}-9"; then
+  if bl64_os_is_distro "${BL64_OS_OL}-9"; then
     repository_url="${INST64_MYSQLCLI_SOURCE_YUM}/9/${INST64_MYSQLCLI_PLATFORM_YUM}"
     repository_key="$INST64_MYSQLCLI_REPOSITORY_KEY_YUM"
   fi
@@ -136,7 +136,7 @@ function inst64_mysqlcli_install() {
 function inst64_mysqlcli_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_MYSQLCLI_METHOD" == 'EXTERNAL' ]]; then
-    if bl64_os_match "${BL64_OS_OL}-9"; then
+    if bl64_os_is_distro "${BL64_OS_OL}-9"; then
       INST64_MYSQLCLI_PACKAGES='mysql-shell'
     fi
   fi

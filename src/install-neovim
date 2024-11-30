@@ -97,7 +97,7 @@ function inst64_neovim_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_create_dir "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NEOVIM_TARGET" &&
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NEOVIM_TARGET" &&
     bl64_fs_run_mv "${work_path}/${INST64_NEOVIM_CLI_NAME}-${INST64_NEOVIM_PLATFORM}/bin" "$INST64_NEOVIM_TARGET" &&
     bl64_fs_run_mv "${work_path}/${INST64_NEOVIM_CLI_NAME}-${INST64_NEOVIM_PLATFORM}/lib" "$INST64_NEOVIM_TARGET" &&
     bl64_fs_run_mv "${work_path}/${INST64_NEOVIM_CLI_NAME}-${INST64_NEOVIM_PLATFORM}/share" "$INST64_NEOVIM_TARGET" ||

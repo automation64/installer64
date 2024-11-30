@@ -65,9 +65,9 @@ export INST64_AZURECLI_REPOSITORY_KEY_DEB='https://packages.microsoft.com/keys/m
 function inst64_azurecli_select_packages() {
   bl64_dbg_app_show_function
   local packages=''
-  if bl64_os_match "${BL64_OS_OL}"; then
+  if bl64_os_is_distro "${BL64_OS_OL}"; then
     packages='azure-cli'
-  elif bl64_os_match "${BL64_OS_UB}"; then
+  elif bl64_os_is_distro "${BL64_OS_UB}"; then
     packages='azure-cli'
   fi
   [[ -n "$packages" ]] && echo "$packages"
@@ -82,10 +82,10 @@ function inst64_azurecli_add_repository() {
   local repository_key_file='/etc/apt/keyrings/microsoft.gpg'
 
   bl64_msg_show_task 'Add external package repository'
-  if bl64_os_match "${BL64_OS_OL}"; then
+  if bl64_os_is_distro "${BL64_OS_OL}"; then
     repository_url="${INST64_AZURECLI_SOURCE_RHEL}/9.0/packages-microsoft-prod.rpm"
     bl64_pkg_deploy "$repository_url"
-  elif bl64_os_match "${BL64_OS_UB}"; then
+  elif bl64_os_is_distro "${BL64_OS_UB}"; then
     repository_url="$INST64_AZURECLI_SOURCE_DEB"
     repository_key="$INST64_AZURECLI_REPOSITORY_KEY_DEB"
     repository_extra_2='main'
