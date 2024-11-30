@@ -1,4 +1,4 @@
-# Snippet: install-external-package-3.4.0
+# Snippet: install-external-package-3.4.1
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -52,11 +52,6 @@ function inst64_X_APP_NAME_X_install_external_packages() {
   bl64_pkg_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
 }
 
-# X_INSTALL_PLACEHOLDER_X
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    inst64_X_APP_NAME_X_install_external_packages
-  fi
-
 # X_SELECT_PKG_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
     if bl64_os_is_distro # X_OS_VERSION_TAG_X; then
@@ -66,15 +61,25 @@ function inst64_X_APP_NAME_X_install_external_packages() {
     fi
   fi
 
+# X_PLATFORM_SELECTION_PLACEHOLDER_X #
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X #
+  fi
+
+# X_INSTALL_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
+    inst64_X_APP_NAME_X_install_external_packages
+  fi
+
 # X_PREPARE_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    bl64_pkg_setup &&
-      inst64_X_APP_NAME_X_add_repository
+    inst64_X_APP_NAME_X_add_repository &&
+      bl64_pkg_setup
   fi
 
 # X_INIT_PLACEHOLDER_X
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_TERRAFORM_METHOD' \
-    "$INST64_TERRAFORM_METHOD" \
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
+    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
     'EXTERNAL' ||
     return $?
 
@@ -83,8 +88,3 @@ function inst64_X_APP_NAME_X_install_external_packages() {
     bl64_os_check_compatibility \
       # X_OS_VERSION_TAG_X
   fi
-
-# X_PLATFORM_SELECTION_PLACEHOLDER_X #
-if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-    # X_PLATFORM_SELECTION_PLACEHOLDER_X #
-fi

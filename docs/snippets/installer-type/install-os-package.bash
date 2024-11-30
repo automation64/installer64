@@ -45,7 +45,9 @@ function inst64_X_APP_NAME_X_install_os_packages() {
 
 # X_PREPARE_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    bl64_pkg_setup
+    inst64_X_APP_NAME_X_select_platform &&
+      inst64_X_APP_NAME_X_select_packages &&
+      bl64_pkg_setup
   fi
 
 # X_INIT_PLACEHOLDER_X
