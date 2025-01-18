@@ -13,13 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - LSD
 - Docker
   - FD support
-
-### Fixed
-
-- GPing
-  - Platform name
-- HTTPie
-  - Removed hardcoded version
 - Kali support
   - Bat
   - Capa
@@ -36,6 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - SQLMap
   - TestSSL
   - Zoxide
+
+### Fixed
+
+- GPing
+  - Platform name
+  - Removed OL compatibility
+- HTTPie
+  - Removed hardcoded version
 
 ## [3.40.0]
 
