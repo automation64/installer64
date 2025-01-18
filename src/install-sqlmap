@@ -70,7 +70,7 @@ export INST64_SQLMAP_INSTALLER=''
 export INST64_SQLMAP_PACKAGES=''
 export INST64_SQLMAP_CLI_NAME='sqlmap.py'
 export INST64_SQLMAP_CLI_PATH=''
-env
+
 #
 # Functions
 #
