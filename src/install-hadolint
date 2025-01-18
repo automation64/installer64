@@ -105,12 +105,12 @@ function inst64_hadolint_install_binary_release() {
   if bl64_lib_flag_is_enabled "$INST64_HADOLINT_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_HADOLINT_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_HADOLINT_TARGET}/${app_cli_source}" "$INST64_HADOLINT_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_HADOLINT_TARGET}/${app_cli_source}" "$INST64_HADOLINT_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   else
     bl64_msg_show_task "publish generic application name (${INST64_HADOLINT_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_HADOLINT_TARGET}/${app_cli_source}" "$INST64_HADOLINT_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_HADOLINT_TARGET}/${app_cli_source}" "$INST64_HADOLINT_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 

@@ -123,7 +123,7 @@ function inst64_terraform_install_custom_package() {
   if bl64_lib_flag_is_enabled "$INST64_TERRAFORM_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_TERRAFORM_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_TERRAFORM_TARGET}/${INST64_TERRAFORM_CLI_NAME}" "$INST64_TERRAFORM_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_TERRAFORM_TARGET}/${INST64_TERRAFORM_CLI_NAME}" "$INST64_TERRAFORM_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 

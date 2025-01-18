@@ -85,7 +85,7 @@ function inst64_helmct_install_binary_release() {
 
   bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
   # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_HELMCT_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_HELMCT_CLI_NAME}" "$BL64_VAR_ON" ||
+  bl64_fs_symlink_create "${INST64_HELMCT_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_HELMCT_CLI_NAME}" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
