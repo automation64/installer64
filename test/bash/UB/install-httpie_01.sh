@@ -5,4 +5,4 @@ if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-sudo /source/install-httpie
+/source/install-httpie
