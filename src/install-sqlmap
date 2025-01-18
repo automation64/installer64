@@ -216,6 +216,7 @@ function inst64_sqlmap_initialize() {
       "${BL64_OS_ALP}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_FD}" \
+      "${BL64_OS_KL}" \
       "${BL64_OS_UB}"
   fi
 }

@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.1
+# Version: 1.0.2
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -59,7 +59,7 @@ export INST64_TMP="${INST64_TMP:-/tmp}"
 
 export INST64_HTTPIE_PLATFORM="${INST64_HTTPIE_PLATFORM:-}"
 export INST64_HTTPIE_TARGET="${INST64_HTTPIE_TARGET:-${INST64_OPT_ROOT}/httpie}"
-export INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-3.2.2}"
+export INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-latest}"
 # Install system wide? Requires root privilege
 export INST64_HTTPIE_SYSTEM_WIDE="${INST64_HTTPIE_SYSTEM_WIDE:-YES}"
 # Installation method

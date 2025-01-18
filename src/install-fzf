@@ -218,6 +218,7 @@ function inst64_fzf_initialize() {
     "$BL64_OS_ALP" \
     "$BL64_OS_UB" \
     "$BL64_OS_OL" \
+    "$BL64_OS_KL" \
     "$BL64_OS_FD" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_FZF_METHOD' \
       "$INST64_FZF_METHOD" \

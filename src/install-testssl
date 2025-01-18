@@ -214,6 +214,7 @@ function inst64_testssl_initialize() {
     fi
     bl64_os_check_compatibility \
       "${BL64_OS_FD}" \
+      "${BL64_OS_KL}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi

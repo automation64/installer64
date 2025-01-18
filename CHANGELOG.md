@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.41.1]
+## [3.41.0]
 
 ### Added
 
@@ -18,6 +18,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - GPing
   - Platform name
+- HTTPie
+  - Removed hardcoded version
+- Kali support
+  - Bat
+  - Capa
+  - EZA
+  - FD
+  - FZF
+  - GCC
+  - GO
+  - Gomplate
+  - HTTPie
+  - LNav
+  - NeoVim
+  - PipX
+  - SQLMap
+  - TestSSL
+  - Zoxide
 
 ## [3.40.0]
 

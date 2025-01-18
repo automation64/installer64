@@ -134,7 +134,7 @@ function inst64_bat_select_platform() {
   if [[ "$INST64_BAT_METHOD" == 'BINARY' ]]; then
     if bl64_os_is_distro "${BL64_OS_ALP}"; then
       INST64_BAT_PLATFORM='x86_64-unknown-linux-musl'
-    elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}"; then
+    elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
       INST64_BAT_PLATFORM='x86_64-unknown-linux-gnu'
     fi
   fi
@@ -255,6 +255,7 @@ function inst64_bat_initialize() {
       "$BL64_OS_ALP" \
       "$BL64_OS_UB" \
       "$BL64_OS_FD" \
+      "$BL64_OS_KL" \
       "$BL64_OS_OL"
   fi
 }

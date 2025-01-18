@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.3.0
+# Version: 1.4.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -218,6 +218,7 @@ function inst64_go_initialize() {
       "${BL64_OS_CNT}" \
       "${BL64_OS_DEB}" \
       "${BL64_OS_FD}" \
+      "${BL64_OS_KL}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_RCK}" \
       "${BL64_OS_RHEL}" \

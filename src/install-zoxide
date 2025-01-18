@@ -224,6 +224,7 @@ function inst64_zoxide_initialize() {
     bl64_os_check_compatibility \
       "${BL64_OS_ALP}" \
       "${BL64_OS_FD}" \
+      "${BL64_OS_KL}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
