@@ -143,6 +143,7 @@ function inst64_X_APP_NAME_X_verify() {
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
   # X_INIT_PLACEHOLDER_X
+  # X_PRE_REQ_PLACEHOLDER_X
 }
 
 #
