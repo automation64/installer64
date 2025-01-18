@@ -155,7 +155,7 @@ function inst64_gping_select_packages() {
     fi
     package_prefix='gping-'
     package_sufix='.tar.gz'
-    INST64_GPING_PACKAGES="${package_prefix}-${INST64_GPING_PLATFORM}${package_sufix}"
+    INST64_GPING_PACKAGES="${package_prefix}${INST64_GPING_PLATFORM}${package_sufix}"
   fi
   [[ -z "$INST64_GPING_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
