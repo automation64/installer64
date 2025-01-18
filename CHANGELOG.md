@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - LSD
-- Docker
-  - FD support
+  - DevContainer CLI
+- Fedora support
+  - Docker
 - Kali support
   - Bat
   - Capa
