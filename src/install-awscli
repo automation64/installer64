@@ -108,8 +108,8 @@ function inst64_awscli_install_custom_package() {
   if bl64_lib_flag_is_enabled "$INST64_AWSCLI_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_AWSCLI_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_AWSCLI_TARGET}/bin/${INST64_AWSCLI_CLI_NAME}" "$INST64_AWSCLI_CLI_PATH" "$BL64_VAR_ON" &&
-      bl64_fs_create_symlink "${INST64_AWSCLI_TARGET}/bin/aws_completer" "${INST64_LOCAL_BIN}/aws_completer" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_AWSCLI_TARGET}/bin/${INST64_AWSCLI_CLI_NAME}" "$INST64_AWSCLI_CLI_PATH" "$BL64_VAR_ON" &&
+      bl64_fs_symlink_create "${INST64_AWSCLI_TARGET}/bin/aws_completer" "${INST64_LOCAL_BIN}/aws_completer" "$BL64_VAR_ON" ||
       return $?
   fi
 

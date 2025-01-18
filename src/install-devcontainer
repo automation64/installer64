@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
-# Snippet: install-git-repo-1.2.0
+# Snippet: install-nodejs-1.0.0
 #######################################
 # Installer64 / Package installer
 #
@@ -31,14 +31,11 @@
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -57,68 +54,40 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_LYNIS_GIT_SERVER="${INST64_LYNIS_GIT_SERVER:-https://github.com/CISOfy}"
-export INST64_LYNIS_GIT_REPO="${INST64_LYNIS_GIT_REPO:-lynis}"
-export INST64_LYNIS_TARGET="${INST64_LYNIS_TARGET:-${INST64_OPT_ROOT}/lynis}"
-export INST64_LYNIS_BRANCH="${INST64_LYNIS_BRANCH:-master}"
-# Install system wide? Requires root privilege
-export INST64_LYNIS_SYSTEM_WIDE="${INST64_LYNIS_SYSTEM_WIDE:-YES}"
+export INST64_DEVCONTAINER_VERSION="${INST64_DEVCONTAINER_VERSION:-latest}"
 # Installation method
-export INST64_LYNIS_METHOD="${INST64_LYNIS_METHOD:-GIT}"
+export INST64_DEVCONTAINER_METHOD="${INST64_DEVCONTAINER_METHOD:-NPM}"
 
-export INST64_LYNIS_INSTALLER=''
-export INST64_LYNIS_PACKAGES=''
-export INST64_LYNIS_CLI_NAME='lynis'
-export INST64_LYNIS_CLI_PATH=''
+export INST64_DEVCONTAINER_NPM_BIN="${INST64_DEVCONTAINER_NPM_BIN:-npm}"
+export INST64_DEVCONTAINER_PACKAGES=''
+export INST64_DEVCONTAINER_PACKAGES_PRE=''
+export INST64_DEVCONTAINER_PACKAGES_POST=''
+export INST64_DEVCONTAINER_CLI_NAME='devcontainer'
+export INST64_DEVCONTAINER_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_lynis_install_git_repo() {
+function inst64_devcontainer_install_with_npm() {
   bl64_dbg_app_show_function
-  local app_target_mode='0755'
-  local app_target_mode_dir='0755'
-  local app_target_mode_file='0644'
-  local app_target_owner='root'
-  local app_cli_source="${INST64_LYNIS_CLI_NAME}"
-
-  if bl64_lib_flag_is_enabled "$INST64_LYNIS_SYSTEM_WIDE"; then
-    INST64_LYNIS_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_LYNIS_CLI_NAME}"
-  else
-    INST64_LYNIS_CLI_PATH="${INST64_LYNIS_TARGET}/${INST64_LYNIS_CLI_NAME}"
-    app_target_owner="$BL64_VAR_DEFAULT"
-  fi
-
-  bl64_msg_show_task 'download application'
-  bl64_rxtx_git_get_dir \
-    "${INST64_LYNIS_GIT_SERVER}/${INST64_LYNIS_GIT_REPO}" \
-    '.' \
-    "$INST64_LYNIS_TARGET" \
-    "$BL64_VAR_ON" \
-    "$INST64_LYNIS_BRANCH" ||
-    return $?
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_LYNIS_INSTALLER" ]]; then
-    "$INST64_LYNIS_INSTALLER" ||
-      return $?
-  fi
-  if bl64_lib_flag_is_enabled "$INST64_LYNIS_SYSTEM_WIDE"; then
-    bl64_fs_path_permission_set "$app_target_mode_file" "$app_target_mode_dir" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
-      "$INST64_LYNIS_TARGET" &&
-      bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_OFF" \
-        "${INST64_LYNIS_TARGET}/${app_cli_source}" ||
-      return $?
-  fi
-
-  if bl64_lib_flag_is_enabled "$INST64_LYNIS_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_LYNIS_CLI_PATH})"
+  INST64_DEVCONTAINER_CLI_PATH="${INST64_DEVCONTAINER_CLI_NAME}"
+  if [[ -n "$INST64_DEVCONTAINER_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_LYNIS_TARGET}/${app_cli_source}" "$INST64_LYNIS_CLI_PATH" "$BL64_VAR_ON" ||
+    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES_PRE $INST64_DEVCONTAINER_PACKAGES ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES $INST64_DEVCONTAINER_PACKAGES_PRE ||
       return $?
   fi
-
+  if [[ -n "$INST64_DEVCONTAINER_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES $INST64_DEVCONTAINER_PACKAGES_POST ||
+      return $?
+  fi
   return 0
 }
 
@@ -133,10 +102,10 @@ function inst64_lynis_install_git_repo() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_lynis_install() {
+function inst64_devcontainer_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_LYNIS_METHOD" == 'GIT' ]]; then
-    inst64_lynis_install_git_repo
+  if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
+    inst64_devcontainer_install_with_npm
   fi
 }
 
@@ -151,12 +120,21 @@ function inst64_lynis_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_lynis_select_packages() {
+function inst64_devcontainer_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_LYNIS_METHOD" == 'GIT' ]]; then
-    INST64_LYNIS_PACKAGES='NONE'
+  local version_target=''
+
+  if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
+    if [[ "$INST64_DEVCONTAINER_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="@${INST64_DEVCONTAINER_VERSION}"
+    fi
+    INST64_DEVCONTAINER_PACKAGES="@devcontainers/cli${version_target}"
+    INST64_DEVCONTAINER_PACKAGES_PRE=''
+    INST64_DEVCONTAINER_PACKAGES_POST=''
   fi
-  [[ -z "$INST64_LYNIS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_DEVCONTAINER_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -171,11 +149,11 @@ function inst64_lynis_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_lynis_prepare() {
+function inst64_devcontainer_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_LYNIS_METHOD" == 'GIT' ]]; then
-    inst64_lynis_select_packages
+  if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
+    inst64_devcontainer_select_packages
   fi
 }
 
@@ -190,11 +168,10 @@ function inst64_lynis_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_lynis_verify() {
+function inst64_devcontainer_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  cd "${INST64_LYNIS_TARGET}" &&
-    "$INST64_LYNIS_CLI_PATH" show version
+  "$INST64_DEVCONTAINER_CLI_PATH" --version
 }
 
 #######################################
@@ -208,18 +185,20 @@ function inst64_lynis_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_lynis_initialize() {
+function inst64_devcontainer_initialize() {
   bl64_dbg_app_show_function
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_LYNIS_METHOD' \
-    "$INST64_LYNIS_METHOD" \
-    'GIT' ||
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_DEVCONTAINER_METHOD' \
+    "$INST64_DEVCONTAINER_METHOD" \
+    'NPM' ||
     return $?
 
-  if [[ "$INST64_LYNIS_METHOD" == 'GIT' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_LYNIS_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
+  if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
+    bl64_check_command_search_path "$INST64_DEVCONTAINER_NPM_BIN" &&
+      bl64_check_privilege_not_root &&
+      bl64_os_check_compatibility \
+        "${BL64_OS_OL}" \
+        "${BL64_OS_FD}" \
+        "${BL64_OS_UB}"
   fi
 }
 
@@ -227,14 +206,14 @@ function inst64_lynis_initialize() {
 # Main
 #
 
-declare inst64_lynis_installer_description='Install application: Lynis'
+declare inst64_devcontainer_installer_description='Install application: DevContainer CLI'
 
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_lynis_installer_description"
+bl64_msg_show_batch_start "$inst64_devcontainer_installer_description"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_lynis_initialize &&
-  inst64_lynis_prepare &&
-  inst64_lynis_install &&
-  inst64_lynis_verify
-bl64_msg_show_batch_finish $? "$inst64_lynis_installer_description"
+inst64_devcontainer_initialize &&
+  inst64_devcontainer_prepare &&
+  inst64_devcontainer_install &&
+  inst64_devcontainer_verify
+bl64_msg_show_batch_finish $? "$inst64_devcontainer_installer_description"

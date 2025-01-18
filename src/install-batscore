@@ -108,7 +108,7 @@ function inst64_batscore_install_custom_package() {
   if bl64_lib_flag_is_enabled "$INST64_BATSCORE_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_BATSCORE_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_BATSCORE_TARGET}/bin/${INST64_BATSCORE_CLI_NAME}" "$INST64_BATSCORE_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_BATSCORE_TARGET}/bin/${INST64_BATSCORE_CLI_NAME}" "$INST64_BATSCORE_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
   return 0

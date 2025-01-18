@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Template: 2.2.0
+# Template: 2.3.0
+# Snippet: install-python-4.1.0
 #######################################
 # Installer64 / Package installer
 #
@@ -30,15 +31,12 @@
 # BashLib64 location
 export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -57,17 +55,14 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_HTTPIE_PLATFORM="${INST64_HTTPIE_PLATFORM:-}"
-export INST64_HTTPIE_TARGET="${INST64_HTTPIE_TARGET:-${INST64_OPT_ROOT}/httpie}"
-export INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-3.2.2}"
-# Install system wide? Requires root privilege
-export INST64_HTTPIE_SYSTEM_WIDE="${INST64_HTTPIE_SYSTEM_WIDE:-YES}"
+export INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-latest}"
 # Installation method
-export INST64_HTTPIE_METHOD="${INST64_HTTPIE_METHOD:-BINARY}"
+export INST64_HTTPIE_METHOD="${INST64_HTTPIE_METHOD:-PIP}"
 
-export INST64_HTTPIE_REPO_NAME='cli'
-export INST64_HTTPIE_REPO_OWNER='httpie'
+export INST64_HTTPIE_PIPX_BIN="${INST64_HTTPIE_PIPX_BIN:-pipx}"
 export INST64_HTTPIE_PACKAGES=''
+export INST64_HTTPIE_PACKAGES_PRE=''
+export INST64_HTTPIE_PACKAGES_POST=''
 export INST64_HTTPIE_CLI_NAME='http'
 export INST64_HTTPIE_CLI_PATH=''
 
@@ -75,41 +70,47 @@ export INST64_HTTPIE_CLI_PATH=''
 # Functions
 #
 
-function inst64_httpie_install_binary_release() {
+function inst64_httpie_install_with_pip() {
   bl64_dbg_app_show_function
-  local work_path=''
-  local app_target_mode='0755'
-  local app_target_owner='root'
-  local app_cli_mode='0755'
-  local app_cli_source="${INST64_HTTPIE_CLI_NAME}"
-
-  if bl64_lib_flag_is_enabled "$INST64_HTTPIE_SYSTEM_WIDE"; then
-    INST64_HTTPIE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_HTTPIE_CLI_NAME}"
-  else
-    INST64_HTTPIE_CLI_PATH="${INST64_HTTPIE_TARGET}/${INST64_HTTPIE_CLI_NAME}"
-    app_target_owner="$BL64_VAR_DEFAULT"
-  fi
-
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_HTTPIE_REPO_OWNER" "$INST64_HTTPIE_REPO_NAME" "$INST64_HTTPIE_VERSION" "$INST64_HTTPIE_PACKAGES" "${work_path}/${INST64_HTTPIE_PACKAGES}" ||
-    return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_HTTPIE_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_HTTPIE_TARGET" "${work_path}/${app_cli_source}" ||
-    return $?
-
-  if bl64_lib_flag_is_enabled "$INST64_HTTPIE_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_HTTPIE_CLI_PATH})"
+  INST64_HTTPIE_CLI_PATH="${HOME}/.local/bin/${INST64_HTTPIE_CLI_NAME}"
+  if [[ -n "$INST64_HTTPIE_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_HTTPIE_TARGET}/${app_cli_source}" "$INST64_HTTPIE_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_py_pip_usr_install $INST64_HTTPIE_PACKAGES_PRE ||
       return $?
   fi
+  # shellcheck disable=SC2086
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_py_pip_usr_deploy $INST64_HTTPIE_PACKAGES ||
+    return $?
+  if [[ -n "$INST64_HTTPIE_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_HTTPIE_PACKAGES_POST ||
+      return $?
+  fi
+  return 0
+}
 
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
+function inst64_httpie_install_with_pipx() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  INST64_HTTPIE_CLI_PATH="${INST64_HTTPIE_CLI_NAME}"
+  if [[ -n "$INST64_HTTPIE_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_HTTPIE_PIPX_BIN" install --preinstall $INST64_HTTPIE_PACKAGES_PRE $INST64_HTTPIE_PACKAGES ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    "$INST64_HTTPIE_PIPX_BIN" inject $INST64_HTTPIE_PACKAGES $INST64_HTTPIE_PACKAGES_PRE ||
+      return $?
+  fi
+  if [[ -n "$INST64_HTTPIE_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_HTTPIE_PIPX_BIN" inject $INST64_HTTPIE_PACKAGES $INST64_HTTPIE_PACKAGES_POST ||
+      return $?
+  fi
   return 0
 }
 
@@ -126,9 +127,10 @@ function inst64_httpie_install_binary_release() {
 #######################################
 function inst64_httpie_install() {
   bl64_dbg_app_show_function
-  inst64_httpie_select_packages || return $?
-  if [[ "$INST64_HTTPIE_METHOD" == 'BINARY' ]]; then
-    inst64_httpie_install_binary_release
+  if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' ]]; then
+    inst64_httpie_install_with_pipx
+  elif [[ "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
+    inst64_httpie_install_with_pip
   fi
 }
 
@@ -145,16 +147,17 @@ function inst64_httpie_install() {
 #######################################
 function inst64_httpie_select_packages() {
   bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_sufix=''
-  if [[ "$INST64_HTTPIE_METHOD" == 'BINARY' ]]; then
+  local version_target=''
+
+  if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' || "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_HTTPIE_VERSION" == 'latest' ]]; then
-      INST64_HTTPIE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HTTPIE_REPO_OWNER" "$INST64_HTTPIE_REPO_NAME")" ||
-        return $?
+      version_target=''
+    else
+      version_target="==${INST64_HTTPIE_VERSION}.*"
     fi
-    package_prefix='http'
-    package_sufix=''
-    INST64_HTTPIE_PACKAGES="${package_prefix}${package_sufix}"
+    INST64_HTTPIE_PACKAGES="httpie${version_target}"
+    INST64_HTTPIE_PACKAGES_PRE=''
+    INST64_HTTPIE_PACKAGES_POST=''
   fi
   [[ -z "$INST64_HTTPIE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -174,8 +177,9 @@ function inst64_httpie_select_packages() {
 function inst64_httpie_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_HTTPIE_METHOD" == 'BINARY' ]]; then
-    bl64_arc_setup
+  if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' || "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
+    inst64_httpie_select_packages &&
+    bl64_py_setup
   fi
 }
 
@@ -209,19 +213,23 @@ function inst64_httpie_verify() {
 #######################################
 function inst64_httpie_initialize() {
   bl64_dbg_app_show_function
-  if bl64_lib_flag_is_enabled "$INST64_HTTPIE_SYSTEM_WIDE"; then
-    bl64_check_privilege_root ||
-      return $?
-  fi
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HTTPIE_METHOD' \
+    "$INST64_HTTPIE_METHOD" \
+    'PIP' 'PIPX' ||
+    return $?
 
-  # Alpine OS: not compatible with binary package
-  bl64_os_check_compatibility \
-    "$BL64_OS_UB" \
-    "$BL64_OS_OL" \
-    "$BL64_OS_FD" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HTTPIE_METHOD' \
-      "$INST64_HTTPIE_METHOD" \
-      'BINARY'
+  if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' || "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' ]]; then
+      bl64_check_command_search_path "$INST64_HTTPIE_PIPX_BIN" ||
+      return $?
+    fi
+    bl64_check_privilege_not_root &&
+      bl64_os_check_compatibility \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_UB}"
+  fi
 }
 
 #

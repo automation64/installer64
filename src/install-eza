@@ -105,7 +105,7 @@ function inst64_eza_install_binary_release() {
   if bl64_lib_flag_is_enabled "$INST64_EZA_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_EZA_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_EZA_TARGET}/${app_cli_source}" "$INST64_EZA_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_EZA_TARGET}/${app_cli_source}" "$INST64_EZA_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -217,6 +217,7 @@ function inst64_eza_initialize() {
   bl64_os_check_compatibility \
     "$BL64_OS_UB" \
     "$BL64_OS_OL" \
+    "$BL64_OS_KL" \
     "$BL64_OS_FD" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_EZA_METHOD' \
       "$INST64_EZA_METHOD" \

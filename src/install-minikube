@@ -90,7 +90,7 @@ function inst64_minikube_install_binary_release() {
   bl64_lib_flag_is_enabled "$INST64_MINIKUBE_SYSTEM_WIDE" || INST64_MINIKUBE_CLI_PATH="${INST64_MINIKUBE_TARGET}/${INST64_MINIKUBE_CLI_NAME}"
   bl64_msg_show_task "publish application to searchable path (${INST64_MINIKUBE_CLI_PATH})"
   # shellcheck disable=SC2086
-  bl64_fs_create_symlink "${INST64_MINIKUBE_TARGET}/${app_cli_source}" "$INST64_MINIKUBE_CLI_PATH" "$BL64_VAR_ON" ||
+  bl64_fs_symlink_create "${INST64_MINIKUBE_TARGET}/${app_cli_source}" "$INST64_MINIKUBE_CLI_PATH" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'

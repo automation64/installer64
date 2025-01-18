@@ -70,7 +70,7 @@ export INST64_SQLMAP_INSTALLER=''
 export INST64_SQLMAP_PACKAGES=''
 export INST64_SQLMAP_CLI_NAME='sqlmap.py'
 export INST64_SQLMAP_CLI_PATH=''
-env
+
 #
 # Functions
 #
@@ -110,7 +110,7 @@ function inst64_sqlmap_install_git_repo() {
   if bl64_lib_flag_is_enabled "$INST64_SQLMAP_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_SQLMAP_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_SQLMAP_TARGET}/${INST64_SQLMAP_CLI_NAME}" "$INST64_SQLMAP_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_SQLMAP_TARGET}/${INST64_SQLMAP_CLI_NAME}" "$INST64_SQLMAP_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -216,6 +216,7 @@ function inst64_sqlmap_initialize() {
       "${BL64_OS_ALP}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_FD}" \
+      "${BL64_OS_KL}" \
       "${BL64_OS_UB}"
   fi
 }

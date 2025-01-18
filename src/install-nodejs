@@ -108,7 +108,7 @@ function inst64_nodejs_install_custom_package() {
   if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_NODEJS_CLI_PATH})"
     for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
-      bl64_fs_create_symlink \
+      bl64_fs_symlink_create \
         "${INST64_NODEJS_TARGET}/${app_cli_source}/$app_component" "${INST64_NODEJS_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
         return $?
     done
@@ -117,7 +117,7 @@ function inst64_nodejs_install_custom_package() {
     bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NODEJS_CLI_PATH" ||
       return $?
     for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
-      bl64_fs_create_symlink \
+      bl64_fs_symlink_create \
         "${INST64_NODEJS_TARGET}/${app_cli_source}/$app_component" "${INST64_NODEJS_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
         return $?
     done

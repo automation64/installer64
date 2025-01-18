@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.0.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -57,7 +57,7 @@ export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 export INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_GPING_PLATFORM="${INST64_GPING_PLATFORM:-Linux-x86_64}"
+export INST64_GPING_PLATFORM="${INST64_GPING_PLATFORM:-Linux-gnu-x86_64}"
 export INST64_GPING_TARGET="${INST64_GPING_TARGET:-${INST64_OPT_ROOT}/gping}"
 export INST64_GPING_VERSION="${INST64_GPING_VERSION:-latest}"
 # Install system wide? Requires root privilege
@@ -105,7 +105,7 @@ function inst64_gping_install_binary_release() {
   if bl64_lib_flag_is_enabled "$INST64_GPING_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_GPING_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_create_symlink "${INST64_GPING_TARGET}/${app_cli_source}" "$INST64_GPING_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_GPING_TARGET}/${app_cli_source}" "$INST64_GPING_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -216,7 +216,6 @@ function inst64_gping_initialize() {
   fi
   bl64_os_check_compatibility \
     "$BL64_OS_UB" \
-    "$BL64_OS_OL" \
     "$BL64_OS_FD" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GPING_METHOD' \
       "$INST64_GPING_METHOD" \
