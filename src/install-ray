@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.0.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -61,6 +61,7 @@ export INST64_RAY_METHOD="${INST64_RAY_METHOD:-PIP}"
 
 export INST64_RAY_PIPX_BIN="${INST64_RAY_PIPX_BIN:-pipx}"
 export INST64_RAY_PACKAGES=''
+export INST64_RAY_PACKAGES_PRE=''
 export INST64_RAY_PACKAGES_POST=''
 export INST64_RAY_CLI_NAME='ray'
 export INST64_RAY_CLI_PATH=''

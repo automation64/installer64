@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
+# Version: 1.0.1
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -61,6 +61,7 @@ export INST64_HTTPIE_METHOD="${INST64_HTTPIE_METHOD:-PIP}"
 
 export INST64_HTTPIE_PIPX_BIN="${INST64_HTTPIE_PIPX_BIN:-pipx}"
 export INST64_HTTPIE_PACKAGES=''
+export INST64_HTTPIE_PACKAGES_PRE=''
 export INST64_HTTPIE_PACKAGES_POST=''
 export INST64_HTTPIE_CLI_NAME='http'
 export INST64_HTTPIE_CLI_PATH=''
