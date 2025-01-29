@@ -6,7 +6,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 1.1.1
+# Version: 1.1.2
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -131,7 +131,7 @@ function inst64_neovim_install_binary_release() {
 function inst64_neovim_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_NEOVIM_METHOD" == 'BINARY' ]]; then
-    [[ -z "$INST64_NEOVIM_PLATFORM" ]] && INST64_NEOVIM_PLATFORM='linux64'
+    [[ -z "$INST64_NEOVIM_PLATFORM" ]] && INST64_NEOVIM_PLATFORM='linux-x86_64'
   fi
   [[ -z "$INST64_NEOVIM_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
