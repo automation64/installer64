@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.2.0
+# Version: 2.3.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -30,7 +30,7 @@
 # Enable debugging? Set to YES to enable
 export INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+export INST64_OPT_ROOT=''
 
 #
 # Globals
@@ -41,9 +41,11 @@ export INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
 # Source repository
 export INST64_INSTALLER64_SOURCE="${INST64_INSTALLER64_SOURCE:-https://github.com/automation64/installer64}"
 # Target installation directory
-export INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/installer64}"
+export INST64_INSTALLER64_TARGET=''
 # Target application version
 export INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
+# Install system wide? Requires root privilege
+export INST64_INSTALLER64_SYSTEM_WIDE="${INST64_INSTALLER64_SYSTEM_WIDE:-YES}"
 
 export INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 export INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
@@ -51,7 +53,7 @@ export INST64_INSTALLER64_PACKAGES=''
 export INST64_INSTALLER64_TARGET_MODE_DIR='0755'
 export INST64_INSTALLER64_TARGET_MODE_FILE='0755'
 
-export INST64_INSTALLER64_VERSION_FILE="${INST64_INSTALLER64_TARGET}/version"
+export INST64_INSTALLER64_VERSION_FILE=''
 
 #
 # Functions
@@ -141,7 +143,7 @@ function inst64_installer64_install() {
   inst64_installer64_select_packages || return $?
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
     inst64_installer64_install_binary_release &&
-    "${INST64_INSTALLER64_TARGET}/install-bashlib64"
+      "${INST64_INSTALLER64_TARGET}/install-bashlib64"
   fi
 }
 
@@ -205,7 +207,7 @@ function inst64_installer64_verify() {
   echo 'Task: verify deployment'
   [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
     [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] &&
-    echo "$INST64_INSTALLER64_VERSION" > "$INST64_INSTALLER64_VERSION_FILE"
+    echo "$INST64_INSTALLER64_VERSION" >"$INST64_INSTALLER64_VERSION_FILE"
 }
 
 #######################################
@@ -229,10 +231,26 @@ function inst64_installer64_initialize() {
   elif command -v 'wget' >/dev/null 2>&1; then
     INST64_INSTALLER64_DOWNLOAD_TOOL='wget'
   else
-    echo 'Error: no donwload tool found (curl, wget)'
+    echo 'Error: no download tool found (curl, wget)'
     return 1
   fi
 
+  if ! command -v 'tar' >/dev/null 2>&1; then
+    echo 'Error: no archive tool found (tar)'
+    return 1
+  fi
+
+  if [[ "$INST64_INSTALLER64_SYSTEM_WIDE" == 'YES' ]]; then
+    INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+  else
+    INST64_OPT_ROOT="${INST64_OPT_ROOT:-${HOME}/at64}"
+    if [[ ! -d "$INST64_OPT_ROOT" ]]; then
+      mkdir "$INST64_OPT_ROOT" ||
+        return $?
+    fi
+  fi
+  INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/installer64}"
+  INST64_INSTALLER64_VERSION_FILE="${INST64_INSTALLER64_TARGET}/version"
 }
 
 #
