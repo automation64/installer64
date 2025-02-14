@@ -29,7 +29,7 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
@@ -49,30 +49,30 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_OHMYZSH_PLATFORM=''
-export INST64_OHMYZSH_SOURCE="${INST64_OHMYZSH_SOURCE:-https://raw.github.com/ohmyzsh/ohmyzsh/master/tools}"
-export INST64_OHMYZSH_TARGET="${INST64_OHMYZSH_TARGET:-${HOME}/.oh-my-zsh}"
-export INST64_OHMYZSH_VERSION=''
+declare INST64_OHMYZSH_PLATFORM=''
+declare INST64_OHMYZSH_SOURCE="${INST64_OHMYZSH_SOURCE:-https://raw.github.com/ohmyzsh/ohmyzsh/master/tools}"
+declare INST64_OHMYZSH_TARGET="${INST64_OHMYZSH_TARGET:-${HOME}/.oh-my-zsh}"
+declare INST64_OHMYZSH_VERSION=''
 # Install system wide? Requires root privilege
-export INST64_OHMYZSH_SYSTEM_WIDE='NO'
+declare INST64_OHMYZSH_SYSTEM_WIDE='NO'
 # Installation method
-export INST64_OHMYZSH_METHOD="${INST64_OHMYZSH_METHOD:-CUSTOM}"
+declare INST64_OHMYZSH_METHOD="${INST64_OHMYZSH_METHOD:-CUSTOM}"
 
-export INST64_OHMYZSH_PACKAGE_URL=''
-export INST64_OHMYZSH_INSTALLER='install.sh'
-export INST64_OHMYZSH_PACKAGES=''
-export INST64_OHMYZSH_CLI_NAME='oh-my-zsh.sh'
-export INST64_OHMYZSH_CLI_PATH=''
+declare INST64_OHMYZSH_PACKAGE_URL=''
+declare INST64_OHMYZSH_INSTALLER='install.sh'
+declare INST64_OHMYZSH_PACKAGES=''
+declare INST64_OHMYZSH_CLI_NAME='oh-my-zsh.sh'
+declare INST64_OHMYZSH_CLI_PATH=''
 
 #
 # Functions

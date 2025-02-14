@@ -30,7 +30,7 @@
 #docs/skeletons/installer/install-package-custom
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
@@ -50,32 +50,32 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_SYSOP64_PLATFORM="${INST64_SYSOP64_PLATFORM:-}"
-export INST64_SYSOP64_TARGET="${INST64_SYSOP64_TARGET:-${INST64_OPT_ROOT}/sysop64}"
-export INST64_SYSOP64_VERSION="${INST64_SYSOP64_VERSION:-latest}"
+declare INST64_SYSOP64_PLATFORM="${INST64_SYSOP64_PLATFORM:-}"
+declare INST64_SYSOP64_TARGET="${INST64_SYSOP64_TARGET:-${INST64_OPT_ROOT}/sysop64}"
+declare INST64_SYSOP64_VERSION="${INST64_SYSOP64_VERSION:-latest}"
 # Install system wide? Requires root privilege
-export INST64_SYSOP64_SYSTEM_WIDE="${INST64_SYSOP64_SYSTEM_WIDE:-YES}"
+declare INST64_SYSOP64_SYSTEM_WIDE="${INST64_SYSOP64_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-CUSTOM}"
+declare INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-CUSTOM}"
 
-export INST64_SYSOP64_REPO_NAME='sysop64'
-export INST64_SYSOP64_REPO_OWNER='automation64'
+declare INST64_SYSOP64_REPO_NAME='sysop64'
+declare INST64_SYSOP64_REPO_OWNER='automation64'
 
-export INST64_SYSOP64_PACKAGE_URL=''
-export INST64_SYSOP64_INSTALLER=''
-export INST64_SYSOP64_PACKAGES=''
-export INST64_SYSOP64_CLI_NAME=''
-export INST64_SYSOP64_CLI_PATH=''
+declare INST64_SYSOP64_PACKAGE_URL=''
+declare INST64_SYSOP64_INSTALLER=''
+declare INST64_SYSOP64_PACKAGES=''
+declare INST64_SYSOP64_CLI_NAME=''
+declare INST64_SYSOP64_CLI_PATH=''
 
 #
 # Functions

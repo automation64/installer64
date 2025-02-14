@@ -28,18 +28,18 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -50,16 +50,16 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 # Installation method
-export INST64_VAULT_METHOD="${INST64_VAULT_METHOD:-EXTERNAL}"
+declare INST64_VAULT_METHOD="${INST64_VAULT_METHOD:-EXTERNAL}"
 # shellcheck disable=SC2016
-export INST64_VAULT_PLATFORM_YUM="${INST64_VAULT_PLATFORM_YUM:-\$basearch/stable}"
+declare INST64_VAULT_PLATFORM_YUM="${INST64_VAULT_PLATFORM_YUM:-\$basearch/stable}"
 
-export INST64_VAULT_REPOSITORY_NAME='hashicorp'
+declare INST64_VAULT_REPOSITORY_NAME='hashicorp'
 # shellcheck disable=SC2016
-export INST64_VAULT_SOURCE_YUM='https://rpm.releases.hashicorp.com/RHEL/$releasever'
-export INST64_VAULT_REPOSITORY_KEY_YUM='https://rpm.releases.hashicorp.com/gpg'
-export INST64_VAULT_PACKAGES=''
-export INST64_VAULT_CLI_NAME='vault'
+declare INST64_VAULT_SOURCE_YUM='https://rpm.releases.hashicorp.com/RHEL/$releasever'
+declare INST64_VAULT_REPOSITORY_KEY_YUM='https://rpm.releases.hashicorp.com/gpg'
+declare INST64_VAULT_PACKAGES=''
+declare INST64_VAULT_CLI_NAME='vault'
 
 #
 # Functions

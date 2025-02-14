@@ -28,16 +28,16 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -48,14 +48,14 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 # Installation method
-export INST64_GCLOUD_METHOD="${INST64_GCLOUD_METHOD:-EXTERNAL}"
-export INST64_GCLOUD_PLATFORM_RHEL="${INST64_GCLOUD_PLATFORM:-x86_64}"
+declare INST64_GCLOUD_METHOD="${INST64_GCLOUD_METHOD:-EXTERNAL}"
+declare INST64_GCLOUD_PLATFORM_RHEL="${INST64_GCLOUD_PLATFORM:-x86_64}"
 
-export INST64_GCLOUD_REPOSITORY_NAME='google-cloud-sdk'
-export INST64_GCLOUD_SOURCE_RHEL='https://packages.cloud.google.com/yum/repos'
-export INST64_GCLOUD_REPOSITORY_KEY_RHEL='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
-export INST64_GCLOUD_SOURCE_DEB='https://packages.cloud.google.com/apt'
-export INST64_GCLOUD_REPOSITORY_KEY_DEB='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
+declare INST64_GCLOUD_REPOSITORY_NAME='google-cloud-sdk'
+declare INST64_GCLOUD_SOURCE_RHEL='https://packages.cloud.google.com/yum/repos'
+declare INST64_GCLOUD_REPOSITORY_KEY_RHEL='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+declare INST64_GCLOUD_SOURCE_DEB='https://packages.cloud.google.com/apt'
+declare INST64_GCLOUD_REPOSITORY_KEY_DEB='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
 
 #
 # Functions

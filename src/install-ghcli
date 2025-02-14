@@ -30,7 +30,7 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
@@ -52,38 +52,38 @@ source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_GHCLI_PLATFORM="${INST64_GHCLI_PLATFORM:-}"
-export INST64_GHCLI_TARGET="${INST64_GHCLI_TARGET:-${INST64_OPT_ROOT}/ghcli}"
-export INST64_GHCLI_VERSION="${INST64_GHCLI_VERSION:-latest}"
+declare INST64_GHCLI_PLATFORM="${INST64_GHCLI_PLATFORM:-}"
+declare INST64_GHCLI_TARGET="${INST64_GHCLI_TARGET:-${INST64_OPT_ROOT}/ghcli}"
+declare INST64_GHCLI_VERSION="${INST64_GHCLI_VERSION:-latest}"
 # Install system wide? Requires root privilege
-export INST64_GHCLI_SYSTEM_WIDE="${INST64_GHCLI_SYSTEM_WIDE:-YES}"
+declare INST64_GHCLI_SYSTEM_WIDE="${INST64_GHCLI_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_GHCLI_METHOD="${INST64_GHCLI_METHOD:-EXTERNAL}"
+declare INST64_GHCLI_METHOD="${INST64_GHCLI_METHOD:-EXTERNAL}"
 # Enable development packages?
-export INST64_GHCLI_DEVELOPMENT="${INST64_GHCLI_DEVELOPMENT:-$BL64_VAR_OFF}"
+declare INST64_GHCLI_DEVELOPMENT="${INST64_GHCLI_DEVELOPMENT:-$BL64_VAR_OFF}"
 
-export INST64_GHCLI_REPOSITORY_NAME='gh-cli'
-export INST64_GHCLI_SOURCE_APT='https://cli.github.com/packages'
-export INST64_GHCLI_REPOSITORY_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
-export INST64_GHCLI_SOURCE_YUM='https://cli.github.com/packages/rpm'
-export INST64_GHCLI_REPOSITORY_KEY_YUM='https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059'
+declare INST64_GHCLI_REPOSITORY_NAME='gh-cli'
+declare INST64_GHCLI_SOURCE_APT='https://cli.github.com/packages'
+declare INST64_GHCLI_REPOSITORY_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
+declare INST64_GHCLI_SOURCE_YUM='https://cli.github.com/packages/rpm'
+declare INST64_GHCLI_REPOSITORY_KEY_YUM='https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059'
 
-export INST64_GHCLI_REPO_NAME='cli'
-export INST64_GHCLI_REPO_OWNER='cli'
+declare INST64_GHCLI_REPO_NAME='cli'
+declare INST64_GHCLI_REPO_OWNER='cli'
 
-export INST64_GHCLI_PACKAGES=''
-export INST64_GHCLI_CLI_NAME='gh'
-export INST64_GHCLI_CLI_PATH=''
+declare INST64_GHCLI_PACKAGES=''
+declare INST64_GHCLI_CLI_NAME='gh'
+declare INST64_GHCLI_CLI_PATH=''
 
 #
 # Functions

@@ -29,7 +29,7 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
@@ -49,29 +49,29 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_KUBECONFORM_PLATFORM="${INST64_KUBECONFORM_PLATFORM:-}"
-export INST64_KUBECONFORM_TARGET="${INST64_KUBECONFORM_TARGET:-${INST64_OPT_ROOT}/kubeconform}"
-export INST64_KUBECONFORM_VERSION="${INST64_KUBECONFORM_VERSION:-latest}"
+declare INST64_KUBECONFORM_PLATFORM="${INST64_KUBECONFORM_PLATFORM:-}"
+declare INST64_KUBECONFORM_TARGET="${INST64_KUBECONFORM_TARGET:-${INST64_OPT_ROOT}/kubeconform}"
+declare INST64_KUBECONFORM_VERSION="${INST64_KUBECONFORM_VERSION:-latest}"
 # Install system wide? Requires root privilege
-export INST64_KUBECONFORM_SYSTEM_WIDE="${INST64_KUBECONFORM_SYSTEM_WIDE:-YES}"
+declare INST64_KUBECONFORM_SYSTEM_WIDE="${INST64_KUBECONFORM_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_KUBECONFORM_METHOD="${INST64_KUBECONFORM_METHOD:-BINARY}"
+declare INST64_KUBECONFORM_METHOD="${INST64_KUBECONFORM_METHOD:-BINARY}"
 
-export INST64_KUBECONFORM_REPO_NAME='kubeconform'
-export INST64_KUBECONFORM_REPO_OWNER='yannh'
-export INST64_KUBECONFORM_PACKAGES=''
-export INST64_KUBECONFORM_CLI_NAME='kubeconform'
-export INST64_KUBECONFORM_CLI_PATH=''
+declare INST64_KUBECONFORM_REPO_NAME='kubeconform'
+declare INST64_KUBECONFORM_REPO_OWNER='yannh'
+declare INST64_KUBECONFORM_PACKAGES=''
+declare INST64_KUBECONFORM_CLI_NAME='kubeconform'
+declare INST64_KUBECONFORM_CLI_PATH=''
 
 #
 # Functions

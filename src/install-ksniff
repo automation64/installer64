@@ -28,20 +28,20 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Installer64 location
-export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+declare INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -52,12 +52,12 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 # Installation method
-export INST64_KSNIFF_METHOD="${INST64_KSNIFF_METHOD:-KREW}"
+declare INST64_KSNIFF_METHOD="${INST64_KSNIFF_METHOD:-KREW}"
 
-export INST64_KSNIFF_K8S_KUBECONFIG="${INST64_KSNIFF_K8S_KUBECONFIG:-$BL64_VAR_DEFAULT}"
-export INST64_KSNIFF_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
-export INST64_KSNIFF_PACKAGES=''
-export INST64_KSNIFF_CLI_NAME='sniff'
+declare INST64_KSNIFF_K8S_KUBECONFIG="${INST64_KSNIFF_K8S_KUBECONFIG:-$BL64_VAR_DEFAULT}"
+declare INST64_KSNIFF_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
+declare INST64_KSNIFF_PACKAGES=''
+declare INST64_KSNIFF_CLI_NAME='sniff'
 
 #
 # Functions

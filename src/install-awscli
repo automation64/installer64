@@ -28,7 +28,7 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
@@ -48,30 +48,30 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
-export INST64_AWSCLI_PLATFORM="${INST64_AWSCLI_PLATFORM:-linux-x86_64}"
-export INST64_AWSCLI_SOURCE="${INST64_AWSCLI_SOURCE:-https://awscli.amazonaws.com}"
-export INST64_AWSCLI_TARGET="${INST64_AWSCLI_TARGET:-${INST64_OPT_ROOT}/awscli}"
-export INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
+declare INST64_AWSCLI_PLATFORM="${INST64_AWSCLI_PLATFORM:-linux-x86_64}"
+declare INST64_AWSCLI_SOURCE="${INST64_AWSCLI_SOURCE:-https://awscli.amazonaws.com}"
+declare INST64_AWSCLI_TARGET="${INST64_AWSCLI_TARGET:-${INST64_OPT_ROOT}/awscli}"
+declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
 # Install system wide? Requires root privilege
-export INST64_AWSCLI_SYSTEM_WIDE="${INST64_AWSCLI_SYSTEM_WIDE:-YES}"
+declare INST64_AWSCLI_SYSTEM_WIDE="${INST64_AWSCLI_SYSTEM_WIDE:-YES}"
 # Installation method
-export INST64_AWSCLI_METHOD="${INST64_AWSCLI_METHOD:-CUSTOM}"
+declare INST64_AWSCLI_METHOD="${INST64_AWSCLI_METHOD:-CUSTOM}"
 
-export INST64_AWSCLI_PACKAGE_URL=''
-export INST64_AWSCLI_INSTALLER='aws/install'
-export INST64_AWSCLI_PACKAGES=''
-export INST64_AWSCLI_CLI_NAME='aws'
-export INST64_AWSCLI_CLI_PATH=''
+declare INST64_AWSCLI_PACKAGE_URL=''
+declare INST64_AWSCLI_INSTALLER='aws/install'
+declare INST64_AWSCLI_PACKAGES=''
+declare INST64_AWSCLI_CLI_NAME='aws'
+declare INST64_AWSCLI_CLI_PATH=''
 
 #
 # Functions

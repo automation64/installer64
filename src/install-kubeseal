@@ -28,18 +28,18 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -49,16 +49,16 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
-export INST64_KUBESEAL_PLATFORM="${INST64_KUBESEAL_PLATFORM:-linux-amd64}"
-export INST64_KUBESEAL_TARGET="${INST64_KUBESEAL_TARGET:-${INST64_OPT_ROOT}/kubeseal}"
-export INST64_KUBESEAL_VERSION="${INST64_KUBESEAL_VERSION:-latest}"
+declare INST64_KUBESEAL_PLATFORM="${INST64_KUBESEAL_PLATFORM:-linux-amd64}"
+declare INST64_KUBESEAL_TARGET="${INST64_KUBESEAL_TARGET:-${INST64_OPT_ROOT}/kubeseal}"
+declare INST64_KUBESEAL_VERSION="${INST64_KUBESEAL_VERSION:-latest}"
 # Installation method
-export INST64_KUBESEAL_METHOD="${INST64_KUBESEAL_METHOD:-BINARY}"
+declare INST64_KUBESEAL_METHOD="${INST64_KUBESEAL_METHOD:-BINARY}"
 
-export INST64_KUBESEAL_REPO_NAME='sealed-secrets'
-export INST64_KUBESEAL_REPO_OWNER='bitnami-labs'
-export INST64_KUBESEAL_PACKAGES=''
-export INST64_KUBESEAL_CLI_NAME='kubeseal'
+declare INST64_KUBESEAL_REPO_NAME='sealed-secrets'
+declare INST64_KUBESEAL_REPO_OWNER='bitnami-labs'
+declare INST64_KUBESEAL_PACKAGES=''
+declare INST64_KUBESEAL_CLI_NAME='kubeseal'
 
 #
 # Functions

@@ -28,16 +28,16 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64=''
+declare INST64_BASHLIB64=''
 [[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -47,15 +47,15 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
-export INST64_HCR_PLATFORM="${INST64_HCR_PLATFORM:-linux_amd64}"
-export INST64_HCR_SOURCE="${INST64_HCR_SOURCE:-https://github.com/helm/chart-releaser/releases/download}"
-export INST64_HCR_TARGET="${INST64_HCR_TARGET:-${INST64_OPT_ROOT}/chart-releaser}"
-export INST64_HCR_VERSION="${INST64_HCR_VERSION:-latest}"
+declare INST64_HCR_PLATFORM="${INST64_HCR_PLATFORM:-linux_amd64}"
+declare INST64_HCR_SOURCE="${INST64_HCR_SOURCE:-https://github.com/helm/chart-releaser/releases/download}"
+declare INST64_HCR_TARGET="${INST64_HCR_TARGET:-${INST64_OPT_ROOT}/chart-releaser}"
+declare INST64_HCR_VERSION="${INST64_HCR_VERSION:-latest}"
 # Installation method
-export INST64_HCR_METHOD="${INST64_HCR_METHOD:-CUSTOM}"
+declare INST64_HCR_METHOD="${INST64_HCR_METHOD:-CUSTOM}"
 
-export INST64_HCR_REPO_NAME='chart-releaser'
-export INST64_HCR_REPO_OWNER='helm'
+declare INST64_HCR_REPO_NAME='chart-releaser'
+declare INST64_HCR_REPO_OWNER='helm'
 
 #
 # Functions

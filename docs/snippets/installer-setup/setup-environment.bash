@@ -5,7 +5,7 @@
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
 
 # X_GLOBALS_PLACEHOLDER_X
-export INST64_X_APP_NAME_CAPS_X_ENV='X_ENV_FILE_NAME_X.env'
+declare INST64_X_APP_NAME_CAPS_X_ENV='X_ENV_FILE_NAME_X.env'
 
 # X_STAND_ALONE_FUNCTIONS_X #
 #######################################
