@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/bashlib64
-# Version: 2.1.0
+# Version: 2.2.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -224,10 +224,14 @@ function inst64_bashlib64_initialize() {
   elif command -v 'wget' >/dev/null 2>&1; then
     INST64_BASHLIB64_DOWNLOAD_TOOL='wget'
   else
-    echo 'Error: no donwload tool found (curl, wget)'
+    echo 'Error: no download tool found (curl, wget)'
     return 1
   fi
 
+  if ! command -v 'tar' >/dev/null 2>&1; then
+    echo 'Error: no archive tool found (tar)'
+    return 1
+  fi
 }
 
 #

@@ -28,7 +28,8 @@
 #
 
 # BashLib64 location
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+export INST64_BASHLIB64=''
+[[ -d "${HOME}/at64/bl64" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${HOME}/at64/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
