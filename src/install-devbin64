@@ -27,7 +27,7 @@
 
 #
 # Imports
-#docs/skeletons/installer/install-package-custom
+#
 
 # Home root
 declare INST64_HOME="${HOME}/at64"

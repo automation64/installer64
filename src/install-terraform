@@ -73,7 +73,7 @@ declare INST64_TERRAFORM_DEVELOPMENT="${INST64_TERRAFORM_DEVELOPMENT:-$BL64_VAR_
 
 declare INST64_TERRAFORM_PLATFORM="${INST64_TERRAFORM_PLATFORM:-linux_amd64}"
 declare INST64_TERRAFORM_SOURCE="${INST64_TERRAFORM_SOURCE:-https://releases.hashicorp.com/terraform}"
-declare INST64_TERRAFORM_TARGET="${INST64_TERRAFORM_TARGET:-${INST64_OPT_ROOT}/terraform}"
+declare INST64_TERRAFORM_TARGET=''
 declare INST64_TERRAFORM_VERSION="${INST64_TERRAFORM_VERSION:-latest}"
 
 declare INST64_TERRAFORM_REPO_NAME='terraform'
@@ -274,6 +274,7 @@ function inst64_terraform_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_TERRAFORM_TARGET="${INST64_TERRAFORM_TARGET:-${INST64_OPT_ROOT}/terraform}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_TERRAFORM_METHOD' \
     "$INST64_TERRAFORM_METHOD" \
     'BINARY' \

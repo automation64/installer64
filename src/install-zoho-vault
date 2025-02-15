@@ -66,7 +66,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_ZOHOVAULT_PLATFORM="${INST64_ZOHOVAULT_PLATFORM:-}"
 declare INST64_ZOHOVAULT_SOURCE="${INST64_ZOHOVAULT_SOURCE:-https://downloads.zohocdn.com/vault-cli-desktop}"
-declare INST64_ZOHOVAULT_TARGET="${INST64_ZOHOVAULT_TARGET:-${INST64_OPT_ROOT}/zohovault}"
+declare INST64_ZOHOVAULT_TARGET=''
 declare INST64_ZOHOVAULT_VERSION="${INST64_ZOHOVAULT_VERSION:-}"
 # Installation method
 declare INST64_ZOHOVAULT_METHOD="${INST64_ZOHOVAULT_METHOD:-CUSTOM}"
@@ -246,6 +246,7 @@ function inst64_zohovault_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_ZOHOVAULT_TARGET="${INST64_ZOHOVAULT_TARGET:-${INST64_OPT_ROOT}/zohovault}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ZOHOVAULT_METHOD' \
     "$INST64_ZOHOVAULT_METHOD" \
     'CUSTOM' ||
