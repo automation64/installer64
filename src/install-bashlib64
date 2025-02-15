@@ -30,9 +30,9 @@ declare INST64_HOME="${HOME}/at64"
 # Enable debugging? Set to YES to enable
 declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for 3rd party applications
-declare INST64_OPT_ROOT=''
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE=''
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"

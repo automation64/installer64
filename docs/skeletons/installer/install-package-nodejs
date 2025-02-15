@@ -21,7 +21,7 @@
 # Home root
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64=''
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
@@ -45,9 +45,9 @@ declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
 # Base path for 3rd party applications
-declare INST64_OPT_ROOT=''
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE=''
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Installation method
