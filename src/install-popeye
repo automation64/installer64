@@ -56,7 +56,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_POPEYE_PLATFORM="${INST64_POPEYE_PLATFORM:-Linux_amd64}"
-declare INST64_POPEYE_TARGET="${INST64_POPEYE_TARGET:-${INST64_OPT_ROOT}/popeye}"
+declare INST64_POPEYE_TARGET=''
 declare INST64_POPEYE_VERSION="${INST64_POPEYE_VERSION:-latest}"
 # Installation method
 declare INST64_POPEYE_METHOD="${INST64_POPEYE_METHOD:-BINARY}"
@@ -200,6 +200,7 @@ function inst64_popeye_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_POPEYE_TARGET="${INST64_POPEYE_TARGET:-${INST64_OPT_ROOT}/popeye}"
   bl64_os_check_compatibility \
     "${BL64_OS_OL}-9" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_POPEYE_METHOD' \

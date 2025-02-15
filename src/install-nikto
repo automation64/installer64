@@ -64,7 +64,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_NIKTO_GIT_SERVER="${INST64_NIKTO_GIT_SERVER:-https://github.com/sullo}"
 declare INST64_NIKTO_GIT_REPO="${INST64_NIKTO_GIT_REPO:-nikto.git}"
-declare INST64_NIKTO_TARGET="${INST64_NIKTO_TARGET:-${INST64_OPT_ROOT}/nikto}"
+declare INST64_NIKTO_TARGET=''
 declare INST64_NIKTO_BRANCH="${INST64_NIKTO_BRANCH:-master}"
 # Installation method
 declare INST64_NIKTO_METHOD="${INST64_NIKTO_METHOD:-GIT}"
@@ -214,6 +214,7 @@ function inst64_nikto_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_NIKTO_TARGET="${INST64_NIKTO_TARGET:-${INST64_OPT_ROOT}/nikto}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_NIKTO_METHOD' \
     "$INST64_NIKTO_METHOD" \
     'GIT' ||

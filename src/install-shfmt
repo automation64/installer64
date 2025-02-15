@@ -54,7 +54,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_SHFMT_PLATFORM="${INST64_SHFMT_PLATFORM:-linux_amd64}"
-declare INST64_SHFMT_TARGET="${INST64_SHFMT_TARGET:-${INST64_OPT_ROOT}/shfmt}"
+declare INST64_SHFMT_TARGET=''
 declare INST64_SHFMT_VERSION="${INST64_SHFMT_VERSION:-latest}"
 # Installation method
 declare INST64_SHFMT_METHOD="${INST64_SHFMT_METHOD:-BINARY}"
@@ -198,6 +198,7 @@ function inst64_shfmt_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_SHFMT_TARGET="${INST64_SHFMT_TARGET:-${INST64_OPT_ROOT}/shfmt}"
   bl64_os_check_compatibility \
     "${BL64_OS_UB}-22" \
     "${BL64_OS_ALP}-3" &&

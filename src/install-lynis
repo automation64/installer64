@@ -64,7 +64,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_LYNIS_GIT_SERVER="${INST64_LYNIS_GIT_SERVER:-https://github.com/CISOfy}"
 declare INST64_LYNIS_GIT_REPO="${INST64_LYNIS_GIT_REPO:-lynis}"
-declare INST64_LYNIS_TARGET="${INST64_LYNIS_TARGET:-${INST64_OPT_ROOT}/lynis}"
+declare INST64_LYNIS_TARGET=''
 declare INST64_LYNIS_BRANCH="${INST64_LYNIS_BRANCH:-master}"
 # Installation method
 declare INST64_LYNIS_METHOD="${INST64_LYNIS_METHOD:-GIT}"
@@ -219,6 +219,7 @@ function inst64_lynis_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_LYNIS_TARGET="${INST64_LYNIS_TARGET:-${INST64_OPT_ROOT}/lynis}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_LYNIS_METHOD' \
     "$INST64_LYNIS_METHOD" \
     'GIT' ||

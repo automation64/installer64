@@ -65,7 +65,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_OPENTOFU_PLATFORM="${INST64_OPENTOFU_PLATFORM:-}"
-declare INST64_OPENTOFU_TARGET="${INST64_OPENTOFU_TARGET:-${INST64_OPT_ROOT}/opentofu}"
+declare INST64_OPENTOFU_TARGET=''
 declare INST64_OPENTOFU_VERSION="${INST64_OPENTOFU_VERSION:-latest}"
 # Installation method
 declare INST64_OPENTOFU_METHOD="${INST64_OPENTOFU_METHOD:-BINARY}"
@@ -247,6 +247,7 @@ function inst64_opentofu_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_OPENTOFU_TARGET="${INST64_OPENTOFU_TARGET:-${INST64_OPT_ROOT}/opentofu}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_OPENTOFU_METHOD' \
     "$INST64_OPENTOFU_METHOD" \
     'BINARY' ||

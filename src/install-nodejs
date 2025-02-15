@@ -65,7 +65,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_NODEJS_PLATFORM="${INST64_NODEJS_PLATFORM:-}"
 declare INST64_NODEJS_SOURCE="${INST64_NODEJS_SOURCE:-https://nodejs.org/dist}"
-declare INST64_NODEJS_TARGET="${INST64_NODEJS_TARGET:-${INST64_OPT_ROOT}/nodejs}"
+declare INST64_NODEJS_TARGET=''
 declare INST64_NODEJS_VERSION="${INST64_NODEJS_VERSION:-20.10.0}"
 # Installation method
 declare INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
@@ -257,6 +257,7 @@ function inst64_nodejs_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_NODEJS_TARGET="${INST64_NODEJS_TARGET:-${INST64_OPT_ROOT}/nodejs}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_NODEJS_METHOD' \
     "$INST64_NODEJS_METHOD" \
     'CUSTOM' ||

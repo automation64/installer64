@@ -65,7 +65,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_LAZYDOCKER_PLATFORM="${INST64_LAZYDOCKER_PLATFORM:-}"
-declare INST64_LAZYDOCKER_TARGET="${INST64_LAZYDOCKER_TARGET:-${INST64_OPT_ROOT}/lazydocker}"
+declare INST64_LAZYDOCKER_TARGET=''
 declare INST64_LAZYDOCKER_VERSION="${INST64_LAZYDOCKER_VERSION:-latest}"
 # Installation method
 declare INST64_LAZYDOCKER_METHOD="${INST64_LAZYDOCKER_METHOD:-BINARY}"
@@ -246,6 +246,7 @@ function inst64_lazydocker_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_LAZYDOCKER_TARGET="${INST64_LAZYDOCKER_TARGET:-${INST64_OPT_ROOT}/lazydocker}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_LAZYDOCKER_METHOD' \
     "$INST64_LAZYDOCKER_METHOD" \
     'BINARY' ||

@@ -54,7 +54,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_MINIKUBE_PLATFORM="${INST64_MINIKUBE_PLATFORM:-linux-amd64}"
-declare INST64_MINIKUBE_TARGET="${INST64_MINIKUBE_TARGET:-${INST64_OPT_ROOT}/minikube}"
+declare INST64_MINIKUBE_TARGET=''
 declare INST64_MINIKUBE_VERSION="${INST64_MINIKUBE_VERSION:-latest}"
 # Installation method
 declare INST64_MINIKUBE_METHOD="${INST64_MINIKUBE_METHOD:-BINARY}"
@@ -203,6 +203,7 @@ function inst64_minikube_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_MINIKUBE_TARGET="${INST64_MINIKUBE_TARGET:-${INST64_OPT_ROOT}/minikube}"
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_check_privilege_root ||
       return $?
