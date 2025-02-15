@@ -41,6 +41,9 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
+# Installation method
+declare INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-NATIVE}"
+
 #
 # Functions
 #
@@ -108,7 +111,7 @@ function inst64_docker_initialize() {
     bl64_check_privilege_root &&
     bl64_pkg_setup
   bl64_msg_show_setup 'Install application: Docker CLI' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_DOCKER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

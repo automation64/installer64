@@ -41,6 +41,8 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
+# Installation method
+declare INST64_MONGODBCLI_METHOD="${INST64_MONGODBCLI_METHOD:-NATIVE}"
 declare INST64_MONGODBCLI_VERSION="${INST64_MONGODBCLI_VERSION:-6}"
 
 #
@@ -151,7 +153,7 @@ function inst64_mongodbcli_initialize() {
   *) bl64_check_alert_unsupported "MongoDB CLI Version: ${INST64_MONGODBCLI_VERSION}" ;;
   esac
   bl64_msg_show_setup 'Install application: MongoDB CLI' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_MONGODBCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

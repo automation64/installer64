@@ -48,6 +48,8 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 declare INST64_GITUI_PLATFORM="${INST64_GITUI_PLATFORM:-linux-x86_64}"
 declare INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-}"
 declare INST64_GITUI_VERSION="${INST64_GITUI_VERSION:-latest}"
+# Installation method
+declare INST64_GITUI_METHOD="${INST64_GITUI_METHOD:-CUSTOM}"
 
 #
 # Functions
@@ -72,7 +74,6 @@ function inst64_gitui_install_binary_release() {
     INST64_GITUI_VERSION="$(bl64_vcs_github_release_get_latest "$repo_owner" "$repo_name")" ||
       return $?
   fi
-  # delete-me # Modify the following line to properly form the package name
   package_name="${package_prefix}-${INST64_GITUI_PLATFORM}${package_sufix}"
 
   bl64_rxtx_github_get_asset "$repo_owner" "$repo_name" "$INST64_GITUI_VERSION" "$package_name" "${work_path}/${package_name}" &&
@@ -135,7 +136,7 @@ function inst64_gitui_initialize() {
     bl64_arc_setup &&
     bl64_check_privilege_root
   bl64_msg_show_setup 'Install application: GitUI' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_GITUI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
