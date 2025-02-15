@@ -5,17 +5,14 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/bashlib64
-# Version: 2.1.0
+# Version: 3.0.0
 #
 #######################################
-# Copyright [2023] [serdigital64@gmail.com]
+# Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,32 +21,33 @@
 #######################################
 
 #
-# Imports
-#
-
-# Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-
-#
 # Globals
 #
 
-# Installation method
-export INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
-# Source repository
-export INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/automation64/bashlib64}"
-# Target installation directory
-export INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
-# Target application version
-export INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
+# Home root
+declare INST64_HOME="${HOME}/at64"
 
-export INST64_BASHLIB64_DOWNLOAD_TOOL='none'
-export INST64_BASHLIB64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
-export INST64_BASHLIB64_PACKAGES=''
-export INST64_BASHLIB64_TARGET_MODE_DIR='0755'
-export INST64_BASHLIB64_TARGET_MODE_FILE='0644'
+# Enable debugging? Set to YES to enable
+declare INST64_DEBUG="${INST64_DEBUG:-}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+
+# Installation method
+declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
+# Source repository
+declare INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/automation64/bashlib64}"
+# Target installation directory
+declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-}"
+# Target application version
+declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
+
+declare INST64_BASHLIB64_DOWNLOAD_TOOL='none'
+declare INST64_BASHLIB64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
+declare INST64_BASHLIB64_PACKAGES=''
+declare INST64_BASHLIB64_TARGET_MODE_DIR='0755'
+declare INST64_BASHLIB64_TARGET_MODE_FILE='0644'
 
 #
 # Functions
@@ -215,6 +213,13 @@ function inst64_bashlib64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_bashlib64_initialize() {
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+  fi
+  INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
   [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1
@@ -224,10 +229,14 @@ function inst64_bashlib64_initialize() {
   elif command -v 'wget' >/dev/null 2>&1; then
     INST64_BASHLIB64_DOWNLOAD_TOOL='wget'
   else
-    echo 'Error: no donwload tool found (curl, wget)'
+    echo 'Error: no download tool found (curl, wget)'
     return 1
   fi
 
+  if ! command -v 'tar' >/dev/null 2>&1; then
+    echo 'Error: no archive tool found (tar)'
+    return 1
+  fi
 }
 
 #

@@ -2,21 +2,11 @@
 # Template: 2.3.0
 # Snippet: install-python-3.2.2
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.2.2
-#
-#######################################
-# Copyright [2023] [serdigital64@gmail.com]
+# Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,8 +18,11 @@
 # Imports
 #
 
+# Home root
+declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
@@ -45,24 +38,26 @@ source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-export INST64_AWSSHELL_VERSION="${INST64_AWSSHELL_VERSION:-latest}"
+declare INST64_AWSSHELL_VERSION="${INST64_AWSSHELL_VERSION:-latest}"
 # Installation method
-export INST64_AWSSHELL_METHOD="${INST64_AWSSHELL_METHOD:-PIP}"
+declare INST64_AWSSHELL_METHOD="${INST64_AWSSHELL_METHOD:-PIP}"
 
-export INST64_AWSSHELL_PIPX_BIN="${INST64_AWSSHELL_PIPX_BIN:-pipx}"
-export INST64_AWSSHELL_PACKAGES=''
-export INST64_AWSSHELL_CLI_NAME='aws-shell'
-export INST64_AWSSHELL_CLI_PATH=''
+declare INST64_AWSSHELL_PIPX_BIN="${INST64_AWSSHELL_PIPX_BIN:-pipx}"
+declare INST64_AWSSHELL_PACKAGES=''
+declare INST64_AWSSHELL_CLI_NAME='aws-shell'
+declare INST64_AWSSHELL_CLI_PATH=''
 
 #
 # Functions
@@ -184,6 +179,12 @@ function inst64_awsshell_verify() {
 #######################################
 function inst64_awsshell_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
+  fi
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_AWSSHELL_METHOD' \
     "$INST64_AWSSHELL_METHOD" \
     'PIP' 'PIPX' ||
@@ -207,20 +208,22 @@ function inst64_awsshell_initialize() {
         "${BL64_OS_RHEL}" \
         "${BL64_OS_UB}"
   fi
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: AWS Shell' \
+    'INST64_AWSSHELL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_awsshell_installer_description='Install application: AWS Shell'
-
+bl64_lib_script_version_set '1.2.2'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_awsshell_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_awsshell_initialize &&
   inst64_awsshell_prepare &&
   inst64_awsshell_install &&
   inst64_awsshell_verify
-bl64_msg_show_batch_finish $? "$inst64_awsshell_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

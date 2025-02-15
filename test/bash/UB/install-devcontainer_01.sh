@@ -7,5 +7,7 @@ if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
   exit 1
 fi
 
-sudo /source/install-nodejs
-/source/install-devcontainer
+sudo /source/install-nodejs ||
+  return $?
+cd $HOME &&
+  /source/install-devcontainer

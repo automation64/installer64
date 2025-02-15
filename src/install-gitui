@@ -1,21 +1,11 @@
 #!/usr/bin/env bash
 # Template: 1.2.0
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.1.1
-#
-#######################################
-# Copyright [2023] [serdigital64@gmail.com]
+# Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,21 +17,11 @@
 # Imports
 #
 
+# Home root
+declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
-# Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
-# Installer64 location
-export INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
-# Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-# Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
-
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -50,9 +30,26 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
-export INST64_GITUI_PLATFORM="${INST64_GITUI_PLATFORM:-linux-x86_64}"
-export INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-${INST64_OPT_ROOT}/gitui}"
-export INST64_GITUI_VERSION="${INST64_GITUI_VERSION:-latest}"
+# Enable debugging? Set to YES to enable
+declare INST64_DEBUG="${INST64_DEBUG:-}"
+# Installer64 location
+declare INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
+# Base path for local applications
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+# Local applications binaries location
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Location for temporary files
+declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+
+declare INST64_GITUI_PLATFORM="${INST64_GITUI_PLATFORM:-linux-x86_64}"
+declare INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-}"
+declare INST64_GITUI_VERSION="${INST64_GITUI_VERSION:-latest}"
+# Installation method
+declare INST64_GITUI_METHOD="${INST64_GITUI_METHOD:-CUSTOM}"
 
 #
 # Functions
@@ -77,7 +74,6 @@ function inst64_gitui_install_binary_release() {
     INST64_GITUI_VERSION="$(bl64_vcs_github_release_get_latest "$repo_owner" "$repo_name")" ||
       return $?
   fi
-  # delete-me # Modify the following line to properly form the package name
   package_name="${package_prefix}-${INST64_GITUI_PLATFORM}${package_sufix}"
 
   bl64_rxtx_github_get_asset "$repo_owner" "$repo_name" "$INST64_GITUI_VERSION" "$package_name" "${work_path}/${package_name}" &&
@@ -128,22 +124,31 @@ function inst64_gitui_install() {
 #######################################
 function inst64_gitui_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
+  fi
+  INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-${INST64_OPT_ROOT}/gitui}"
   bl64_os_check_compatibility \
     "${BL64_OS_OL}-9" "${BL64_OS_UB}-22" &&
     bl64_arc_setup &&
     bl64_check_privilege_root
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: GitUI' \
+    'INST64_GITUI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_gitui_installer_description='Install application: GitUI'
-
+bl64_lib_script_version_set '1.1.1'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_gitui_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_gitui_initialize &&
   inst64_gitui_install
-bl64_msg_show_batch_finish $? "$inst64_gitui_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0]
+
+### Added
+
+- Installer
+  - Non system-wide installation option
+- All
+  - Set default system-wide installation to detected local install
+
+### Changed
+
+- Installer
+  - The default is now to do non system-wide installation
+- All
+  - **breaking-change** Renamed parameter: INST64_<MODULE>_SYSTEM_WIDE -> INST64_SYSTEM_WIDE
+
 ## [3.41.2]
 
 ### Added

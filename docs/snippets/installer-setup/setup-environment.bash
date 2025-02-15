@@ -5,7 +5,7 @@
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
 
 # X_GLOBALS_PLACEHOLDER_X
-export INST64_X_APP_NAME_CAPS_X_ENV='X_ENV_FILE_NAME_X.env'
+declare INST64_X_APP_NAME_CAPS_X_ENV='X_ENV_FILE_NAME_X.env'
 
 # X_STAND_ALONE_FUNCTIONS_X #
 #######################################
@@ -24,7 +24,7 @@ function inst64_X_APP_NAME_X_setup() {
   local mode='0644'
 
   bl64_msg_show_task 'setup application environment'
-  if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_ENV="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_ENV}"
   else
     INST64_X_APP_NAME_CAPS_X_ENV="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_ENV}"
@@ -43,7 +43,7 @@ X_SHELL_VAR_DECLARATIONS_PLACEHOLDER_X
     bl64_fs_run_chmod "$mode" "$INST64_X_APP_NAME_CAPS_X_ENV" ||
     return $?
 
-  if ! bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     if bl64_bsh_env_store_is_present; then
       bl64_bsh_env_store_publish "$INST64_X_APP_NAME_CAPS_X_ENV" ||
         return $?

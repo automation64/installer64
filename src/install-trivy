@@ -3,21 +3,11 @@
 # Snippet: install-github-release-3.2.1
 # Snippet: install-external-package-3.3.0
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.1.0
-#
-#######################################
-# Copyright [2023] [serdigital64@gmail.com]
+# Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +19,11 @@
 # Imports
 #
 
+# Home root
+declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -51,35 +44,35 @@ source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
-
-export INST64_TRIVY_PLATFORM="${INST64_TRIVY_PLATFORM:-}"
-export INST64_TRIVY_TARGET="${INST64_TRIVY_TARGET:-${INST64_OPT_ROOT}/trivy}"
-export INST64_TRIVY_VERSION="${INST64_TRIVY_VERSION:-latest}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
-export INST64_TRIVY_SYSTEM_WIDE="${INST64_TRIVY_SYSTEM_WIDE:-YES}"
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+
+declare INST64_TRIVY_PLATFORM="${INST64_TRIVY_PLATFORM:-}"
+declare INST64_TRIVY_TARGET="${INST64_TRIVY_TARGET:-}"
+declare INST64_TRIVY_VERSION="${INST64_TRIVY_VERSION:-latest}"
 # Installation method
-export INST64_TRIVY_METHOD="${INST64_TRIVY_METHOD:-BINARY}"
+declare INST64_TRIVY_METHOD="${INST64_TRIVY_METHOD:-BINARY}"
 # Enable development packages?
-export INST64_TRIVY_DEVELOPMENT="${INST64_TRIVY_DEVELOPMENT:-$BL64_VAR_OFF}"
+declare INST64_TRIVY_DEVELOPMENT="${INST64_TRIVY_DEVELOPMENT:-$BL64_VAR_OFF}"
 
-export INST64_TRIVY_REPOSITORY_NAME='trivy'
-export INST64_TRIVY_SOURCE_YUM='https://aquasecurity.github.io/trivy-repo/rpm/releases/9'
-export INST64_TRIVY_REPOSITORY_KEY_YUM='https://aquasecurity.github.io/trivy-repo/rpm/public.key'
+declare INST64_TRIVY_REPOSITORY_NAME='trivy'
+declare INST64_TRIVY_SOURCE_YUM='https://aquasecurity.github.io/trivy-repo/rpm/releases/9'
+declare INST64_TRIVY_REPOSITORY_KEY_YUM='https://aquasecurity.github.io/trivy-repo/rpm/public.key'
 
-export INST64_TRIVY_REPO_NAME='trivy'
-export INST64_TRIVY_REPO_OWNER='aquasecurity'
-export INST64_TRIVY_PACKAGES=''
-export INST64_TRIVY_CLI_NAME='trivy'
-export INST64_TRIVY_CLI_PATH=''
+declare INST64_TRIVY_REPO_NAME='trivy'
+declare INST64_TRIVY_REPO_OWNER='aquasecurity'
+declare INST64_TRIVY_PACKAGES=''
+declare INST64_TRIVY_CLI_NAME='trivy'
+declare INST64_TRIVY_CLI_PATH=''
 
 #
 # Functions
@@ -119,7 +112,7 @@ function inst64_trivy_install_binary_release() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_TRIVY_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_TRIVY_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_TRIVY_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TRIVY_CLI_NAME}"
   else
     INST64_TRIVY_CLI_PATH="${INST64_TRIVY_TARGET}/${INST64_TRIVY_CLI_NAME}"
@@ -138,7 +131,7 @@ function inst64_trivy_install_binary_release() {
     bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_TRIVY_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_TRIVY_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_TRIVY_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_TRIVY_TARGET}/${INST64_TRIVY_CLI_NAME}" "$INST64_TRIVY_CLI_PATH" "$BL64_VAR_ON" ||
@@ -281,6 +274,13 @@ function inst64_trivy_verify() {
 #######################################
 function inst64_trivy_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
+  fi
+  INST64_TRIVY_TARGET="${INST64_TRIVY_TARGET:-${INST64_OPT_ROOT}/trivy}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_TRIVY_METHOD' \
     "$INST64_TRIVY_METHOD" \
     'BINARY' \
@@ -288,7 +288,7 @@ function inst64_trivy_initialize() {
     return $?
 
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_TRIVY_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
@@ -302,20 +302,22 @@ function inst64_trivy_initialize() {
       bl64_os_check_compatibility \
         "${BL64_OS_OL}-9"
   fi
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Trivy' \
+    'INST64_TRIVY_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_trivy_installer_description='Install application: Trivy'
-
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_trivy_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_trivy_initialize &&
   inst64_trivy_prepare &&
   inst64_trivy_install &&
   inst64_trivy_verify
-bl64_msg_show_batch_finish $? "$inst64_trivy_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

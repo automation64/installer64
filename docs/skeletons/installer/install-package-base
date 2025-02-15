@@ -1,21 +1,11 @@
 #!/usr/bin/env bash
 # Template: 2.3.0
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.0.0
-#
-#######################################
-# Copyright [2023] [serdigital64@gmail.com]
+# Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,8 +17,11 @@
 # Imports
 #
 
+# Home root
+declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # X_IMPORTS_PLACEHOLDER_X
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -37,22 +30,24 @@ export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 #
 
 # Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
+declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
 # Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
+declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # X_GLOBALS_PLACEHOLDER_X
-export INST64_X_APP_NAME_CAPS_X_PACKAGES=''
-# optional # export INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE=''
-# optional # export INST64_X_APP_NAME_CAPS_X_PACKAGES_POST=''
-export INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
-export INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
+declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
+# optional # declare INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE=''
+# optional # declare INST64_X_APP_NAME_CAPS_X_PACKAGES_POST=''
+declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
+declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 
 #
 # Functions
@@ -142,18 +137,26 @@ function inst64_X_APP_NAME_X_verify() {
 #######################################
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
+  fi
   # X_INIT_PLACEHOLDER_X
   # X_PRE_REQ_PLACEHOLDER_X
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
 }
 
 #
 # Main
 #
 
-declare inst64_X_APP_NAME_X_installer_description='Install application: X_APP_FULL_NAME_X'
-
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_X_APP_NAME_X_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_X_APP_NAME_X_initialize &&
@@ -161,4 +164,4 @@ inst64_X_APP_NAME_X_initialize &&
   inst64_X_APP_NAME_X_install &&
   inst64_X_APP_NAME_X_verify
   # X_MAIN_POST_VERIFY_PLACEHOLDER_X
-bl64_msg_show_batch_finish $? "$inst64_X_APP_NAME_X_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

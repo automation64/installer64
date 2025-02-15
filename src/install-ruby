@@ -2,21 +2,11 @@
 # Template: 2.0.1
 # Snippet: setup-environment-2.0.0
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.2.0
-#
-#######################################
-# Copyright [2023] [serdigital64@gmail.com]
+# Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,19 +18,11 @@
 # Imports
 #
 
+# Home root
+declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-export INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
-# Enable debugging? Set to YES to enable
-export INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-export INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-export INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-export INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-# Location for temporary files
-export INST64_TMP="${INST64_TMP:-/tmp}"
-
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -49,15 +31,28 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 # Globals
 #
 
-# Installation method
-export INST64_RUBY_METHOD="${INST64_RUBY_METHOD:-NATIVE}"
-# Enable development packages?
-export INST64_RUBY_DEVELOPMENT="${INST64_RUBY_DEVELOPMENT:-$BL64_VAR_OFF}"
+# Enable debugging? Set to YES to enable
+declare INST64_DEBUG="${INST64_DEBUG:-}"
+# Base path for local applications
+declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+# Local applications binaries location
+declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+# Location for temporary files
+declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-export INST64_RUBY_ENV='ruby.env'
-export INST64_RUBY_PACKAGES=''
-export INST64_RUBY_CLI_NAME='ruby'
-export INST64_RUBY_ENV_NAME='ruby'
+# Installation method
+declare INST64_RUBY_METHOD="${INST64_RUBY_METHOD:-NATIVE}"
+# Enable development packages?
+declare INST64_RUBY_DEVELOPMENT="${INST64_RUBY_DEVELOPMENT:-$BL64_VAR_OFF}"
+
+declare INST64_RUBY_ENV='ruby.env'
+declare INST64_RUBY_PACKAGES=''
+declare INST64_RUBY_CLI_NAME='ruby'
+declare INST64_RUBY_ENV_NAME='ruby'
 
 #
 # Functions
@@ -198,22 +193,30 @@ function inst64_ruby_verify() {
 #######################################
 function inst64_ruby_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
+  fi
   bl64_os_check_compatibility \
     "${BL64_OS_UB}-22" &&
     bl64_check_privilege_root &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_RUBY_METHOD' \
       "$INST64_RUBY_METHOD" \
       'NATIVE'
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Ruby' \
+    'INST64_RUBY_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_ruby_installer_description='Install application: Ruby'
-
+bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_ruby_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_ruby_initialize &&
@@ -221,4 +224,4 @@ inst64_ruby_initialize &&
   inst64_ruby_install &&
   inst64_ruby_setup &&
   inst64_ruby_verify
-bl64_msg_show_batch_finish $? "$inst64_ruby_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
