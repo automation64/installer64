@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - The default is now to do non system-wide installation
+- All
+  - **breaking-change** Renamed parameter: INST64_<MODULE>_SYSTEM_WIDE -> INST64_SYSTEM_WIDE
 
 ## [3.41.2]
 
