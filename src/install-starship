@@ -251,7 +251,7 @@ function inst64_starship_initialize() {
       "${BL64_OS_FD}"
   fi
   bl64_msg_show_setup 'Install application: Starship' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_STARSHIP_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -279,7 +279,7 @@ function inst64_krew_initialize() {
       return $?
   fi
   bl64_msg_show_setup 'Install application: Krew' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_KREW_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -182,7 +182,7 @@ function inst64_yamllint_initialize() {
       "${BL64_OS_UB}-22"
   fi
   bl64_msg_show_setup 'Install application: YAMLLint' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_YAMLLINT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

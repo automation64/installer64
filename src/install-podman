@@ -41,8 +41,8 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-# Use OS native package?
-declare INST64_PODMAN_FLAG_NATIVE="${INST64_PODMAN_FLAG_NATIVE:-$BL64_VAR_ON}"
+# Installation method
+declare INST64_PODMAN_METHOD="${INST64_PODMAN_METHOD:-NATIVE}"
 
 #
 # Functions
@@ -96,6 +96,10 @@ function inst64_podman_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
+  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_PODMAN_METHOD' \
+    "$INST64_PODMAN_METHOD" \
+    'NATIVE' ||
+    return $?
 
   [[ "$INST64_PODMAN_FLAG_NATIVE" != "$BL64_VAR_ON" ]] &&
     bl64_msg_show_error 'installer supports OS native packages only' &&
@@ -105,7 +109,7 @@ function inst64_podman_initialize() {
     bl64_check_privilege_root &&
     bl64_pkg_setup
   bl64_msg_show_setup 'Install application: Podman' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_PODMAN_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

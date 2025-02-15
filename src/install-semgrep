@@ -232,7 +232,7 @@ function inst64_semgrep_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: SemGrep' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SEMGREP_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

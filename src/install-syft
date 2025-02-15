@@ -249,7 +249,7 @@ function inst64_syft_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Syft' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SYFT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

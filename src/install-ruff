@@ -255,7 +255,7 @@ function inst64_ruff_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Ruff' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_RUFF_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

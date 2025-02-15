@@ -227,7 +227,7 @@ function inst64_tfsec_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: TFSec' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_TFSEC_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

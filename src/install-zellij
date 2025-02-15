@@ -249,7 +249,7 @@ function inst64_zellij_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Zellij' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_ZELLIJ_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

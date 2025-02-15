@@ -202,7 +202,7 @@ function inst64_pre-commit_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: PreCommit' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_PRECOMMIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

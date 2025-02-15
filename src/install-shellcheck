@@ -259,7 +259,7 @@ function inst64_shellcheck_initialize() {
       "${BL64_OS_OL}-9"
   fi
   bl64_msg_show_setup 'Install application: ShellCheck' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SHELLCHECK_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -235,7 +235,7 @@ function inst64_sysop64_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: SysOp64' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SYSOP64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

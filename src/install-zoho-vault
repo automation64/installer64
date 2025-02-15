@@ -261,7 +261,7 @@ function inst64_zohovault_initialize() {
     bl64_dbg_app_show_comments 'binary is not compatible with ALP'
   fi
   bl64_msg_show_setup 'Install application: Zoho Vault' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_ZOHOVAULT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

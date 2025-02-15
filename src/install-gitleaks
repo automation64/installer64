@@ -249,7 +249,7 @@ function inst64_gitleaks_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Gitleaks' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_GITLEAKS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

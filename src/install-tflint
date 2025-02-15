@@ -228,7 +228,7 @@ function inst64_tflint_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: TFlint' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_TFLINT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

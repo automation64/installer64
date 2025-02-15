@@ -248,7 +248,7 @@ function inst64_trufflehog_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Trufflehog' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_TRUFFLEHOG_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

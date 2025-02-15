@@ -249,7 +249,7 @@ function inst64_k9s_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: K9S' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_K9S_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -206,7 +206,7 @@ function inst64_ruby_initialize() {
       "$INST64_RUBY_METHOD" \
       'NATIVE'
   bl64_msg_show_setup 'Install application: Ruby' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_RUBY_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -223,7 +223,7 @@ function inst64_yq_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: YQ - YAML Query' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_YQ_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

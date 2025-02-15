@@ -195,7 +195,7 @@ function inst64_gcc_initialize() {
         "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: GCC' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_GCC_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

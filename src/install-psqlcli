@@ -41,6 +41,9 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
+# Installation method
+declare INST64_PSQLCLI_METHOD="${INST64_PSQLCLI_METHOD:-NATIVE}"
+
 declare INST64_PSQLCLI_VERSION="${INST64_PSQLCLI_VERSION:-15}"
 
 #
@@ -154,7 +157,7 @@ function inst64_psqlcli_initialize() {
   *) bl64_check_alert_unsupported "PSQL CLI Version: ${INST64_PSQLCLI_VERSION}" ;;
   esac
   bl64_msg_show_setup 'Install application: PostgreSQL CLI' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_PSQLCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
