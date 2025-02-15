@@ -101,10 +101,6 @@ function inst64_podman_initialize() {
     'NATIVE' ||
     return $?
 
-  [[ "$INST64_PODMAN_FLAG_NATIVE" != "$BL64_VAR_ON" ]] &&
-    bl64_msg_show_error 'installer supports OS native packages only' &&
-    return 1
-
   bl64_os_check_compatibility "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root &&
     bl64_pkg_setup
