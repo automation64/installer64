@@ -65,7 +65,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_GO_PLATFORM="${INST64_GO_PLATFORM:-linux-amd64}"
 declare INST64_GO_SOURCE="${INST64_GO_SOURCE:-https://go.dev/dl}"
-declare INST64_GO_TARGET="${INST64_GO_TARGET:-${INST64_OPT_ROOT}/go}"
+declare INST64_GO_TARGET=''
 declare INST64_GO_VERSION="${INST64_GO_VERSION:-1.21.2}"
 # Installation method
 declare INST64_GO_METHOD="${INST64_GO_METHOD:-BINARY}"
@@ -211,6 +211,7 @@ function inst64_go_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_GO_TARGET="${INST64_GO_TARGET:-${INST64_OPT_ROOT}/go}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GO_METHOD' \
     "$INST64_GO_METHOD" \
     'BINARY' ||

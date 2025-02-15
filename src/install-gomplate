@@ -63,7 +63,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_GOMPLATE_PLATFORM="${INST64_GOMPLATE_PLATFORM:-linux-amd64}"
-declare INST64_GOMPLATE_TARGET="${INST64_GOMPLATE_TARGET:-${INST64_OPT_ROOT}/gomplate}"
+declare INST64_GOMPLATE_TARGET=''
 declare INST64_GOMPLATE_VERSION="${INST64_GOMPLATE_VERSION:-latest}"
 # Installation method
 declare INST64_GOMPLATE_METHOD="${INST64_GOMPLATE_METHOD:-BINARY}"
@@ -219,6 +219,7 @@ function inst64_gomplate_initialize() {
     bl64_check_privilege_root ||
       return $?
   fi
+  INST64_GOMPLATE_TARGET="${INST64_GOMPLATE_TARGET:-${INST64_OPT_ROOT}/gomplate}"
   bl64_os_check_compatibility \
     "${BL64_OS_ALP}" \
     "${BL64_OS_UB}" \

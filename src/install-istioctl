@@ -56,7 +56,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_ISTIOCTL_PLATFORM="${INST64_ISTIOCTL_PLATFORM:-linux-amd64}"
-declare INST64_ISTIOCTL_TARGET="${INST64_ISTIOCTL_TARGET:-${INST64_OPT_ROOT}/istioctl}"
+declare INST64_ISTIOCTL_TARGET=''
 declare INST64_ISTIOCTL_VERSION="${INST64_ISTIOCTL_VERSION:-latest}"
 # Installation method
 declare INST64_ISTIOCTL_METHOD="${INST64_ISTIOCTL_METHOD:-BINARY}"
@@ -143,6 +143,7 @@ function inst64_istioctl_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_ISTIOCTL_TARGET="${INST64_ISTIOCTL_TARGET:-${INST64_OPT_ROOT}/istioctl}"
   bl64_arc_setup &&
     bl64_os_check_compatibility \
       "${BL64_OS_UB}-22" \

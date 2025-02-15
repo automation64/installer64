@@ -54,7 +54,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_HELMCT_PLATFORM="${INST64_HELMCT_PLATFORM:-linux_amd64}"
-declare INST64_HELMCT_TARGET="${INST64_HELMCT_TARGET:-${INST64_OPT_ROOT}/helmct}"
+declare INST64_HELMCT_TARGET=''
 declare INST64_HELMCT_VERSION="${INST64_HELMCT_VERSION:-latest}"
 # Installation method
 declare INST64_HELMCT_METHOD="${INST64_HELMCT_METHOD:-BINARY}"
@@ -200,6 +200,7 @@ function inst64_helmct_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_HELMCT_TARGET="${INST64_HELMCT_TARGET:-${INST64_OPT_ROOT}/helmct}"
   bl64_os_check_compatibility \
     "${BL64_OS_OL}-9" \
     "${BL64_OS_UB}-22" \

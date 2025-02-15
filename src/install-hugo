@@ -54,7 +54,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_HUGO_PLATFORM="${INST64_HUGO_PLATFORM:-linux-amd64}"
-declare INST64_HUGO_TARGET="${INST64_HUGO_TARGET:-${INST64_OPT_ROOT}/hugo}"
+declare INST64_HUGO_TARGET=''
 declare INST64_HUGO_VERSION="${INST64_HUGO_VERSION:-latest}"
 # Installation method
 declare INST64_HUGO_METHOD="${INST64_HUGO_METHOD:-BINARY}"
@@ -200,6 +200,7 @@ function inst64_hugo_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_HUGO_TARGET="${INST64_HUGO_TARGET:-${INST64_OPT_ROOT}/hugo}"
   bl64_os_check_compatibility \
     "${BL64_OS_UB}-22" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HUGO_METHOD' \

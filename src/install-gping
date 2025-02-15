@@ -63,7 +63,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_GPING_PLATFORM="${INST64_GPING_PLATFORM:-Linux-gnu-x86_64}"
-declare INST64_GPING_TARGET="${INST64_GPING_TARGET:-${INST64_OPT_ROOT}/gping}"
+declare INST64_GPING_TARGET=''
 declare INST64_GPING_VERSION="${INST64_GPING_VERSION:-latest}"
 # Installation method
 declare INST64_GPING_METHOD="${INST64_GPING_METHOD:-BINARY}"
@@ -223,6 +223,7 @@ function inst64_gping_initialize() {
     bl64_check_privilege_root ||
       return $?
   fi
+  INST64_GPING_TARGET="${INST64_GPING_TARGET:-${INST64_OPT_ROOT}/gping}"
   bl64_os_check_compatibility \
     "$BL64_OS_UB" \
     "$BL64_OS_FD" &&

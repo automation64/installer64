@@ -65,7 +65,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_GRPCURL_PLATFORM="${INST64_GRPCURL_PLATFORM:-}"
-declare INST64_GRPCURL_TARGET="${INST64_GRPCURL_TARGET:-${INST64_OPT_ROOT}/grpcurl}"
+declare INST64_GRPCURL_TARGET=''
 declare INST64_GRPCURL_VERSION="${INST64_GRPCURL_VERSION:-latest}"
 # Installation method
 declare INST64_GRPCURL_METHOD="${INST64_GRPCURL_METHOD:-BINARY}"
@@ -247,6 +247,7 @@ function inst64_grpcurl_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_GRPCURL_TARGET="${INST64_GRPCURL_TARGET:-${INST64_OPT_ROOT}/grpcurl}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GRPCURL_METHOD' \
     "$INST64_GRPCURL_METHOD" \
     'BINARY' ||

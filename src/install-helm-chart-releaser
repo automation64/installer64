@@ -53,7 +53,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 
 declare INST64_HCR_PLATFORM="${INST64_HCR_PLATFORM:-linux_amd64}"
 declare INST64_HCR_SOURCE="${INST64_HCR_SOURCE:-https://github.com/helm/chart-releaser/releases/download}"
-declare INST64_HCR_TARGET="${INST64_HCR_TARGET:-${INST64_OPT_ROOT}/chart-releaser}"
+declare INST64_HCR_TARGET=''
 declare INST64_HCR_VERSION="${INST64_HCR_VERSION:-latest}"
 # Installation method
 declare INST64_HCR_METHOD="${INST64_HCR_METHOD:-CUSTOM}"
@@ -143,7 +143,7 @@ function inst64_hcr_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
-
+  INST64_HCR_TARGET="${INST64_HCR_TARGET:-${INST64_OPT_ROOT}/chart-releaser}"
   bl64_arc_setup &&
     bl64_os_check_compatibility \
       "${BL64_OS_UB}-22" \

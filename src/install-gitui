@@ -32,6 +32,14 @@ declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64=''
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+# shellcheck source=lib/bl64/bashlib64.bash
+source "${INST64_BASHLIB64}/bashlib64.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Installer64 location
@@ -47,16 +55,8 @@ declare INST64_OPT_ROOT=''
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE=''
 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
-
 declare INST64_GITUI_PLATFORM="${INST64_GITUI_PLATFORM:-linux-x86_64}"
-declare INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-${INST64_OPT_ROOT}/gitui}"
+declare INST64_GITUI_TARGET=''
 declare INST64_GITUI_VERSION="${INST64_GITUI_VERSION:-latest}"
 
 #
@@ -139,6 +139,7 @@ function inst64_gitui_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_GITUI_TARGET="${INST64_GITUI_TARGET:-${INST64_OPT_ROOT}/gitui}"
   bl64_os_check_compatibility \
     "${BL64_OS_OL}-9" "${BL64_OS_UB}-22" &&
     bl64_arc_setup &&

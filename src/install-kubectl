@@ -66,7 +66,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_KUBECTL_PLATFORM="${INST64_KUBECTL_PLATFORM:-}"
 declare INST64_KUBECTL_SOURCE="${INST64_KUBECTL_SOURCE:-https://dl.k8s.io/release}"
-declare INST64_KUBECTL_TARGET="${INST64_KUBECTL_TARGET:-${INST64_OPT_ROOT}/kubectl}"
+declare INST64_KUBECTL_TARGET=''
 declare INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-stable}"
 # Installation method
 declare INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
@@ -257,6 +257,7 @@ function inst64_kubectl_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_KUBECTL_TARGET="${INST64_KUBECTL_TARGET:-${INST64_OPT_ROOT}/kubectl}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KUBECTL_METHOD' \
     "$INST64_KUBECTL_METHOD" \
     'CUSTOM' ||

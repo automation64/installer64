@@ -66,7 +66,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_HELM_PLATFORM="${INST64_HELM_PLATFORM:-}"
 declare INST64_HELM_SOURCE="${INST64_HELM_SOURCE:-https://get.helm.sh}"
-declare INST64_HELM_TARGET="${INST64_HELM_TARGET:-${INST64_OPT_ROOT}/helm}"
+declare INST64_HELM_TARGET=''
 declare INST64_HELM_VERSION="${INST64_HELM_VERSION:-latest}"
 # Installation method
 declare INST64_HELM_METHOD="${INST64_HELM_METHOD:-CUSTOM}"
@@ -253,6 +253,7 @@ function inst64_helm_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_HELM_TARGET="${INST64_HELM_TARGET:-${INST64_OPT_ROOT}/helm}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_HELM_METHOD' \
     "$INST64_HELM_METHOD" \
     'CUSTOM' ||

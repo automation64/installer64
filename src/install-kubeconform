@@ -64,7 +64,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_KUBECONFORM_PLATFORM="${INST64_KUBECONFORM_PLATFORM:-}"
-declare INST64_KUBECONFORM_TARGET="${INST64_KUBECONFORM_TARGET:-${INST64_OPT_ROOT}/kubeconform}"
+declare INST64_KUBECONFORM_TARGET=''
 declare INST64_KUBECONFORM_VERSION="${INST64_KUBECONFORM_VERSION:-latest}"
 # Installation method
 declare INST64_KUBECONFORM_METHOD="${INST64_KUBECONFORM_METHOD:-BINARY}"
@@ -244,6 +244,7 @@ function inst64_kubeconform_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_KUBECONFORM_TARGET="${INST64_KUBECONFORM_TARGET:-${INST64_OPT_ROOT}/kubeconform}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_KUBECONFORM_METHOD' \
     "$INST64_KUBECONFORM_METHOD" \
     'BINARY' ||
