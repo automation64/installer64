@@ -185,7 +185,7 @@ function inst64_bashit_verify() {
 function inst64_bashit_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+    INST64_SYSTEM_WIDE='NO'
   fi
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
