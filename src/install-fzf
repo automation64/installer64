@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # Template: 2.2.0
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.0.1
-#
-#######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -238,7 +231,7 @@ function inst64_fzf_initialize() {
 
 declare inst64_fzf_installer_description='Install application: FZF - Fuzzy Finder'
 
-bl64_lib_script_version_set ''
+bl64_lib_script_version_set '1.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_fzf_installer_description"
 
