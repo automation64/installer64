@@ -118,7 +118,6 @@ function inst64_docker_initialize() {
 #
 # Main
 #
-declare -i inst64_docker_status=0
 
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
@@ -127,8 +126,4 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_docker_initialize &&
   inst64_docker_install
-inst64_docker_status=$?
-
-bl64_msg_show_batch_finish "$BL64_SCRIPT_ID"
-# shellcheck disable=SC2086
-exit $inst64_docker_status
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
