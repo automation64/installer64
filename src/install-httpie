@@ -232,7 +232,7 @@ function inst64_httpie_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: HTTPie' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_HTTPIE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

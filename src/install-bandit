@@ -232,7 +232,7 @@ function inst64_bandit_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: Bandit' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_BANDIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

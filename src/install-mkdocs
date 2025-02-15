@@ -230,7 +230,7 @@ function inst64_mkdocs_initialize() {
         "${BL64_OS_UB}-22"
   fi
   bl64_msg_show_setup 'Install application: MKDocs' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_MKDOCS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

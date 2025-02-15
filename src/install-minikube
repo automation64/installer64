@@ -205,7 +205,7 @@ function inst64_minikube_initialize() {
       "$INST64_MINIKUBE_METHOD" \
       'BINARY'
   bl64_msg_show_setup 'Install application: Minikube' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_MINIKUBE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

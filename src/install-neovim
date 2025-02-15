@@ -260,7 +260,7 @@ function inst64_neovim_initialize() {
       "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: NeoVIM' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_NEOVIM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

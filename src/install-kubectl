@@ -260,7 +260,7 @@ function inst64_kubectl_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Kubernetes KubeCTL' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_KUBECTL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

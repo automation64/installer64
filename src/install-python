@@ -212,7 +212,7 @@ function inst64_python_initialize() {
         "${BL64_OS_UB}"
   fi
   bl64_msg_show_setup 'Install application: Python3' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_PYTHON_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

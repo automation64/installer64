@@ -236,7 +236,7 @@ function inst64_devbin64_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: DevBin64' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_DEVBIN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

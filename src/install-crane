@@ -201,7 +201,7 @@ function inst64_crane_initialize() {
       'BINARY' &&
     bl64_check_privilege_root
   bl64_msg_show_setup 'Install application: Crane' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_CRANE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

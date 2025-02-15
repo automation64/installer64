@@ -264,7 +264,7 @@ function inst64_nodejs_initialize() {
       "${BL64_OS_FD}"
   fi
   bl64_msg_show_setup 'Install application: NodeJS' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_NODEJS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

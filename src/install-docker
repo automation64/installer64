@@ -243,7 +243,7 @@ function inst64_docker_initialize() {
       "${BL64_OS_FD}-40" "${BL64_OS_FD}-41"
   fi
   bl64_msg_show_setup 'Install application: Docker' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_DOCKER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

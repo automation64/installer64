@@ -220,7 +220,7 @@ function inst64_act_initialize() {
       "$INST64_ACT_METHOD" \
       'BINARY'
   bl64_msg_show_setup 'Install application: Act' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_ACT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

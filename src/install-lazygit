@@ -249,7 +249,7 @@ function inst64_lazygit_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: LazyGIT' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_LAZYGIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

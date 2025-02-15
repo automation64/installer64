@@ -248,7 +248,7 @@ function inst64_ctop_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: CTop' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_CTOP_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

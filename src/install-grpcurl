@@ -250,7 +250,7 @@ function inst64_grpcurl_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: gRPCurl' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_GRPCURL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -177,7 +177,7 @@ function inst64_jekyll_initialize() {
       return $?
   fi
   bl64_msg_show_setup 'Install application: Jekyll' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_JEKYLL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

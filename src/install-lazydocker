@@ -249,7 +249,7 @@ function inst64_lazydocker_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: LazyDocker' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_LAZYDOCKER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

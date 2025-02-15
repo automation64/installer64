@@ -252,7 +252,7 @@ function inst64_kubeconform_initialize() {
       "${BL64_OS_ALP}"
   fi
   bl64_msg_show_setup 'Install application: KubeConform' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_KUBECONFORM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

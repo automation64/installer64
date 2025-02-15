@@ -252,7 +252,7 @@ function inst64_kubelinter_initialize() {
       "$BL64_OS_OL"
   fi
   bl64_msg_show_setup 'Install application: Kube-Linter' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_KUBELINTER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

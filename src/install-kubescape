@@ -255,7 +255,7 @@ function inst64_kubescape_initialize() {
       "$BL64_OS_OL"
   fi
   bl64_msg_show_setup 'Install application: KubeScape' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_KUBESCAPE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

@@ -196,7 +196,7 @@ function inst64_bashit_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Bash-it' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_BASHIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

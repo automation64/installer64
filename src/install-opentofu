@@ -250,7 +250,7 @@ function inst64_opentofu_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: OpenTofu' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_OPENTOFU_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

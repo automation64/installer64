@@ -210,7 +210,7 @@ function inst64_kubeseal_initialize() {
       'BINARY' &&
     bl64_check_privilege_root
   bl64_msg_show_setup 'Install application: Sealed Secrets KubeSeal' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_KUBESEAL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

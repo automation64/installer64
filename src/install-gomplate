@@ -220,7 +220,7 @@ function inst64_gomplate_initialize() {
       "$INST64_GOMPLATE_METHOD" \
       'BINARY'
   bl64_msg_show_setup 'Install application: Gomplate' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_GOMPLATE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

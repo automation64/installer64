@@ -255,7 +255,7 @@ function inst64_hwatch_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: HWatch' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_HWATCH_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

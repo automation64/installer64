@@ -221,7 +221,7 @@ function inst64_gping_initialize() {
       "$INST64_GPING_METHOD" \
       'BINARY'
   bl64_msg_show_setup 'Install application: GPing' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_GPING_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #

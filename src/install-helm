@@ -256,7 +256,7 @@ function inst64_helm_initialize() {
     fi
   fi
   bl64_msg_show_setup 'Install application: Helm' \
-    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_HELM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
