@@ -249,6 +249,7 @@ function inst64_sysop64_initialize() {
 
 declare inst64_sysop64_installer_description='Install application: SysOp64'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_sysop64_installer_description"
 

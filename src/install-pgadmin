@@ -217,6 +217,7 @@ function inst64_pgadmin_initialize() {
 
 declare inst64_pgadmin_installer_description='Install application: PGAdmin'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_pgadmin_installer_description"
 

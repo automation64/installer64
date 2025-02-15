@@ -244,6 +244,7 @@ function inst64_mkdocs_initialize() {
 
 declare inst64_mkdocs_installer_description='Install application: MKDocs'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_mkdocs_installer_description"
 

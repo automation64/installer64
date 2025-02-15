@@ -216,6 +216,7 @@ function inst64_pre-commit_initialize() {
 
 declare inst64_awsshell_installer_description='Install application: PreCommit'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_awsshell_installer_description"
 

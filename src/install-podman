@@ -120,6 +120,7 @@ function inst64_podman_initialize() {
 declare inst64_podman_installer_description='Install application: Podman'
 declare -i inst64_podman_status=0
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_podman_installer_description"
 

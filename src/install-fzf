@@ -238,6 +238,7 @@ function inst64_fzf_initialize() {
 
 declare inst64_fzf_installer_description='Install application: FZF - Fuzzy Finder'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_fzf_installer_description"
 

@@ -302,6 +302,7 @@ function inst64_terraform_initialize() {
 
 declare inst64_terraform_installer_description='Install application: Hashicorp Terraform CLI'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_terraform_installer_description"
 

@@ -270,6 +270,7 @@ function inst64_hadolint_initialize() {
 
 declare inst64_hadolint_installer_description='Install application: HadoLint'
 
+bl64_lib_script_version_set ''
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_hadolint_installer_description"
 
