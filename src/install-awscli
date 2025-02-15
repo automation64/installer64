@@ -55,17 +55,17 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 declare INST64_AWSCLI_PLATFORM="${INST64_AWSCLI_PLATFORM:-linux-x86_64}"
 declare INST64_AWSCLI_SOURCE="${INST64_AWSCLI_SOURCE:-https://awscli.amazonaws.com}"
 declare INST64_AWSCLI_TARGET="${INST64_AWSCLI_TARGET:-${INST64_OPT_ROOT}/awscli}"
 declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
-# Install system wide? Requires root privilege
-declare INST64_AWSCLI_SYSTEM_WIDE="${INST64_AWSCLI_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_AWSCLI_METHOD="${INST64_AWSCLI_METHOD:-CUSTOM}"
 
@@ -85,7 +85,7 @@ function inst64_awscli_install_custom_package() {
   local app_target_mode='0755'
   local app_target_owner='root'
 
-  if bl64_lib_flag_is_enabled "$INST64_AWSCLI_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_AWSCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_AWSCLI_CLI_NAME}"
   else
     INST64_AWSCLI_CLI_PATH="${INST64_AWSCLI_TARGET}/${INST64_AWSCLI_CLI_NAME}"
@@ -108,7 +108,7 @@ function inst64_awscli_install_custom_package() {
       --update ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_AWSCLI_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_AWSCLI_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_AWSCLI_TARGET}/bin/${INST64_AWSCLI_CLI_NAME}" "$INST64_AWSCLI_CLI_PATH" "$BL64_VAR_ON" &&
@@ -221,7 +221,7 @@ function inst64_awscli_initialize() {
     return $?
 
   if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_AWSCLI_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

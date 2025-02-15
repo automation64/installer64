@@ -18,8 +18,6 @@ declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-
 declare INST64_X_APP_NAME_CAPS_X_SOURCE="${INST64_X_APP_NAME_CAPS_X_SOURCE:-X_APP_REPO_X}"
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-X_APP_VERSION_X}"
-# Install system wide? Requires root privilege
-declare INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE="${INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
 
@@ -35,7 +33,7 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   else
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -55,7 +53,7 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   bl64_msg_show_task 'deploy application'
   # X_INSTALL_DEPLOYMENT_PLACEHOLDER_X
 
-  if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
@@ -95,7 +93,7 @@ function inst64_X_APP_NAME_X_install_custom_package() {
     return $?
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

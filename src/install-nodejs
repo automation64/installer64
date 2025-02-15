@@ -56,17 +56,17 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 declare INST64_NODEJS_PLATFORM="${INST64_NODEJS_PLATFORM:-}"
 declare INST64_NODEJS_SOURCE="${INST64_NODEJS_SOURCE:-https://nodejs.org/dist}"
 declare INST64_NODEJS_TARGET="${INST64_NODEJS_TARGET:-${INST64_OPT_ROOT}/nodejs}"
 declare INST64_NODEJS_VERSION="${INST64_NODEJS_VERSION:-20.10.0}"
-# Install system wide? Requires root privilege
-declare INST64_NODEJS_SYSTEM_WIDE="${INST64_NODEJS_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
 
@@ -90,7 +90,7 @@ function inst64_nodejs_install_custom_package() {
   local app_cli_source="${INST64_NODEJS_PACKAGES%.tar.gz}/bin"
   local app_component=''
 
-  if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_NODEJS_CLI_PATH="${INST64_LOCAL_BIN}"
   else
     INST64_NODEJS_CLI_PATH="${INST64_NODEJS_TARGET}/bin"
@@ -108,7 +108,7 @@ function inst64_nodejs_install_custom_package() {
     bl64_arc_open_tar "${work_path}/${INST64_NODEJS_PACKAGES}" "${INST64_NODEJS_TARGET}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_NODEJS_CLI_PATH})"
     for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
       bl64_fs_symlink_create \
@@ -257,7 +257,7 @@ function inst64_nodejs_initialize() {
     return $?
 
   if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_NODEJS_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

@@ -57,17 +57,17 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 declare INST64_KUBECTL_PLATFORM="${INST64_KUBECTL_PLATFORM:-}"
 declare INST64_KUBECTL_SOURCE="${INST64_KUBECTL_SOURCE:-https://dl.k8s.io/release}"
 declare INST64_KUBECTL_TARGET="${INST64_KUBECTL_TARGET:-${INST64_OPT_ROOT}/kubectl}"
 declare INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-stable}"
-# Install system wide? Requires root privilege
-declare INST64_KUBECTL_SYSTEM_WIDE="${INST64_KUBECTL_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
 
@@ -89,7 +89,7 @@ function inst64_kubectl_install_custom_package() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_KUBECTL_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_KUBECTL_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_KUBECTL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBECTL_CLI_NAME}"
   else
     INST64_KUBECTL_CLI_PATH="${INST64_KUBECTL_TARGET}/${INST64_KUBECTL_CLI_NAME}"
@@ -110,7 +110,7 @@ function inst64_kubectl_install_custom_package() {
     bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_KUBECTL_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_KUBECTL_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_KUBECTL_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_KUBECTL_TARGET}/${app_cli_source}" "$INST64_KUBECTL_CLI_PATH" "$BL64_VAR_ON" ||
@@ -257,7 +257,7 @@ function inst64_kubectl_initialize() {
     return $?
 
   if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_KUBECTL_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

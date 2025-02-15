@@ -59,10 +59,12 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 # Installation method
 declare INST64_TERRAFORM_METHOD="${INST64_TERRAFORM_METHOD:-BINARY}"
@@ -73,8 +75,6 @@ declare INST64_TERRAFORM_PLATFORM="${INST64_TERRAFORM_PLATFORM:-linux_amd64}"
 declare INST64_TERRAFORM_SOURCE="${INST64_TERRAFORM_SOURCE:-https://releases.hashicorp.com/terraform}"
 declare INST64_TERRAFORM_TARGET="${INST64_TERRAFORM_TARGET:-${INST64_OPT_ROOT}/terraform}"
 declare INST64_TERRAFORM_VERSION="${INST64_TERRAFORM_VERSION:-latest}"
-# Install system wide? Requires root privilege
-declare INST64_TERRAFORM_SYSTEM_WIDE="${INST64_TERRAFORM_SYSTEM_WIDE:-YES}"
 
 declare INST64_TERRAFORM_REPO_NAME='terraform'
 declare INST64_TERRAFORM_REPO_OWNER='hashicorp'
@@ -103,7 +103,7 @@ function inst64_terraform_install_custom_package() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_TERRAFORM_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_TERRAFORM_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_TERRAFORM_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TERRAFORM_CLI_NAME}"
   else
     INST64_TERRAFORM_CLI_PATH="${INST64_TERRAFORM_TARGET}/${INST64_TERRAFORM_CLI_NAME}"
@@ -123,7 +123,7 @@ function inst64_terraform_install_custom_package() {
       "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_TERRAFORM_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_TERRAFORM_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_TERRAFORM_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_TERRAFORM_TARGET}/${INST64_TERRAFORM_CLI_NAME}" "$INST64_TERRAFORM_CLI_PATH" "$BL64_VAR_ON" ||
@@ -280,7 +280,7 @@ function inst64_terraform_initialize() {
         "${BL64_OS_OL}-8" \
         "${BL64_OS_OL}-9"
   elif [[ "$INST64_TERRAFORM_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_TERRAFORM_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

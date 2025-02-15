@@ -53,10 +53,12 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 declare INST64_ANSIBLE_VERSION="${INST64_ANSIBLE_VERSION:-latest}"
 # Installation method

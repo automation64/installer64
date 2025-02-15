@@ -38,10 +38,12 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
@@ -63,8 +65,6 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
 declare INST64_ACT_PLATFORM="${INST64_ACT_PLATFORM:-Linux_x86_64}"
 declare INST64_ACT_TARGET="${INST64_ACT_TARGET:-${INST64_OPT_ROOT}/act}"
 declare INST64_ACT_VERSION="${INST64_ACT_VERSION:-latest}"
-# Install system wide? Requires root privilege
-declare INST64_ACT_SYSTEM_WIDE="${INST64_ACT_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_ACT_METHOD="${INST64_ACT_METHOD:-BINARY}"
 
@@ -86,7 +86,7 @@ function inst64_act_install_binary_release() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_ACT_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_ACT_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_ACT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ACT_CLI_NAME}"
   else
     INST64_ACT_CLI_PATH="${INST64_ACT_TARGET}/${INST64_ACT_CLI_NAME}"
@@ -105,7 +105,7 @@ function inst64_act_install_binary_release() {
     bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_ACT_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_ACT_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_ACT_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_ACT_TARGET}/${app_cli_source}" "$INST64_ACT_CLI_PATH" "$BL64_VAR_ON" ||
@@ -213,7 +213,7 @@ function inst64_act_verify() {
 #######################################
 function inst64_act_initialize() {
   bl64_dbg_app_show_function
-  if bl64_lib_flag_is_enabled "$INST64_ACT_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_check_privilege_root ||
       return $?
   fi

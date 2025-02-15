@@ -17,8 +17,6 @@ declare INST64_X_APP_NAME_CAPS_X_GIT_SERVER="${INST64_X_APP_NAME_CAPS_X_GIT_SERV
 declare INST64_X_APP_NAME_CAPS_X_GIT_REPO="${INST64_X_APP_NAME_CAPS_X_GIT_REPO:-X_GIT_REPO_X}"
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
 declare INST64_X_APP_NAME_CAPS_X_BRANCH="${INST64_X_APP_NAME_CAPS_X_BRANCH:-main}"
-# Install system wide? Requires root privilege
-declare INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE="${INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-GIT}"
 
@@ -31,7 +29,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
   local app_target_owner='root'
   local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   else
     INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -52,13 +50,13 @@ function inst64_X_APP_NAME_X_install_git_repo() {
     "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
       return $?
   fi
-  if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
       "$INST64_X_APP_NAME_CAPS_X_TARGET" ||
       return $?
   fi
 
-  if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
@@ -90,7 +88,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
     return $?
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

@@ -56,17 +56,17 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 declare INST64_OHMYZSH_PLATFORM=''
 declare INST64_OHMYZSH_SOURCE="${INST64_OHMYZSH_SOURCE:-https://raw.github.com/ohmyzsh/ohmyzsh/master/tools}"
 declare INST64_OHMYZSH_TARGET="${INST64_OHMYZSH_TARGET:-${HOME}/.oh-my-zsh}"
 declare INST64_OHMYZSH_VERSION=''
-# Install system wide? Requires root privilege
-declare INST64_OHMYZSH_SYSTEM_WIDE='NO'
 # Installation method
 declare INST64_OHMYZSH_METHOD="${INST64_OHMYZSH_METHOD:-CUSTOM}"
 

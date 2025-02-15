@@ -57,16 +57,16 @@ declare INST64_DEBUG="${INST64_DEBUG:-}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 declare INST64_SYSDEN64_PLATFORM="${INST64_SYSDEN64_PLATFORM:-}"
 declare INST64_SYSDEN64_TARGET="${INST64_SYSDEN64_TARGET:-${INST64_OPT_ROOT}/sysden64}"
 declare INST64_SYSDEN64_VERSION="${INST64_SYSDEN64_VERSION:-latest}"
-# Install system wide? Requires root privilege
-declare INST64_SYSDEN64_SYSTEM_WIDE="${INST64_SYSDEN64_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_SYSDEN64_METHOD="${INST64_SYSDEN64_METHOD:-CUSTOM}"
 
@@ -89,7 +89,7 @@ function inst64_sysden64_install_custom_package() {
   local app_target_mode='0755'
   local app_target_owner='root'
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSDEN64_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_SYSDEN64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_SYSDEN64_CLI_NAME}"
   else
     INST64_SYSDEN64_CLI_PATH="${INST64_SYSDEN64_TARGET}/${INST64_SYSDEN64_CLI_NAME}"
@@ -234,7 +234,7 @@ function inst64_sysden64_initialize() {
     return $?
 
   if [[ "$INST64_SYSDEN64_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSDEN64_SYSTEM_WIDE"; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi

@@ -40,10 +40,12 @@ declare INST64_INSTALLER_ROOT="${INST64_INSTALLER_ROOT:-/opt/installer64}"
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
 declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
 # Location for temporary files
 declare INST64_TMP="${INST64_TMP:-/tmp}"
+# Base path for 3rd party applications
+declare INST64_OPT_ROOT=''
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE=''
 
 # shellcheck source=lib/bl64/bashlib64.bash
 source "${INST64_BASHLIB64}/bashlib64.bash" ||
@@ -56,8 +58,6 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 declare INST64_COSIGN_PLATFORM="${INST64_COSIGN_PLATFORM:-linux-amd64}"
 declare INST64_COSIGN_TARGET="${INST64_COSIGN_TARGET:-${INST64_OPT_ROOT}/cosign}"
 declare INST64_COSIGN_VERSION="${INST64_COSIGN_VERSION:-latest}"
-# Install system wide? Requires root privilege
-declare INST64_COSIGN_SYSTEM_WIDE="${INST64_COSIGN_SYSTEM_WIDE:-YES}"
 # Installation method
 declare INST64_COSIGN_METHOD="${INST64_COSIGN_METHOD:-BINARY}"
 
@@ -79,7 +79,7 @@ function inst64_cosign_install_binary_release() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_COSIGN_CLI_NAME}-${INST64_COSIGN_PLATFORM}"
 
-  if bl64_lib_flag_is_enabled "$INST64_COSIGN_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_COSIGN_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_COSIGN_CLI_NAME}"
   else
     INST64_COSIGN_CLI_PATH="${INST64_COSIGN_TARGET}/${INST64_COSIGN_CLI_NAME}"
@@ -202,7 +202,7 @@ function inst64_cosign_verify() {
 #######################################
 function inst64_cosign_initialize() {
   bl64_dbg_app_show_function
-  if bl64_lib_flag_is_enabled "$INST64_COSIGN_SYSTEM_WIDE"; then
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_check_privilege_root ||
       return $?
   fi
