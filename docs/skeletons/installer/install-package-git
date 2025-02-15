@@ -216,15 +216,13 @@ function inst64_X_APP_NAME_X_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
+  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
     'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #
 # Main
 #
-
-declare inst64_X_APP_NAME_X_installer_description='Install application: X_APP_FULL_NAME_X'
 
 bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
