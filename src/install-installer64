@@ -24,17 +24,15 @@
 #######################################
 
 #
-# Imports
+# Globals
 #
 
 # Enable debugging? Set to YES to enable
 declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for 3rd party applications
 declare INST64_OPT_ROOT=''
-
-#
-# Globals
-#
+# Install system wide? Requires root privilege
+declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-NO}"
 
 # Installation method
 declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
@@ -44,8 +42,6 @@ declare INST64_INSTALLER64_SOURCE="${INST64_INSTALLER64_SOURCE:-https://github.c
 declare INST64_INSTALLER64_TARGET=''
 # Target application version
 declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
-# Install system wide? Requires root privilege
-declare INST64_INSTALLER64_SYSTEM_WIDE="${INST64_INSTALLER64_SYSTEM_WIDE:-NO}"
 
 declare INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 declare INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
@@ -240,7 +236,7 @@ function inst64_installer64_initialize() {
     return 1
   fi
 
-  if [[ "$INST64_INSTALLER64_SYSTEM_WIDE" == 'YES' ]]; then
+  if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
     INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
   else
     INST64_OPT_ROOT="${INST64_OPT_ROOT:-${HOME}/at64}"
