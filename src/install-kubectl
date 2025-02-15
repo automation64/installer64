@@ -259,15 +259,13 @@ function inst64_kubectl_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Kubernetes KubeCTL' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_kubectl_installer_description='Install application: Kubernetes KubeCTL'
 
 bl64_lib_script_version_set '1.6.0'
 bl64_msg_all_enable_verbose

@@ -253,15 +253,13 @@ function inst64_packer_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Hashicorp Packer' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_packer_installer_description='Install application: Hashicorp Packer'
 
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose

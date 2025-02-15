@@ -201,15 +201,13 @@ function inst64_ansiblelint_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Ansible Lint' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_ansiblelint_installer_description='Install application: Ansible Lint'
 
 bl64_lib_script_version_set '1.2.2'
 bl64_msg_all_enable_verbose

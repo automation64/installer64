@@ -248,15 +248,13 @@ function inst64_kubent_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: KubeNT - Kube-No-Trouble' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_kubent_installer_description='Install application: KubeNT - Kube-No-Trouble'
 
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose

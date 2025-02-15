@@ -236,7 +236,7 @@ function inst64_sysden64_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
+  bl64_msg_show_setup 'Install application: SysDen64' \
     'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 

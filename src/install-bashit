@@ -195,15 +195,13 @@ function inst64_bashit_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Bash-it' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_bashit_installer_description='Install application: Bash-it'
 
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose

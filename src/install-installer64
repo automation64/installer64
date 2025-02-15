@@ -239,8 +239,6 @@ function inst64_installer64_initialize() {
     return 1
   fi
   INST64_INSTALLER64_VERSION_FILE="${INST64_INSTALLER64_TARGET}/version"
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #

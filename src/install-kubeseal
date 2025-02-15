@@ -209,15 +209,13 @@ function inst64_kubeseal_initialize() {
       "$INST64_KUBESEAL_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Sealed Secrets KubeSeal' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_kubeseal_installer_description='Install application: Sealed Secrets KubeSeal'
 
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose

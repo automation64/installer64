@@ -228,15 +228,13 @@ function inst64_lnav_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: LNav - The Logfile Navigator' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_lnav_installer_description='Install application: LNav - The Logfile Navigator'
 
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose

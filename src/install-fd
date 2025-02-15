@@ -258,15 +258,13 @@ function inst64_fd_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: FD - Find Files' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_fd_installer_description='Install application: FD - Find Files'
 
 bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose

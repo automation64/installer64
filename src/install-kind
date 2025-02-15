@@ -247,15 +247,13 @@ function inst64_kind_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: K8S Kind' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_kind_installer_description='Install application: K8S Kind'
 
 bl64_lib_script_version_set '1.3.0'
 bl64_msg_all_enable_verbose

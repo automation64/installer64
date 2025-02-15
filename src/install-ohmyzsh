@@ -203,15 +203,13 @@ function inst64_ohmyzsh_initialize() {
     bl64_check_privilege_not_root &&
       bl64_check_command_search_path 'zsh'
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Oh-My-ZSH' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_ohmyzsh_installer_description='Install application: Oh-My-ZSH'
 
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose

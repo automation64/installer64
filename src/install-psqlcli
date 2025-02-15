@@ -153,15 +153,13 @@ function inst64_psqlcli_initialize() {
   '15') bl64_os_check_version "${BL64_OS_OL}-9" ;;
   *) bl64_check_alert_unsupported "PSQL CLI Version: ${INST64_PSQLCLI_VERSION}" ;;
   esac
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: PostgreSQL CLI' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_psqlcli_installer_description='Install application: PostgreSQL CLI'
 declare -i inst64_psqlcli_status=0
 
 bl64_lib_script_version_set '1.1.0'

@@ -227,15 +227,13 @@ function inst64_awscli_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_OL}"
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: AWS CLI' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_awscli_installer_description='Install application: AWS CLI'
 
 bl64_lib_script_version_set '1.4.0'
 bl64_msg_all_enable_verbose

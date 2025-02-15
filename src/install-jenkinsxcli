@@ -142,15 +142,13 @@ function inst64_jenkinsxcli_initialize() {
       'BINARY' &&
     bl64_arc_setup &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: JenkinsX CLI' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_jenkinsxcli_installer_description='Install application: JenkinsX CLI'
 
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose

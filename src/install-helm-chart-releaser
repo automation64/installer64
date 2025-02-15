@@ -142,15 +142,13 @@ function inst64_hcr_initialize() {
       "$INST64_HCR_METHOD" \
       'CUSTOM' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Helm Chart Releaser' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_hcr_installer_description='Install application: Helm Chart Releaser'
 
 bl64_lib_script_version_set '1.3.0'
 bl64_msg_all_enable_verbose

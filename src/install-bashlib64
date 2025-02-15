@@ -237,8 +237,6 @@ function inst64_bashlib64_initialize() {
     echo 'Error: no archive tool found (tar)'
     return 1
   fi
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #

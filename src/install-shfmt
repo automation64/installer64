@@ -196,15 +196,13 @@ function inst64_shfmt_initialize() {
       "$INST64_SHFMT_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: XXX' \
-    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
+  bl64_msg_show_setup 'Install application: Go SHFMT' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
-
-declare inst64_shfmt_installer_description='Install application: Go SHFMT'
 
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
