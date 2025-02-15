@@ -215,6 +215,8 @@ function inst64_vault_initialize() {
       'EXTERNAL' &&
     bl64_check_privilege_root &&
     bl64_pkg_setup
+  bl64_msg_show_setup 'Install application: XXX' \
+    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #
@@ -225,7 +227,7 @@ declare inst64_vault_installer_description='Install application: Hashicorp Vault
 
 bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_vault_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_vault_initialize &&
@@ -233,4 +235,4 @@ inst64_vault_initialize &&
   inst64_vault_install &&
   inst64_vault_setup &&
   inst64_vault_verify
-bl64_msg_show_batch_finish $? "$inst64_vault_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

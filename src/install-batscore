@@ -219,21 +219,21 @@ function inst64_batscore_initialize() {
         return $?
     fi
   fi
+  bl64_msg_show_setup 'Install application: Batscore' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_batscore_installer_description='Install application: Batscore'
-
 bl64_lib_script_version_set '2.3.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_batscore_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_batscore_initialize &&
   inst64_batscore_prepare &&
   inst64_batscore_install &&
   inst64_batscore_verify
-bl64_msg_show_batch_finish $? "$inst64_batscore_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

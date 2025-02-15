@@ -183,6 +183,8 @@ function inst64_pipx_initialize() {
       "${BL64_OS_ALP}" \
       "${BL64_OS_UB}"
   fi
+  bl64_msg_show_setup 'Install application: XXX' \
+    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #
@@ -193,11 +195,11 @@ declare inst64_pipx_installer_description='Install application: Python PIPX'
 
 bl64_lib_script_version_set '1.0.2'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_pipx_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_pipx_initialize &&
   inst64_pipx_prepare &&
   inst64_pipx_install &&
   inst64_pipx_verify
-bl64_msg_show_batch_finish $? "$inst64_pipx_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

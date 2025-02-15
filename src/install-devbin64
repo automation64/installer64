@@ -235,21 +235,21 @@ function inst64_devbin64_initialize() {
         return $?
     fi
   fi
+  bl64_msg_show_setup 'Install application: DevBin64' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_devbin64_installer_description='Install application: DevBin64'
-
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_devbin64_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_devbin64_initialize &&
   inst64_devbin64_prepare &&
   inst64_devbin64_install &&
   inst64_devbin64_verify
-bl64_msg_show_batch_finish $? "$inst64_devbin64_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

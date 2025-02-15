@@ -230,21 +230,21 @@ function inst64_ray_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_UB}"
   fi
+  bl64_msg_show_setup 'Install application: Ray' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_ray_installer_description='Install application: Ray'
-
 bl64_lib_script_version_set '1.0.1'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_ray_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_ray_initialize &&
   inst64_ray_prepare &&
   inst64_ray_install &&
   inst64_ray_verify
-bl64_msg_show_batch_finish $? "$inst64_ray_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

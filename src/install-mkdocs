@@ -229,21 +229,21 @@ function inst64_mkdocs_initialize() {
         "${BL64_OS_FD}" \
         "${BL64_OS_UB}-22"
   fi
+  bl64_msg_show_setup 'Install application: MKDocs' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_mkdocs_installer_description='Install application: MKDocs'
-
 bl64_lib_script_version_set '2.3.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_mkdocs_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_mkdocs_initialize &&
   inst64_mkdocs_prepare &&
   inst64_mkdocs_install &&
   inst64_mkdocs_verify
-bl64_msg_show_batch_finish $? "$inst64_mkdocs_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

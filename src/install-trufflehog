@@ -247,21 +247,21 @@ function inst64_trufflehog_initialize() {
         return $?
     fi
   fi
+  bl64_msg_show_setup 'Install application: Trufflehog' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_trufflehog_installer_description='Install application: Trufflehog'
-
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_trufflehog_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_trufflehog_initialize &&
   inst64_trufflehog_prepare &&
   inst64_trufflehog_install &&
   inst64_trufflehog_verify
-bl64_msg_show_batch_finish $? "$inst64_trufflehog_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

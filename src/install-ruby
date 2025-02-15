@@ -205,17 +205,17 @@ function inst64_ruby_initialize() {
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_RUBY_METHOD' \
       "$INST64_RUBY_METHOD" \
       'NATIVE'
+  bl64_msg_show_setup 'Install application: Ruby' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_ruby_installer_description='Install application: Ruby'
-
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_ruby_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_ruby_initialize &&
@@ -223,4 +223,4 @@ inst64_ruby_initialize &&
   inst64_ruby_install &&
   inst64_ruby_setup &&
   inst64_ruby_verify
-bl64_msg_show_batch_finish $? "$inst64_ruby_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

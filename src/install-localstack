@@ -248,21 +248,21 @@ function inst64_localstack_initialize() {
         return $?
     fi
   fi
+  bl64_msg_show_setup 'Install application: LocalStack' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_localstack_installer_description='Install application: LocalStack'
-
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_localstack_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_localstack_initialize &&
   inst64_localstack_prepare &&
   inst64_localstack_install &&
   inst64_localstack_verify
-bl64_msg_show_batch_finish $? "$inst64_localstack_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

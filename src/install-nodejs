@@ -263,21 +263,21 @@ function inst64_nodejs_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_FD}"
   fi
+  bl64_msg_show_setup 'Install application: NodeJS' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_nodejs_installer_description='Install application: NodeJS'
-
 bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_nodejs_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_nodejs_initialize &&
   inst64_nodejs_prepare &&
   inst64_nodejs_install &&
   inst64_nodejs_verify
-bl64_msg_show_batch_finish $? "$inst64_nodejs_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

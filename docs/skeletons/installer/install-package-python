@@ -231,6 +231,8 @@ function inst64_X_APP_NAME_X_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_UB}"
   fi
+  bl64_msg_show_setup 'Install application: XXX' \
+    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #
@@ -241,11 +243,11 @@ declare inst64_X_APP_NAME_X_installer_description='Install application: X_APP_FU
 
 bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_X_APP_NAME_X_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_X_APP_NAME_X_initialize &&
   inst64_X_APP_NAME_X_prepare &&
   inst64_X_APP_NAME_X_install &&
   inst64_X_APP_NAME_X_verify
-bl64_msg_show_batch_finish $? "$inst64_X_APP_NAME_X_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

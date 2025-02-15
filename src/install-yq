@@ -222,6 +222,8 @@ function inst64_yq_initialize() {
         return $?
     fi
   fi
+  bl64_msg_show_setup 'Install application: XXX' \
+    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #
@@ -232,11 +234,11 @@ declare inst64_yq_installer_description='Install application: YQ - YAML Query'
 
 bl64_lib_script_version_set '1.5.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_yq_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_yq_initialize &&
   inst64_yq_prepare &&
   inst64_yq_install &&
   inst64_yq_verify
-bl64_msg_show_batch_finish $? "$inst64_yq_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

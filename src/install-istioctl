@@ -142,20 +142,20 @@ function inst64_istioctl_initialize() {
       "$INST64_ISTIOCTL_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
+  bl64_msg_show_setup 'Install application: IstioCTL' \
+    'INST64_SYSDEN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
 #
 # Main
 #
 
-declare inst64_istioctl_installer_description='Install application: IstioCTL'
-
 bl64_lib_script_version_set '1.3.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_istioctl_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_istioctl_initialize &&
   inst64_istioctl_install
 
-bl64_msg_show_batch_finish $? "$inst64_istioctl_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

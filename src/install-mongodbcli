@@ -150,6 +150,8 @@ function inst64_mongodbcli_initialize() {
   '5' | '6') bl64_os_check_version "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" ;;
   *) bl64_check_alert_unsupported "MongoDB CLI Version: ${INST64_MONGODBCLI_VERSION}" ;;
   esac
+  bl64_msg_show_setup 'Install application: XXX' \
+    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' 
 }
 
 #
@@ -161,13 +163,13 @@ declare -i inst64_mongodbcli_status=0
 
 bl64_lib_script_version_set '1.2.1'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_mongodbcli_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_mongodbcli_initialize &&
   inst64_mongodbcli_install
 inst64_mongodbcli_status=$?
 
-bl64_msg_show_batch_finish "$inst64_mongodbcli_status" "$inst64_mongodbcli_installer_description"
+bl64_msg_show_batch_finish "$BL64_SCRIPT_ID"
 # shellcheck disable=SC2086
 exit $inst64_mongodbcli_status
