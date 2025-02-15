@@ -56,7 +56,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_FLUXCDCLI_PLATFORM="${INST64_FLUXCDCLI_PLATFORM:-linux_amd64}"
-declare INST64_FLUXCDCLI_TARGET="${INST64_FLUXCDCLI_TARGET:-${INST64_OPT_ROOT}/fluxcdcli}"
+declare INST64_FLUXCDCLI_TARGET=''
 declare INST64_FLUXCDCLI_VERSION="${INST64_FLUXCDCLI_VERSION:-latest}"
 # Installation method
 declare INST64_FLUXCDCLI_METHOD="${INST64_FLUXCDCLI_METHOD:-BINARY}"
@@ -143,6 +143,7 @@ function inst64_fluxcdcli_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_FLUXCDCLI_TARGET="${INST64_FLUXCDCLI_TARGET:-${INST64_OPT_ROOT}/fluxcdcli}"
   bl64_os_check_compatibility \
     "${BL64_OS_UB}-22" \
     "${BL64_OS_OL}-9" &&

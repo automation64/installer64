@@ -63,7 +63,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_EZA_PLATFORM="${INST64_EZA_PLATFORM:-unknown-linux-gnu}"
-declare INST64_EZA_TARGET="${INST64_EZA_TARGET:-${INST64_OPT_ROOT}/eza}"
+declare INST64_EZA_TARGET=''
 declare INST64_EZA_VERSION="${INST64_EZA_VERSION:-latest}"
 # Installation method
 declare INST64_EZA_METHOD="${INST64_EZA_METHOD:-BINARY}"
@@ -219,6 +219,7 @@ function inst64_eza_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_EZA_TARGET="${INST64_EZA_TARGET:-${INST64_OPT_ROOT}/eza}"
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_check_privilege_root ||
       return $?

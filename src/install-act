@@ -63,7 +63,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_ACT_PLATFORM="${INST64_ACT_PLATFORM:-Linux_x86_64}"
-declare INST64_ACT_TARGET="${INST64_ACT_TARGET:-${INST64_OPT_ROOT}/act}"
+declare INST64_ACT_TARGET=''
 declare INST64_ACT_VERSION="${INST64_ACT_VERSION:-latest}"
 # Installation method
 declare INST64_ACT_METHOD="${INST64_ACT_METHOD:-BINARY}"
@@ -219,6 +219,7 @@ function inst64_act_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_ACT_TARGET="${INST64_ACT_TARGET:-${INST64_OPT_ROOT}/act}"
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_check_privilege_root ||
       return $?

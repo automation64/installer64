@@ -65,7 +65,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_DELTA_PLATFORM="${INST64_DELTA_PLATFORM:-}"
-declare INST64_DELTA_TARGET="${INST64_DELTA_TARGET:-${INST64_OPT_ROOT}/delta}"
+declare INST64_DELTA_TARGET=''
 declare INST64_DELTA_VERSION="${INST64_DELTA_VERSION:-latest}"
 # Installation method
 declare INST64_DELTA_METHOD="${INST64_DELTA_METHOD:-BINARY}"
@@ -252,6 +252,7 @@ function inst64_delta_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_DELTA_TARGET="${INST64_DELTA_TARGET:-${INST64_OPT_ROOT}/delta}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_DELTA_METHOD' \
     "$INST64_DELTA_METHOD" \
     'BINARY' ||

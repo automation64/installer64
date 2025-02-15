@@ -64,7 +64,7 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_AWSCLI_PLATFORM="${INST64_AWSCLI_PLATFORM:-linux-x86_64}"
 declare INST64_AWSCLI_SOURCE="${INST64_AWSCLI_SOURCE:-https://awscli.amazonaws.com}"
-declare INST64_AWSCLI_TARGET="${INST64_AWSCLI_TARGET:-${INST64_OPT_ROOT}/awscli}"
+declare INST64_AWSCLI_TARGET=''
 declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
 # Installation method
 declare INST64_AWSCLI_METHOD="${INST64_AWSCLI_METHOD:-CUSTOM}"
@@ -221,6 +221,7 @@ function inst64_awscli_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_AWSCLI_TARGET="${INST64_AWSCLI_TARGET:-${INST64_OPT_ROOT}/awscli}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_AWSCLI_METHOD' \
     "$INST64_AWSCLI_METHOD" \
     'CUSTOM' ||

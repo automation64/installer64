@@ -56,7 +56,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_DOCKLE_PLATFORM="${INST64_DOCKLE_PLATFORM:-Linux-64bit}"
-declare INST64_DOCKLE_TARGET="${INST64_DOCKLE_TARGET:-${INST64_OPT_ROOT}/dockle}"
+declare INST64_DOCKLE_TARGET=''
 declare INST64_DOCKLE_VERSION="${INST64_DOCKLE_VERSION:-latest}"
 # Installation method
 declare INST64_DOCKLE_METHOD="${INST64_DOCKLE_METHOD:-BINARY}"
@@ -201,6 +201,7 @@ function inst64_dockle_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_DOCKLE_TARGET="${INST64_DOCKLE_TARGET:-${INST64_OPT_ROOT}/dockle}"
   bl64_os_check_compatibility \
       "${BL64_OS_OL}-9" \
       "${BL64_OS_UB}-22" \

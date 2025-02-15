@@ -27,6 +27,9 @@
 # Globals
 #
 
+# Home root
+declare INST64_HOME="${HOME}/at64"
+
 # Enable debugging? Set to YES to enable
 declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Base path for 3rd party applications
@@ -218,6 +221,16 @@ function inst64_installer64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_installer64_initialize() {
+  if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
+    INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+  else
+    INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
+    if [[ ! -d "$INST64_OPT_ROOT" ]]; then
+      mkdir "$INST64_OPT_ROOT" ||
+        return $?
+    fi
+  fi
+  INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/inst64}"
   [[ "$INST64_INSTALLER64_METHOD" != 'BINARY' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1
@@ -235,17 +248,6 @@ function inst64_installer64_initialize() {
     echo 'Error: no archive tool found (tar)'
     return 1
   fi
-
-  if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
-    INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-  else
-    INST64_OPT_ROOT="${INST64_OPT_ROOT:-${HOME}/at64}"
-    if [[ ! -d "$INST64_OPT_ROOT" ]]; then
-      mkdir "$INST64_OPT_ROOT" ||
-        return $?
-    fi
-  fi
-  INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/installer64}"
   INST64_INSTALLER64_VERSION_FILE="${INST64_INSTALLER64_TARGET}/version"
 }
 

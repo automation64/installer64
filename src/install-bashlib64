@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/bashlib64
-# Version: 2.2.0
+# Version: 3.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -24,8 +24,11 @@
 #######################################
 
 #
-# Imports
+# Globals
 #
+
+# Home root
+declare INST64_HOME="${HOME}/at64"
 
 # Enable debugging? Set to YES to enable
 declare INST64_DEBUG="${INST64_DEBUG:-}"
@@ -34,16 +37,12 @@ declare INST64_OPT_ROOT=''
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE=''
 
-#
-# Globals
-#
-
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
 declare INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/automation64/bashlib64}"
 # Target installation directory
-declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+declare INST64_BASHLIB64_TARGET=''
 # Target application version
 declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
@@ -217,6 +216,13 @@ function inst64_bashlib64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_bashlib64_initialize() {
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+  fi
+  INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
   [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1

@@ -64,14 +64,14 @@ declare INST64_SYSTEM_WIDE=''
 
 declare INST64_BASHIT_GIT_SERVER="${INST64_BASHIT_GIT_SERVER:-https://github.com/Bash-it}"
 declare INST64_BASHIT_GIT_REPO="${INST64_BASHIT_GIT_REPO:-bash-it.git}"
-declare INST64_BASHIT_TARGET="${INST64_BASHIT_TARGET:-${HOME}/.bash_it}"
+declare INST64_BASHIT_TARGET=''
 declare INST64_BASHIT_BRANCH="${INST64_BASHIT_BRANCH:-master}"
 # Installation method
 declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-GIT}"
 
 declare INST64_BASHIT_INSTALLER=''
 declare INST64_BASHIT_PACKAGES=''
-declare INST64_BASHIT_CLI_NAME='install.sh'
+declare INST64_BASHIT_CLI_NAME='bash_it.sh'
 declare INST64_BASHIT_CLI_PATH=''
 
 #
@@ -193,6 +193,7 @@ function inst64_bashit_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_BASHIT_TARGET="${INST64_BASHIT_TARGET:-${HOME}/.bash_it}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_BASHIT_METHOD' \
     "$INST64_BASHIT_METHOD" \
     'GIT' ||

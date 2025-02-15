@@ -64,7 +64,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_BAT_PLATFORM="${INST64_BAT_PLATFORM:-}"
-declare INST64_BAT_TARGET="${INST64_BAT_TARGET:-${INST64_OPT_ROOT}/bat}"
+declare INST64_BAT_TARGET=''
 declare INST64_BAT_VERSION="${INST64_BAT_VERSION:-latest}"
 # Installation method
 declare INST64_BAT_METHOD="${INST64_BAT_METHOD:-BINARY}"
@@ -250,6 +250,7 @@ function inst64_bat_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_BAT_TARGET="${INST64_BAT_TARGET:-${INST64_OPT_ROOT}/bat}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_BAT_METHOD' \
     "$INST64_BAT_METHOD" \
     'BINARY' ||

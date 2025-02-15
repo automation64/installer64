@@ -65,7 +65,7 @@ declare INST64_OPT_ROOT=''
 declare INST64_SYSTEM_WIDE=''
 
 declare INST64_CTOP_PLATFORM="${INST64_CTOP_PLATFORM:-}"
-declare INST64_CTOP_TARGET="${INST64_CTOP_TARGET:-${INST64_OPT_ROOT}/ctop}"
+declare INST64_CTOP_TARGET=''
 declare INST64_CTOP_VERSION="${INST64_CTOP_VERSION:-latest}"
 # Installation method
 declare INST64_CTOP_METHOD="${INST64_CTOP_METHOD:-BINARY}"
@@ -245,6 +245,7 @@ function inst64_ctop_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
   fi
+  INST64_CTOP_TARGET="${INST64_CTOP_TARGET:-${INST64_OPT_ROOT}/ctop}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_CTOP_METHOD' \
     "$INST64_CTOP_METHOD" \
     'BINARY' ||

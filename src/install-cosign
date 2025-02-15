@@ -56,7 +56,7 @@ source "${INST64_BASHLIB64}/bashlib64.bash" ||
 #
 
 declare INST64_COSIGN_PLATFORM="${INST64_COSIGN_PLATFORM:-linux-amd64}"
-declare INST64_COSIGN_TARGET="${INST64_COSIGN_TARGET:-${INST64_OPT_ROOT}/cosign}"
+declare INST64_COSIGN_TARGET=''
 declare INST64_COSIGN_VERSION="${INST64_COSIGN_VERSION:-latest}"
 # Installation method
 declare INST64_COSIGN_METHOD="${INST64_COSIGN_METHOD:-BINARY}"
@@ -212,6 +212,7 @@ function inst64_cosign_initialize() {
     bl64_check_privilege_root ||
       return $?
   fi
+  INST64_COSIGN_TARGET="${INST64_COSIGN_TARGET:-${INST64_OPT_ROOT}/cosign}"
   bl64_os_check_compatibility \
       "${BL64_OS_OL}-9" \
       "${BL64_OS_UB}-22" \
