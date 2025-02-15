@@ -100,6 +100,12 @@ function inst64_podman_install() {
 #######################################
 function inst64_podman_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+  fi
 
   [[ "$INST64_PODMAN_FLAG_NATIVE" != "$BL64_VAR_ON" ]] &&
     bl64_msg_show_error 'installer supports OS native packages only' &&

@@ -213,6 +213,12 @@ function inst64_eza_verify() {
 #######################################
 function inst64_eza_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+  fi
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_check_privilege_root ||
       return $?

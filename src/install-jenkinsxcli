@@ -137,6 +137,12 @@ function inst64_jenkinsxcli_install() {
 #######################################
 function inst64_jenkinsxcli_initialize() {
   bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  fi
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+  fi
   bl64_os_check_compatibility \
     "${BL64_OS_UB}-22" \
     "${BL64_OS_OL}-9" &&
