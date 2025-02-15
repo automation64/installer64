@@ -248,7 +248,8 @@ function inst64_gitleaks_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Gitleaks' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Gitleaks' \
     'INST64_GITLEAKS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

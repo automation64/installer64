@@ -247,7 +247,8 @@ function inst64_ctop_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: CTop' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: CTop' \
     'INST64_CTOP_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

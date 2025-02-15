@@ -258,7 +258,8 @@ function inst64_bat_initialize() {
       "$BL64_OS_KL" \
       "$BL64_OS_OL"
   fi
-  bl64_msg_show_setup 'Install application: Bat' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Bat' \
     'INST64_BAT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

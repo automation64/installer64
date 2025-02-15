@@ -221,7 +221,8 @@ function inst64_nikto_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: Nikto' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Nikto' \
     'INST64_NIKTO_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

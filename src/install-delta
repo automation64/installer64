@@ -254,7 +254,8 @@ function inst64_delta_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Delta' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Delta' \
     'INST64_DELTA_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

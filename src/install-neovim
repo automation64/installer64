@@ -259,7 +259,8 @@ function inst64_neovim_initialize() {
       "${BL64_OS_SLES}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: NeoVIM' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: NeoVIM' \
     'INST64_NEOVIM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

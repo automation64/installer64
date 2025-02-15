@@ -219,7 +219,8 @@ function inst64_sqlmap_initialize() {
       "${BL64_OS_KL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: SQLMap' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: SQLMap' \
     'INST64_SQLMAP_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

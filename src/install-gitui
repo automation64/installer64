@@ -135,7 +135,8 @@ function inst64_gitui_initialize() {
     "${BL64_OS_OL}-9" "${BL64_OS_UB}-22" &&
     bl64_arc_setup &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: GitUI' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: GitUI' \
     'INST64_GITUI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

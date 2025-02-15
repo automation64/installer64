@@ -234,7 +234,8 @@ function inst64_sysop64_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: SysOp64' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: SysOp64' \
     'INST64_SYSOP64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -255,7 +255,8 @@ function inst64_hadolint_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_ALP}"
   fi
-  bl64_msg_show_setup 'Install application: HadoLint' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: HadoLint' \
     'INST64_HADOLINT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

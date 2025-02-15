@@ -302,7 +302,8 @@ function inst64_trivy_initialize() {
       bl64_os_check_compatibility \
         "${BL64_OS_OL}-9"
   fi
-  bl64_msg_show_setup 'Install application: Trivy' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Trivy' \
     'INST64_TRIVY_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

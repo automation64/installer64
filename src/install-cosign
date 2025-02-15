@@ -210,7 +210,8 @@ function inst64_cosign_initialize() {
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_COSIGN_METHOD' \
       "$INST64_COSIGN_METHOD" \
       'BINARY'
-  bl64_msg_show_setup 'Install application: Sigstore cosign' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Sigstore cosign' \
     'INST64_COSIGN_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

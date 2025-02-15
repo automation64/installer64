@@ -205,7 +205,8 @@ function inst64_ruby_initialize() {
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_RUBY_METHOD' \
       "$INST64_RUBY_METHOD" \
       'NATIVE'
-  bl64_msg_show_setup 'Install application: Ruby' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Ruby' \
     'INST64_RUBY_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

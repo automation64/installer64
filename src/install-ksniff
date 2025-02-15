@@ -168,7 +168,8 @@ function inst64_ksniff_initialize() {
       'KREW' &&
     bl64_check_privilege_not_root &&
     bl64_check_command "$INST64_KSNIFF_KREW_BIN"
-  bl64_msg_show_setup 'Install application: KSniff' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: KSniff' \
     'INST64_KSNIFF_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -221,7 +221,8 @@ function inst64_lynis_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Lynis' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Lynis' \
     'INST64_LYNIS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

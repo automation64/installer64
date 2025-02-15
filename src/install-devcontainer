@@ -201,7 +201,8 @@ function inst64_devcontainer_initialize() {
         "${BL64_OS_FD}" \
         "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: DevContainer CLI' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: DevContainer CLI' \
     'INST64_DEVCONTAINER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

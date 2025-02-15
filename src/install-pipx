@@ -183,7 +183,8 @@ function inst64_pipx_initialize() {
       "${BL64_OS_ALP}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: Python PIPX' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Python PIPX' \
     'INST64_PIPX_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

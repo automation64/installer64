@@ -253,7 +253,8 @@ function inst64_lsd_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: LSDeluxe' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: LSDeluxe' \
     'INST64_LSD_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

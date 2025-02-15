@@ -225,7 +225,8 @@ function inst64_go_initialize() {
       "${BL64_OS_SLES}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: GoLang' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: GoLang' \
     'INST64_GO_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

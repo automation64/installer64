@@ -209,7 +209,8 @@ function inst64_kubeseal_initialize() {
       "$INST64_KUBESEAL_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: Sealed Secrets KubeSeal' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Sealed Secrets KubeSeal' \
     'INST64_KUBESEAL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

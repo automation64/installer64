@@ -202,7 +202,8 @@ function inst64_pgadmin_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: PGAdmin' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: PGAdmin' \
     'INST64_PGADMIN_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

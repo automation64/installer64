@@ -222,7 +222,8 @@ function inst64_duf_initialize() {
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_DUF_METHOD' \
       "$INST64_DUF_METHOD" \
       'BINARY'
-  bl64_msg_show_setup 'Install application: DUF - DiskUsageFree utility' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: DUF - DiskUsageFree utility' \
     'INST64_DUF_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

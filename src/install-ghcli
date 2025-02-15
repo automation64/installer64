@@ -309,7 +309,8 @@ function inst64_ghcli_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: GitHub' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: GitHub' \
     'INST64_GHCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

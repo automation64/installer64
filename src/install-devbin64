@@ -235,7 +235,8 @@ function inst64_devbin64_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: DevBin64' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: DevBin64' \
     'INST64_DEVBIN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

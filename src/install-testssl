@@ -218,7 +218,8 @@ function inst64_testssl_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: TestSSL' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: TestSSL' \
     'INST64_TESTSSL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

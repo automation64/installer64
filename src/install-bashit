@@ -195,7 +195,8 @@ function inst64_bashit_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Bash-it' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Bash-it' \
     'INST64_BASHIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

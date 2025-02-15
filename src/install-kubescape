@@ -254,7 +254,8 @@ function inst64_kubescape_initialize() {
       "$BL64_OS_FD" \
       "$BL64_OS_OL"
   fi
-  bl64_msg_show_setup 'Install application: KubeScape' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: KubeScape' \
     'INST64_KUBESCAPE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

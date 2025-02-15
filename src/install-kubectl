@@ -259,7 +259,8 @@ function inst64_kubectl_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Kubernetes KubeCTL' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Kubernetes KubeCTL' \
     'INST64_KUBECTL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

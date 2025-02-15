@@ -254,7 +254,8 @@ function inst64_hwatch_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: HWatch' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: HWatch' \
     'INST64_HWATCH_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

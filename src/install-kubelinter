@@ -251,7 +251,8 @@ function inst64_kubelinter_initialize() {
       "$BL64_OS_UB" \
       "$BL64_OS_OL"
   fi
-  bl64_msg_show_setup 'Install application: Kube-Linter' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Kube-Linter' \
     'INST64_KUBELINTER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -263,7 +263,8 @@ function inst64_nodejs_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_FD}"
   fi
-  bl64_msg_show_setup 'Install application: NodeJS' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: NodeJS' \
     'INST64_NODEJS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

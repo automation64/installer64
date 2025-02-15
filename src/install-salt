@@ -226,7 +226,8 @@ function inst64_salt_initialize() {
         "${BL64_OS_UB}-22" \
         "${BL64_OS_UB}-24"
   fi
-  bl64_msg_show_setup 'Install application: Salt - Master' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Salt - Master' \
     'INST64_SALT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

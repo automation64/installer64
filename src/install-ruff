@@ -254,7 +254,8 @@ function inst64_ruff_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Ruff' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Ruff' \
     'INST64_RUFF_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

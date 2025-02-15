@@ -255,7 +255,8 @@ function inst64_helm_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Helm' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Helm' \
     'INST64_HELM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

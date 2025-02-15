@@ -227,7 +227,8 @@ function inst64_tflint_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: TFlint' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: TFlint' \
     'INST64_TFLINT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -204,7 +204,8 @@ function inst64_minikube_initialize() {
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_MINIKUBE_METHOD' \
       "$INST64_MINIKUBE_METHOD" \
       'BINARY'
-  bl64_msg_show_setup 'Install application: Minikube' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Minikube' \
     'INST64_MINIKUBE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

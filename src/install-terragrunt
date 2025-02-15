@@ -245,7 +245,8 @@ function inst64_terragrunt_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Terragrunt' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Terragrunt' \
     'INST64_TERRAGRUNT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -278,7 +278,8 @@ function inst64_krew_initialize() {
       bl64_arc_setup ||
       return $?
   fi
-  bl64_msg_show_setup 'Install application: Krew' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Krew' \
     'INST64_KREW_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

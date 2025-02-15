@@ -218,9 +218,11 @@ function inst64_act_initialize() {
     "${BL64_OS_UB}-22" &&
     bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_ACT_METHOD' \
       "$INST64_ACT_METHOD" \
-      'BINARY'
-  bl64_msg_show_setup 'Install application: Act' \
-    'INST64_ACT_METHOD' 'INST64_SYSTEM_WIDE' 
+      'BINARY' ||
+    return $?
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Act' \
+    'INST64_ACT_METHOD' 'INST64_SYSTEM_WIDE'
 }
 
 #

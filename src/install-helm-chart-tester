@@ -199,7 +199,8 @@ function inst64_helmct_initialize() {
       "$INST64_HELMCT_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: Helm Chart Tester' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Helm Chart Tester' \
     'INST64_HELMCT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

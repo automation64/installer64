@@ -254,7 +254,8 @@ function inst64_capa_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: Capa' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Capa' \
     'INST64_CAPA_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

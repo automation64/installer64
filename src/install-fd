@@ -258,7 +258,8 @@ function inst64_fd_initialize() {
       "${BL64_OS_OL}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: FD - Find Files' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: FD - Find Files' \
     'INST64_FD_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

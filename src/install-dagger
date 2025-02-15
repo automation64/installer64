@@ -252,7 +252,8 @@ function inst64_dagger_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: Dagger' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Dagger' \
     'INST64_DAGGER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

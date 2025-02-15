@@ -176,7 +176,8 @@ function inst64_jekyll_initialize() {
       bl64_check_export 'GEM_HOME' 'Ruby Gem environment is not properly setup' ||
       return $?
   fi
-  bl64_msg_show_setup 'Install application: Jekyll' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Jekyll' \
     'INST64_JEKYLL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

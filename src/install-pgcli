@@ -202,7 +202,8 @@ function inst64_pgcli_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: PGCLI' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: PGCLI' \
     'INST64_PGCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

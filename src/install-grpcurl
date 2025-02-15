@@ -249,7 +249,8 @@ function inst64_grpcurl_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: gRPCurl' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: gRPCurl' \
     'INST64_GRPCURL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

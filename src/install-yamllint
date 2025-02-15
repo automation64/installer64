@@ -181,7 +181,8 @@ function inst64_yamllint_initialize() {
       "${BL64_OS_ALP}-3" \
       "${BL64_OS_UB}-22"
   fi
-  bl64_msg_show_setup 'Install application: YAMLLint' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: YAMLLint' \
     'INST64_YAMLLINT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -247,7 +247,8 @@ function inst64_kind_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: K8S Kind' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: K8S Kind' \
     'INST64_KIND_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

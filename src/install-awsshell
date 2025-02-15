@@ -208,7 +208,8 @@ function inst64_awsshell_initialize() {
         "${BL64_OS_RHEL}" \
         "${BL64_OS_UB}"
   fi
-  bl64_msg_show_setup 'Install application: AWS Shell' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: AWS Shell' \
     'INST64_AWSSHELL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -219,7 +219,8 @@ function inst64_batscore_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Batscore' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Batscore' \
     'INST64_BATSCORE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

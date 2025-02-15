@@ -200,7 +200,8 @@ function inst64_dockle_initialize() {
       "$INST64_DOCKLE_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: Dockle' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Dockle' \
     'INST64_DOCKLE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

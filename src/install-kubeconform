@@ -251,7 +251,8 @@ function inst64_kubeconform_initialize() {
       "${BL64_OS_FD}" \
       "${BL64_OS_ALP}"
   fi
-  bl64_msg_show_setup 'Install application: KubeConform' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: KubeConform' \
     'INST64_KUBECONFORM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -248,7 +248,8 @@ function inst64_lazydocker_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: LazyDocker' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: LazyDocker' \
     'INST64_LAZYDOCKER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -196,7 +196,8 @@ function inst64_shfmt_initialize() {
       "$INST64_SHFMT_METHOD" \
       'BINARY' &&
     bl64_check_privilege_root
-  bl64_msg_show_setup 'Install application: Go SHFMT' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Go SHFMT' \
     'INST64_SHFMT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

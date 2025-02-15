@@ -248,7 +248,8 @@ function inst64_lazygit_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: LazyGIT' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: LazyGIT' \
     'INST64_LAZYGIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

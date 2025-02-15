@@ -253,7 +253,8 @@ function inst64_packer_initialize() {
         return $?
     fi
   fi
-  bl64_msg_show_setup 'Install application: Hashicorp Packer' \
+  # shellcheck disable=SC2181
+  (($? == 0)) && bl64_msg_show_setup 'Install application: Hashicorp Packer' \
     'INST64_PACKER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
