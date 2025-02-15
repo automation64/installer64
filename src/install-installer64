@@ -5,7 +5,7 @@
 #
 # Author: SerDigital64 (https://github.com/serdigital64)
 # Repository: https://github.com/automation64/installer64
-# Version: 2.3.0
+# Version: 3.0.0
 #
 #######################################
 # Copyright [2023] [serdigital64@gmail.com]
@@ -45,7 +45,7 @@ declare INST64_INSTALLER64_TARGET=''
 # Target application version
 declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 # Install system wide? Requires root privilege
-declare INST64_INSTALLER64_SYSTEM_WIDE="${INST64_INSTALLER64_SYSTEM_WIDE:-YES}"
+declare INST64_INSTALLER64_SYSTEM_WIDE="${INST64_INSTALLER64_SYSTEM_WIDE:-NO}"
 
 declare INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 declare INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
