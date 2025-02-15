@@ -189,7 +189,9 @@ function inst64_ohmyzsh_verify() {
 #######################################
 function inst64_ohmyzsh_initialize() {
   bl64_dbg_app_show_function
-  INST64_SYSTEM_WIDE='NO'
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    INST64_SYSTEM_WIDE='NO'
+  fi
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
@@ -198,6 +200,9 @@ function inst64_ohmyzsh_initialize() {
     "$INST64_OHMYZSH_METHOD" \
     'CUSTOM' ||
     return $?
+
+  bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && bl64_msg_show_error 'system-wide installation not supported' \
+    return $BL64_LIB_ERROR_PARAMETER_INVALID
 
   if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
     bl64_check_privilege_not_root &&
