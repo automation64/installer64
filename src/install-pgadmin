@@ -2,13 +2,6 @@
 # Template: 2.3.0
 # Snippet: install-python-3.2.2
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/installer64
-# Version: 1.1.1
-#
-#######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -217,7 +210,7 @@ function inst64_pgadmin_initialize() {
 
 declare inst64_pgadmin_installer_description='Install application: PGAdmin'
 
-bl64_lib_script_version_set ''
+bl64_lib_script_version_set '1.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$inst64_pgadmin_installer_description"
 
