@@ -102,7 +102,7 @@ function inst64_docker_initialize() {
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
   fi
   if [[ -z "$INST64_OPT_ROOT" ]]; then
-    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
   bl64_os_check_version "${BL64_OS_OL}-9" &&
     bl64_check_privilege_root &&

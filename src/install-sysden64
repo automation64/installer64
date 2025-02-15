@@ -55,7 +55,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 declare INST64_SYSDEN64_PLATFORM="${INST64_SYSDEN64_PLATFORM:-}"
-declare INST64_SYSDEN64_TARGET=''
+declare INST64_SYSDEN64_TARGET="${INST64_SYSDEN64_TARGET:-}"
 declare INST64_SYSDEN64_VERSION="${INST64_SYSDEN64_VERSION:-latest}"
 # Installation method
 declare INST64_SYSDEN64_METHOD="${INST64_SYSDEN64_METHOD:-CUSTOM}"
@@ -222,7 +222,7 @@ function inst64_sysden64_initialize() {
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
   fi
   if [[ -z "$INST64_OPT_ROOT" ]]; then
-    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
   INST64_SYSDEN64_TARGET="${INST64_SYSDEN64_TARGET:-${INST64_OPT_ROOT}/sysden64}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SYSDEN64_METHOD' \
@@ -236,21 +236,22 @@ function inst64_sysden64_initialize() {
         return $?
     fi
   fi
+  bl64_msg_show_setup 'Install application: SysDen64' \
+    'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' \
+    'INST64_SYSDEN64_TARGET'
 }
 
 #
 # Main
 #
 
-declare inst64_sysden64_installer_description='Install application: SysDen64'
-
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
-bl64_msg_show_batch_start "$inst64_sysden64_installer_description"
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_sysden64_initialize &&
   inst64_sysden64_prepare &&
   inst64_sysden64_install &&
   inst64_sysden64_verify
-bl64_msg_show_batch_finish $? "$inst64_sysden64_installer_description"
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

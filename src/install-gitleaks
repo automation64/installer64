@@ -234,7 +234,7 @@ function inst64_gitleaks_initialize() {
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
   fi
   if [[ -z "$INST64_OPT_ROOT" ]]; then
-    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
   INST64_GITLEAKS_TARGET="${INST64_GITLEAKS_TARGET:-${INST64_OPT_ROOT}/gitleaks}"
   bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GITLEAKS_METHOD' \

@@ -39,7 +39,7 @@ declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
 declare INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/automation64/bashlib64}"
 # Target installation directory
-declare INST64_BASHLIB64_TARGET=''
+declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-}"
 # Target application version
 declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
