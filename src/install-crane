@@ -22,6 +22,14 @@ declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64=''
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+# shellcheck source=lib/bl64/bashlib64.bash
+source "${INST64_BASHLIB64}/bashlib64.bash" ||
+  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+
+#
+# Globals
+#
+
 # Enable debugging? Set to YES to enable
 declare INST64_DEBUG="${INST64_DEBUG:-}"
 # Installer64 location
@@ -36,14 +44,6 @@ declare INST64_TMP="${INST64_TMP:-/tmp}"
 declare INST64_OPT_ROOT=''
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE=''
-
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
-
-#
-# Globals
-#
 
 declare INST64_CRANE_PLATFORM="${INST64_CRANE_PLATFORM:-Linux_x86_64}"
 declare INST64_CRANE_TARGET=''
