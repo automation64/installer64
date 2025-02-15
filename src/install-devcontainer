@@ -68,7 +68,7 @@ function inst64_devcontainer_install_with_npm() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_DEVCONTAINER_CLI_PATH="${INST64_DEVCONTAINER_CLI_NAME}"
+  INST64_DEVCONTAINER_CLI_PATH="${HOME}/node_modules/.bin/${INST64_DEVCONTAINER_CLI_NAME}"
   if [[ -n "$INST64_DEVCONTAINER_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
     "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES_PRE $INST64_DEVCONTAINER_PACKAGES ||
