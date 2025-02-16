@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # Template: 1.3.0
 #######################################
-# Installer64 / Package installer
-#
-# Author: SerDigital64 (https://github.com/serdigital64)
-# Repository: https://github.com/automation64/bashlib64
-# Version: 3.0.0
-#
-#######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,7 +69,7 @@ function inst64_bashlib64_download_binary_package() {
   local package_url=''
 
   package_url="${INST64_BASHLIB64_SOURCE}/releases/download/${INST64_BASHLIB64_VERSION}/${package_name}"
-  echo "Task: download package (${package_url})"
+  echo 'Task: download application'
   # shellcheck disable=SC2249
   case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
   'curl')
@@ -99,7 +92,7 @@ function inst64_bashlib64_open_binary_package() {
   local package_name="$1"
   local app_target_owner='root'
 
-  echo "Task: install packages (${package_name})"
+  echo 'Task: install application'
   [[ -f "/tmp/${package_name}" ]] &&
     tar zx -C "$INST64_BASHLIB64_TARGET" -f "/tmp/${package_name}" &&
     chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
@@ -177,7 +170,7 @@ function inst64_bashlib64_select_packages() {
 #   >0: preparation failed
 #######################################
 function inst64_bashlib64_prepare() {
-  echo "Task: prepare destination (${INST64_BASHLIB64_TARGET})"
+  echo 'Task: prepare deployment'
   if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
     mkdir "$INST64_BASHLIB64_TARGET" &&
       chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET" ||
