@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - HomeBrew
+- BashLib64
+  - Simplified verification
 
 ## [4.1.0]
 
