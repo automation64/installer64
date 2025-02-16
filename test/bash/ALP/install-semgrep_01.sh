@@ -1,1 +1,0 @@
-../UB/install-semgrep_01.sh

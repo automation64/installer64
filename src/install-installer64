@@ -71,7 +71,7 @@ function inst64_installer64_download_binary_package() {
   local package_url=''
 
   package_url="${INST64_INSTALLER64_SOURCE}/releases/download/${INST64_INSTALLER64_VERSION}/${package_name}"
-  echo "Task: download package (${package_url})"
+  echo 'Task: download application'
   # shellcheck disable=SC2249
   case "$INST64_INSTALLER64_DOWNLOAD_TOOL" in
   'curl')
@@ -94,7 +94,7 @@ function inst64_installer64_open_binary_package() {
   local package_name="$1"
   local app_target_owner='root'
 
-  echo "Task: install packages (${package_name})"
+  echo 'Task: deploy application'
   [[ -f "/tmp/${package_name}" ]] &&
     tar zx -C "$INST64_INSTALLER64_TARGET" -f "/tmp/${package_name}" &&
     chmod "$INST64_INSTALLER64_TARGET_MODE_FILE" "$INST64_INSTALLER64_TARGET"/* ||
@@ -173,7 +173,7 @@ function inst64_installer64_select_packages() {
 #   >0: preparation failed
 #######################################
 function inst64_installer64_prepare() {
-  echo "Task: prepare destination (${INST64_INSTALLER64_TARGET})"
+  echo 'Task: prepare deployment'
   if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
     mkdir "$INST64_INSTALLER64_TARGET" &&
       chmod "$INST64_INSTALLER64_TARGET_MODE_DIR" "$INST64_INSTALLER64_TARGET" ||
