@@ -1,5 +1,5 @@
 ---
-# Template: 1.1.2
+# Template: 2.0.0
 name: "Test / Bash"
 
 concurrency:
@@ -10,6 +10,7 @@ env:
   DEV_CICD_DEBUG: ""
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - "main"
@@ -21,7 +22,7 @@ on:
       - "test/bash/**"
 
 jobs:
-  test-bash:
+  test-bash-linux:
     runs-on: "ubuntu-latest"
     strategy:
       fail-fast: false
@@ -40,12 +41,13 @@ jobs:
           - "SLES"
           - "UB"
     steps:
-
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
       - name: "Prepare environment"
-        run: "./bin/dev-lib-base"
+        run: |
+          ./bin/dev-lib-base &&
+          ./bin/dev-prep-project
 
       - name: "Run OS specific tests"
         run: |
@@ -58,4 +60,36 @@ jobs:
           source ./bin/dev-set &&
           source ./bin/dev-env-bash &&
           ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/LNX
-...
+
+      - name: "Run Unix generic tests"
+        run: |
+          source ./bin/dev-set &&
+          source ./bin/dev-env-bash &&
+          ./bin/dev-test-bash $DEV_TEST_BASH_CONTAINER_${{matrix.target}} ${DEV_TEST_BASH_CASES}/UNX
+
+  test-bash-macos:
+    runs-on: "macos-latest"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@main"
+
+      - name: "Upgrade Bash version"
+        run: |
+          ./bin/dev-lib-bash
+
+      - name: "Prepare environment"
+        run: |
+          ./bin/dev-lib-base &&
+          ./bin/dev-prep-project
+
+      - name: "Run OS specific tests"
+        run: |
+          source ./bin/dev-set &&
+          source ./bin/dev-env-bash &&
+          ./bin/dev-test-bash-host ${DEV_TEST_BASH_CASES}/MCOS
+
+      - name: "Run Unix generic tests"
+        run: |
+          source ./bin/dev-set &&
+          source ./bin/dev-env-bash &&
+          ./bin/dev-test-bash ${DEV_TEST_BASH_CASES}/UNX
