@@ -24,6 +24,9 @@ declare INST64_TMP="${INST64_TMP:-/tmp}"
 
 declare INST64_HOMEBREW_PLATFORM=''
 declare INST64_HOMEBREW_SOURCE="${INST64_HOMEBREW_SOURCE:-https://raw.githubusercontent.com/Homebrew/install}"
+
+# shellcheck disable=SC2034
+declare INST64_HOMEBREW_SCRIPT_VERSION='1.0.0'
 # Installation method
 declare INST64_HOMEBREW_METHOD="${INST64_HOMEBREW_METHOD:-CUSTOM}"
 
@@ -34,10 +37,17 @@ declare INST64_HOMEBREW_CLI_NAME='brew'
 declare INST64_HOMEBREW_CLI_PATH=''
 
 declare INST64_HOMEBREW_DOWNLOAD_TOOL='none'
+declare INST64_HOMEBREW_OS=''
 
 #
 # Functions
 #
+
+function inst64_homebrew_os_detect() {
+  if [[ -f '/etc/alpine-release' ]]; then
+    INST64_HOMEBREW_OS='ALP'
+  fi
+}
 
 function inst64_homebrew_download_custom_package() {
   echo "Task: download application (${INST64_HOMEBREW_PACKAGES})"
@@ -183,6 +193,11 @@ function inst64_homebrew_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_homebrew_initialize() {
+  inst64_homebrew_os_detect
+  [[ "$INST64_HOMEBREW_OS" == 'ALP' ]] &&
+    echo "Error: unsupported OS (${INST64_HOMEBREW_OS})" &&
+    return 1
+
   [[ "$INST64_HOMEBREW_METHOD" != 'CUSTOM' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1
