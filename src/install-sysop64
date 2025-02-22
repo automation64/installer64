@@ -63,8 +63,6 @@ declare INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-CUSTOM}"
 declare INST64_SYSOP64_REPO_NAME='sysop64'
 declare INST64_SYSOP64_REPO_OWNER='automation64'
 
-declare INST64_SYSOP64_PACKAGE_URL=''
-declare INST64_SYSOP64_INSTALLER=''
 declare INST64_SYSOP64_PACKAGES=''
 declare INST64_SYSOP64_CLI_NAME=''
 declare INST64_SYSOP64_CLI_PATH=''
@@ -243,7 +241,7 @@ function inst64_sysop64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
