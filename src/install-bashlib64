@@ -28,6 +28,8 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
+# shellcheck disable=SC2034
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.0.0'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
