@@ -1,0 +1,202 @@
+#!/bin/sh
+# Template: 1.0.0
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Globals
+#
+
+# Enable debugging? Set to YES to enable
+INST64_DEBUG=""
+
+# Location for temporary files
+INST64_TMP="/tmp"
+
+# X_GLOBALS_PLACEHOLDER_X
+INST64_X_APP_NAME_CAPS_X_PACKAGES=''
+INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
+INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
+
+#
+# Functions
+#
+
+# X_STAND_ALONE_FUNCTIONS_X #
+
+inst64_X_APP_NAME_X_msg_show_batch_start() {
+  message="$1"
+  echo "Batch Start: ${message}"
+}
+
+inst64_X_APP_NAME_X_msg_show_batch_stop() {
+  status="$1"
+  message="$2"
+  if [ "$status" -eq 0 ]; then
+    echo "Process: [${message}] finished successfully"
+  else
+    echo "Process: [${message}] finished with errors: exit-status-${status}"
+  fi
+  echo "Batch Stop: ${message}"
+  return "$status" # Quote $status
+}
+
+inst64_X_APP_NAME_X_msg_show_task() {
+  message="$1"
+  echo "Task: ${message}"
+}
+
+inst64_X_APP_NAME_X_msg_show_setup() {
+  message="$1"
+  echo "Setup: ${message}"
+}
+
+inst64_X_APP_NAME_X_msg_show_error() {
+  message="$1"
+  echo "Error: ${message}"
+}
+
+inst64_X_APP_NAME_X_check_root() {
+  if [ "$(id -u)" != 0 ]; then
+    echo 'Error: installer must be run with root privilege'
+    return 1
+  fi
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+inst64_X_APP_NAME_X_select_platform() {
+  INST64_HOMEBREW_PLATFORM="$(uname -s)"
+  [ -z "$INST64_HOMEBREW_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
+  if [ "$INST64_HOMEBREW_PLATFORM" != 'Darwin' ] && [ "$INST64_HOMEBREW_PLATFORM" != 'Linux' ]; then
+    echo "Error: unsupported platform (${INST64_HOMEBREW_PLATFORM})"
+    return 1
+  fi
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+inst64_X_APP_NAME_X_install() {
+  # X_INSTALL_PLACEHOLDER_X
+  return 0
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+inst64_X_APP_NAME_X_select_packages() {
+  # X_SELECT_PKG_PLACEHOLDER_X
+  if [ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]; then
+    inst64_X_APP_NAME_X_msg_show_error 'unable to determine package name'
+    return 1
+  fi
+  return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+inst64_X_APP_NAME_X_prepare() {
+  inst64_X_APP_NAME_X_msg_show_task 'prepare deployment'
+  # X_PREPARE_PLACEHOLDER_X
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+inst64_X_APP_NAME_X_verify() {
+  inst64_X_APP_NAME_X_msg_show_task 'verify deployment'
+  # X_VERIFY_PLACEHOLDER_X
+  # example # "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
+}
+
+#######################################
+# Initialize environment
+#
+# Arguments:
+#   None
+# Outputs:
+#   Initializacion progress messages
+# Returns:
+#   0: initialization ok
+#   >: initialization failed
+#######################################
+inst64_X_APP_NAME_X_initialize() {
+  # X_INIT_PLACEHOLDER_X
+  # X_PRE_REQ_PLACEHOLDER_X
+  if [ "$?" -eq 0 ]; then
+    inst64_X_APP_NAME_X_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+      'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD'
+  fi
+}
+
+#
+# Main
+#
+
+inst64_X_APP_NAME_X_msg_show_batch_start "$0"
+
+if [ -n "$INST64_DEBUG" ]; then
+  set -x
+fi
+
+inst64_X_APP_NAME_X_initialize &&
+  inst64_X_APP_NAME_X_prepare &&
+  inst64_X_APP_NAME_X_install &&
+  inst64_X_APP_NAME_X_verify
+  # X_MAIN_POST_VERIFY_PLACEHOLDER_X
+inst64_X_APP_NAME_X_msg_show_batch_stop "$?" "$0"
