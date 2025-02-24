@@ -216,7 +216,7 @@ function inst64_gomplate_initialize() {
     "${BL64_OS_OL}" \
     "${BL64_OS_KL}" \
     "${BL64_OS_FD}" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GOMPLATE_METHOD' \
+    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_GOMPLATE_METHOD' \
       "$INST64_GOMPLATE_METHOD" \
       'BINARY'
   # shellcheck disable=SC2181

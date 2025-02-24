@@ -51,7 +51,7 @@ function inst64_X_APP_NAME_X_install_os_packages() {
   fi
 
 # X_INIT_PLACEHOLDER_X
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
     "$INST64_X_APP_NAME_CAPS_X_METHOD" \
     'NATIVE' ||
     return $?

@@ -212,7 +212,7 @@ function inst64_batscore_initialize() {
   fi
   INST64_BATSCORE_TARGET="${INST64_BATSCORE_TARGET:-${INST64_OPT_ROOT}/bats-core}"
   INST64_BATSCORE_TARGET_HELPERS="${INST64_BATSCORE_TARGET}/test_helper"
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_BATSCORE_METHOD' \
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_BATSCORE_METHOD' \
     "$INST64_BATSCORE_METHOD" \
     'CUSTOM' ||
     return $?

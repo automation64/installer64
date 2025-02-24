@@ -26,7 +26,7 @@ declare INST64_X_APP_NAME_CAPS_X_KREW_BIN="${HOME}/.krew/bin/kubectl-krew"
 # X_INIT_PLACEHOLDER_X
   bl64_os_check_version \
     "${X_BL64_OS_ID_X}" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
+    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
       "$INST64_X_APP_NAME_CAPS_X_METHOD" \
       'KREW' &&
     bl64_check_privilege_not_root &&
