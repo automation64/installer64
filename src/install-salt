@@ -214,7 +214,7 @@ function inst64_salt_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_SALT_METHOD' \
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_SALT_METHOD' \
     "$INST64_SALT_METHOD" \
     'NATIVE' ||
     return $?

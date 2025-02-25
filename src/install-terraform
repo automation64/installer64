@@ -265,7 +265,7 @@ function inst64_terraform_initialize() {
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
   INST64_TERRAFORM_TARGET="${INST64_TERRAFORM_TARGET:-${INST64_OPT_ROOT}/terraform}"
-  bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_TERRAFORM_METHOD' \
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_TERRAFORM_METHOD' \
     "$INST64_TERRAFORM_METHOD" \
     'BINARY' \
     'EXTERNAL' ||

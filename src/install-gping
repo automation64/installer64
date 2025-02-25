@@ -217,7 +217,7 @@ function inst64_gping_initialize() {
   bl64_os_check_compatibility \
     "$BL64_OS_UB" \
     "$BL64_OS_FD" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_GPING_METHOD' \
+    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_GPING_METHOD' \
       "$INST64_GPING_METHOD" \
       'BINARY'
   # shellcheck disable=SC2181

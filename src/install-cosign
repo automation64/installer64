@@ -207,7 +207,7 @@ function inst64_cosign_initialize() {
       "${BL64_OS_OL}-9" \
       "${BL64_OS_UB}-22" \
       "${BL64_OS_ALP}-3" &&
-    bl64_fmt_check_value_in_list 'invalid installation method for the parameter INST64_COSIGN_METHOD' \
+    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_COSIGN_METHOD' \
       "$INST64_COSIGN_METHOD" \
       'BINARY'
   # shellcheck disable=SC2181
