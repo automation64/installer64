@@ -1,4 +1,4 @@
-# Snippet: install-ruby-1.0.0
+# Snippet: install-ruby-1.1.0
 
 # X_STAND_ALONE_FUNCTIONS_X #
 function inst64_X_APP_NAME_X_install_with_gem() {
@@ -51,3 +51,7 @@ declare INST64_X_APP_NAME_CAPS_X_GCC_BIN="${INST64_X_APP_NAME_CAPS_X_GCC_BIN:-/u
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GEM' ]]; then
 # example #    "${GEM_HOME}/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}" --version
   fi
+
+  # X_SELECTORS_PLACEHOLDER_X
+      inst64_X_APP_NAME_X_select_packages ||
+      return $?

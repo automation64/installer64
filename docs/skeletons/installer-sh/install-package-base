@@ -180,6 +180,7 @@ inst64_X_APP_NAME_X_verify() {
 inst64_X_APP_NAME_X_initialize() {
   # X_INIT_PLACEHOLDER_X
   # X_PRE_REQ_PLACEHOLDER_X
+  # X_SELECTORS_PLACEHOLDER_X
   if [ "$?" -eq 0 ]; then
     inst64_X_APP_NAME_X_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
       'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD'

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-nodejs-1.0.0
+# Template: 2.4.0
+# Snippet: install-nodejs-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,7 +22,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
@@ -148,7 +148,7 @@ function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    inst64_X_APP_NAME_X_select_packages
+    :
   fi
 }
 
@@ -200,12 +200,14 @@ function inst64_X_APP_NAME_X_initialize() {
         "${BL64_OS_ALP}" \
         "${BL64_OS_OL}" \
         "${BL64_OS_FD}" \
-        "${BL64_OS_UB}"
+        "${BL64_OS_UB}" ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_X_APP_NAME_X_select_platform &&
+    inst64_X_APP_NAME_X_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
+    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD'
 }
 
 #

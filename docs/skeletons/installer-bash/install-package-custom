@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
+# Template: 2.4.0
 # Snippet: install-custom-package-4.2.0
 # Snippet: select-platform-1.0.0
 #######################################
@@ -190,9 +190,6 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_select_packages ||
-    return $?
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     bl64_arc_setup
   fi
@@ -246,8 +243,10 @@ function inst64_X_APP_NAME_X_initialize() {
         return $?
     fi
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_X_APP_NAME_X_select_platform &&
+    inst64_X_APP_NAME_X_select_packages ||
+    return $?
+
   bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
     'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
 }
