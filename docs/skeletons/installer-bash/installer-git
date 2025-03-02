@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Template: 2.4.0
-# Snippet: install-custom-package-4.2.0
-# Snippet: select-platform-1.0.0
+# Template: install-git-2.4.0
+#   Skeleton: installer-base-2.4.0
+#   Snippet: install-git-repo-1.3.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -28,12 +28,11 @@ declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -54,15 +53,14 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
-declare INST64_X_APP_NAME_CAPS_X_SOURCE="${INST64_X_APP_NAME_CAPS_X_SOURCE:-X_APP_REPO_X}"
+declare INST64_X_APP_NAME_CAPS_X_GIT_SERVER="${INST64_X_APP_NAME_CAPS_X_GIT_SERVER:-X_GIT_SERVER_X}"
+declare INST64_X_APP_NAME_CAPS_X_GIT_REPO="${INST64_X_APP_NAME_CAPS_X_GIT_REPO:-X_GIT_REPO_X}"
 declare INST64_X_APP_NAME_CAPS_X_TARGET=''
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-X_APP_VERSION_X}"
+declare INST64_X_APP_NAME_CAPS_X_BRANCH="${INST64_X_APP_NAME_CAPS_X_BRANCH:-main}"
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-GIT}"
 
-declare INST64_X_APP_NAME_CAPS_X_PACKAGE_URL=''
-declare INST64_X_APP_NAME_CAPS_X_INSTALLER='X_INSTALLER_X'
+declare INST64_X_APP_NAME_CAPS_X_INSTALLER=''
 declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
 declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
 declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
@@ -71,9 +69,8 @@ declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_custom_package() {
+function inst64_X_APP_NAME_X_install_git_repo() {
   bl64_dbg_app_show_function
-  local work_path=''
   local app_target_mode='0755'
   local app_target_owner='root'
   local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -86,17 +83,24 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   fi
 
   bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" &&
-    bl64_rxtx_web_get_file \
-      "${INST64_X_APP_NAME_CAPS_X_PACKAGE_URL}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
-      "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" \
-      'YES' \
-      "$app_target_mode" &&
-    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+  bl64_rxtx_git_get_dir \
+    "${INST64_X_APP_NAME_CAPS_X_GIT_SERVER}/${INST64_X_APP_NAME_CAPS_X_GIT_REPO}" \
+    '.' \
+    "$INST64_X_APP_NAME_CAPS_X_TARGET" \
+    "$BL64_VAR_ON" \
+    "$INST64_X_APP_NAME_CAPS_X_BRANCH" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  # X_INSTALL_DEPLOYMENT_PLACEHOLDER_X
+  if [[ -n "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ]]; then
+    "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
+      return $?
+  fi
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
+      "$INST64_X_APP_NAME_CAPS_X_TARGET" ||
+      return $?
+  fi
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
@@ -105,30 +109,6 @@ function inst64_X_APP_NAME_X_install_custom_package() {
       return $?
   fi
 
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
-  return 0
-}
-
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
-function inst64_X_APP_NAME_X_select_platform() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-    [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_X'
-  fi
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -145,8 +125,8 @@ function inst64_X_APP_NAME_X_select_platform() {
 #######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-    inst64_X_APP_NAME_X_install_custom_package
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    inst64_X_APP_NAME_X_install_git_repo
   fi
 }
 
@@ -163,14 +143,8 @@ function inst64_X_APP_NAME_X_install() {
 #######################################
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_sufix=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-    package_prefix='X_PACKAGE_PREFIX_X'
-    package_sufix='X_PACKAGE_SUFIX_X'
-    # X_PACKAGE_NAME_PLACEHOLDER_X
-    # X_PACKAGE_URL_PLACEHOLDER_X
-    [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -190,8 +164,8 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-    bl64_arc_setup
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    :
   fi
 }
 
@@ -234,17 +208,16 @@ function inst64_X_APP_NAME_X_initialize() {
   INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
   bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
     "$INST64_X_APP_NAME_CAPS_X_METHOD" \
-    'CUSTOM' ||
+    'GIT' ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
   fi
-  inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_select_packages ||
+  inst64_X_APP_NAME_X_select_packages ||
     return $?
 
   bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
