@@ -221,7 +221,8 @@ function inst64_act_initialize() {
       'BINARY' ||
     return $?
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: Act' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: Act' \
     'INST64_ACT_METHOD' 'INST64_SYSTEM_WIDE'
 }
 

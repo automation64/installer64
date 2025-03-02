@@ -143,7 +143,8 @@ function inst64_fluxcdcli_initialize() {
     bl64_arc_setup &&
     bl64_check_privilege_root
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: FluxCD CLI' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: FluxCD CLI' \
     'INST64_FLUXCDCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

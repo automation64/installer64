@@ -249,7 +249,8 @@ function inst64_lazygit_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: LazyGIT' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: LazyGIT' \
     'INST64_LAZYGIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

@@ -209,7 +209,8 @@ function inst64_ohmyzsh_initialize() {
       bl64_check_command_search_path 'zsh'
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: Oh-My-ZSH' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: Oh-My-ZSH' \
     'INST64_OHMYZSH_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

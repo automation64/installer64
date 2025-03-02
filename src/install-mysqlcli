@@ -204,7 +204,8 @@ function inst64_mysqlcli_initialize() {
   *) bl64_check_alert_unsupported "MySQL CLI Version: ${INST64_MYSQLCLI_VERSION}" ;;
   esac
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: MySQL Community CLI' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: MySQL Community CLI' \
     'INST64_MYSQLCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

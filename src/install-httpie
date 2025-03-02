@@ -232,7 +232,8 @@ function inst64_httpie_initialize() {
       "${BL64_OS_UB}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: HTTPie' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: HTTPie' \
     'INST64_HTTPIE_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

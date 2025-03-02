@@ -234,7 +234,8 @@ function inst64_devbin64_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: DevBin64' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: DevBin64' \
     'INST64_DEVBIN64_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

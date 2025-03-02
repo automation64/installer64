@@ -259,7 +259,8 @@ function inst64_shellcheck_initialize() {
       "${BL64_OS_OL}-9"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: ShellCheck' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: ShellCheck' \
     'INST64_SHELLCHECK_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

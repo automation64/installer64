@@ -153,7 +153,8 @@ function inst64_gcloud_initialize() {
     bl64_check_privilege_root &&
     bl64_pkg_setup
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: GCloud CLI' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: GCloud CLI' \
     'INST64_GCLOUD_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

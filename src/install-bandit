@@ -232,7 +232,8 @@ function inst64_bandit_initialize() {
       "${BL64_OS_UB}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: Bandit' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: Bandit' \
     'INST64_BANDIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

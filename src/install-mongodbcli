@@ -157,7 +157,8 @@ function inst64_mongodbcli_initialize() {
   *) bl64_check_alert_unsupported "MongoDB CLI Version: ${INST64_MONGODBCLI_VERSION}" ;;
   esac
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: MongoDB CLI' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: MongoDB CLI' \
     'INST64_MONGODBCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

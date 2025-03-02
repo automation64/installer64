@@ -249,7 +249,8 @@ function inst64_eksctl_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: AWS - EKSCTL' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: AWS - EKSCTL' \
     'INST64_EKSCTL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

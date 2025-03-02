@@ -252,7 +252,8 @@ function inst64_argocdcli_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: ArgoCD CLI' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: ArgoCD CLI' \
     'INST64_ARGOCDCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

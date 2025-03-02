@@ -223,7 +223,8 @@ function inst64_yq_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: YQ - YAML Query' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: YQ - YAML Query' \
     'INST64_YQ_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

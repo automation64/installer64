@@ -252,7 +252,8 @@ function inst64_kubeconform_initialize() {
       "${BL64_OS_ALP}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: KubeConform' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: KubeConform' \
     'INST64_KUBECONFORM_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

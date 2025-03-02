@@ -203,7 +203,8 @@ function inst64_X_APP_NAME_X_initialize() {
         "${BL64_OS_UB}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
     'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
 }
 

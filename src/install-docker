@@ -243,7 +243,8 @@ function inst64_docker_initialize() {
       "${BL64_OS_FD}-40" "${BL64_OS_FD}-41"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: Docker' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: Docker' \
     'INST64_DOCKER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 
