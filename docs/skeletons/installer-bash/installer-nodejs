@@ -69,7 +69,6 @@ function inst64_X_APP_NAME_X_install_with_npm() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
     "$INST64_X_APP_NAME_CAPS_X_NPM_BIN" install $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE $INST64_X_APP_NAME_CAPS_X_PACKAGES ||
@@ -129,6 +128,7 @@ function inst64_X_APP_NAME_X_select_packages() {
     INST64_X_APP_NAME_CAPS_X_PACKAGES="X_NODE_MODULE_X${version_target}"
     INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE='X_PACKAGES_PRE_X'
     INST64_X_APP_NAME_CAPS_X_PACKAGES_POST='X_PACKAGES_POST_X'
+    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0

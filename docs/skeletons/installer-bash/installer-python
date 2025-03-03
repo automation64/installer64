@@ -70,7 +70,6 @@ function inst64_X_APP_NAME_X_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
     bl64_py_pip_usr_install $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||
@@ -92,7 +91,6 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
     "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install --preinstall $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE $INST64_X_APP_NAME_CAPS_X_PACKAGES ||
@@ -154,6 +152,12 @@ function inst64_X_APP_NAME_X_select_packages() {
     INST64_X_APP_NAME_CAPS_X_PACKAGES="X_PYTHON_MODULE_X${version_target}"
     INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE='X_PACKAGES_PRE_X'
     INST64_X_APP_NAME_CAPS_X_PACKAGES_POST='X_PACKAGES_POST_X'
+
+    if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
+      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+    elif [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
+      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
