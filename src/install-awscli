@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.2.0
+# Template: install-custom-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -75,10 +75,7 @@ function inst64_awscli_install_custom_package() {
   local app_target_mode='0755'
   local app_target_owner='root'
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_AWSCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_AWSCLI_CLI_NAME}"
-  else
-    INST64_AWSCLI_CLI_PATH="${INST64_AWSCLI_TARGET}/${INST64_AWSCLI_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -124,7 +121,6 @@ function inst64_awscli_install_custom_package() {
 #######################################
 function inst64_awscli_install() {
   bl64_dbg_app_show_function
-  inst64_awscli_select_packages || return $?
   if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
     inst64_awscli_install_custom_package
   fi
@@ -150,6 +146,11 @@ function inst64_awscli_select_packages() {
     package_sufix='.zip'
     INST64_AWSCLI_PACKAGES="${package_prefix}${INST64_AWSCLI_PLATFORM}${package_sufix}"
     INST64_AWSCLI_PACKAGE_URL="${INST64_AWSCLI_SOURCE}/${INST64_AWSCLI_PACKAGES}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_AWSCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_AWSCLI_CLI_NAME}"
+    else
+      INST64_AWSCLI_CLI_PATH="${INST64_AWSCLI_TARGET}/${INST64_AWSCLI_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_AWSCLI_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   [[ -z "$INST64_AWSCLI_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
@@ -223,21 +224,28 @@ function inst64_awscli_initialize() {
         return $?
     fi
     bl64_os_check_compatibility \
+      "${BL64_OS_MCOS}" \
       "${BL64_OS_UB}" \
       "${BL64_OS_FD}" \
-      "${BL64_OS_OL}"
+      "${BL64_OS_OL}" ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_awscli_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: AWS CLI' \
-    'INST64_AWSCLI_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_AWSCLI_METHOD' 'INST64_SYSTEM_WIDE' \
+    'INST64_AWSCLI_PLATFORM' \
+    'INST64_AWSCLI_SOURCE' \
+    'INST64_AWSCLI_TARGET' \
+    'INST64_AWSCLI_VERSION' \
+    'INST64_AWSCLI_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.4.0'
+bl64_lib_script_version_set '1.5.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

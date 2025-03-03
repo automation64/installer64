@@ -312,6 +312,7 @@ function inst64_terraform_initialize() {
         return $?
     fi
     bl64_os_check_compatibility \
+      "${BL64_OS_MCOS}" \
       "${BL64_OS_ALP}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_FD}" \
