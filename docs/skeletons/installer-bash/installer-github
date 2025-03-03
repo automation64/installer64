@@ -250,7 +250,13 @@ function inst64_X_APP_NAME_X_initialize() {
     inst64_X_APP_NAME_X_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD'
+    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
+    'INST64_X_APP_NAME_CAPS_X_PLATFORM' \
+    'INST64_X_APP_NAME_CAPS_X_REPO_OWNER' \
+    'INST64_X_APP_NAME_CAPS_X_REPO_NAME' \
+    'INST64_X_APP_NAME_CAPS_X_TARGET' \
+    'INST64_X_APP_NAME_CAPS_X_VERSION' \
+    'INST64_X_APP_NAME_CAPS_X_CLI_PATH'
 }
 
 #
