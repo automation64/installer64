@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - BTop
+- K9S
+  - Multi Machine support
+- EKSCtl
+  - Multi Machine support
 - LSD
   - Multi Machine support
 - Delta
