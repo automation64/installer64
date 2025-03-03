@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - AWSCli
-  - Multi Machine support
+  - MacOS support
 - KubeCTL
   - Multi Machine support
 - Terraform
-  - Multi Machine support
+  - MacOS support
 - SysDen64
   - Link to local/bin
 - DevBin64
