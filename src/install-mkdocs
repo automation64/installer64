@@ -230,7 +230,8 @@ function inst64_mkdocs_initialize() {
         "${BL64_OS_UB}-22"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: MKDocs' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: MKDocs' \
     'INST64_MKDOCS_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

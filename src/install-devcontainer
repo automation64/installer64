@@ -205,7 +205,8 @@ function inst64_devcontainer_initialize() {
         "${BL64_OS_UB}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: DevContainer CLI' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: DevContainer CLI' \
     'INST64_DEVCONTAINER_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

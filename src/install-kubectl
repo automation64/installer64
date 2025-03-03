@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-custom-package-4.2.0
-# Snippet: select-platform-1.0.0
+# Template: install-custom-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -62,7 +60,6 @@ declare INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-stable}"
 declare INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
 
 declare INST64_KUBECTL_PACKAGE_URL=''
-declare INST64_KUBECTL_INSTALLER=''
 declare INST64_KUBECTL_PACKAGES=''
 declare INST64_KUBECTL_CLI_NAME='kubectl'
 declare INST64_KUBECTL_CLI_PATH=''
@@ -79,10 +76,7 @@ function inst64_kubectl_install_custom_package() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_KUBECTL_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_KUBECTL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBECTL_CLI_NAME}"
-  else
-    INST64_KUBECTL_CLI_PATH="${INST64_KUBECTL_TARGET}/${INST64_KUBECTL_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -128,7 +122,13 @@ function inst64_kubectl_install_custom_package() {
 function inst64_kubectl_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
-    [[ -z "$INST64_KUBECTL_PLATFORM" ]] && INST64_KUBECTL_PLATFORM='linux/amd64'
+    if [[ -z "$INST64_KUBECTL_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_KUBECTL_PLATFORM='darwin/arm64' ;;
+      "$BL64_OS_MACHINE_AMD64") INST64_KUBECTL_PLATFORM='linux/amd64' ;;
+      esac
+    fi
   fi
   [[ -z "$INST64_KUBECTL_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
@@ -184,6 +184,11 @@ function inst64_kubectl_select_packages() {
     INST64_KUBECTL_PACKAGES="${package_prefix}${package_sufix}"
     INST64_KUBECTL_PACKAGE_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
     [[ -z "$INST64_KUBECTL_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_KUBECTL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBECTL_CLI_NAME}"
+    else
+      INST64_KUBECTL_CLI_PATH="${INST64_KUBECTL_TARGET}/${INST64_KUBECTL_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_KUBECTL_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -203,9 +208,6 @@ function inst64_kubectl_select_packages() {
 function inst64_kubectl_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_kubectl_select_platform &&
-    inst64_kubectl_select_packages ||
-    return $?
   if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
     bl64_arc_setup
   fi
@@ -259,16 +261,24 @@ function inst64_kubectl_initialize() {
         return $?
     fi
   fi
-  # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: Kubernetes KubeCTL' \
-    'INST64_KUBECTL_METHOD' 'INST64_SYSTEM_WIDE' 
+  inst64_kubectl_select_platform &&
+    inst64_kubectl_select_packages ||
+    return $?
+
+  bl64_msg_show_setup 'Install application: Kubernetes KubeCTL' \
+    'INST64_KUBECTL_METHOD' 'INST64_SYSTEM_WIDE' \
+    'INST64_KUBECTL_PLATFORM' \
+    'INST64_KUBECTL_SOURCE' \
+    'INST64_KUBECTL_TARGET' \
+    'INST64_KUBECTL_VERSION' \
+    'INST64_KUBECTL_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.6.0'
+bl64_lib_script_version_set '1.7.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

@@ -261,7 +261,8 @@ function inst64_zohovault_initialize() {
     bl64_dbg_app_show_comments 'binary is not compatible with ALP'
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: Zoho Vault' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: Zoho Vault' \
     'INST64_ZOHOVAULT_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

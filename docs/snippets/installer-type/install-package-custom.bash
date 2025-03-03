@@ -1,4 +1,4 @@
-# Snippet: install-custom-package-4.2.0
+# Snippet: install-custom-package-4.3.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -106,3 +106,8 @@ function inst64_X_APP_NAME_X_install_custom_package() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
       # X_PLATFORM_SELECTION_PLACEHOLDER_X #
   fi
+
+  # X_SELECTORS_PLACEHOLDER_X
+    inst64_X_APP_NAME_X_select_platform &&
+      inst64_X_APP_NAME_X_select_packages ||
+      return $?

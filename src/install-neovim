@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-github-release-3.2.4
+# Template: install-github-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
@@ -75,10 +74,7 @@ function inst64_neovim_install_binary_release() {
   local app_target_mode='0755'
   local app_target_owner='root'
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_NEOVIM_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_NEOVIM_CLI_NAME}"
-  else
-    INST64_NEOVIM_CLI_PATH="${INST64_NEOVIM_TARGET}/${INST64_NEOVIM_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -90,6 +86,7 @@ function inst64_neovim_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
+  bl64_fs_path_remove "$INST64_NEOVIM_TARGET"
   bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_NEOVIM_TARGET" &&
     bl64_fs_run_mv "${work_path}/${INST64_NEOVIM_CLI_NAME}-${INST64_NEOVIM_PLATFORM}/bin" "$INST64_NEOVIM_TARGET" &&
     bl64_fs_run_mv "${work_path}/${INST64_NEOVIM_CLI_NAME}-${INST64_NEOVIM_PLATFORM}/lib" "$INST64_NEOVIM_TARGET" &&
@@ -124,7 +121,13 @@ function inst64_neovim_install_binary_release() {
 function inst64_neovim_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_NEOVIM_METHOD" == 'BINARY' ]]; then
-    [[ -z "$INST64_NEOVIM_PLATFORM" ]] && INST64_NEOVIM_PLATFORM='linux-x86_64'
+    if [[ -z "$INST64_NEOVIM_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_NEOVIM_PLATFORM='macos-arm64' ;;
+      "$BL64_OS_MACHINE_AMD64") INST64_NEOVIM_PLATFORM='linux-x86_64' ;;
+      esac
+    fi
   fi
   [[ -z "$INST64_NEOVIM_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
@@ -143,9 +146,6 @@ function inst64_neovim_select_platform() {
 #######################################
 function inst64_neovim_install() {
   bl64_dbg_app_show_function
-  inst64_neovim_select_platform &&
-    inst64_neovim_select_packages ||
-    return $?
   if [[ "$INST64_NEOVIM_METHOD" == 'BINARY' ]]; then
     inst64_neovim_install_binary_release
   fi
@@ -174,6 +174,11 @@ function inst64_neovim_select_packages() {
     package_prefix='nvim-'
     package_sufix='.tar.gz'
     INST64_NEOVIM_PACKAGES="${package_prefix}${INST64_NEOVIM_PLATFORM}${package_sufix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_NEOVIM_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_NEOVIM_CLI_NAME}"
+    else
+      INST64_NEOVIM_CLI_PATH="${INST64_NEOVIM_TARGET}/${INST64_NEOVIM_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_NEOVIM_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -193,7 +198,6 @@ function inst64_neovim_select_packages() {
 function inst64_neovim_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_neovim_select_packages || return $?
   if [[ "$INST64_NEOVIM_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi
@@ -247,6 +251,7 @@ function inst64_neovim_initialize() {
         return $?
     fi
     bl64_os_check_compatibility \
+      "${BL64_OS_MCOS}" \
       "${BL64_OS_ALM}" \
       "${BL64_OS_AMZ}" \
       "${BL64_OS_CNT}" \
@@ -257,18 +262,27 @@ function inst64_neovim_initialize() {
       "${BL64_OS_RCK}" \
       "${BL64_OS_RHEL}" \
       "${BL64_OS_SLES}" \
-      "${BL64_OS_UB}"
+      "${BL64_OS_UB}" ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: NeoVIM' \
-    'INST64_NEOVIM_METHOD' 'INST64_SYSTEM_WIDE' 
+  inst64_neovim_select_platform &&
+    inst64_neovim_select_packages ||
+    return $?
+  bl64_msg_show_setup 'Install application: NeoVIM' \
+    'INST64_NEOVIM_METHOD' 'INST64_SYSTEM_WIDE' \
+    'INST64_NEOVIM_PLATFORM' \
+    'INST64_NEOVIM_REPO_OWNER' \
+    'INST64_NEOVIM_REPO_NAME' \
+    'INST64_NEOVIM_TARGET' \
+    'INST64_NEOVIM_VERSION' \
+    'INST64_NEOVIM_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.1.2'
+bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

@@ -195,7 +195,8 @@ function inst64_gcc_initialize() {
         "${BL64_OS_UB}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: GCC' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: GCC' \
     'INST64_GCC_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

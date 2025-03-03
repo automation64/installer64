@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0]
+
+### Added
+
+- Installer
+  - BTop
+- LazyGit
+  - Multi Machine support
+- Kind
+  - Multi Machine support
+- K9S
+  - Multi Machine support
+- EKSCtl
+  - Multi Machine support
+- LSD
+  - Multi Machine support
+- Delta
+  - Multi Machine support
+- ArgoCDCLI
+  - Multi Machine support
+- GHCLI
+  - Multi Machine support
+- Helm
+  - Multi Machine support
+- LazyDocker
+  - Multi Machine support
+- YQ
+  - Multi Machine support
+- ShellCheck
+  - MacOS support
+- NeoVIM
+  - MacOS support
+- FD
+  - MacOS support
+- Bat
+  - MacOS support
+- AWSCli
+  - MacOS support
+- KubeCTL
+  - Multi Machine support
+- Terraform
+  - MacOS support
+- SysDen64
+  - Link to local/bin
+- DevBin64
+  - Link to local/bin
+
+### Changed
+
+- ShellCheck
+  - **breaking-change**. Default method is now binary
+- GHCLI
+  - **breaking-change**. Default method is now binary
+- GHCLI
+
 ## [4.1.2]
 
 ### Added

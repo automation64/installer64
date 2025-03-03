@@ -249,7 +249,8 @@ function inst64_localstack_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: LocalStack' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: LocalStack' \
     'INST64_LOCALSTACK_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

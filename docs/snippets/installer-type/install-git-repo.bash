@@ -1,4 +1,4 @@
-# Snippet: install-git-repo-1.1.0
+# Snippet: install-git-repo-1.3.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -78,7 +78,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
 
 # X_PREPARE_PLACEHOLDER_X
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    inst64_X_APP_NAME_X_select_packages
+    :
   fi
 
 # X_INIT_PLACEHOLDER_X
@@ -96,3 +96,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
     bl64_os_check_compatibility \
       # X_OS_VERSION_TAG_X
   fi
+
+  # X_SELECTORS_PLACEHOLDER_X
+    inst64_X_APP_NAME_X_select_packages ||
+      return $?

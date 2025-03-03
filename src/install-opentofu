@@ -250,7 +250,8 @@ function inst64_opentofu_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: OpenTofu' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: OpenTofu' \
     'INST64_OPENTOFU_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

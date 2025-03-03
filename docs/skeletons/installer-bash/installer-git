@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-python-4.1.0
+# Template: install-git-2.4.0
+#   Skeleton: installer-base-2.4.0
+#   Snippet: install-git-repo-1.3.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -24,12 +25,14 @@ declare INST64_HOME="${HOME}/at64"
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -50,14 +53,15 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_X_APP_NAME_CAPS_X_GIT_SERVER="${INST64_X_APP_NAME_CAPS_X_GIT_SERVER:-X_GIT_SERVER_X}"
+declare INST64_X_APP_NAME_CAPS_X_GIT_REPO="${INST64_X_APP_NAME_CAPS_X_GIT_REPO:-X_GIT_REPO_X}"
+declare INST64_X_APP_NAME_CAPS_X_TARGET=''
+declare INST64_X_APP_NAME_CAPS_X_BRANCH="${INST64_X_APP_NAME_CAPS_X_BRANCH:-main}"
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PIP}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-GIT}"
 
-declare INST64_X_APP_NAME_CAPS_X_PIPX_BIN="${INST64_X_APP_NAME_CAPS_X_PIPX_BIN:-pipx}"
+declare INST64_X_APP_NAME_CAPS_X_INSTALLER=''
 declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
-declare INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE=''
-declare INST64_X_APP_NAME_CAPS_X_PACKAGES_POST=''
 declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
 declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 
@@ -65,47 +69,43 @@ declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_with_pip() {
+function inst64_X_APP_NAME_X_install_git_repo() {
   bl64_dbg_app_show_function
+  local app_target_mode='0755'
+  local app_target_owner='root'
+  local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
 
-  bl64_msg_show_task 'deploy application'
-  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
-    # shellcheck disable=SC2086
-    bl64_py_pip_usr_install $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||
-      return $?
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    app_target_owner="$BL64_VAR_DEFAULT"
   fi
-  # shellcheck disable=SC2086
-  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES ||
+
+  bl64_msg_show_task 'download application'
+  bl64_rxtx_git_get_dir \
+    "${INST64_X_APP_NAME_CAPS_X_GIT_SERVER}/${INST64_X_APP_NAME_CAPS_X_GIT_REPO}" \
+    '.' \
+    "$INST64_X_APP_NAME_CAPS_X_TARGET" \
+    "$BL64_VAR_ON" \
+    "$INST64_X_APP_NAME_CAPS_X_BRANCH" ||
     return $?
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_POST" ]]; then
-    # shellcheck disable=SC2086
-    bl64_py_pip_usr_install $INST64_X_APP_NAME_CAPS_X_PACKAGES_POST ||
-      return $?
-  fi
-  return 0
-}
-
-function inst64_X_APP_NAME_X_install_with_pipx() {
-  bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install --preinstall $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE $INST64_X_APP_NAME_CAPS_X_PACKAGES ||
-      return $?
-  else
-    # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" inject $INST64_X_APP_NAME_CAPS_X_PACKAGES $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||
+  if [[ -n "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ]]; then
+    "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
       return $?
   fi
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_POST" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" inject $INST64_X_APP_NAME_CAPS_X_PACKAGES $INST64_X_APP_NAME_CAPS_X_PACKAGES_POST ||
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
+      "$INST64_X_APP_NAME_CAPS_X_TARGET" ||
       return $?
   fi
+
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
+
   return 0
 }
 
@@ -122,10 +122,8 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
 #######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
-    inst64_X_APP_NAME_X_install_with_pipx
-  elif [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    inst64_X_APP_NAME_X_install_with_pip
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    inst64_X_APP_NAME_X_install_git_repo
   fi
 }
 
@@ -142,17 +140,13 @@ function inst64_X_APP_NAME_X_install() {
 #######################################
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
-  local version_target=''
-
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      version_target=''
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
     else
-      version_target="==${INST64_X_APP_NAME_CAPS_X_VERSION}.*"
+      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
     fi
-    INST64_X_APP_NAME_CAPS_X_PACKAGES="X_PYTHON_MODULE_X${version_target}"
-    INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE='X_PACKAGES_PRE_X'
-    INST64_X_APP_NAME_CAPS_X_PACKAGES_POST='X_PACKAGES_POST_X'
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -172,9 +166,8 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    inst64_X_APP_NAME_X_select_packages &&
-    bl64_py_setup
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    :
   fi
 }
 
@@ -214,26 +207,29 @@ function inst64_X_APP_NAME_X_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
+  INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
   bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
     "$INST64_X_APP_NAME_CAPS_X_METHOD" \
-    'PIP' 'PIPX' ||
+    'GIT' ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
-      bl64_check_command_search_path "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" ||
-      return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
     fi
-    bl64_check_privilege_not_root &&
-      bl64_os_check_compatibility \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_UB}"
   fi
-  # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
+  inst64_X_APP_NAME_X_select_packages ||
+    return $?
+
+  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
+    'INST64_X_APP_NAME_CAPS_X_PLATFORM' \
+    'INST64_X_APP_NAME_CAPS_X_GIT_SERVER' \
+    'INST64_X_APP_NAME_CAPS_X_GIT_REPO' \
+    'INST64_X_APP_NAME_CAPS_X_BRANCH' \
+    'INST64_X_APP_NAME_CAPS_X_TARGET' \
+    'INST64_X_APP_NAME_CAPS_X_CLI_PATH'
 }
 
 #

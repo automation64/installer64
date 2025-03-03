@@ -1,4 +1,4 @@
-# Snippet: install-external-package-3.4.1
+# Snippet: install-external-package-3.5.0
 
 # X_IMPORTS_PLACEHOLDER_X
 # shellcheck source-path=lib/bl64 disable=SC2015
@@ -95,3 +95,8 @@ function inst64_X_APP_NAME_X_install_external_packages() {
     bl64_os_check_compatibility \
       # X_OS_VERSION_TAG_X
   fi
+
+  # X_SELECTORS_PLACEHOLDER_X
+    inst64_X_APP_NAME_X_select_platform &&
+      inst64_X_APP_NAME_X_select_packages ||
+      return $?

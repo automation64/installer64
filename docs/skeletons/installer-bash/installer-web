@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-github-release-3.4.0
-# Snippet: select-platform-1.0.0
+# Template: install-web-2.4.0
+#   Skeleton: installer-base-2.4.0
+#   Snippet: install-web-tgz-3.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -25,14 +25,14 @@ declare INST64_HOME="${HOME}/at64"
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -55,13 +55,13 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_SOURCE="${INST64_X_APP_NAME_CAPS_X_SOURCE:-X_APP_REPO_X}"
 declare INST64_X_APP_NAME_CAPS_X_TARGET=''
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-X_APP_VERSION_X}"
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BINARY}"
 
-declare INST64_X_APP_NAME_CAPS_X_REPO_NAME='X_REPO_NAME_X'
-declare INST64_X_APP_NAME_CAPS_X_REPO_OWNER='X_REPO_OWNER_X'
+declare INST64_X_APP_NAME_CAPS_X_PACKAGE_URL=''
 declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
 declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
 declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
@@ -77,25 +77,23 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   local app_target_owner='root'
   local app_cli_mode='0755'
   local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-  local app_work_path="${app_cli_source}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-  else
-    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_X_APP_NAME_CAPS_X_REPO_OWNER" "$INST64_X_APP_NAME_CAPS_X_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_X_APP_NAME_CAPS_X_PACKAGES" "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+  bl64_rxtx_web_get_file \
+    "${INST64_X_APP_NAME_CAPS_X_PACKAGE_URL}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" &&
+    # example #    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+    # example #    bl64_arc_open_zip "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_work_path}" ||
+    bl64_fs_path_copy \
+      "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -166,13 +164,15 @@ function inst64_X_APP_NAME_X_select_packages() {
   local package_prefix=''
   local package_sufix=''
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_X_APP_NAME_CAPS_X_REPO_OWNER" "$INST64_X_APP_NAME_CAPS_X_REPO_NAME")" ||
-        return $?
-    fi
     package_prefix='X_PACKAGE_PREFIX_X'
     package_sufix='X_PACKAGE_SUFIX_X'
     # X_PACKAGE_NAME_PLACEHOLDER_X
+    [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+    else
+      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -193,9 +193,7 @@ function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    inst64_X_APP_NAME_X_select_platform &&
-      inst64_X_APP_NAME_X_select_packages &&
-      bl64_arc_setup
+    bl64_arc_setup
   fi
 }
 
@@ -246,10 +244,23 @@ function inst64_X_APP_NAME_X_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
+    bl64_os_check_compatibility \
+      "${BL64_OS_ALP}" \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_FD}" \
+      "${BL64_OS_UB}" ||
+    return $?
   fi
-  # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
+  inst64_X_APP_NAME_X_select_platform &&
+    inst64_X_APP_NAME_X_select_packages ||
+    return $?
+  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
+    'INST64_X_APP_NAME_CAPS_X_PLATFORM' \
+    'INST64_X_APP_NAME_CAPS_X_SOURCE' \
+    'INST64_X_APP_NAME_CAPS_X_TARGET' \
+    'INST64_X_APP_NAME_CAPS_X_VERSION' \
+    'INST64_X_APP_NAME_CAPS_X_CLI_PATH'
 }
 
 #

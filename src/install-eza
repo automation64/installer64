@@ -223,7 +223,8 @@ function inst64_eza_initialize() {
       "$INST64_EZA_METHOD" \
       'BINARY'
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: EZA' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: EZA' \
     'INST64_EZA_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

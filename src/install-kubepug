@@ -170,7 +170,8 @@ function inst64_kubepug_initialize() {
     bl64_check_privilege_not_root &&
     bl64_check_command "$INST64_KUBEPUG_KREW_BIN"
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: KubePug' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: KubePug' \
     'INST64_KUBEPUG_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

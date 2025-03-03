@@ -209,7 +209,8 @@ function inst64_awsshell_initialize() {
         "${BL64_OS_UB}"
   fi
   # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: AWS Shell' \
+  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  bl64_msg_show_setup 'Install application: AWS Shell' \
     'INST64_AWSSHELL_METHOD' 'INST64_SYSTEM_WIDE' 
 }
 

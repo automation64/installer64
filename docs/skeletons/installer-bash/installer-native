@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-git-repo-1.2.0
+# Template: install-native-2.4.0
+#   Skeleton: installer-base-2.4.0
+#   Snippet: install-os-package-3.3.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -24,14 +25,16 @@ declare INST64_HOME="${HOME}/at64"
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -52,14 +55,12 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_X_APP_NAME_CAPS_X_GIT_SERVER="${INST64_X_APP_NAME_CAPS_X_GIT_SERVER:-X_GIT_SERVER_X}"
-declare INST64_X_APP_NAME_CAPS_X_GIT_REPO="${INST64_X_APP_NAME_CAPS_X_GIT_REPO:-X_GIT_REPO_X}"
-declare INST64_X_APP_NAME_CAPS_X_TARGET=''
-declare INST64_X_APP_NAME_CAPS_X_BRANCH="${INST64_X_APP_NAME_CAPS_X_BRANCH:-main}"
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-GIT}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
+# Enable development packages?
+declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-$BL64_VAR_OFF}"
+declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
 
-declare INST64_X_APP_NAME_CAPS_X_INSTALLER=''
 declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
 declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
 declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
@@ -68,46 +69,32 @@ declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_git_repo() {
+function inst64_X_APP_NAME_X_install_os_packages() {
   bl64_dbg_app_show_function
-  local app_target_mode='0755'
-  local app_target_owner='root'
-  local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  bl64_msg_show_task 'deploy packages'
+  # shellcheck disable=SC2086
+  bl64_pkg_deploy $INST64_X_APP_NAME_CAPS_X_PACKAGES
+}
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-  else
-    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-    app_target_owner="$BL64_VAR_DEFAULT"
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_X_APP_NAME_X_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+      [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='AUTO'
   fi
-
-  bl64_msg_show_task 'download application'
-  bl64_rxtx_git_get_dir \
-    "${INST64_X_APP_NAME_CAPS_X_GIT_SERVER}/${INST64_X_APP_NAME_CAPS_X_GIT_REPO}" \
-    '.' \
-    "$INST64_X_APP_NAME_CAPS_X_TARGET" \
-    "$BL64_VAR_ON" \
-    "$INST64_X_APP_NAME_CAPS_X_BRANCH" ||
-    return $?
-
-  bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ]]; then
-    "$INST64_X_APP_NAME_CAPS_X_INSTALLER" ||
-      return $?
-  fi
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
-      "$INST64_X_APP_NAME_CAPS_X_TARGET" ||
-      return $?
-  fi
-
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
-      return $?
-  fi
-
+  [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -124,8 +111,8 @@ function inst64_X_APP_NAME_X_install_git_repo() {
 #######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    inst64_X_APP_NAME_X_install_git_repo
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    inst64_X_APP_NAME_X_install_os_packages
   fi
 }
 
@@ -142,8 +129,13 @@ function inst64_X_APP_NAME_X_install() {
 #######################################
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    if bl64_os_is_distro $X_OS_VERSION_TAG_X; then
+      INST64_X_APP_NAME_CAPS_X_PACKAGES='X_OS_PACKAGE_LIST_X'
+      bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
+        INST64_X_APP_NAME_CAPS_X_PACKAGES="${INST64_X_APP_NAME_CAPS_X_PACKAGES} X_OS_PACKAGE_LIST_X"
+    fi
+    INST64_X_APP_NAME_CAPS_X_CLI_PATH="/usr/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -163,8 +155,8 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    inst64_X_APP_NAME_X_select_packages
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+      bl64_pkg_setup
   fi
 }
 
@@ -204,21 +196,23 @@ function inst64_X_APP_NAME_X_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
-  INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
   bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
     "$INST64_X_APP_NAME_CAPS_X_METHOD" \
-    'GIT' ||
+    'NATIVE' ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    bl64_check_privilege_root &&
+      bl64_os_check_compatibility \
+        # X_OS_VERSION_TAG_X ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? == 0)) && bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' 
+  inst64_X_APP_NAME_X_select_platform &&
+    inst64_X_APP_NAME_X_select_packages ||
+    return $?
+  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
+    'INST64_X_APP_NAME_CAPS_X_CLI_PATH'
 }
 
 #
