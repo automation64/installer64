@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.2.0]
+## [5.0.0]
 
 ### Added
 
@@ -29,8 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Multi Machine support
 - Helm
   - Multi Machine support
+- LazyDocker
+  - Multi Machine support
 - YQ
   - Multi Machine support
+- ShellCheck
+  - MacOS support
 - NeoVIM
   - MacOS support
 - FD
@@ -47,6 +51,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Link to local/bin
 - DevBin64
   - Link to local/bin
+
+### Changed
+
+- ShellCheck
+  - **breaking-change**. Default method is now binary
+- GHCLI
+  - **breaking-change**. Default method is now binary
+- GHCLI
 
 ## [4.1.2]
 
