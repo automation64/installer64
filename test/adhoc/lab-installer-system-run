@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+declare installer="/project/src/install-${1}"
+
+[[ ! -d /project ]] && echo 'Fatal: test for lab container only' && exit 1
+[[ ! -f "$installer" ]] && echo "Fatal: Installer not found (${installer})" && exit 1
+
+export INST64_SYSTEM_WIDE='YES'
+sudo -E "$installer"
