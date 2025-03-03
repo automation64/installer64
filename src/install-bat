@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.2.0
-# Snippet: install-github-release-3.2.1
+# Template: install-github-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -77,10 +76,7 @@ function inst64_bat_install_binary_release() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_BAT_CLI_NAME}-${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}/${INST64_BAT_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_BAT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_BAT_CLI_NAME}"
-  else
-    INST64_BAT_CLI_PATH="${INST64_BAT_TARGET}/${INST64_BAT_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -125,10 +121,18 @@ function inst64_bat_select_platform() {
   bl64_dbg_app_show_function
   [[ -n "$INST64_BAT_PLATFORM" ]] && return 0
   if [[ "$INST64_BAT_METHOD" == 'BINARY' ]]; then
-    if bl64_os_is_distro "${BL64_OS_ALP}"; then
-      INST64_BAT_PLATFORM='x86_64-unknown-linux-musl'
-    elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
-      INST64_BAT_PLATFORM='x86_64-unknown-linux-gnu'
+    if [[ -z "$INST64_BAT_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_BAT_PLATFORM='aarch64-apple-darwin' ;;
+      "$BL64_OS_MACHINE_AMD64")
+        if bl64_os_is_distro "${BL64_OS_ALP}"; then
+          INST64_BAT_PLATFORM='x86_64-unknown-linux-musl'
+        elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
+          INST64_BAT_PLATFORM='x86_64-unknown-linux-gnu'
+        fi
+        ;;
+      esac
     fi
   fi
   [[ -z "$INST64_BAT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
@@ -148,9 +152,6 @@ function inst64_bat_select_platform() {
 #######################################
 function inst64_bat_install() {
   bl64_dbg_app_show_function
-  inst64_bat_select_platform &&
-    inst64_bat_select_packages ||
-    return $?
   if [[ "$INST64_BAT_METHOD" == 'BINARY' ]]; then
     inst64_bat_install_binary_release
   fi
@@ -179,6 +180,11 @@ function inst64_bat_select_packages() {
     package_prefix='bat-'
     package_sufix='.tar.gz'
     INST64_BAT_PACKAGES="${package_prefix}${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}${package_sufix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_BAT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_BAT_CLI_NAME}"
+    else
+      INST64_BAT_CLI_PATH="${INST64_BAT_TARGET}/${INST64_BAT_CLI_NAME}"
+    fi
   fi
 
   [[ -z "$INST64_BAT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
@@ -252,23 +258,32 @@ function inst64_bat_initialize() {
         return $?
     fi
     bl64_os_check_compatibility \
+      "$BL64_OS_MCOS" \
       "$BL64_OS_ALP" \
       "$BL64_OS_UB" \
       "$BL64_OS_FD" \
       "$BL64_OS_KL" \
-      "$BL64_OS_OL"
+      "$BL64_OS_OL" ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_bat_select_platform &&
+    inst64_bat_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: Bat' \
-    'INST64_BAT_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_BAT_METHOD' 'INST64_SYSTEM_WIDE' \
+    'INST64_BAT_PLATFORM' \
+    'INST64_BAT_REPO_OWNER' \
+    'INST64_BAT_REPO_NAME' \
+    'INST64_BAT_TARGET' \
+    'INST64_BAT_VERSION' \
+    'INST64_BAT_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

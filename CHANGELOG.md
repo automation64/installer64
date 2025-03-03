@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - BTop
 - ArgoCDCLI
   - Multi Machine support
+- Bat
+  - MacOS support
 - AWSCli
   - MacOS support
 - KubeCTL
