@@ -92,10 +92,7 @@ function inst64_terraform_install_custom_package() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_TERRAFORM_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_TERRAFORM_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TERRAFORM_CLI_NAME}"
-  else
-    INST64_TERRAFORM_CLI_PATH="${INST64_TERRAFORM_TARGET}/${INST64_TERRAFORM_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -229,6 +226,11 @@ function inst64_terraform_select_packages() {
     INST64_TERRAFORM_PACKAGES="${package_prefix}${INST64_TERRAFORM_VERSION#v}_${INST64_TERRAFORM_PLATFORM}${package_sufix}"
     INST64_TERRAFORM_PACKAGE_URL="${INST64_TERRAFORM_SOURCE}/${INST64_TERRAFORM_VERSION#v}"
     [[ -z "$INST64_TERRAFORM_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_TERRAFORM_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TERRAFORM_CLI_NAME}"
+    else
+      INST64_TERRAFORM_CLI_PATH="${INST64_TERRAFORM_TARGET}/${INST64_TERRAFORM_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_TERRAFORM_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -325,7 +327,8 @@ function inst64_terraform_initialize() {
     'INST64_TERRAFORM_PLATFORM' \
     'INST64_TERRAFORM_SOURCE' \
     'INST64_TERRAFORM_TARGET' \
-    'INST64_TERRAFORM_VERSION'
+    'INST64_TERRAFORM_VERSION' \
+    'INST64_TERRAFORM_CLI_PATH'
 }
 
 #

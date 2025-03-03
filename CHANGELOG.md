@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Multi Machine support
 - Terraform
   - Multi Machine support
+- SysDen64
+  - Link to local/bin
+- DevBin64
+  - Link to local/bin
 
 ## [4.1.2]
 
