@@ -125,7 +125,7 @@ function inst64_delta_select_platform() {
       case "$BL64_OS_MACHINE" in
       "$BL64_OS_MACHINE_ARM64") INST64_DELTA_PLATFORM='aarch64-apple-darwin' ;;
       "$BL64_OS_MACHINE_AMD64")
-        if bl64_os_is_distro "${BL64_OS_ALP}"; then
+        if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
           INST64_DELTA_PLATFORM='x86_64-unknown-linux-musl'
         elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
           INST64_DELTA_PLATFORM='x86_64-unknown-linux-gnu'
