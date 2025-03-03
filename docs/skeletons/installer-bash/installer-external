@@ -187,6 +187,7 @@ function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
+      inst64_X_APP_NAME_X_add_repository &&
       bl64_pkg_setup
   fi
 }
@@ -240,7 +241,6 @@ function inst64_X_APP_NAME_X_initialize() {
       return $?
   fi
   inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_add_repository &&
     inst64_X_APP_NAME_X_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
