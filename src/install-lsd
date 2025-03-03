@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-github-release-3.4.0
-# Snippet: select-platform-1.0.0
+# Template: install-github-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
@@ -79,10 +77,7 @@ function inst64_lsd_install_binary_release() {
   local app_cli_source="${INST64_LSD_CLI_NAME}"
   local app_work_path="lsd-${INST64_LSD_VERSION}-${INST64_LSD_PLATFORM}/${app_cli_source}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_LSD_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_LSD_CLI_NAME}"
-  else
-    INST64_LSD_CLI_PATH="${INST64_LSD_TARGET}/${INST64_LSD_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -127,11 +122,17 @@ function inst64_lsd_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_LSD_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_LSD_PLATFORM" ]]; then
-      if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
-        INST64_LSD_PLATFORM='x86_64-unknown-linux-musl'
-      else
-        INST64_LSD_PLATFORM='x86_64-unknown-linux-gnu'
-      fi
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_LSD_PLATFORM='aarch64-apple-darwin' ;;
+      "$BL64_OS_MACHINE_AMD64")
+        if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
+          INST64_LSD_PLATFORM='x86_64-unknown-linux-musl'
+        elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
+          INST64_LSD_PLATFORM='x86_64-unknown-linux-gnu'
+        fi
+        ;;
+      esac
     fi
   fi
   [[ -z "$INST64_LSD_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
@@ -179,6 +180,12 @@ function inst64_lsd_select_packages() {
     package_prefix='lsd-'
     package_sufix='.tar.gz'
     INST64_LSD_PACKAGES="${package_prefix}${INST64_LSD_VERSION}-${INST64_LSD_PLATFORM}${package_sufix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_LSD_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_LSD_CLI_NAME}"
+    else
+      INST64_LSD_CLI_PATH="${INST64_LSD_TARGET}/${INST64_LSD_CLI_NAME}"
+      app_target_owner="$BL64_VAR_DEFAULT"
+    fi
   fi
   [[ -z "$INST64_LSD_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -199,9 +206,7 @@ function inst64_lsd_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_LSD_METHOD" == 'BINARY' ]]; then
-    inst64_lsd_select_platform &&
-      inst64_lsd_select_packages &&
-      bl64_arc_setup
+    bl64_arc_setup
   fi
 }
 
@@ -253,17 +258,24 @@ function inst64_lsd_initialize() {
         return $?
     fi
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_lsd_select_platform &&
+    inst64_lsd_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: LSDeluxe' \
-    'INST64_LSD_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_LSD_METHOD' 'INST64_SYSTEM_WIDE' \
+    'INST64_LSD_PLATFORM' \
+    'INST64_LSD_REPO_OWNER' \
+    'INST64_LSD_REPO_NAME' \
+    'INST64_LSD_TARGET' \
+    'INST64_LSD_VERSION' \
+    'INST64_LSD_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - BTop
+- LSD
+  - Multi Machine support
 - Delta
   - Multi Machine support
 - ArgoCDCLI
