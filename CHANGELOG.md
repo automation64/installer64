@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer
   - BTop
+- LazyGit
+  - Multi Machine support
 - Kind
   - Multi Machine support
 - K9S

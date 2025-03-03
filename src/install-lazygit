@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-github-release-3.2.4
-# Snippet: select-platform-1.0.0
+# Template: install-github-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
@@ -78,10 +76,7 @@ function inst64_lazygit_install_binary_release() {
   local app_cli_mode='0755'
   local app_cli_source="${INST64_LAZYGIT_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_LAZYGIT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_LAZYGIT_CLI_NAME}"
-  else
-    INST64_LAZYGIT_CLI_PATH="${INST64_LAZYGIT_TARGET}/${INST64_LAZYGIT_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -125,7 +120,13 @@ function inst64_lazygit_install_binary_release() {
 function inst64_lazygit_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_LAZYGIT_METHOD" == 'BINARY' ]]; then
-      [[ -z "$INST64_LAZYGIT_PLATFORM" ]] && INST64_LAZYGIT_PLATFORM='Linux_x86_64'
+    if [[ -z "$INST64_LAZYGIT_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+        "$BL64_OS_MACHINE_ARM64" ) INST64_LAZYGIT_PLATFORM='Darwin_arm64';;
+        "$BL64_OS_MACHINE_AMD64" ) INST64_LAZYGIT_PLATFORM='Linux_amd64';;
+      esac
+    fi
   fi
   [[ -z "$INST64_LAZYGIT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
@@ -144,9 +145,6 @@ function inst64_lazygit_select_platform() {
 #######################################
 function inst64_lazygit_install() {
   bl64_dbg_app_show_function
-  inst64_lazygit_select_platform &&
-    inst64_lazygit_select_packages ||
-    return $?
   if [[ "$INST64_LAZYGIT_METHOD" == 'BINARY' ]]; then
     inst64_lazygit_install_binary_release
   fi
@@ -175,6 +173,11 @@ function inst64_lazygit_select_packages() {
     package_prefix='lazygit_'
     package_sufix='.tar.gz'
     INST64_LAZYGIT_PACKAGES="${package_prefix}${INST64_LAZYGIT_VERSION#v}_${INST64_LAZYGIT_PLATFORM}${package_sufix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_LAZYGIT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_LAZYGIT_CLI_NAME}"
+    else
+      INST64_LAZYGIT_CLI_PATH="${INST64_LAZYGIT_TARGET}/${INST64_LAZYGIT_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_LAZYGIT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -248,17 +251,24 @@ function inst64_lazygit_initialize() {
         return $?
     fi
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_lazygit_select_platform &&
+    inst64_lazygit_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: LazyGIT' \
-    'INST64_LAZYGIT_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_LAZYGIT_METHOD' 'INST64_SYSTEM_WIDE' \
+    'INST64_LAZYGIT_PLATFORM' \
+    'INST64_LAZYGIT_REPO_OWNER' \
+    'INST64_LAZYGIT_REPO_NAME' \
+    'INST64_LAZYGIT_TARGET' \
+    'INST64_LAZYGIT_VERSION' \
+    'INST64_LAZYGIT_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
