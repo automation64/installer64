@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Multi Machine support
 - GHCLI
   - Multi Machine support
+- Helm
+  - Multi Machine support
 - YQ
   - Multi Machine support
 - NeoVIM
