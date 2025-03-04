@@ -167,7 +167,7 @@ function inst64_devbin64_select_packages() {
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_DEVBIN64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_DEVBIN64_CLI_NAME}"
     else
-      INST64_DEVBIN64_CLI_PATH="${INST64_DEVBIN64_TARGET}/${INST64_DEVBIN64_CLI_NAME}"
+      INST64_DEVBIN64_CLI_PATH="${INST64_DEVBIN64_TARGET}/bin/${INST64_DEVBIN64_CLI_NAME}"
       app_target_owner="$BL64_VAR_DEFAULT"
     fi
   fi
@@ -260,7 +260,7 @@ function inst64_devbin64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '1.2.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
