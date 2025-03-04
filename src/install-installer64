@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-NO}"
 
 # shellcheck disable=SC2034
-declare INST64_INSTALLER64_SCRIPT_VERSION='1.0.0'
+declare INST64_INSTALLER64_SCRIPT_VERSION='1.0.1'
 # Installation method
 declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
 # Source repository
@@ -214,16 +214,19 @@ function inst64_installer64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_installer64_initialize() {
-  if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
-    INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-  else
-    INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
-    if [[ ! -d "$INST64_OPT_ROOT" ]]; then
-      mkdir "$INST64_OPT_ROOT" ||
-        return $?
+  if [[ -z "$INST64_INSTALLER64_TARGET" ]]; then
+    if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
+      INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+    else
+      INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
+      if [[ ! -d "$INST64_OPT_ROOT" ]]; then
+        mkdir "$INST64_OPT_ROOT" ||
+          return $?
+      fi
     fi
+    INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/inst64}"
   fi
-  INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/inst64}"
+
   [[ "$INST64_INSTALLER64_METHOD" != 'BINARY' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1
