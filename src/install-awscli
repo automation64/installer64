@@ -149,7 +149,7 @@ function inst64_awscli_select_packages() {
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_AWSCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_AWSCLI_CLI_NAME}"
     else
-      INST64_AWSCLI_CLI_PATH="${INST64_AWSCLI_TARGET}/${INST64_AWSCLI_CLI_NAME}"
+      INST64_AWSCLI_CLI_PATH="${INST64_AWSCLI_TARGET}/bin/${INST64_AWSCLI_CLI_NAME}"
     fi
   fi
   [[ -z "$INST64_AWSCLI_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
@@ -245,7 +245,7 @@ function inst64_awscli_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.5.0'
+bl64_lib_script_version_set '1.5.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
