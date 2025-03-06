@@ -95,15 +95,23 @@ INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
   - Download asset: `install-installer64`
 
 ```shell
-export TARGET_RELEASE='REPLACE_WITH_SELECTED_TARGET_RELEASE' &&
+export TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
+test -n "$TARGET_RELEASE" &&
 curl -LO https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/install-installer64 &&
-chmod 755 install-installer64
+chmod 755 install-installer64 &&
+echo "Installer ready: ./install-installer64" ||
+echo 'Error: unable to download installer'
 ```
 
 - Deploy _Installer64_ :
 
 ```shell
-sudo ./install-installer64
+# Install on user's home (user-wide)
+./install-installer64
+
+# or, install on /opt (system-wide)
+export INST64_SYSTEM_WIDE='YES'
+sudo -E ./install-installer64
 ```
 
 ## Contributing
