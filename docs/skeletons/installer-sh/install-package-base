@@ -29,6 +29,7 @@ INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
 INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 # shellcheck disable=SC2034
 INST64_X_APP_NAME_CAPS_X_SCRIPT_VERSION='1.0.0'
+INST64_X_APP_NAME_CAPS_X_PLATFORM=''
 
 #
 # Functions
@@ -89,10 +90,10 @@ inst64_X_APP_NAME_X_check_root() {
 #   >0: unable to selection
 #######################################
 inst64_X_APP_NAME_X_select_platform() {
-  INST64_HOMEBREW_PLATFORM="$(uname -s)"
-  [ -z "$INST64_HOMEBREW_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
-  if [ "$INST64_HOMEBREW_PLATFORM" != 'Darwin' ] && [ "$INST64_HOMEBREW_PLATFORM" != 'Linux' ]; then
-    echo "Error: unsupported platform (${INST64_HOMEBREW_PLATFORM})"
+  INST64_X_APP_NAME_CAPS_X_PLATFORM="$(uname -s)"
+  [ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
+  if [ "$INST64_X_APP_NAME_CAPS_X_PLATFORM" != 'Darwin' ] && [ "$INST64_X_APP_NAME_CAPS_X_PLATFORM" != 'Linux' ]; then
+    echo "Error: unsupported platform (${INST64_X_APP_NAME_CAPS_X_PLATFORM})"
     return 1
   fi
 }

@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-NO}"
 
 # shellcheck disable=SC2034
-declare INST64_INSTALLER64_SCRIPT_VERSION='1.0.1'
+declare INST64_INSTALLER64_SCRIPT_VERSION='1.1.0'
 # Installation method
 declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
 # Source repository
@@ -39,6 +39,9 @@ declare INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-}"
 # Target application version
 declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 
+declare INST64_INSTALLER64_PLATFORM=''
+declare INST64_INSTALLER64_SYSTEM_USER=''
+declare INST64_INSTALLER64_SYSTEM_GROUP=''
 declare INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 declare INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
 declare INST64_INSTALLER64_PACKAGES=''
@@ -95,15 +98,15 @@ function inst64_installer64_download_binary_package() {
 
 function inst64_installer64_open_binary_package() {
   local package_name="$1"
-  local app_target_owner='root'
 
-  echo 'Task: deploy application'
+  echo "Task: deploy application (package: ${package_name})"
   [[ -f "${INST64_TMP}/${package_name}" ]] &&
     tar zx -C "$INST64_INSTALLER64_TARGET" -f "${INST64_TMP}/${package_name}" &&
     chmod "$INST64_INSTALLER64_TARGET_MODE_FILE" "$INST64_INSTALLER64_TARGET"/* ||
     return $?
+
   if [[ "$EUID" == '0' ]]; then
-    chown -R "${app_target_owner}:${app_target_owner}" "${INST64_INSTALLER64_TARGET}" ||
+    chown -R "${INST64_INSTALLER64_SYSTEM_USER}:${INST64_INSTALLER64_SYSTEM_GROUP}" "${INST64_INSTALLER64_TARGET}" ||
       return $?
   fi
   rm -f "${INST64_TMP}/${package_name}"
@@ -121,6 +124,35 @@ function inst64_installer64_install_binary_release() {
 }
 
 #######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+inst64_installer64_select_platform() {
+  INST64_INSTALLER64_PLATFORM="$(uname -s)"
+  [ -z "$INST64_INSTALLER64_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
+  if [ "$INST64_INSTALLER64_PLATFORM" != 'Darwin' ] && [ "$INST64_INSTALLER64_PLATFORM" != 'Linux' ]; then
+    echo "Error: unsupported platform (${INST64_INSTALLER64_PLATFORM})"
+    return 1
+  fi
+  if [[ "$INST64_INSTALLER64_PLATFORM" == 'Darwin' ]]; then
+    INST64_INSTALLER64_SYSTEM_USER='root'
+    INST64_INSTALLER64_SYSTEM_GROUP='root'
+  elif [[ "$INST64_INSTALLER64_PLATFORM" == 'Darwin' ]]; then
+    INST64_INSTALLER64_SYSTEM_USER='root'
+    INST64_INSTALLER64_SYSTEM_GROUP='wheel'
+  fi
+}
+
+#######################################
 # Install application packages
 #
 # Arguments:
@@ -132,7 +164,6 @@ function inst64_installer64_install_binary_release() {
 #   >0: unable to install package
 #######################################
 function inst64_installer64_install() {
-  inst64_installer64_select_packages || return $?
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
     inst64_installer64_install_binary_release &&
       "${INST64_INSTALLER64_TARGET}/install-bashlib64"
@@ -245,16 +276,25 @@ function inst64_installer64_initialize() {
     return 1
   fi
   INST64_INSTALLER64_VERSION_FILE="${INST64_INSTALLER64_TARGET}/version"
+  inst64_installer64_select_platform &&
+    inst64_installer64_select_packages ||
+    return $?
+  echo 'Install application: Installer64'
+  echo "  INST64_SYSTEM_WIDE: ${INST64_SYSTEM_WIDE}"
+  echo "  INST64_INSTALLER64_METHOD: ${INST64_INSTALLER64_METHOD}"
+  echo "  INST64_INSTALLER64_PLATFORM: ${INST64_INSTALLER64_PLATFORM}"
+  echo "  INST64_INSTALLER64_SOURCE: ${INST64_INSTALLER64_SOURCE}"
+  echo "  INST64_INSTALLER64_TARGET: ${INST64_INSTALLER64_TARGET}"
+  echo "  INST64_INSTALLER64_VERSION: ${INST64_INSTALLER64_VERSION}"
 }
 
 #
 # Main
 #
 
-declare inst64_installer64_task_description='Install application: Installer64'
 declare -i inst64_installer64_status=0
 
-echo "Process: [${inst64_installer64_task_description}] started"
+echo "Process: [${0}] started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
 inst64_installer64_initialize &&
@@ -264,7 +304,7 @@ inst64_installer64_initialize &&
 inst64_installer64_status=$?
 
 ((inst64_installer64_status == 0)) &&
-  echo "Process: [${inst64_installer64_task_description}] finished successfully" ||
-  echo "Process: [${inst64_installer64_task_description}] finished with errors: exit-status-${inst64_installer64_status}"
+  echo "Process: [${0}] finished successfully" ||
+  echo "Process: [${0}] finished with errors: exit-status-${inst64_installer64_status}"
 # shellcheck disable=SC2086
 exit $inst64_installer64_status

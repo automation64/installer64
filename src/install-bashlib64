@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.0.0'
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.0'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
@@ -39,6 +39,9 @@ declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-}"
 # Target application version
 declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
+declare INST64_BASHLIB64_PLATFORM=''
+declare INST64_BASHLIB64_SYSTEM_USER=''
+declare INST64_BASHLIB64_SYSTEM_GROUP=''
 declare INST64_BASHLIB64_DOWNLOAD_TOOL='none'
 declare INST64_BASHLIB64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
 declare INST64_BASHLIB64_PACKAGES=''
@@ -93,15 +96,14 @@ function inst64_bashlib64_download_binary_package() {
 
 function inst64_bashlib64_open_binary_package() {
   local package_name="$1"
-  local app_target_owner='root'
 
-  echo 'Task: install application'
+  echo "Task: deploy application (package: ${package_name})"
   [[ -f "${INST64_TMP}/${package_name}" ]] &&
     tar zx -C "$INST64_BASHLIB64_TARGET" -f "${INST64_TMP}/${package_name}" &&
     chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
-    chown -R "${app_target_owner}:${app_target_owner}" "${INST64_BASHLIB64_TARGET}" ||
+    chown -R "${INST64_INSTALLER64_SYSTEM_USER}:${INST64_INSTALLER64_SYSTEM_GROUP}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
   rm -f "${INST64_TMP}/${package_name}"
@@ -119,6 +121,35 @@ function inst64_bashlib64_install_binary_release() {
 }
 
 #######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+inst64_bashlib64_select_platform() {
+  INST64_BASHLIB64_PLATFORM="$(uname -s)"
+  [ -z "$INST64_BASHLIB64_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
+  if [ "$INST64_BASHLIB64_PLATFORM" != 'Darwin' ] && [ "$INST64_BASHLIB64_PLATFORM" != 'Linux' ]; then
+    echo "Error: unsupported platform (${INST64_BASHLIB64_PLATFORM})"
+    return 1
+  fi
+  if [[ "$INST64_BASHLIB64_PLATFORM" == 'Darwin' ]]; then
+    INST64_BASHLIB64_SYSTEM_USER='root'
+    INST64_BASHLIB64_SYSTEM_GROUP='root'
+  elif [[ "$INST64_BASHLIB64_PLATFORM" == 'Darwin' ]]; then
+    INST64_BASHLIB64_SYSTEM_USER='root'
+    INST64_BASHLIB64_SYSTEM_GROUP='wheel'
+  fi
+}
+
+#######################################
 # Install application packages
 #
 # Arguments:
@@ -130,7 +161,6 @@ function inst64_bashlib64_install_binary_release() {
 #   >0: unable to install package
 #######################################
 function inst64_bashlib64_install() {
-  inst64_bashlib64_select_packages || return $?
   if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
     inst64_bashlib64_install_binary_release
   fi
@@ -233,16 +263,25 @@ function inst64_bashlib64_initialize() {
     echo 'Error: no archive tool found (tar)'
     return 1
   fi
+  inst64_bashlib64_select_platform &&
+    inst64_bashlib64_select_packages ||
+    return $?
+  echo 'Install application: Bashlib64'
+  echo "  INST64_SYSTEM_WIDE: ${INST64_SYSTEM_WIDE}"
+  echo "  INST64_BASHLIB64_METHOD: ${INST64_BASHLIB64_METHOD}"
+  echo "  INST64_BASHLIB64_PLATFORM: ${INST64_BASHLIB64_PLATFORM}"
+  echo "  INST64_BASHLIB64_SOURCE: ${INST64_BASHLIB64_SOURCE}"
+  echo "  INST64_BASHLIB64_TARGET: ${INST64_BASHLIB64_TARGET}"
+  echo "  INST64_BASHLIB64_VERSION: ${INST64_BASHLIB64_VERSION}"
 }
 
 #
 # Main
 #
 
-declare inst64_bashlib64_task_description='Install application: BashLib64'
 declare -i inst64_bashlib64_status=0
 
-echo "Process: [${inst64_bashlib64_task_description}] started"
+echo "Process: [${0}] started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
 inst64_bashlib64_initialize &&
@@ -252,7 +291,7 @@ inst64_bashlib64_initialize &&
 inst64_bashlib64_status=$?
 
 ((inst64_bashlib64_status == 0)) &&
-  echo "Process: [${inst64_bashlib64_task_description}] finished successfully" ||
-  echo "Process: [${inst64_bashlib64_task_description}] finished with errors: exit-status-${inst64_bashlib64_status}"
+  echo "Process: [${0}] finished successfully" ||
+  echo "Process: [${0}] finished with errors: exit-status-${inst64_bashlib64_status}"
 # shellcheck disable=SC2086
 exit $inst64_bashlib64_status
