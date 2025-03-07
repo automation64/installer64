@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.0'
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.1'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
@@ -140,7 +140,7 @@ inst64_bashlib64_select_platform() {
     echo "Error: unsupported platform (${INST64_BASHLIB64_PLATFORM})"
     return 1
   fi
-  if [[ "$INST64_BASHLIB64_PLATFORM" == 'Darwin' ]]; then
+  if [[ "$INST64_INSTALLER64_PLATFORM" == 'Linux' ]]; then
     INST64_BASHLIB64_SYSTEM_USER='root'
     INST64_BASHLIB64_SYSTEM_GROUP='root'
   elif [[ "$INST64_BASHLIB64_PLATFORM" == 'Darwin' ]]; then
