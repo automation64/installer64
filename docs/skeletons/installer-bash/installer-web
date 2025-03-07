@@ -74,12 +74,14 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
-  local app_target_owner='root'
+  local app_target_owner="$BL64_IAM_SYSTEM_USER"
+  local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
   local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
+    app_target_group="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
@@ -91,9 +93,9 @@ function inst64_X_APP_NAME_X_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
     bl64_fs_path_copy \
-      "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
+      "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
