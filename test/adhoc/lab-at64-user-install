@@ -4,3 +4,4 @@
 
 mkdir $HOME/at64
 INST64_SYSTEM_WIDE="NO" /project/src/install-installer64
+INST64_SYSTEM_WIDE="NO" /project/src/install-bashlib64

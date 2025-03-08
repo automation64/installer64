@@ -4,3 +4,4 @@
 
 export INST64_SYSTEM_WIDE="YES"
 sudo -E /project/src/install-installer64
+sudo -E /project/src/install-bashlib64
