@@ -7,7 +7,8 @@ fi
 
 # Install requirements
 export PATH="${HOME}/.krew/bin:$PATH"
-sudo /source/install-kubectl &&
+export INST64_SYSTEM_WIDE='YES'
+sudo -E /source/install-kubectl &&
   /source/install-krew ||
   exit $?
 
