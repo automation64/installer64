@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Starship
+  - Multi Machine support
 - TFLint
   - Multi Machine support
 - TFSec
