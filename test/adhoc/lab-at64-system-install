@@ -2,5 +2,5 @@
 
 [[ ! -d /project ]] && echo 'Error: test for lab container only' && exit 1
 
-mkdir $HOME/at64
-INST64_SYSTEM_WIDE="NO" /project/src/install-bashlib64
+export INST64_SYSTEM_WIDE="YES"
+sudo -E /project/src/install-installer64
