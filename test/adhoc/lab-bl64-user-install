@@ -3,4 +3,4 @@
 [[ ! -d /project ]] && echo 'Error: test for lab container only' && exit 1
 
 mkdir $HOME/at64
-INST64_SYSTEM_WIDE="NO" ./src/install-bashlib64
+INST64_SYSTEM_WIDE="NO" /project/src/install-bashlib64
