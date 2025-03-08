@@ -101,6 +101,10 @@ function inst64_yq_install_binary_release() {
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_YQ_TARGET}/${app_cli_source}" "$INST64_YQ_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
+  else
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${INST64_YQ_TARGET}/${app_cli_source}" "$INST64_YQ_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
   fi
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -271,7 +275,7 @@ function inst64_yq_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.7.0'
+bl64_lib_script_version_set '1.7.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

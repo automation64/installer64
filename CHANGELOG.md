@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BashLib64
   - Wrong var name
+- YQ, Kind
+  - user-wide binary name
 
 ### Changed
 
