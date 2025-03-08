@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers
   - UV
+  - Terraform Docs
 - Trivy
   - Multi Machine support
 - IstioCTL
