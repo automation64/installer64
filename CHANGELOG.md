@@ -12,6 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BashLib64
   - Wrong var name
 
+### Changed
+
+- HadoLint
+  - upgraded installer skeleton
+
+### Added
+
+- TFLint
+  - Multi Machine support
+- TFSec
+  - Multi Machine support
+- GitLeaks
+  - Multi Machine support
+- LocalStack
+  - Multi Machine support
+- Ruff
+  - Multi Machine support
+
 ## [5.2.0]
 
 ### Changed
@@ -111,7 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installer
   - The default is now to do non system-wide installation
 - All
-  - **breaking-change** Renamed parameter: INST64_<MODULE>_SYSTEM_WIDE -> INST64_SYSTEM_WIDE
+  - **breaking-change** Renamed parameter: INST64\_<MODULE>\_SYSTEM_WIDE -> INST64_SYSTEM_WIDE
 
 ## [3.41.2]
 
