@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.0]
+
+### Changed
+
+- Template
+  - install-github-2.4.0, install-custom-2.4.0, install-git-2.4.0, install-web-2.4.0: system wide now uses system group for file ownership
+
 ## [5.1.1]
+
+### Added
 
 - Installer64
   - Add multi-platform support
