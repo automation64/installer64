@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-python-3.2.2
+# Template: install-python-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -56,6 +55,8 @@ declare INST64_ANSIBLE_METHOD="${INST64_ANSIBLE_METHOD:-PIP}"
 
 declare INST64_ANSIBLE_PIPX_BIN="${INST64_ANSIBLE_PIPX_BIN:-pipx}"
 declare INST64_ANSIBLE_PACKAGES=''
+declare INST64_ANSIBLE_PACKAGES_PRE=''
+declare INST64_ANSIBLE_PACKAGES_POST=''
 declare INST64_ANSIBLE_CLI_NAME='ansible'
 declare INST64_ANSIBLE_CLI_PATH=''
 
@@ -67,19 +68,40 @@ function inst64_ansible_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_ANSIBLE_CLI_PATH="${HOME}/.local/bin/${INST64_ANSIBLE_CLI_NAME}"
+  if [[ -n "$INST64_ANSIBLE_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_ANSIBLE_PACKAGES_PRE ||
+      return $?
+  fi
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_deploy $INST64_ANSIBLE_PACKAGES
+    bl64_py_pip_usr_deploy $INST64_ANSIBLE_PACKAGES ||
+    return $?
+  if [[ -n "$INST64_ANSIBLE_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_ANSIBLE_PACKAGES_POST ||
+      return $?
+  fi
 }
 
 function inst64_ansible_install_with_pipx() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_ANSIBLE_CLI_PATH="${INST64_ANSIBLE_CLI_NAME}"
-  # shellcheck disable=SC2086
-  "$INST64_ANSIBLE_PIPX_BIN" install $INST64_ANSIBLE_PACKAGES
+  if [[ -n "$INST64_ANSIBLE_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_ANSIBLE_PIPX_BIN" install --preinstall $INST64_ANSIBLE_PACKAGES_PRE $INST64_ANSIBLE_PACKAGES ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    "$INST64_ANSIBLE_PIPX_BIN" inject $INST64_ANSIBLE_PACKAGES $INST64_ANSIBLE_PACKAGES_PRE ||
+      return $?
+  fi
+  if [[ -n "$INST64_ANSIBLE_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_ANSIBLE_PIPX_BIN" inject $INST64_ANSIBLE_PACKAGES $INST64_ANSIBLE_PACKAGES_POST ||
+      return $?
+  fi
 }
 
 #######################################
@@ -124,6 +146,11 @@ function inst64_ansible_select_packages() {
       version_target="==${INST64_ANSIBLE_VERSION}.*"
     fi
     INST64_ANSIBLE_PACKAGES="ansible-core${version_target}"
+    if [[ "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
+      INST64_ANSIBLE_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_ANSIBLE_CLI_NAME}"
+    elif [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' ]]; then
+      INST64_ANSIBLE_CLI_PATH="${INST64_ANSIBLE_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_ANSIBLE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -143,7 +170,6 @@ function inst64_ansible_select_packages() {
 function inst64_ansible_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_ansible_select_packages || return $?
   if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' || "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
     bl64_py_setup
   fi
@@ -195,19 +221,22 @@ function inst64_ansible_initialize() {
       bl64_check_command_search_path "$INST64_ANSIBLE_PIPX_BIN" ||
       return $?
     fi
-    bl64_check_privilege_not_root
+    bl64_check_privilege_not_root ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_ansible_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: Ansible' \
-    'INST64_ANSIBLE_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SYSTEM_WIDE' 'INST64_ANSIBLE_METHOD' \
+    'INST64_ANSIBLE_VERSION' \
+    'INST64_ANSIBLE_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '3.1.0'
+bl64_lib_script_version_set '3.2.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
