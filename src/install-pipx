@@ -27,6 +27,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
@@ -107,7 +109,7 @@ function inst64_pipx_select_packages() {
       version_target="==${INST64_PIPX_VERSION}.*"
     fi
     INST64_PIPX_PACKAGES="pipx${version_target}"
-    INST64_PIPX_CLI_PATH="${HOME}/.local/bin/${INST64_PIPX_CLI_NAME}"
+    INST64_PIPX_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_PIPX_CLI_NAME}"
   fi
   [[ -z "$INST64_PIPX_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
