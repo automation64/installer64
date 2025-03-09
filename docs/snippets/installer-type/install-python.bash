@@ -22,7 +22,7 @@ function inst64_X_APP_NAME_X_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  INST64_X_APP_NAME_CAPS_X_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
   if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
     bl64_py_pip_usr_install $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-python-4.0.0
+# Template: install-python-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -69,7 +68,6 @@ function inst64_semgrep_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_SEMGREP_CLI_PATH="${HOME}/.local/bin/${INST64_SEMGREP_CLI_NAME}"
   if [[ -n "$INST64_SEMGREP_PACKAGES_PRE" ]]; then
     # shellcheck disable=SC2086
     bl64_py_pip_usr_install $INST64_SEMGREP_PACKAGES_PRE ||
@@ -82,6 +80,27 @@ function inst64_semgrep_install_with_pip() {
   if [[ -n "$INST64_SEMGREP_PACKAGES_POST" ]]; then
     # shellcheck disable=SC2086
     bl64_py_pip_usr_install $INST64_SEMGREP_PACKAGES_POST ||
+      return $?
+  fi
+  return 0
+}
+
+function inst64_semgrep_install_with_pipx() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  if [[ -n "$INST64_SEMGREP_PACKAGES_PRE" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_SEMGREP_PIPX_BIN" install --preinstall $INST64_SEMGREP_PACKAGES_PRE $INST64_SEMGREP_PACKAGES ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    "$INST64_SEMGREP_PIPX_BIN" inject $INST64_SEMGREP_PACKAGES $INST64_SEMGREP_PACKAGES_PRE ||
+      return $?
+  fi
+  if [[ -n "$INST64_SEMGREP_PACKAGES_POST" ]]; then
+    # shellcheck disable=SC2086
+    "$INST64_SEMGREP_PIPX_BIN" inject $INST64_SEMGREP_PACKAGES $INST64_SEMGREP_PACKAGES_POST ||
       return $?
   fi
   return 0
@@ -151,8 +170,11 @@ function inst64_semgrep_select_packages() {
       version_target="==${INST64_SEMGREP_VERSION}.*"
     fi
     INST64_SEMGREP_PACKAGES="semgrep${version_target}"
-    INST64_SEMGREP_PACKAGES_PRE=''
-    INST64_SEMGREP_PACKAGES_POST=''
+    if [[ "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
+      INST64_SEMGREP_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_SEMGREP_CLI_NAME}"
+    elif [[ "$INST64_SEMGREP_METHOD" == 'PIPX' ]]; then
+      INST64_SEMGREP_CLI_PATH="${INST64_SEMGREP_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_SEMGREP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -172,7 +194,6 @@ function inst64_semgrep_select_packages() {
 function inst64_semgrep_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_semgrep_select_packages || return $?
   if [[ "$INST64_SEMGREP_METHOD" == 'PIPX' || "$INST64_SEMGREP_METHOD" == 'PIP' ]]; then
     bl64_py_setup
   fi
@@ -224,24 +245,22 @@ function inst64_semgrep_initialize() {
       bl64_check_command_search_path "$INST64_SEMGREP_PIPX_BIN" ||
       return $?
     fi
-    bl64_check_privilege_not_root &&
-      bl64_os_check_compatibility \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_UB}"
+    bl64_check_privilege_not_root ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: SemGrep' \
-    'INST64_SEMGREP_METHOD' 'INST64_SYSTEM_WIDE' 
+  inst64_semgrep_select_packages ||
+    return $?
+  bl64_msg_show_setup 'Install application: Semgrep' \
+    'INST64_SYSTEM_WIDE' 'INST64_SEMGREP_METHOD' \
+    'INST64_SEMGREP_VERSION' \
+    'INST64_SEMGREP_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

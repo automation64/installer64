@@ -91,7 +91,7 @@ function inst64_krew_setup() {
   local mode='0644'
 
   bl64_msg_show_task 'setup application environment'
-  INST64_KREW_ENV="${HOME}/.local/bin/${INST64_KREW_ENV}"
+  INST64_KREW_ENV="${BL64_BSH_XDG_PATH_BIN}/${INST64_KREW_ENV}"
   bl64_msg_show_subtask "create shell env file (${INST64_KREW_ENV})"
   # shellcheck disable=SC2016
   printf '#!/usr/bin/env sh

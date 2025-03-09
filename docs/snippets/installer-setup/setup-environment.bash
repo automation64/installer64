@@ -27,7 +27,7 @@ function inst64_X_APP_NAME_X_setup() {
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_X_APP_NAME_CAPS_X_ENV="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_ENV}"
   else
-    INST64_X_APP_NAME_CAPS_X_ENV="${HOME}/.local/bin/${INST64_X_APP_NAME_CAPS_X_ENV}"
+    INST64_X_APP_NAME_CAPS_X_ENV="${BL64_BSH_XDG_PATH_BIN}/${INST64_X_APP_NAME_CAPS_X_ENV}"
   fi
   bl64_msg_show_subtask "create shell env file (${INST64_X_APP_NAME_CAPS_X_ENV})"
   # shellcheck disable=SC2016
