@@ -229,7 +229,7 @@ function inst64_ghcli_select_packages() {
         return $?
     fi
     package_prefix='gh_'
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_DARWIN" ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
       package_sufix='.zip'
     else
       package_sufix='.tar.gz'
@@ -337,7 +337,7 @@ function inst64_ghcli_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.1.0'
+bl64_lib_script_version_set '3.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
