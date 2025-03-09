@@ -10,13 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Upgraded Python skeleton
-  - pipx
-  - ansible
-  - ansiblelint
-  - bandit
-  - pgcli
-  - awsshell
-  - httpie
+  - PIPX
+  - Ansible
+  - Ansiblelint
+  - Bandit
+  - PGCLI
+  - AWSSHell
+  - HTTPie
+  - MkDocs
+  - PGAdmin
+  - PreCommit
+  - Semgrep
+  - Ray
 
 ## [5.3.0]
 
