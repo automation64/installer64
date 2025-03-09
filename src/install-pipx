@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-python-3.2.2
+# Template: install-python-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -64,7 +63,6 @@ function inst64_pipx_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_PIPX_CLI_PATH="${HOME}/.local/bin/${INST64_PIPX_CLI_NAME}"
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     bl64_py_pip_usr_deploy "$INST64_PIPX_PACKAGES"
 }
@@ -109,6 +107,7 @@ function inst64_pipx_select_packages() {
       version_target="==${INST64_PIPX_VERSION}.*"
     fi
     INST64_PIPX_PACKAGES="pipx${version_target}"
+    INST64_PIPX_CLI_PATH="${HOME}/.local/bin/${INST64_PIPX_CLI_NAME}"
   fi
   [[ -z "$INST64_PIPX_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -176,24 +175,22 @@ function inst64_pipx_initialize() {
     return $?
 
   if [[ "$INST64_PIPX_METHOD" == 'PIP' ]]; then
-    bl64_check_privilege_not_root &&
-      bl64_os_check_compatibility \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_UB}"
+    bl64_check_privilege_not_root ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_pipx_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: Python PIPX' \
-    'INST64_PIPX_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SYSTEM_WIDE' 'INST64_PIPX_METHOD' \
+    'INST64_PIPX_VERSION' \
+    'INST64_PIPX_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.2'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

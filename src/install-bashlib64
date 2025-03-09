@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.1'
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.2'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
@@ -103,7 +103,7 @@ function inst64_bashlib64_open_binary_package() {
     chmod "$INST64_BASHLIB64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
-    chown -R "${INST64_INSTALLER64_SYSTEM_USER}:${INST64_INSTALLER64_SYSTEM_GROUP}" "${INST64_BASHLIB64_TARGET}" ||
+    chown -R "${INST64_BASHLIB64_SYSTEM_USER}:${INST64_BASHLIB64_SYSTEM_GROUP}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
   rm -f "${INST64_TMP}/${package_name}"
@@ -140,7 +140,7 @@ inst64_bashlib64_select_platform() {
     echo "Error: unsupported platform (${INST64_BASHLIB64_PLATFORM})"
     return 1
   fi
-  if [[ "$INST64_INSTALLER64_PLATFORM" == 'Linux' ]]; then
+  if [[ "$INST64_BASHLIB64_PLATFORM" == 'Linux' ]]; then
     INST64_BASHLIB64_SYSTEM_USER='root'
     INST64_BASHLIB64_SYSTEM_GROUP='root'
   elif [[ "$INST64_BASHLIB64_PLATFORM" == 'Darwin' ]]; then

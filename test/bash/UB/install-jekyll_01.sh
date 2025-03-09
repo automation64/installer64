@@ -6,7 +6,8 @@ if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 export INST64_RUBY_DEVELOPMENT='ON'
-sudo /source/install-gcc &&
+export INST64_SYSTEM_WIDE='YES'
+sudo -E /source/install-gcc &&
   sudo -E /source/install-ruby ||
   exit $?
 

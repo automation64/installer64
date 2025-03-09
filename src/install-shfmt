@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.0.1
+# Template: install-github-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,9 +21,20 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
 
 #
@@ -43,7 +54,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_SHFMT_PLATFORM="${INST64_SHFMT_PLATFORM:-linux_amd64}"
+declare INST64_SHFMT_PLATFORM="${INST64_SHFMT_PLATFORM:-}"
 declare INST64_SHFMT_TARGET="${INST64_SHFMT_TARGET:-}"
 declare INST64_SHFMT_VERSION="${INST64_SHFMT_VERSION:-latest}"
 # Installation method
@@ -53,6 +64,7 @@ declare INST64_SHFMT_REPO_NAME='sh'
 declare INST64_SHFMT_REPO_OWNER='mvdan'
 declare INST64_SHFMT_PACKAGES=''
 declare INST64_SHFMT_CLI_NAME='shfmt'
+declare INST64_SHFMT_CLI_PATH=''
 
 #
 # Functions
@@ -62,9 +74,15 @@ function inst64_shfmt_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
-  local app_target_owner='root'
+  local app_target_owner="$BL64_IAM_SYSTEM_USER"
+  local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
   local app_cli_source="${INST64_SHFMT_PACKAGES}"
+
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    app_target_owner="$BL64_VAR_DEFAULT"
+    app_target_group="$BL64_VAR_DEFAULT"
+  fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
@@ -73,17 +91,47 @@ function inst64_shfmt_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_SHFMT_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_SHFMT_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_SHFMT_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_SHFMT_TARGET" "${work_path}/${app_cli_source}" ||
     return $?
 
-  bl64_msg_show_task "publish application to searchable path (${INST64_LOCAL_BIN})"
-  # shellcheck disable=SC2086
-  bl64_fs_symlink_create "${INST64_SHFMT_TARGET}/${app_cli_source}" "${INST64_LOCAL_BIN}/${INST64_SHFMT_CLI_NAME}" "$BL64_VAR_ON" ||
-    return $?
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_msg_show_task "publish application to searchable path (${INST64_SHFMT_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${INST64_SHFMT_TARGET}/${app_cli_source}" "$INST64_SHFMT_CLI_PATH" "$BL64_VAR_ON" ||
+      return $?
+  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_shfmt_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_SHFMT_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_SHFMT_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_SHFMT_PLATFORM='darwin_amd64' ;;
+      "$BL64_OS_MACHINE_AMD64") INST64_SHFMT_PLATFORM='linux_amd64' ;;
+      esac
+    fi
+  fi
+  [[ -z "$INST64_SHFMT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -100,7 +148,6 @@ function inst64_shfmt_install_binary_release() {
 #######################################
 function inst64_shfmt_install() {
   bl64_dbg_app_show_function
-  inst64_shfmt_select_packages || return $?
   if [[ "$INST64_SHFMT_METHOD" == 'BINARY' ]]; then
     inst64_shfmt_install_binary_release
   fi
@@ -129,6 +176,11 @@ function inst64_shfmt_select_packages() {
     package_prefix='shfmt_'
     package_sufix=''
     INST64_SHFMT_PACKAGES="${package_prefix}${INST64_SHFMT_VERSION}_${INST64_SHFMT_PLATFORM}${package_sufix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_SHFMT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_SHFMT_CLI_NAME}"
+    else
+      INST64_SHFMT_CLI_PATH="${INST64_SHFMT_TARGET}/${INST64_SHFMT_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_SHFMT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -189,24 +241,35 @@ function inst64_shfmt_initialize() {
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
   INST64_SHFMT_TARGET="${INST64_SHFMT_TARGET:-${INST64_OPT_ROOT}/shfmt}"
-  bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" \
-    "${BL64_OS_ALP}-3" &&
-    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_SHFMT_METHOD' \
-      "$INST64_SHFMT_METHOD" \
-      'BINARY' &&
-    bl64_check_privilege_root
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Go SHFMT' \
-    'INST64_SHFMT_METHOD' 'INST64_SYSTEM_WIDE' 
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_SHFMT_METHOD' \
+    "$INST64_SHFMT_METHOD" \
+    'BINARY' ||
+    return $?
+
+  if [[ "$INST64_SHFMT_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+  fi
+  inst64_shfmt_select_platform &&
+    inst64_shfmt_select_packages ||
+    return $?
+  bl64_msg_show_setup 'Install application: SHFMT' \
+    'INST64_SYSTEM_WIDE' 'INST64_SHFMT_METHOD' \
+    'INST64_SHFMT_PLATFORM' \
+    'INST64_SHFMT_REPO_OWNER' \
+    'INST64_SHFMT_REPO_NAME' \
+    'INST64_SHFMT_TARGET' \
+    'INST64_SHFMT_VERSION' \
+    'INST64_SHFMT_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

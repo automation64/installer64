@@ -21,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
@@ -54,30 +54,31 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_TFLINT_PLATFORM="${INST64_TFLINT_PLATFORM:-}"
-declare INST64_TFLINT_TARGET="${INST64_TFLINT_TARGET:-}"
-declare INST64_TFLINT_VERSION="${INST64_TFLINT_VERSION:-latest}"
+declare INST64_TERRAFORMDOCS_PLATFORM="${INST64_TERRAFORMDOCS_PLATFORM:-}"
+declare INST64_TERRAFORMDOCS_TARGET=''
+declare INST64_TERRAFORMDOCS_VERSION="${INST64_TERRAFORMDOCS_VERSION:-latest}"
 # Installation method
-declare INST64_TFLINT_METHOD="${INST64_TFLINT_METHOD:-BINARY}"
+declare INST64_TERRAFORMDOCS_METHOD="${INST64_TERRAFORMDOCS_METHOD:-BINARY}"
 
-declare INST64_TFLINT_REPO_NAME='tflint'
-declare INST64_TFLINT_REPO_OWNER='terraform-linters'
-declare INST64_TFLINT_PACKAGES=''
-declare INST64_TFLINT_CLI_NAME='tflint'
-declare INST64_TFLINT_CLI_PATH=''
+declare INST64_TERRAFORMDOCS_REPO_NAME='terraform-docs'
+declare INST64_TERRAFORMDOCS_REPO_OWNER='terraform-docs'
+declare INST64_TERRAFORMDOCS_PACKAGES=''
+declare INST64_TERRAFORMDOCS_CLI_NAME='terraform-docs'
+declare INST64_TERRAFORMDOCS_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_tflint_install_binary_release() {
+function inst64_terraformdocs_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_TFLINT_CLI_NAME}"
+  local app_cli_source="${INST64_TERRAFORMDOCS_CLI_NAME}"
+  local app_work_path="${app_cli_source}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -87,19 +88,19 @@ function inst64_tflint_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_TFLINT_REPO_OWNER" "$INST64_TFLINT_REPO_NAME" "$INST64_TFLINT_VERSION" "$INST64_TFLINT_PACKAGES" "${work_path}/${INST64_TFLINT_PACKAGES}" &&
-    bl64_arc_open_zip "${work_path}/${INST64_TFLINT_PACKAGES}" "${work_path}" ||
+    "$INST64_TERRAFORMDOCS_REPO_OWNER" "$INST64_TERRAFORMDOCS_REPO_NAME" "$INST64_TERRAFORMDOCS_VERSION" "$INST64_TERRAFORMDOCS_PACKAGES" "${work_path}/${INST64_TERRAFORMDOCS_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_TERRAFORMDOCS_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_TFLINT_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_TFLINT_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_TERRAFORMDOCS_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_TERRAFORMDOCS_TARGET" "${work_path}/${app_work_path}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_TFLINT_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_TERRAFORMDOCS_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_TFLINT_TARGET}/${INST64_TFLINT_CLI_NAME}" "$INST64_TFLINT_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_TERRAFORMDOCS_TARGET}/${app_cli_source}" "$INST64_TERRAFORMDOCS_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -121,18 +122,18 @@ function inst64_tflint_install_binary_release() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-function inst64_tflint_select_platform() {
+function inst64_terraformdocs_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_TFLINT_PLATFORM" ]]; then
+  if [[ "$INST64_TERRAFORMDOCS_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_TERRAFORMDOCS_PLATFORM" ]]; then
       # shellcheck disable=SC2249
       case "$BL64_OS_MACHINE" in
-        "$BL64_OS_MACHINE_ARM64" ) INST64_TFLINT_PLATFORM='darwin_arm64';;
-        "$BL64_OS_MACHINE_AMD64" ) INST64_TFLINT_PLATFORM='linux_amd64';;
+        "$BL64_OS_MACHINE_ARM64" ) INST64_TERRAFORMDOCS_PLATFORM='darwin-arm64';;
+        "$BL64_OS_MACHINE_AMD64" ) INST64_TERRAFORMDOCS_PLATFORM='linux-amd64';;
       esac
     fi
   fi
-  [[ -z "$INST64_TFLINT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  [[ -z "$INST64_TERRAFORMDOCS_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -147,10 +148,10 @@ function inst64_tflint_select_platform() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_tflint_install() {
+function inst64_terraformdocs_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
-    inst64_tflint_install_binary_release
+  if [[ "$INST64_TERRAFORMDOCS_METHOD" == 'BINARY' ]]; then
+    inst64_terraformdocs_install_binary_release
   fi
 }
 
@@ -165,25 +166,26 @@ function inst64_tflint_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_tflint_select_packages() {
+function inst64_terraformdocs_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_sufix=''
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_TFLINT_VERSION" == 'latest' ]]; then
-      INST64_TFLINT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_TFLINT_REPO_OWNER" "$INST64_TFLINT_REPO_NAME")" ||
+  if [[ "$INST64_TERRAFORMDOCS_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_TERRAFORMDOCS_VERSION" == 'latest' ]]; then
+      INST64_TERRAFORMDOCS_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_TERRAFORMDOCS_REPO_OWNER" "$INST64_TERRAFORMDOCS_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='tflint_'
-    package_sufix='.zip'
-    INST64_TFLINT_PACKAGES="${package_prefix}${INST64_TFLINT_PLATFORM}${package_sufix}"
+    
+    package_prefix='terraform-docs-'
+    package_sufix='.tar.gz'
+    INST64_TERRAFORMDOCS_PACKAGES="${package_prefix}${INST64_TERRAFORMDOCS_VERSION}-${INST64_TERRAFORMDOCS_PLATFORM}${package_sufix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_TFLINT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TFLINT_CLI_NAME}"
+      INST64_TERRAFORMDOCS_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TERRAFORMDOCS_CLI_NAME}"
     else
-      INST64_TFLINT_CLI_PATH="${INST64_TFLINT_TARGET}/${INST64_TFLINT_CLI_NAME}"
+      INST64_TERRAFORMDOCS_CLI_PATH="${INST64_TERRAFORMDOCS_TARGET}/${INST64_TERRAFORMDOCS_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_TFLINT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_TERRAFORMDOCS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -198,10 +200,10 @@ function inst64_tflint_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_tflint_prepare() {
+function inst64_terraformdocs_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_TERRAFORMDOCS_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi
 }
@@ -217,10 +219,10 @@ function inst64_tflint_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_tflint_verify() {
+function inst64_terraformdocs_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_TFLINT_CLI_PATH" --version
+  "$INST64_TERRAFORMDOCS_CLI_PATH" --version
 }
 
 #######################################
@@ -234,7 +236,7 @@ function inst64_tflint_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_tflint_initialize() {
+function inst64_terraformdocs_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -242,48 +244,42 @@ function inst64_tflint_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
-  INST64_TFLINT_TARGET="${INST64_TFLINT_TARGET:-${INST64_OPT_ROOT}/tflint}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_TFLINT_METHOD' \
-    "$INST64_TFLINT_METHOD" \
+  INST64_TERRAFORMDOCS_TARGET="${INST64_TERRAFORMDOCS_TARGET:-${INST64_OPT_ROOT}/terraformdocs}"
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_TERRAFORMDOCS_METHOD' \
+    "$INST64_TERRAFORMDOCS_METHOD" \
     'BINARY' ||
     return $?
 
-  if [[ "$INST64_TFLINT_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_TERRAFORMDOCS_METHOD" == 'BINARY' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
-    bl64_os_check_compatibility \
-      "${BL64_OS_ALP}" \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_UB}" ||
-      return $?
   fi
-  inst64_tflint_select_platform &&
-    inst64_tflint_select_packages ||
+  inst64_terraformdocs_select_platform &&
+    inst64_terraformdocs_select_packages ||
     return $?
-  bl64_msg_show_setup 'Install application: TFlint' \
-    'INST64_SYSTEM_WIDE' 'INST64_TFLINT_METHOD' \
-    'INST64_TFLINT_PLATFORM' \
-    'INST64_TFLINT_REPO_OWNER' \
-    'INST64_TFLINT_REPO_NAME' \
-    'INST64_TFLINT_TARGET' \
-    'INST64_TFLINT_VERSION' \
-    'INST64_TFLINT_CLI_PATH'
+  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+    'INST64_SYSTEM_WIDE' 'INST64_TERRAFORMDOCS_METHOD' \
+    'INST64_TERRAFORMDOCS_PLATFORM' \
+    'INST64_TERRAFORMDOCS_REPO_OWNER' \
+    'INST64_TERRAFORMDOCS_REPO_NAME' \
+    'INST64_TERRAFORMDOCS_TARGET' \
+    'INST64_TERRAFORMDOCS_VERSION' \
+    'INST64_TERRAFORMDOCS_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.6.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_tflint_initialize &&
-  inst64_tflint_prepare &&
-  inst64_tflint_install &&
-  inst64_tflint_verify
+inst64_terraformdocs_initialize &&
+  inst64_terraformdocs_prepare &&
+  inst64_terraformdocs_install &&
+  inst64_terraformdocs_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

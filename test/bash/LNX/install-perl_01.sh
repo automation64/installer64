@@ -6,4 +6,5 @@ if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 export INST64_PERL_DEVELOPMENT='YES'
+export INST64_SYSTEM_WIDE='YES'
 sudo -E /source/install-perl

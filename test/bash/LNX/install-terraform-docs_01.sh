@@ -6,4 +6,4 @@ if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
 fi
 
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-packer
+sudo -E /source/install-terraform-docs
