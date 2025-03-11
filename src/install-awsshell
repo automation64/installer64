@@ -21,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
@@ -170,9 +170,6 @@ function inst64_awsshell_select_packages() {
 function inst64_awsshell_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then
-    bl64_py_setup
-  fi
 }
 
 #######################################
@@ -219,10 +216,11 @@ function inst64_awsshell_initialize() {
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' ]]; then
       bl64_check_command_search_path "$INST64_AWSSHELL_PIPX_BIN" ||
-      return $?
+        return $?
     fi
-    bl64_check_privilege_not_root ||
-    return $?
+    bl64_check_privilege_not_root &&
+      bl64_py_setup ||
+      return $?
   fi
   inst64_awsshell_select_packages ||
     return $?

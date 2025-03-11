@@ -73,6 +73,7 @@ declare INST64_TRUFFLEHOG_CLI_PATH=''
 function inst64_trufflehog_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
+  local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
