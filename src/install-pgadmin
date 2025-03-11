@@ -173,9 +173,6 @@ function inst64_pgadmin_select_packages() {
 function inst64_pgadmin_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_PGADMIN_METHOD" == 'PIPX' || "$INST64_PGADMIN_METHOD" == 'PIP' ]]; then
-    bl64_py_setup
-  fi
 }
 
 #######################################
@@ -224,7 +221,8 @@ function inst64_pgadmin_initialize() {
       bl64_check_command_search_path "$INST64_PGADMIN_PIPX_BIN" ||
         return $?
     fi
-    bl64_check_privilege_not_root ||
+    bl64_check_privilege_not_root &&
+      bl64_py_setup ||
       return $?
   fi
   inst64_pgadmin_select_packages ||
