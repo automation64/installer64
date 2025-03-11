@@ -149,7 +149,7 @@ function inst64_ray_select_packages() {
     fi
     INST64_RAY_PACKAGES="ray[all]${version_target}"
     if [[ "$INST64_RAY_METHOD" == 'PIP' ]]; then
-      INST64_RAY_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_RAY_CLI_NAME}"
+      INST64_RAY_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_RAY_CLI_NAME}"
     elif [[ "$INST64_RAY_METHOD" == 'PIPX' ]]; then
       INST64_RAY_CLI_PATH="${INST64_RAY_CLI_NAME}"
     fi

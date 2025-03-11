@@ -147,7 +147,7 @@ function inst64_ansible_select_packages() {
     fi
     INST64_ANSIBLE_PACKAGES="ansible-core${version_target}"
     if [[ "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
-      INST64_ANSIBLE_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_ANSIBLE_CLI_NAME}"
+      INST64_ANSIBLE_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_ANSIBLE_CLI_NAME}"
     elif [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' ]]; then
       INST64_ANSIBLE_CLI_PATH="${INST64_ANSIBLE_CLI_NAME}"
     fi
