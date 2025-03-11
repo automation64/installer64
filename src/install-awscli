@@ -54,7 +54,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_AWSCLI_PLATFORM="${INST64_AWSCLI_PLATFORM:-linux-x86_64}"
+declare INST64_AWSCLI_PLATFORM="${INST64_AWSCLI_PLATFORM:-}"
 declare INST64_AWSCLI_SOURCE="${INST64_AWSCLI_SOURCE:-https://awscli.amazonaws.com}"
 declare INST64_AWSCLI_TARGET="${INST64_AWSCLI_TARGET:-}"
 declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
@@ -109,6 +109,34 @@ function inst64_awscli_install_custom_package() {
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
+  return 0
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_awscli_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
+    if [[ -z "$INST64_AWSCLI_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+        "$BL64_OS_MACHINE_ARM64" ) INST64_AWSCLI_PLATFORM='macos-arm64';;
+        "$BL64_OS_MACHINE_AMD64" ) INST64_AWSCLI_PLATFORM='linux-x86_64';;
+      esac
+    fi
+  fi
+  [[ -z "$INST64_AWSCLI_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -234,7 +262,8 @@ function inst64_awscli_initialize() {
       "${BL64_OS_OL}" ||
       return $?
   fi
-  inst64_awscli_select_packages ||
+  inst64_awscli_select_platform &&
+    inst64_awscli_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: AWS CLI' \
     'INST64_AWSCLI_METHOD' 'INST64_SYSTEM_WIDE' \
