@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- FZF
-  - Multi Machine support
+- Multi Machine support
+  - FZF
+  - CTop
+  - gRPCurl
+  - Trufflehog
+  - Zellij
 
 ## [5.4.1]
 

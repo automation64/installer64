@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-github-release-3.2.4
-# Snippet: select-platform-1.0.0
+# Template: install-github-2.4.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,10 +21,12 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
@@ -74,15 +74,15 @@ function inst64_zellij_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
-  local app_target_owner='root'
+  local app_target_owner="$BL64_IAM_SYSTEM_USER"
+  local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
   local app_cli_source="${INST64_ZELLIJ_CLI_NAME}"
+  local app_work_path="${app_cli_source}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_ZELLIJ_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ZELLIJ_CLI_NAME}"
-  else
-    INST64_ZELLIJ_CLI_PATH="${INST64_ZELLIJ_TARGET}/${INST64_ZELLIJ_CLI_NAME}"
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
+    app_target_group="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
@@ -93,8 +93,8 @@ function inst64_zellij_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_ZELLIJ_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_ZELLIJ_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_ZELLIJ_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_ZELLIJ_TARGET" "${work_path}/${app_work_path}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -125,7 +125,18 @@ function inst64_zellij_install_binary_release() {
 function inst64_zellij_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_ZELLIJ_METHOD" == 'BINARY' ]]; then
-      [[ -z "$INST64_ZELLIJ_PLATFORM" ]] && INST64_ZELLIJ_PLATFORM='x86_64-unknown-linux-musl'
+    if [[ -z "$INST64_ZELLIJ_PLATFORM" ]]; then
+      # shellcheck disable=SC2249
+      case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_ZELLIJ_PLATFORM='aarch64-apple-darwin' ;;
+      "$BL64_OS_MACHINE_AMD64")
+        if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
+          INST64_ZELLIJ_PLATFORM='x86_64-unknown-linux-musl'
+        fi
+        ;;
+      esac
+    fi
+    [[ -z "$INST64_ZELLIJ_PLATFORM" ]] && INST64_ZELLIJ_PLATFORM='x86_64-unknown-linux-musl'
   fi
   [[ -z "$INST64_ZELLIJ_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
@@ -144,9 +155,6 @@ function inst64_zellij_select_platform() {
 #######################################
 function inst64_zellij_install() {
   bl64_dbg_app_show_function
-  inst64_zellij_select_platform &&
-    inst64_zellij_select_packages ||
-    return $?
   if [[ "$INST64_ZELLIJ_METHOD" == 'BINARY' ]]; then
     inst64_zellij_install_binary_release
   fi
@@ -175,6 +183,11 @@ function inst64_zellij_select_packages() {
     package_prefix='zellij-'
     package_sufix='.tar.gz'
     INST64_ZELLIJ_PACKAGES="${package_prefix}${INST64_ZELLIJ_PLATFORM}${package_sufix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_ZELLIJ_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ZELLIJ_CLI_NAME}"
+    else
+      INST64_ZELLIJ_CLI_PATH="${INST64_ZELLIJ_TARGET}/${INST64_ZELLIJ_CLI_NAME}"
+    fi
   fi
   [[ -z "$INST64_ZELLIJ_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -213,7 +226,6 @@ function inst64_zellij_prepare() {
 #######################################
 function inst64_zellij_verify() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
   "$INST64_ZELLIJ_CLI_PATH" --version
 }
 
@@ -243,22 +255,32 @@ function inst64_zellij_initialize() {
     return $?
 
   if [[ "$INST64_ZELLIJ_METHOD" == 'BINARY' ]]; then
+    bl64_os_check_compatibility \
+      "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}" ||
+      return $?
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_zellij_select_platform &&
+    inst64_zellij_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: Zellij' \
-    'INST64_ZELLIJ_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SYSTEM_WIDE' 'INST64_ZELLIJ_METHOD' \
+    'INST64_ZELLIJ_PLATFORM' \
+    'INST64_ZELLIJ_REPO_OWNER' \
+    'INST64_ZELLIJ_REPO_NAME' \
+    'INST64_ZELLIJ_TARGET' \
+    'INST64_ZELLIJ_VERSION' \
+    'INST64_ZELLIJ_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.2.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
