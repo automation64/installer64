@@ -94,7 +94,7 @@ function inst64_pgcli_install_with_pipx() {
       return $?
   else
     # shellcheck disable=SC2086
-    "$INST64_PGCLI_PIPX_BIN" inject $INST64_PGCLI_PACKAGES $INST64_PGCLI_PACKAGES_PRE ||
+    "$INST64_PGCLI_PIPX_BIN" install $INST64_PGCLI_PACKAGES $INST64_PGCLI_PACKAGES_PRE ||
       return $?
   fi
   if [[ -n "$INST64_PGCLI_PACKAGES_POST" ]]; then
@@ -237,7 +237,7 @@ function inst64_pgcli_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

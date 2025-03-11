@@ -51,7 +51,7 @@ function inst64_X_APP_NAME_X_install_with_pipx() {
       return $?
   else
     # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" inject $INST64_X_APP_NAME_CAPS_X_PACKAGES $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||
+    "$INST64_X_APP_NAME_CAPS_X_PIPX_BIN" install $INST64_X_APP_NAME_CAPS_X_PACKAGES $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||
       return $?
   fi
   if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_POST" ]]; then
