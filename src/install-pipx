@@ -109,7 +109,7 @@ function inst64_pipx_select_packages() {
       version_target="==${INST64_PIPX_VERSION}.*"
     fi
     INST64_PIPX_PACKAGES="pipx${version_target}"
-    INST64_PIPX_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_PIPX_CLI_NAME}"
+    INST64_PIPX_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_PIPX_CLI_NAME}"
   fi
   [[ -z "$INST64_PIPX_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0

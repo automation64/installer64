@@ -95,7 +95,7 @@ function inst64_ray_install_with_pipx() {
       return $?
   else
     # shellcheck disable=SC2086
-    "$INST64_RAY_PIPX_BIN" inject $INST64_RAY_PACKAGES $INST64_RAY_PACKAGES_PRE ||
+    "$INST64_RAY_PIPX_BIN" install $INST64_RAY_PACKAGES $INST64_RAY_PACKAGES_PRE ||
       return $?
   fi
   if [[ -n "$INST64_RAY_PACKAGES_POST" ]]; then
@@ -149,7 +149,7 @@ function inst64_ray_select_packages() {
     fi
     INST64_RAY_PACKAGES="ray[all]${version_target}"
     if [[ "$INST64_RAY_METHOD" == 'PIP' ]]; then
-      INST64_RAY_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_RAY_CLI_NAME}"
+      INST64_RAY_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_RAY_CLI_NAME}"
     elif [[ "$INST64_RAY_METHOD" == 'PIPX' ]]; then
       INST64_RAY_CLI_PATH="${INST64_RAY_CLI_NAME}"
     fi
@@ -238,7 +238,7 @@ function inst64_ray_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

@@ -95,7 +95,7 @@ function inst64_precommit_install_with_pipx() {
       return $?
   else
     # shellcheck disable=SC2086
-    "$INST64_PRECOMMIT_PIPX_BIN" inject $INST64_PRECOMMIT_PACKAGES $INST64_PRECOMMIT_PACKAGES_PRE ||
+    "$INST64_PRECOMMIT_PIPX_BIN" install $INST64_PRECOMMIT_PACKAGES $INST64_PRECOMMIT_PACKAGES_PRE ||
       return $?
   fi
   if [[ -n "$INST64_PRECOMMIT_PACKAGES_POST" ]]; then
@@ -149,7 +149,7 @@ function inst64_precommit_select_packages() {
     fi
     INST64_PRECOMMIT_PACKAGES="pre-commit${version_target}"
     if [[ "$INST64_PRECOMMIT_METHOD" == 'PIP' ]]; then
-      INST64_PRECOMMIT_CLI_PATH="${BL64_BSH_XDG_PATH_BIN}/${INST64_PRECOMMIT_CLI_NAME}"
+      INST64_PRECOMMIT_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_PRECOMMIT_CLI_NAME}"
     elif [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' ]]; then
       INST64_PRECOMMIT_CLI_PATH="${INST64_PRECOMMIT_CLI_NAME}"
     fi
@@ -238,7 +238,7 @@ function inst64_precommit_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.3.0'
+bl64_lib_script_version_set '1.3.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
