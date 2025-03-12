@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-custom-2.4.0
+# Template: install-custom-2.5.0
 #   Skeleton: installer-base-2.4.0
-#   Snippet: install-custom-package-4.2.0
 #   Snippet: select-platform-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64

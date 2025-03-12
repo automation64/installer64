@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-native-2.4.0
+# Template: install-native-2.5.0
 #   Skeleton: installer-base-2.4.0
-#   Snippet: install-os-package-3.3.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #

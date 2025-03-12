@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-external-2.4.0
+# Template: install-external-2.5.0
 #   Skeleton: installer-base-2.4.0
-#   Snippet: install-external-package-3.5.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #

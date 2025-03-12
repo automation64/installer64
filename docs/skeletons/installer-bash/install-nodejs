@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-nodejs-2.4.0
 #   Skeleton: installer-base-2.4.0
-#   Snippet: install-nodejs-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
