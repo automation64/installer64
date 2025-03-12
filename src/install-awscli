@@ -156,6 +156,7 @@ function inst64_awscli_select_platform() {
     if [[ -z "$INST64_AWSCLI_PLATFORM" ]]; then
       # shellcheck disable=SC2249
       case "$BL64_OS_MACHINE" in
+      "$BL64_OS_MACHINE_ARM64") INST64_AWSCLI_PLATFORM='not-used' ;;
       "$BL64_OS_MACHINE_AMD64") INST64_AWSCLI_PLATFORM='linux-x86_64' ;;
       esac
     fi
@@ -307,7 +308,7 @@ function inst64_awscli_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.6.2'
+bl64_lib_script_version_set '1.6.3'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
