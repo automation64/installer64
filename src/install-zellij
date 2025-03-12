@@ -255,9 +255,6 @@ function inst64_zellij_initialize() {
     return $?
 
   if [[ "$INST64_ZELLIJ_METHOD" == 'BINARY' ]]; then
-    bl64_os_check_compatibility \
-      "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}" ||
-      return $?
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
@@ -280,7 +277,7 @@ function inst64_zellij_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '1.2.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

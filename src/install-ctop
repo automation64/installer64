@@ -127,7 +127,6 @@ function inst64_ctop_select_platform() {
     if [[ -z "$INST64_CTOP_PLATFORM" ]]; then
       # shellcheck disable=SC2249
       case "$BL64_OS_MACHINE" in
-      "$BL64_OS_MACHINE_ARM64") INST64_CTOP_PLATFORM='darwin-arm64' ;;
       "$BL64_OS_MACHINE_AMD64") INST64_CTOP_PLATFORM='linux-amd64' ;;
       esac
     fi
@@ -271,7 +270,7 @@ function inst64_ctop_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '1.2.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-external-2.4.0
+# Template: install-external-2.5.0
 #   Skeleton: installer-base-2.4.0
-#   Snippet: install-external-package-3.5.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -187,8 +186,7 @@ function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
-      inst64_X_APP_NAME_X_add_repository &&
-      bl64_pkg_setup
+      inst64_X_APP_NAME_X_add_repository
   fi
 }
 
@@ -236,8 +234,9 @@ function inst64_X_APP_NAME_X_initialize() {
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'EXTERNAL' ]]; then
     bl64_check_privilege_root &&
-    bl64_os_check_compatibility \
-      # X_OS_VERSION_TAG_X ||
+      bl64_os_check_compatibility \
+      "${BL64_OS_UB}" &&
+      bl64_pkg_setup ||
       return $?
   fi
   inst64_X_APP_NAME_X_select_platform &&

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-web-2.4.0
+# Template: install-web-2.5.0
 #   Skeleton: installer-base-2.4.0
-#   Snippet: install-web-tgz-3.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,7 +22,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -170,7 +169,8 @@ function inst64_X_APP_NAME_X_select_packages() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     package_prefix='X_PACKAGE_PREFIX_X'
     package_sufix='X_PACKAGE_SUFIX_X'
-    # X_PACKAGE_NAME_PLACEHOLDER_X
+    INST64_X_APP_NAME_CAPS_X_PACKAGES='X_PACKAGE_NAME_PLACEHOLDER_X'
+    INST64_X_APP_NAME_CAPS_X_PACKAGE_URL='X_PACKAGE_NAME_PLACEHOLDER_X'
     [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
@@ -196,9 +196,6 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    bl64_arc_setup
-  fi
 }
 
 #######################################
@@ -252,8 +249,9 @@ function inst64_X_APP_NAME_X_initialize() {
       "${BL64_OS_ALP}" \
       "${BL64_OS_OL}" \
       "${BL64_OS_FD}" \
-      "${BL64_OS_UB}" ||
-    return $?
+      "${BL64_OS_UB}" &&
+      bl64_arc_setup ||
+      return $?
   fi
   inst64_X_APP_NAME_X_select_platform &&
     inst64_X_APP_NAME_X_select_packages ||

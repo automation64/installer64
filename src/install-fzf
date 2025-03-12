@@ -125,8 +125,6 @@ function inst64_fzf_install_binary_release() {
 function inst64_fzf_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_FZF_METHOD" == 'BINARY' ]]; then
-    [[ -z "$INST64_FZF_PLATFORM" ]] && INST64_FZF_PLATFORM='linux_amd64'
-  fi
     if [[ -z "$INST64_FZF_PLATFORM" ]]; then
       # shellcheck disable=SC2249
       case "$BL64_OS_MACHINE" in
@@ -134,6 +132,7 @@ function inst64_fzf_select_platform() {
         "$BL64_OS_MACHINE_AMD64" ) INST64_FZF_PLATFORM='linux_amd64';;
       esac
     fi
+  fi
   return 0
 }
 
@@ -270,7 +269,7 @@ function inst64_fzf_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
