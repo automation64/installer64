@@ -4,4 +4,4 @@ source test/lib/check.bash
 export INST64_SYSTEM_WIDE='NO'
 export INST64_COSIGN_TARGET="${HOME}/test"
 
-/source/install-cosign
+src/install-cosign

@@ -3,4 +3,4 @@
 export INST64_ANSIBLELINT_PIPX="OFF"
 
 source test/lib/check.bash
-/source/install-ansiblelint
+src/install-ansiblelint

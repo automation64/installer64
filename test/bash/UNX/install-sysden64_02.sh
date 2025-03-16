@@ -2,4 +2,4 @@
 
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-sysden64
+sudo -E src/install-sysden64

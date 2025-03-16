@@ -2,5 +2,5 @@
 
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-ruby
+sudo -E src/install-ruby
 

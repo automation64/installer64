@@ -2,4 +2,4 @@
 
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-vaultcli
+sudo -E src/install-vaultcli

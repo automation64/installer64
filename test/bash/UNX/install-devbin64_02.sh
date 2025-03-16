@@ -2,4 +2,4 @@
 
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-devbin64
+sudo -E src/install-devbin64

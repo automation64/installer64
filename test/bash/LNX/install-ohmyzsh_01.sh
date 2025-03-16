@@ -5,4 +5,4 @@ source test/lib/check.bash
 sudo touch /bin/zsh
 sudo chmod 755 /bin/zsh
 
-/source/install-ohmyzsh
+src/install-ohmyzsh

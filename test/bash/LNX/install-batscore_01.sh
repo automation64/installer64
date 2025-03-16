@@ -13,4 +13,4 @@ if [[ -L "$bats_file" ]]; then
 fi
 
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-batscore
+sudo -E src/install-batscore

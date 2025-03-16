@@ -2,4 +2,4 @@
 
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E /source/install-helm-chart-tester
+sudo -E src/install-helm-chart-tester
