@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-github-2.4.0
+# Template: install-github-2.5.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -127,16 +127,16 @@ function inst64_lsd_select_platform() {
   if [[ "$INST64_LSD_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_LSD_PLATFORM" ]]; then
       # shellcheck disable=SC2249
-      case "$BL64_OS_MACHINE" in
-      "$BL64_OS_MACHINE_ARM64") INST64_LSD_PLATFORM='aarch64-apple-darwin' ;;
-      "$BL64_OS_MACHINE_AMD64")
-        if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
-          INST64_LSD_PLATFORM='x86_64-unknown-linux-musl'
-        elif bl64_os_is_distro "${BL64_OS_OL}" "${BL64_OS_FD}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
-          INST64_LSD_PLATFORM='x86_64-unknown-linux-gnu'
-        fi
-        ;;
-      esac
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_LSD_PLATFORM='aarch64-apple-darwin' 
+      elif bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
+        INST64_LSD_PLATFORM='x86_64-unknown-linux-musl'
+      elif bl64_os_is_distro "${BL64_OS_ALM}" "${BL64_OS_AMZ}" "${BL64_OS_CNT}" "${BL64_OS_FD}" "${BL64_OS_KL}" "${BL64_OS_OL}" "${BL64_OS_RCK}" "${BL64_OS_RHEL}" "${BL64_OS_UB}"; then
+        INST64_LSD_PLATFORM='x86_64-unknown-linux-gnu'
+      else
+        bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
+        return $BL64_LIB_ERROR_OS_INCOMPATIBLE
+      fi
     fi
   fi
   [[ -z "$INST64_LSD_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
@@ -209,9 +209,6 @@ function inst64_lsd_select_packages() {
 function inst64_lsd_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_LSD_METHOD" == 'BINARY' ]]; then
-    bl64_arc_setup
-  fi
 }
 
 #######################################
@@ -261,6 +258,8 @@ function inst64_lsd_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
+    bl64_arc_setup ||
+      return $?
   fi
   inst64_lsd_select_platform &&
     inst64_lsd_select_packages ||
@@ -279,7 +278,7 @@ function inst64_lsd_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '1.3.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

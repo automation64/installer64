@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-os-package-3.0.0
-# Snippet: select-platform-1.0.0
+# Template: install-native-2.5.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -59,6 +57,8 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 declare INST64_PYTHON_METHOD="${INST64_PYTHON_METHOD:-NATIVE}"
 # Enable development packages?
 declare INST64_PYTHON_DEVELOPMENT="${INST64_PYTHON_DEVELOPMENT:-$BL64_VAR_OFF}"
+declare INST64_PYTHON_PLATFORM="${INST64_PYTHON_PLATFORM:-}"
+
 declare INST64_PYTHON_PACKAGES=''
 declare INST64_PYTHON_CLI_NAME='python3'
 declare INST64_PYTHON_CLI_PATH=''
@@ -70,9 +70,30 @@ declare INST64_PYTHON_CLI_PATH=''
 function inst64_python_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
-  INST64_PYTHON_CLI_PATH="/usr/bin/${INST64_PYTHON_CLI_NAME}"
   # shellcheck disable=SC2086
   bl64_pkg_deploy $INST64_PYTHON_PACKAGES
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_python_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
+    [[ -z "$INST64_PYTHON_PLATFORM" ]] && INST64_PYTHON_PLATFORM='AUTO'
+  fi
+  [[ -z "$INST64_PYTHON_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  return 0
 }
 
 #######################################
@@ -128,6 +149,7 @@ function inst64_python_select_packages() {
       bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
         INST64_PYTHON_PACKAGES+=" python3-setuptools"
     fi
+    INST64_PYTHON_CLI_PATH="/usr/bin/${INST64_PYTHON_CLI_NAME}"
   fi
   [[ -z "$INST64_PYTHON_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -147,11 +169,6 @@ function inst64_python_select_packages() {
 function inst64_python_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  inst64_python_select_packages ||
-    return $?
-  if [[ "$INST64_PYTHON_METHOD" == 'NATIVE' ]]; then
-    bl64_pkg_setup
-  fi
 }
 
 #######################################
@@ -209,19 +226,23 @@ function inst64_python_initialize() {
         "${BL64_OS_RCK}" \
         "${BL64_OS_RHEL}" \
         "${BL64_OS_SLES}" \
-        "${BL64_OS_UB}"
+        "${BL64_OS_UB}" &&
+      bl64_pkg_setup ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Python3' \
-    'INST64_PYTHON_METHOD' 'INST64_SYSTEM_WIDE' 
+  inst64_python_select_platform &&
+    inst64_python_select_packages ||
+    return $?
+  bl64_msg_show_setup 'Install application: Python' \
+    'INST64_SYSTEM_WIDE' 'INST64_PYTHON_METHOD' \
+    'INST64_PYTHON_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '3.2.0'
+bl64_lib_script_version_set '3.3.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

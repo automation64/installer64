@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Template: install-native-2.5.0
 #   Skeleton: installer-base-2.4.0
+#   Snippet: select-platform-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -91,7 +92,16 @@ function inst64_X_APP_NAME_X_install_os_packages() {
 function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && INST64_X_APP_NAME_CAPS_X_PLATFORM='AUTO'
+    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_TAG_X'
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_TAG_X'
+      else
+        bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
+        return $BL64_LIB_ERROR_OS_INCOMPATIBLE
+      fi
+    fi
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0

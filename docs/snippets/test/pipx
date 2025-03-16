@@ -2,8 +2,8 @@
 
 # Prepare PIPX
 export PATH="${PATH}:${BL64_BSH_XDG_PATH_BIN}"
-/source/install-pipx
+src/install-pipx
 
 # Run test
 export INST64_MKDOCSX_APP_NAME_CAPS_X_METHOD='PIPX'
-/source/install-X_APP_NAME_X
+src/install-X_APP_NAME_X
