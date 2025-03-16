@@ -1,4 +1,4 @@
-# Script: installer64
+# Installer64
 
 - [Script: installer64](#script-installer64)
   - [Overview](#overview)
@@ -17,17 +17,20 @@
 ## Overview
 
 _Installer64_ is a collection of application installer scripts for ephemeral OS environments such as containers, CICD runners, etc.
-_Warning_: _Installer64_ is not inteded for regular OS environments (i.e.: VMs, etc.) where better deployment options are available (i.e.: Ansible, Chef, etc.)
+_Warning_: _Installer64_ is not a package manager. It will use the best installation method depending on the application.
 
 ### Standard directory structure
 
 _Installer64_ is configured by default to use the following standard directory structure:
 
-- `/opt`: base location for optional applications.
-- `/opt/<APPLICATION>`: application installation directory.
-- `/usr/local/bin`: used to provide easy to access sym-links to the installer application and related .env file.
-- `$HOME`: base location for user-wide applications.
-- `$HOME/.local/bin`: XDG standard user path. Same as `/usr/local/bin`, but user-wide.
+- System-wide installations:
+  - `/opt`: base destination for installations
+  - `/opt/<APPLICATION>`: application installation directory.
+  - `/usr/local/bin`: standard searchable path where application binaries are published to
+- User-wide installations:
+  - `$HOME/at64`: base destination for installations
+  - `$HOME/at64/<APPLICATION>`: application installation directory.
+  - `$HOME/.local/bin`: standard searchable path where application binaries are published to
 
 ### Base Installer64 parameters
 
@@ -47,10 +50,8 @@ Parameter name format: `INST64_<INSTALLER_NAME>_<PARAMETER_NAME>`
 
 Common parameters:
 
-- `INST64_<INSTALLER_NAME>_DEVELOPMENT`: install development components?. Applicable to packages that separates runtime and development.
 - `INST64_<INSTALLER_NAME>_METHOD`: installation method. See `Installation methods` section for further details
 - `INST64_<INSTALLER_NAME>_PLATFORM`: hardware platform (e.g.: linux_amd64, etc.)
-- `INST64_<INSTALLER_NAME>_REINSTALL`: for `BINARY` installation method only. Reinstall (replace) application if already present?.
 - `INST64_<INSTALLER_NAME>_SOURCE`: package source URL (e.g.: GitHub repository, Distro repository, etc.)
 - `INST64_<INSTALLER_NAME>_TARGET`: full path to the installation destination.
 - `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format (x.y.z).
@@ -64,7 +65,6 @@ The selection criteria is based on the following priority list:
 1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
 1. `EXTERNAL`: application is distributed using OS standard packages, stored in external package repository.
 1. `GEM`: applications is distributed as Ruby module. Installation is done user-wide.
-1. `HELM`: application is distributed as a Helm package.
 1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package.
 1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
 1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
