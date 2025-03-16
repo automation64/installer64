@@ -3,11 +3,7 @@
 declare bats_core_dir="/opt/bats-core"
 declare bats_file="/usr/local/bin/bats"
 
-if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
-  echo 'Error: invalid test environment'
-  exit 1
-fi
-
+source test/lib/check.bash
 if [[ -d "$bats_core_dir" ]]; then
   sudo rm -rf "$bats_core_dir"
 fi
