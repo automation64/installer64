@@ -1,5 +1,5 @@
 ---
-# Template: 1.1.2
+# Template: 1.2.0
 name: "Release / GitHub"
 
 concurrency:
