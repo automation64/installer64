@@ -3,4 +3,5 @@
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE=NO
 export INST64_SYSDEN64_TARGET="$HOME/sysden64"
+export SYSDEN64_PATH_ROOT="$INST64_SYSDEN64_TARGET"
 /source/install-sysden64
