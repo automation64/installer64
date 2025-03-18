@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-custom-2.4.0
+# Template: install-custom-2.5.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -114,24 +114,6 @@ function inst64_devbin64_install_custom_package() {
 }
 
 #######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
-function inst64_devbin64_select_platform() {
-  bl64_dbg_app_show_function
-  return 0
-}
-
-#######################################
 # Install application packages
 #
 # Arguments:
@@ -193,9 +175,6 @@ function inst64_devbin64_select_packages() {
 function inst64_devbin64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_DEVBIN64_METHOD" == 'CUSTOM' ]]; then
-    bl64_arc_setup
-  fi
 }
 
 #######################################
@@ -246,9 +225,10 @@ function inst64_devbin64_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
+    bl64_arc_setup ||
+      return $?
   fi
-  inst64_devbin64_select_platform &&
-    inst64_devbin64_select_packages ||
+  inst64_devbin64_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: DevBin64' \
     'INST64_DEVBIN64_METHOD' 'INST64_SYSTEM_WIDE' \
@@ -264,7 +244,7 @@ function inst64_devbin64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.3.0'
+bl64_lib_script_version_set '1.3.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
