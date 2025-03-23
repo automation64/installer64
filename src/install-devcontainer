@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-nodejs-1.0.0
+# Template: install-nodejs-3.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,7 +21,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
@@ -87,6 +86,22 @@ function inst64_devcontainer_install_with_npm() {
 }
 
 #######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_devcontainer_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+}
+
+#######################################
 # Install application packages
 #
 # Arguments:
@@ -102,6 +117,38 @@ function inst64_devcontainer_install() {
   if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
     inst64_devcontainer_install_with_npm
   fi
+}
+
+#######################################
+# Perform post installation setup
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Setup progress
+# Returns:
+#   0: setup completed ok
+#   >0: unable to setup
+#######################################
+function inst64_devcontainer_setup() {
+  bl64_dbg_app_show_function
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_devcontainer_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  "$INST64_DEVCONTAINER_CLI_PATH" --version
 }
 
 #######################################
@@ -134,42 +181,6 @@ function inst64_devcontainer_select_packages() {
 }
 
 #######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_devcontainer_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
-    inst64_devcontainer_select_packages
-  fi
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_devcontainer_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_DEVCONTAINER_CLI_PATH" --version
-}
-
-#######################################
 # Initialize environment
 #
 # Arguments:
@@ -193,28 +204,26 @@ function inst64_devcontainer_initialize() {
     'NPM' ||
     return $?
 
-  bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && bl64_msg_show_error 'system-wide installation not supported' &&
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
-
   if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
+    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && bl64_msg_show_error 'system-wide installation not supported' &&
+      return $BL64_LIB_ERROR_PARAMETER_INVALID
     bl64_check_command_search_path "$INST64_DEVCONTAINER_NPM_BIN" &&
-      bl64_check_privilege_not_root &&
-      bl64_os_check_compatibility \
-        "${BL64_OS_OL}" \
-        "${BL64_OS_FD}" \
-        "${BL64_OS_UB}"
+      bl64_check_privilege_not_root ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  inst64_devcontainer_select_packages ||
+    return $?
   bl64_msg_show_setup 'Install application: DevContainer CLI' \
-    'INST64_DEVCONTAINER_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_SYSTEM_WIDE' 'INST64_DEVCONTAINER_METHOD' \
+    'INST64_DEVCONTAINER_VERSION' \
+    'INST64_DEVCONTAINER_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -222,5 +231,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_devcontainer_initialize &&
   inst64_devcontainer_prepare &&
   inst64_devcontainer_install &&
+  inst64_devcontainer_setup &&
   inst64_devcontainer_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
