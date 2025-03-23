@@ -7,19 +7,7 @@
 # X_GLOBALS_PLACEHOLDER_X
 declare INST64_X_APP_NAME_CAPS_X_ENV='X_ENV_FILE_NAME_X.env'
 
-# X_STAND_ALONE_FUNCTIONS_X #
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
-function inst64_X_APP_NAME_X_setup() {
+function inst64_X_APP_NAME_X_setup_env() {
   bl64_dbg_app_show_function
   local mode='0644'
 
@@ -51,6 +39,3 @@ X_SHELL_VAR_DECLARATIONS_PLACEHOLDER_X
   fi
   return 0
 }
-
-# X_MAIN_POST_VERIFY_PLACEHOLDER_X
-  inst64_X_APP_NAME_X_setup &&

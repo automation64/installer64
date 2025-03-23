@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-base-2.4.0
+# Template: install-base-3.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -56,40 +56,6 @@ declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 # X_STAND_ALONE_FUNCTIONS_X #
 
 #######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_X_APP_NAME_X_install() {
-  bl64_dbg_app_show_function
-  # X_INSTALL_PLACEHOLDER_X
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
-function inst64_X_APP_NAME_X_select_packages() {
-  bl64_dbg_app_show_function
-  # X_SELECT_PKG_PLACEHOLDER_X
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
-}
-
-#######################################
 # Prepare installation
 #
 # Arguments:
@@ -103,7 +69,45 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  # X_PREPARE_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+    : # X_PREPARE_PLACEHOLDER_X
+  fi
+}
+
+#######################################
+# Install application packages
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package installer progress and errors
+# Returns:
+#   0: package installed ok
+#   >0: unable to install package
+#######################################
+function inst64_X_APP_NAME_X_install() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+    : # X_INSTALL_PLACEHOLDER_X
+  fi
+}
+
+#######################################
+# Perform post installation setup
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Setup progress
+# Returns:
+#   0: setup completed ok
+#   >0: unable to setup
+#######################################
+function inst64_X_APP_NAME_X_setup() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+    : # X_SETUP_PLACEHOLDER_X
+  fi
 }
 
 #######################################
@@ -120,8 +124,51 @@ function inst64_X_APP_NAME_X_prepare() {
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  # X_VERIFY_PLACEHOLDER_X
-  # example # "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
+  : # X_VERIFY_PLACEHOLDER_X
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_X_APP_NAME_X_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
+      : # X_PLATFORM_SELECTION_PLACEHOLDER_X
+    fi
+  fi
+  [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  return 0
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_X_APP_NAME_X_select_packages() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+    : # X_SELECT_PKG_PLACEHOLDER_X
+  fi
+  [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
 }
 
 #######################################
@@ -143,6 +190,10 @@ function inst64_X_APP_NAME_X_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
+    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
+    'X_METHOD_X' ||
+    return $?
   # X_INIT_PLACEHOLDER_X
   # X_PRE_REQ_PLACEHOLDER_X
   # X_SELECTORS_PLACEHOLDER_X
@@ -162,6 +213,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_X_APP_NAME_X_initialize &&
   inst64_X_APP_NAME_X_prepare &&
   inst64_X_APP_NAME_X_install &&
+  inst64_X_APP_NAME_X_setup &&
   inst64_X_APP_NAME_X_verify
-  # X_MAIN_POST_VERIFY_PLACEHOLDER_X
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
