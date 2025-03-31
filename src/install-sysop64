@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-custom-2.5.0
+# Template: install-custom-3.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -64,7 +64,7 @@ declare INST64_SYSOP64_REPO_NAME='sysop64'
 declare INST64_SYSOP64_REPO_OWNER='automation64'
 
 declare INST64_SYSOP64_PACKAGES=''
-declare INST64_SYSOP64_CLI_NAME=''
+declare INST64_SYSOP64_CLI_NAME='so64'
 declare INST64_SYSOP64_CLI_PATH=''
 
 #
@@ -75,7 +75,6 @@ function inst64_sysop64_install_custom_package() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
-  local app_target_owner='root'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
 
@@ -107,6 +106,22 @@ function inst64_sysop64_install_custom_package() {
 }
 
 #######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_sysop64_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
+}
+
+#######################################
 # Install application packages
 #
 # Arguments:
@@ -122,6 +137,49 @@ function inst64_sysop64_install() {
   if [[ "$INST64_SYSOP64_METHOD" == 'CUSTOM' ]]; then
     inst64_sysop64_install_custom_package
   fi
+}
+
+#######################################
+# Perform post installation setup
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Setup progress
+# Returns:
+#   0: setup completed ok
+#   >0: unable to setup
+#######################################
+function inst64_sysop64_setup() {
+  bl64_dbg_app_show_function
+  local app_cli_source=''
+  if [[ "$INST64_SYSOP64_METHOD" == 'CUSTOM' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      app_cli_source="${INST64_SYSOP64_TARGET}/sysop64/sysop64"
+      bl64_msg_show_task "publish application to searchable path (${INST64_SYSOP64_CLI_PATH})"
+      # shellcheck disable=SC2086
+      bl64_fs_symlink_create "${app_cli_source}" "$INST64_SYSOP64_CLI_PATH" "$BL64_VAR_ON" ||
+        return $?
+    fi
+  fi
+}
+
+#######################################
+# Verify installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Verification progress and errors
+# Returns:
+#   0: verification ok
+#   >0: verification failed
+#######################################
+function inst64_sysop64_verify() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'verify deployment'
+  [[ -d "$INST64_SYSOP64_TARGET" ]] &&
+  "$INST64_SYSOP64_CLI_PATH"
 }
 
 #######################################
@@ -151,39 +209,6 @@ function inst64_sysop64_select_packages() {
   fi
   [[ -z "$INST64_SYSOP64_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
-}
-
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_sysop64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_sysop64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  [[ -d "$INST64_SYSOP64_TARGET" ]]
 }
 
 #######################################
@@ -236,7 +261,7 @@ function inst64_sysop64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '1.3.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -244,5 +269,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_sysop64_initialize &&
   inst64_sysop64_prepare &&
   inst64_sysop64_install &&
+  inst64_sysop64_setup &&
   inst64_sysop64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
