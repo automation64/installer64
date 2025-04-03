@@ -1,23 +1,20 @@
-# Installer64
+# installer64
 
-- [Script: installer64](#script-installer64)
-  - [Overview](#overview)
-    - [Standard directory structure](#standard-directory-structure)
-    - [Base Installer64 parameters](#base-installer64-parameters)
-    - [Installer specific parameters](#installer-specific-parameters)
-    - [Installation methods](#installation-methods)
-  - [Usage](#usage)
-  - [Deployment](#deployment)
-    - [Requirements](#requirements)
-    - [Installation](#installation)
-  - [Contributing](#contributing)
-    - [License](#license)
-    - [Author](#author)
+![License](https://img.shields.io/github/license/automation64/installer64)
+![GitHub stars](https://img.shields.io/github/stars/automation64/installer64?style=social)
+![GitHub forks](https://img.shields.io/github/forks/automation64/installer64?style=social)
 
-## Overview
+🚀 **Streamlined Application Installation for Ephemeral Environments**
 
-_Installer64_ is a collection of application installer scripts for ephemeral OS environments such as containers, CICD runners, etc.
-_Warning_: _Installer64_ is not a package manager. It will use the best installation method depending on the application.
+---
+
+## 📌 Overview
+
+**Installer64** is a collection of command-line scripts designed to quickly install applications in temporary environments like Docker containers, CI/CD runners (GitHub Actions, GitLab CI, etc.), and other short-lived systems.
+
+It aims to provide the simplest and most efficient way to get specific tools ready within these contexts.
+
+**⚠️ Important Note:** **Installer64** is **not** a package manager. It focuses solely on executing the most appropriate installation steps for an application in a fresh environment (e.g., downloading a binary, using a native package manager minimally, running official install scripts).
 
 ### Standard directory structure
 
@@ -70,21 +67,13 @@ The selection criteria is based on the following priority list:
 1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
 1. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
 
-## Usage
+---
 
-- Select application installer from `/opt/installer64`
-- Check for required installer parameters and set as environment variables
-- Run installer
+## 📦 Installation
 
-```shell
-INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
-```
+### Minimum Requirements
 
-## Deployment
-
-### Requirements
-
-- Bash: used by installer scripts.
+- Bash V4: used by installer scripts.
 - Sudo: most installers will require privileged execution. Used if not already running as root.
 - Curl or Wget, Tar and GZip: used to download and unpack _Installer64_ and _BashLib64_
 
@@ -114,17 +103,37 @@ export INST64_SYSTEM_WIDE='YES'
 sudo -E ./install-installer64
 ```
 
-## Contributing
+---
 
-Help on implementing new features and maintaining the code base is welcomed.
+## 🚀 Usage
 
-- [Guidelines](https://github.com/automation64/installer64/blob/main/CONTRIBUTING.md)
-- [Contributor Covenant Code of Conduct](https://github.com/automation64/installer64/blob/main/CODE_OF_CONDUCT.md)
+- Select application installer from `/opt/installer64`
+- Check for required installer parameters and set as environment variables
+- Run installer
 
-### License
+```shell
+INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
+```
 
-[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+## 🛠 Contributing
 
-### Author
+Contributions are welcome! Help us improve by submitting issues, feature requests, or pull requests.
+
+- [Contribution Guidelines](https://github.com/automation64/installer64/blob/main/CONTRIBUTING.md)
+- [Code of Conduct](https://github.com/automation64/installer64/blob/main/CODE_OF_CONDUCT.md)
+
+---
+
+## 📜 License
+
+Installer64 is licensed under the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0.txt).
+
+---
+
+## 👤 Author
 
 - [SerDigital64](https://github.com/serdigital64)
+
+---
+
+🌟 **If you find this project useful, consider giving it a star!** ⭐
