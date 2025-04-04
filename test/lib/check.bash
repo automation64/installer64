@@ -1,3 +1,5 @@
+export BL64_LIB_CICD="YES"
+
 if [[ "$(uname -s)" == 'Linux' ]]; then
   if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
     echo 'error: Test must be executed inside a container'

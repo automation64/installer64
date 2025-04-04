@@ -249,7 +249,7 @@ function inst64_kubent_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: KubeNT - Kube-No-Trouble' \
     'INST64_KUBENT_METHOD' 'INST64_SYSTEM_WIDE' 
 }

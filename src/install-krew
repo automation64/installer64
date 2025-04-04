@@ -279,7 +279,7 @@ function inst64_krew_initialize() {
       return $?
   fi
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Krew' \
     'INST64_KREW_METHOD' 'INST64_SYSTEM_WIDE' 
 }

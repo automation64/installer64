@@ -160,7 +160,7 @@ function inst64_psqlcli_initialize() {
   *) bl64_check_alert_unsupported "PSQL CLI Version: ${INST64_PSQLCLI_VERSION}" ;;
   esac
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: PostgreSQL CLI' \
     'INST64_PSQLCLI_METHOD' 'INST64_SYSTEM_WIDE' 
 }

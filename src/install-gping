@@ -221,7 +221,7 @@ function inst64_gping_initialize() {
       "$INST64_GPING_METHOD" \
       'BINARY'
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: GPing' \
     'INST64_GPING_METHOD' 'INST64_SYSTEM_WIDE' 
 }
