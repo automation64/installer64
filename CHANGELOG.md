@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Act
   - Added multiplatform support
+- Zoxide
+  - Added multiplatform support
 
 ## [5.7.1]
 
