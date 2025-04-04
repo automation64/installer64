@@ -1,0 +1,1 @@
+../UB/install-yazi_01.sh
