@@ -170,7 +170,7 @@ function inst64_kubectl_install() {
 function inst64_kubectl_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_KUBECTL_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_KUBECTL_VERSION" == 'stable' ]]; then
       # shellcheck disable=SC2086
@@ -184,8 +184,8 @@ function inst64_kubectl_select_packages() {
       INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION#v}"
     fi
     package_prefix='kubectl'
-    package_sufix=''
-    INST64_KUBECTL_PACKAGES="${package_prefix}${package_sufix}"
+    package_suffix=''
+    INST64_KUBECTL_PACKAGES="${package_prefix}${package_suffix}"
     INST64_KUBECTL_PACKAGE_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
     [[ -z "$INST64_KUBECTL_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

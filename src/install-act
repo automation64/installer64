@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.2.0
+# Template: install-github-3.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,14 +23,16 @@ declare INST64_HOME="${HOME}/at64"
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
 [[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
@@ -52,7 +54,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_ACT_PLATFORM="${INST64_ACT_PLATFORM:-Linux_x86_64}"
+declare INST64_ACT_PLATFORM="${INST64_ACT_PLATFORM:-}"
 declare INST64_ACT_TARGET="${INST64_ACT_TARGET:-}"
 declare INST64_ACT_VERSION="${INST64_ACT_VERSION:-latest}"
 # Installation method
@@ -72,15 +74,14 @@ function inst64_act_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
-  local app_target_owner='root'
+  local app_target_owner="$BL64_IAM_SYSTEM_USER"
+  local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_ACT_CLI_NAME}"
+  local app_work_path="${INST64_ACT_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_ACT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ACT_CLI_NAME}"
-  else
-    INST64_ACT_CLI_PATH="${INST64_ACT_TARGET}/${INST64_ACT_CLI_NAME}"
     app_target_owner="$BL64_VAR_DEFAULT"
+    app_target_group="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
@@ -91,20 +92,29 @@ function inst64_act_install_binary_release() {
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_owner" "$INST64_ACT_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_ACT_TARGET" "${work_path}/${app_cli_source}" ||
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_ACT_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_ACT_TARGET" "${work_path}/${app_work_path}" ||
     return $?
-
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_ACT_CLI_PATH})"
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_ACT_TARGET}/${app_cli_source}" "$INST64_ACT_CLI_PATH" "$BL64_VAR_ON" ||
-      return $?
-  fi
 
   bl64_msg_show_task 'cleanup temporary files'
   bl64_fs_rm_tmpdir "$work_path"
   return 0
+}
+
+#######################################
+# Prepare installation
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Preparation progress and errors
+# Returns:
+#   0: preparation ok
+#   >0: preparation failed
+#######################################
+function inst64_act_prepare() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'prepare deployment'
 }
 
 #######################################
@@ -126,50 +136,30 @@ function inst64_act_install() {
   fi
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
-function inst64_act_select_packages() {
-  bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_sufix=''
-  if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_ACT_VERSION" == 'latest' ]]; then
-      INST64_ACT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_ACT_REPO_OWNER" "$INST64_ACT_REPO_NAME")" ||
-        return $?
-    fi
-    package_prefix='act_'
-    package_sufix='.tar.gz'
-    INST64_ACT_PACKAGES="${package_prefix}${INST64_ACT_PLATFORM}${package_sufix}"
-  fi
-  [[ -z "$INST64_ACT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
-}
+
 
 #######################################
-# Prepare installation
+# Perform post installation setup
 #
 # Arguments:
 #   None. Parameters are imported from Globals
 # Outputs:
-#   Preparation progress and errors
+#   Setup progress
 # Returns:
-#   0: preparation ok
-#   >0: preparation failed
+#   0: setup completed ok
+#   >0: unable to setup
 #######################################
-function inst64_act_prepare() {
+function inst64_act_setup() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
+  local app_cli_source=''
   if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
-    bl64_arc_setup
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      app_cli_source="${INST64_ACT_TARGET}/${INST64_ACT_CLI_NAME}"
+      bl64_msg_show_task "publish application to searchable path (${INST64_ACT_CLI_PATH})"
+      # shellcheck disable=SC2086
+      bl64_fs_symlink_create "${app_cli_source}" "$INST64_ACT_CLI_PATH" "$BL64_VAR_ON" ||
+        return $?
+    fi
   fi
 }
 
@@ -188,6 +178,70 @@ function inst64_act_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   "$INST64_ACT_CLI_PATH" --version
+}
+
+#######################################
+# Selects platform ID
+#
+# * Platform ID format is defined by the package provider
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Platform ID
+# Returns:
+#   0: selection completed ok
+#   >0: unable to selection
+#######################################
+function inst64_act_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_ACT_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_ACT_PLATFORM='Darwin_arm64'
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_ACT_PLATFORM='Linux_x86_64'
+      else
+        bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
+        return $BL64_LIB_ERROR_OS_INCOMPATIBLE
+      fi
+    fi
+  fi
+  [[ -z "$INST64_ACT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  return 0
+}
+
+#######################################
+# Select installation packages and related information
+#
+# Arguments:
+#   None. Parameters are imported from Globals
+# Outputs:
+#   Package name list
+# Returns:
+#   0: selection ok
+#   >0: selection failed
+#######################################
+function inst64_act_select_packages() {
+  bl64_dbg_app_show_function
+  local package_prefix=''
+  local package_suffix=''
+  if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_ACT_VERSION" == 'latest' ]]; then
+      INST64_ACT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_ACT_REPO_OWNER" "$INST64_ACT_REPO_NAME")" ||
+        return $?
+    fi
+    package_prefix='act_'
+    package_suffix='.tar.gz'
+    INST64_ACT_PACKAGES="${package_prefix}${INST64_ACT_PLATFORM}${package_suffix}"
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_ACT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ACT_CLI_NAME}"
+    else
+      INST64_ACT_CLI_PATH="${INST64_ACT_TARGET}/${INST64_ACT_CLI_NAME}"
+    fi
+  fi
+  [[ -z "$INST64_ACT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  return 0
 }
 
 #######################################
@@ -210,27 +264,38 @@ function inst64_act_initialize() {
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
   INST64_ACT_TARGET="${INST64_ACT_TARGET:-${INST64_OPT_ROOT}/act}"
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_check_privilege_root ||
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_ACT_METHOD' \
+    "$INST64_ACT_METHOD" \
+    'BINARY' ||
+    return $?
+
+  if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_arc_setup ||
       return $?
   fi
-  bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" &&
-    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_ACT_METHOD' \
-      "$INST64_ACT_METHOD" \
-      'BINARY' ||
+  inst64_act_select_platform &&
+    inst64_act_select_packages ||
     return $?
-  # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+
   bl64_msg_show_setup 'Install application: Act' \
-    'INST64_ACT_METHOD' 'INST64_SYSTEM_WIDE'
+    'INST64_SYSTEM_WIDE' 'INST64_ACT_METHOD' \
+    'INST64_ACT_PLATFORM' \
+    'INST64_ACT_REPO_OWNER' \
+    'INST64_ACT_REPO_NAME' \
+    'INST64_ACT_TARGET' \
+    'INST64_ACT_VERSION' \
+    'INST64_ACT_CLI_PATH'
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -238,5 +303,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_act_initialize &&
   inst64_act_prepare &&
   inst64_act_install &&
+  inst64_act_setup &&
   inst64_act_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

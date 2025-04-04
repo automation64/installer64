@@ -130,9 +130,9 @@ function inst64_fd_select_platform() {
       "$BL64_OS_MACHINE_ARM64") INST64_FD_PLATFORM='aarch64-apple-darwin' ;;
       "$BL64_OS_MACHINE_AMD64")
         if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
-          INST64_FD_PLATFORM='i686-unknown-linux-musl'
+          INST64_FD_PLATFORM='x86_64-unknown-linux-musl'
         elif bl64_os_is_distro "${BL64_OS_FD}" "${BL64_OS_OL}" "${BL64_OS_UB}" "${BL64_OS_KL}"; then
-          INST64_FD_PLATFORM='i686-unknown-linux-musl'
+          INST64_FD_PLATFORM='x86_64-unknown-linux-musl'
         fi
         ;;
       esac
@@ -174,15 +174,15 @@ function inst64_fd_install() {
 function inst64_fd_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_FD_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_FD_VERSION" == 'latest' ]]; then
       INST64_FD_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_FD_REPO_OWNER" "$INST64_FD_REPO_NAME")" ||
         return $?
     fi
     package_prefix='fd-'
-    package_sufix='.tar.gz'
-    INST64_FD_PACKAGES="${package_prefix}${INST64_FD_VERSION}-${INST64_FD_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_FD_PACKAGES="${package_prefix}${INST64_FD_VERSION}-${INST64_FD_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_FD_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_FD_CLI_NAME}"
     else

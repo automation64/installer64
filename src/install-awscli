@@ -197,17 +197,17 @@ function inst64_awscli_install() {
 function inst64_awscli_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
       package_prefix='awscli-exe-'
-      package_sufix='.zip'
-      INST64_AWSCLI_PACKAGES="${package_prefix}${INST64_AWSCLI_PLATFORM}${package_sufix}"
+      package_suffix='.zip'
+      INST64_AWSCLI_PACKAGES="${package_prefix}${INST64_AWSCLI_PLATFORM}${package_suffix}"
       INST64_AWSCLI_PACKAGE_URL="${INST64_AWSCLI_SOURCE}/${INST64_AWSCLI_PACKAGES}"
     elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
       package_prefix='AWSCLIV2'
-      package_sufix='.pkg'
-      INST64_AWSCLI_PACKAGES="${package_prefix}${package_sufix}"
+      package_suffix='.pkg'
+      INST64_AWSCLI_PACKAGES="${package_prefix}${package_suffix}"
     fi
     INST64_AWSCLI_PACKAGE_URL="${INST64_AWSCLI_SOURCE}/${INST64_AWSCLI_PACKAGES}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

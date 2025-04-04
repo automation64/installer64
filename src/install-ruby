@@ -206,7 +206,7 @@ function inst64_ruby_initialize() {
       "$INST64_RUBY_METHOD" \
       'NATIVE'
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Ruby' \
     'INST64_RUBY_METHOD' 'INST64_SYSTEM_WIDE' 
 }

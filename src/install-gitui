@@ -60,7 +60,7 @@ function inst64_gitui_install_binary_release() {
   local repo_owner='extrawurst'
   local repo_name='gitui'
   local package_prefix='gitui'
-  local package_sufix='.tar.gz'
+  local package_suffix='.tar.gz'
   local package_name=''
   local work_path=''
   local app_target_mode='0755'
@@ -74,7 +74,7 @@ function inst64_gitui_install_binary_release() {
     INST64_GITUI_VERSION="$(bl64_vcs_github_release_get_latest "$repo_owner" "$repo_name")" ||
       return $?
   fi
-  package_name="${package_prefix}-${INST64_GITUI_PLATFORM}${package_sufix}"
+  package_name="${package_prefix}-${INST64_GITUI_PLATFORM}${package_suffix}"
 
   bl64_rxtx_github_get_asset "$repo_owner" "$repo_name" "$INST64_GITUI_VERSION" "$package_name" "${work_path}/${package_name}" &&
     bl64_arc_open_tar "${work_path}/${package_name}" "${work_path}" ||
@@ -136,7 +136,7 @@ function inst64_gitui_initialize() {
     bl64_arc_setup &&
     bl64_check_privilege_root
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: GitUI' \
     'INST64_GITUI_METHOD' 'INST64_SYSTEM_WIDE' 
 }

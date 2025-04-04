@@ -130,14 +130,14 @@ function inst64_cosign_install() {
 function inst64_cosign_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_COSIGN_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_COSIGN_VERSION" == 'latest' ]]; then
       INST64_COSIGN_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_COSIGN_REPO_OWNER" "$INST64_COSIGN_REPO_NAME")" ||
         return $?
     fi
     package_prefix='cosign'
-    INST64_COSIGN_PACKAGES="${package_prefix}-${INST64_COSIGN_PLATFORM}${package_sufix}"
+    INST64_COSIGN_PACKAGES="${package_prefix}-${INST64_COSIGN_PLATFORM}${package_suffix}"
   fi
   [[ -z "$INST64_COSIGN_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -211,7 +211,7 @@ function inst64_cosign_initialize() {
       "$INST64_COSIGN_METHOD" \
       'BINARY'
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Sigstore cosign' \
     'INST64_COSIGN_METHOD' 'INST64_SYSTEM_WIDE' 
 }

@@ -199,7 +199,7 @@ function inst64_bashit_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Bash-it' \
     'INST64_BASHIT_METHOD' 'INST64_SYSTEM_WIDE' 
 }

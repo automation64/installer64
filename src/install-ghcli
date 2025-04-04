@@ -216,7 +216,7 @@ function inst64_ghcli_install() {
 function inst64_ghcli_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
     if bl64_os_is_distro "$BL64_OS_OL" "$BL64_OS_UB"; then
       INST64_GHCLI_PACKAGES='gh'
@@ -230,11 +230,11 @@ function inst64_ghcli_select_packages() {
     fi
     package_prefix='gh_'
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
-      package_sufix='.zip'
+      package_suffix='.zip'
     else
-      package_sufix='.tar.gz'
+      package_suffix='.tar.gz'
     fi
-    INST64_GHCLI_PACKAGES="${package_prefix}${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}${package_sufix}"
+    INST64_GHCLI_PACKAGES="${package_prefix}${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_GHCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_GHCLI_CLI_NAME}"
     else

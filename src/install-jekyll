@@ -177,7 +177,7 @@ function inst64_jekyll_initialize() {
       return $?
   fi
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Jekyll' \
     'INST64_JEKYLL_METHOD' 'INST64_SYSTEM_WIDE' 
 }

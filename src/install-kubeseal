@@ -123,7 +123,7 @@ function inst64_kubeseal_install() {
 function inst64_kubeseal_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_KUBESEAL_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_KUBESEAL_VERSION" == 'latest' ]]; then
       bl64_dbg_app_show_comments 'this repo is not using correctly latest release. The latest version number is stored in the tag list'
@@ -140,8 +140,8 @@ function inst64_kubeseal_select_packages() {
         return $?
     fi
     package_prefix='kubeseal-'
-    package_sufix='.tar.gz'
-    INST64_KUBESEAL_PACKAGES="${package_prefix}${INST64_KUBESEAL_VERSION#v}-${INST64_KUBESEAL_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_KUBESEAL_PACKAGES="${package_prefix}${INST64_KUBESEAL_VERSION#v}-${INST64_KUBESEAL_PLATFORM}${package_suffix}"
   fi
   [[ -z "$INST64_KUBESEAL_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -210,7 +210,7 @@ function inst64_kubeseal_initialize() {
       'BINARY' &&
     bl64_check_privilege_root
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Sealed Secrets KubeSeal' \
     'INST64_KUBESEAL_METHOD' 'INST64_SYSTEM_WIDE' 
 }

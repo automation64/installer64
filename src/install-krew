@@ -192,15 +192,15 @@ function inst64_krew_install() {
 function inst64_krew_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_KREW_VERSION" == 'latest' ]]; then
       INST64_KREW_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_KREW_REPO_OWNER" "$INST64_KREW_REPO_NAME")" ||
         return $?
     fi
     package_prefix='krew-'
-    package_sufix='.tar.gz'
-    INST64_KREW_PACKAGES="${package_prefix}${INST64_KREW_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_KREW_PACKAGES="${package_prefix}${INST64_KREW_PLATFORM}${package_suffix}"
     INST64_KREW_INSTALLER="${package_prefix}${INST64_KREW_PLATFORM}"
   fi
   [[ -z "$INST64_KREW_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
@@ -279,7 +279,7 @@ function inst64_krew_initialize() {
       return $?
   fi
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Krew' \
     'INST64_KREW_METHOD' 'INST64_SYSTEM_WIDE' 
 }

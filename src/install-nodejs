@@ -250,15 +250,15 @@ function inst64_nodejs_select_platform() {
 function inst64_nodejs_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_NODEJS_VERSION" == 'latest' ]]; then
       INST64_NODEJS_VERSION="$(inst64_nodejs_select_packages_version)" ||
         return $?
     fi
     package_prefix='node-'
-    package_sufix='.tar.gz'
-    INST64_NODEJS_PACKAGES="${package_prefix}${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_NODEJS_PACKAGES="${package_prefix}${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_suffix}"
     INST64_NODEJS_PACKAGE_URL="${INST64_NODEJS_SOURCE}${INST64_NODEJS_VERSION}"
     [[ -z "$INST64_NODEJS_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

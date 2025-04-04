@@ -151,7 +151,7 @@ function inst64_X_APP_NAME_X_install() {
 function inst64_X_APP_NAME_X_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       app_cli_source="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
       bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
@@ -224,13 +224,13 @@ function inst64_X_APP_NAME_X_select_platform() {
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       INST64_X_APP_NAME_CAPS_X_VERSION="X_DETECT_LASTEST_VERSION_X"
     fi
     package_prefix='X_PACKAGE_PREFIX_X'
-    package_sufix='X_PACKAGE_SUFIX_X'
+    package_suffix='X_PACKAGE_SUFIX_X'
     INST64_X_APP_NAME_CAPS_X_PACKAGES='X_PACKAGE_NAME_PLACEHOLDER_X'
     INST64_X_APP_NAME_CAPS_X_PACKAGE_URL='X_PACKAGE_URL_PLACEHOLDER_X'
     [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1

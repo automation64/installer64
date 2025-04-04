@@ -215,7 +215,7 @@ function inst64_terraform_install() {
 function inst64_terraform_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_TERRAFORM_METHOD" == 'EXTERNAL' ]]; then
     if bl64_os_is_distro "${BL64_OS_OL}"; then
       INST64_TERRAFORM_PACKAGES='terraform'
@@ -226,8 +226,8 @@ function inst64_terraform_select_packages() {
         return $?
     fi
     package_prefix='terraform_'
-    package_sufix='.zip'
-    INST64_TERRAFORM_PACKAGES="${package_prefix}${INST64_TERRAFORM_VERSION#v}_${INST64_TERRAFORM_PLATFORM}${package_sufix}"
+    package_suffix='.zip'
+    INST64_TERRAFORM_PACKAGES="${package_prefix}${INST64_TERRAFORM_VERSION#v}_${INST64_TERRAFORM_PLATFORM}${package_suffix}"
     INST64_TERRAFORM_PACKAGE_URL="${INST64_TERRAFORM_SOURCE}/${INST64_TERRAFORM_VERSION#v}"
     [[ -z "$INST64_TERRAFORM_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

@@ -123,15 +123,15 @@ function inst64_pluto_install() {
 function inst64_pluto_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_PLUTO_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_PLUTO_VERSION" == 'latest' ]]; then
       INST64_PLUTO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_PLUTO_REPO_OWNER" "$INST64_PLUTO_REPO_NAME")" ||
         return $?
     fi
     package_prefix='pluto_'
-    package_sufix='.tar.gz'
-    INST64_PLUTO_PACKAGES="${package_prefix}${INST64_PLUTO_VERSION#v}_${INST64_PLUTO_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_PLUTO_PACKAGES="${package_prefix}${INST64_PLUTO_VERSION#v}_${INST64_PLUTO_PLATFORM}${package_suffix}"
   fi
 
   [[ -z "$INST64_PLUTO_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
@@ -199,7 +199,7 @@ function inst64_pluto_initialize() {
       'BINARY' &&
     bl64_check_privilege_root
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Pluto' \
     'INST64_PLUTO_METHOD' 'INST64_SYSTEM_WIDE' 
 }

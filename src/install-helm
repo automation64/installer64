@@ -174,15 +174,15 @@ function inst64_helm_install() {
 function inst64_helm_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_HELM_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_HELM_VERSION" == 'latest' ]]; then
       INST64_HELM_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HELM_REPO_OWNER" "$INST64_HELM_REPO_NAME")" ||
         return $?
     fi
     package_prefix='helm-'
-    package_sufix='.tar.gz'
-    INST64_HELM_PACKAGES="${package_prefix}${INST64_HELM_VERSION}-${INST64_HELM_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_HELM_PACKAGES="${package_prefix}${INST64_HELM_VERSION}-${INST64_HELM_PLATFORM}${package_suffix}"
     INST64_HELM_PACKAGE_URL="$INST64_HELM_SOURCE"
     [[ -z "$INST64_HELM_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

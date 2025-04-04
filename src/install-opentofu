@@ -167,15 +167,15 @@ function inst64_opentofu_install() {
 function inst64_opentofu_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_OPENTOFU_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_OPENTOFU_VERSION" == 'latest' ]]; then
       INST64_OPENTOFU_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_OPENTOFU_REPO_OWNER" "$INST64_OPENTOFU_REPO_NAME")" ||
         return $?
     fi
     package_prefix='tofu_'
-    package_sufix='.tar.gz'
-    INST64_OPENTOFU_PACKAGES="${package_prefix}${INST64_OPENTOFU_VERSION#v}_${INST64_OPENTOFU_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_OPENTOFU_PACKAGES="${package_prefix}${INST64_OPENTOFU_VERSION#v}_${INST64_OPENTOFU_PLATFORM}${package_suffix}"
   fi
   [[ -z "$INST64_OPENTOFU_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
@@ -250,7 +250,7 @@ function inst64_opentofu_initialize() {
     fi
   fi
   # shellcheck disable=SC2181
-  (($? =! 0)) && return $BL64_LIB_ERROR_TASK_FAILED
+  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: OpenTofu' \
     'INST64_OPENTOFU_METHOD' 'INST64_SYSTEM_WIDE' 
 }
