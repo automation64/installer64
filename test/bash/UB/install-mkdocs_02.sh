@@ -1,1 +1,0 @@
-../ALP/install-mkdocs_02.sh
