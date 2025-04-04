@@ -196,11 +196,11 @@ function inst64_sysop64_verify() {
 function inst64_sysop64_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_SYSOP64_METHOD" == 'CUSTOM' ]]; then
     package_prefix='sysop64-scripts'
-    package_sufix='.tar.gz'
-    INST64_SYSOP64_PACKAGES="${package_prefix}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_SYSOP64_PACKAGES="${package_prefix}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_SYSOP64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_SYSOP64_CLI_NAME}"
     else

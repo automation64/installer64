@@ -229,15 +229,15 @@ function inst64_yazi_select_platform() {
 function inst64_yazi_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_YAZI_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_YAZI_VERSION" == 'latest' ]]; then
       INST64_YAZI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_YAZI_REPO_OWNER" "$INST64_YAZI_REPO_NAME")" ||
         return $?
     fi
     package_prefix='yazi-'
-    package_sufix='.zip'
-    INST64_YAZI_PACKAGES="${package_prefix}${INST64_YAZI_PLATFORM}${package_sufix}"
+    package_suffix='.zip'
+    INST64_YAZI_PACKAGES="${package_prefix}${INST64_YAZI_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_YAZI_CLI_PATH_YAZI="${INST64_LOCAL_BIN}/${INST64_YAZI_CLI_NAME_YAZI}"
       INST64_YAZI_CLI_PATH_YA="${INST64_LOCAL_BIN}/${INST64_YAZI_CLI_NAME_YA}"

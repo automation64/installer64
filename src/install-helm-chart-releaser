@@ -58,7 +58,7 @@ declare INST64_HCR_REPO_OWNER='helm'
 function inst64_hcr_install_custom_package() {
   bl64_dbg_app_show_function
   local package_prefix='chart-releaser'
-  local package_sufix='.tar.gz'
+  local package_suffix='.tar.gz'
   local package_name=''
   local package_url=''
   local work_path=''
@@ -74,7 +74,7 @@ function inst64_hcr_install_custom_package() {
       return $?
     INST64_HCR_VERSION="${INST64_HCR_VERSION#v}"
   fi
-  package_name="${package_prefix}_${INST64_HCR_VERSION}_${INST64_HCR_PLATFORM}${package_sufix}"
+  package_name="${package_prefix}_${INST64_HCR_VERSION}_${INST64_HCR_PLATFORM}${package_suffix}"
   package_url="${INST64_HCR_SOURCE}/v${INST64_HCR_VERSION}"
 
   bl64_rxtx_web_get_file "${package_url}/${package_name}" "${work_path}/${package_name}" &&

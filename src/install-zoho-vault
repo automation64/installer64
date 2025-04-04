@@ -166,11 +166,11 @@ function inst64_zohovault_install() {
 function inst64_zohovault_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_ZOHOVAULT_METHOD" == 'CUSTOM' ]]; then
     package_prefix='zv_cli'
-    package_sufix='.zip'
-    INST64_ZOHOVAULT_PACKAGES="${package_prefix}${package_sufix}"
+    package_suffix='.zip'
+    INST64_ZOHOVAULT_PACKAGES="${package_prefix}${package_suffix}"
     INST64_ZOHOVAULT_PACKAGE_URL="${INST64_ZOHOVAULT_SOURCE}/${INST64_ZOHOVAULT_PLATFORM}"
     [[ -z "$INST64_ZOHOVAULT_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi

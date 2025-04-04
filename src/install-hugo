@@ -121,15 +121,15 @@ function inst64_hugo_install() {
 function inst64_hugo_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_HUGO_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_HUGO_VERSION" == 'latest' ]]; then
       INST64_HUGO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HUGO_REPO_OWNER" "$INST64_HUGO_REPO_NAME")" ||
         return $?
     fi
     package_prefix='hugo_extended_'
-    package_sufix='.tar.gz'
-    INST64_HUGO_PACKAGES="${package_prefix}${INST64_HUGO_VERSION#v}_${INST64_HUGO_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_HUGO_PACKAGES="${package_prefix}${INST64_HUGO_VERSION#v}_${INST64_HUGO_PLATFORM}${package_suffix}"
   fi
   [[ -z "$INST64_HUGO_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0

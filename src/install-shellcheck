@@ -185,7 +185,7 @@ function inst64_shellcheck_install() {
 function inst64_shellcheck_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
     if bl64_os_is_distro "${BL64_OS_ALP}"; then
       INST64_SHELLCHECK_PACKAGES='shellcheck'
@@ -201,8 +201,8 @@ function inst64_shellcheck_select_packages() {
         return $?
     fi
     package_prefix='shellcheck-'
-    package_sufix='.tar.xz'
-    INST64_SHELLCHECK_PACKAGES="${package_prefix}${INST64_SHELLCHECK_VERSION}.${INST64_SHELLCHECK_PLATFORM}${package_sufix}"
+    package_suffix='.tar.xz'
+    INST64_SHELLCHECK_PACKAGES="${package_prefix}${INST64_SHELLCHECK_VERSION}.${INST64_SHELLCHECK_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_SHELLCHECK_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_SHELLCHECK_CLI_NAME}"
     else

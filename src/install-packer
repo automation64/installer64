@@ -164,7 +164,7 @@ function inst64_packer_install() {
 function inst64_packer_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   local github_owner='hashicorp'
   local github_repo='packer'
 
@@ -174,8 +174,8 @@ function inst64_packer_select_packages() {
         return $?
     fi
     package_prefix='packer_'
-    package_sufix='.zip'
-    INST64_PACKER_PACKAGES="${package_prefix}${INST64_PACKER_VERSION#v}_${INST64_PACKER_PLATFORM}${package_sufix}"
+    package_suffix='.zip'
+    INST64_PACKER_PACKAGES="${package_prefix}${INST64_PACKER_VERSION#v}_${INST64_PACKER_PLATFORM}${package_suffix}"
     INST64_PACKER_PACKAGE_URL="${INST64_PACKER_SOURCE}/${INST64_PACKER_VERSION#v}"
     [[ -z "$INST64_PACKER_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi

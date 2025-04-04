@@ -223,14 +223,14 @@ function inst64_X_APP_NAME_X_select_platform() {
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_X_APP_NAME_CAPS_X_REPO_OWNER" "$INST64_X_APP_NAME_CAPS_X_REPO_NAME")" ||
         return $?
     fi
     package_prefix='X_PACKAGE_PREFIX_X'
-    package_sufix='X_PACKAGE_SUFIX_X'
+    package_suffix='X_PACKAGE_SUFIX_X'
     INST64_X_APP_NAME_CAPS_X_PACKAGES='X_PACKAGE_NAME_PLACEHOLDER_X'
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"

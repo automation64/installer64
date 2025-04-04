@@ -124,15 +124,15 @@ function inst64_dockle_install() {
 function inst64_dockle_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_DOCKLE_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_DOCKLE_VERSION" == 'latest' ]]; then
       INST64_DOCKLE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_DOCKLE_REPO_OWNER" "$INST64_DOCKLE_REPO_NAME")" ||
         return $?
     fi
     package_prefix='dockle'
-    package_sufix='.tar.gz'
-    INST64_DOCKLE_PACKAGES="${package_prefix}_${INST64_DOCKLE_VERSION:1}_${INST64_DOCKLE_PLATFORM}${package_sufix}"
+    package_suffix='.tar.gz'
+    INST64_DOCKLE_PACKAGES="${package_prefix}_${INST64_DOCKLE_VERSION:1}_${INST64_DOCKLE_PLATFORM}${package_suffix}"
   fi
   [[ -z "$INST64_DOCKLE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0

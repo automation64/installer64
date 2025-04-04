@@ -135,11 +135,11 @@ function inst64_go_install() {
 function inst64_go_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
     package_prefix='go'
-    package_sufix='tar.gz'
-    INST64_GO_PACKAGES="${package_prefix}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_sufix}"
+    package_suffix='tar.gz'
+    INST64_GO_PACKAGES="${package_prefix}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_suffix}"
     INST64_GO_PACKAGE_URL="${INST64_GO_SOURCE}"
   fi
   [[ -z "$INST64_GO_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1

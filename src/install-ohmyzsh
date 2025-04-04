@@ -126,11 +126,11 @@ function inst64_ohmyzsh_install() {
 function inst64_ohmyzsh_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
     package_prefix="$INST64_OHMYZSH_INSTALLER"
-    package_sufix=''
-    INST64_OHMYZSH_PACKAGES="${package_prefix}${package_sufix}"
+    package_suffix=''
+    INST64_OHMYZSH_PACKAGES="${package_prefix}${package_suffix}"
     INST64_OHMYZSH_PACKAGE_URL="${INST64_OHMYZSH_SOURCE}"
     [[ -z "$INST64_OHMYZSH_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi

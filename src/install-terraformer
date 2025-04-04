@@ -221,15 +221,15 @@ function inst64_terraformer_select_platform() {
 function inst64_terraformer_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
-  local package_sufix=''
+  local package_suffix=''
   if [[ "$INST64_TERRAFORMER_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_TERRAFORMER_VERSION" == 'latest' ]]; then
       INST64_TERRAFORMER_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_TERRAFORMER_REPO_OWNER" "$INST64_TERRAFORMER_REPO_NAME")" ||
         return $?
     fi
     package_prefix='terraformer-all-'
-    package_sufix=''
-    INST64_TERRAFORMER_PACKAGES="${package_prefix}${INST64_TERRAFORMER_PLATFORM}${package_sufix}"
+    package_suffix=''
+    INST64_TERRAFORMER_PACKAGES="${package_prefix}${INST64_TERRAFORMER_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_TERRAFORMER_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TERRAFORMER_CLI_NAME}"
     else
