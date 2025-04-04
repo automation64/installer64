@@ -154,13 +154,10 @@ function inst64_sysop64_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
   if [[ "$INST64_SYSOP64_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      app_cli_source="${INST64_SYSOP64_TARGET}/sysop64/sysop64"
-      bl64_msg_show_task "publish application to searchable path (${INST64_SYSOP64_CLI_PATH})"
-      # shellcheck disable=SC2086
-      bl64_fs_symlink_create "${app_cli_source}" "$INST64_SYSOP64_CLI_PATH" "$BL64_VAR_ON" ||
-        return $?
-    fi
+    app_cli_source="${INST64_SYSOP64_TARGET}/sysop64/sysop64"
+    bl64_msg_show_task "publish application to searchable path (${INST64_SYSOP64_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${app_cli_source}" "$INST64_SYSOP64_CLI_PATH" "$BL64_VAR_ON"
   fi
 }
 
@@ -179,7 +176,7 @@ function inst64_sysop64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   [[ -d "$INST64_SYSOP64_TARGET" ]] &&
-  "$INST64_SYSOP64_CLI_PATH"
+    "$INST64_SYSOP64_CLI_PATH"
 }
 
 #######################################
