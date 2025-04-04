@@ -199,7 +199,7 @@ function inst64_ripgrep_select_platform() {
       elif bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
         INST64_RIPGREP_PLATFORM='x86_64-unknown-linux-musl'
       elif bl64_os_is_distro "${BL64_OS_ALM}" "${BL64_OS_AMZ}" "${BL64_OS_CNT}" "${BL64_OS_FD}" "${BL64_OS_KL}" "${BL64_OS_OL}" "${BL64_OS_RCK}" "${BL64_OS_RHEL}" "${BL64_OS_UB}"; then
-        INST64_RIPGREP_PLATFORM='i686-unknown-linux-gnu'
+        INST64_RIPGREP_PLATFORM='x86_64-unknown-linux-musl'
       else
         bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
         return $BL64_LIB_ERROR_OS_INCOMPATIBLE
