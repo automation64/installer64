@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.2'
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.3'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
@@ -204,10 +204,14 @@ function inst64_bashlib64_select_packages() {
 #######################################
 function inst64_bashlib64_prepare() {
   echo 'Task: prepare deployment'
-  if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
-    mkdir "$INST64_BASHLIB64_TARGET" &&
-      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET" ||
+  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
+    mkdir "$INST64_OPT_ROOT" &&
+      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
       return $?
+  fi
+  if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
+    mkdir -p "$INST64_BASHLIB64_TARGET" &&
+      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET"
   fi
 }
 
@@ -239,13 +243,15 @@ function inst64_bashlib64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_bashlib64_initialize() {
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  if [[ -z "$INST64_BASHLIB64_TARGET" ]]; then
+    if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
+      INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+    else
+      INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
+    fi
+    INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
   fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
-  fi
-  INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+
   [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1

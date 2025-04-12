@@ -1,5 +1,5 @@
 ---
-# Template: 2.2.0
+# Template: 2.2.1
 name: "Test / Bash"
 
 concurrency:
@@ -7,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DEV_CICD_DEBUG: ""
+  DEV_CICD_DEBUG: "${{ secrets.DEV_CICD_DEBUG || '' }}"
   BL64_LIB_CICD: "YES"
   DEV_TEST_BASH_RUNNER_ENVIRONMENT: "ON"
 
@@ -28,6 +28,7 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         target:
           - "ALM"

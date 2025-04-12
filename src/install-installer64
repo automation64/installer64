@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-NO}"
 
 # shellcheck disable=SC2034
-declare INST64_INSTALLER64_SCRIPT_VERSION='1.1.1'
+declare INST64_INSTALLER64_SCRIPT_VERSION='1.1.2'
 # Installation method
 declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
 # Source repository
@@ -208,10 +208,14 @@ function inst64_installer64_select_packages() {
 #######################################
 function inst64_installer64_prepare() {
   echo 'Task: prepare deployment'
+  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
+    mkdir "$INST64_OPT_ROOT" &&
+      chmod "$INST64_INSTALLER64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
+      return $?
+  fi
   if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
     mkdir "$INST64_INSTALLER64_TARGET" &&
-      chmod "$INST64_INSTALLER64_TARGET_MODE_DIR" "$INST64_INSTALLER64_TARGET" ||
-      return $?
+      chmod "$INST64_INSTALLER64_TARGET_MODE_DIR" "$INST64_INSTALLER64_TARGET"
   fi
 }
 
@@ -250,10 +254,6 @@ function inst64_installer64_initialize() {
       INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
     else
       INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
-      if [[ ! -d "$INST64_OPT_ROOT" ]]; then
-        mkdir "$INST64_OPT_ROOT" ||
-          return $?
-      fi
     fi
     INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/inst64}"
   fi
