@@ -81,7 +81,7 @@ function inst64_act_install_binary_release() {
   local app_cli_mode='0755'
   local app_work_path="${INST64_ACT_CLI_NAME}"
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
     app_target_group="$BL64_VAR_DEFAULT"
   fi
