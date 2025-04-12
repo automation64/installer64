@@ -206,7 +206,7 @@ function inst64_bashlib64_prepare() {
   echo 'Task: prepare deployment'
   if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
     mkdir "$INST64_OPT_ROOT" &&
-      chmod "$INST64_INSTALLER64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
+      chmod "$INST64_BASHLIB64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
       return $?
   fi
   if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
