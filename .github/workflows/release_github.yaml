@@ -1,5 +1,5 @@
 ---
-# Template: 1.2.0
+# Template: 1.2.1
 name: "Release / GitHub"
 
 concurrency:
@@ -7,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DEV_CICD_DEBUG: ""
+  DEV_CICD_DEBUG: "${{ secrets.DEV_CICD_DEBUG || '' }}"
   BL64_LIB_CICD: "YES"
   DEV_LIB_GITHUB_BIN: "gh"
 

@@ -1,5 +1,5 @@
 ---
-# Template: 2.3.0
+# Template: 2.2.1
 name: "Test / Bash"
 
 concurrency:
@@ -7,17 +7,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DEV_CICD_DEBUG: "${{ github.event.inputs.dev_cicd_debug_override || secrets.DEV_CICD_DEBUG || '' }}"
+  DEV_CICD_DEBUG: "${{ secrets.DEV_CICD_DEBUG || '' }}"
   BL64_LIB_CICD: "YES"
   DEV_TEST_BASH_RUNNER_ENVIRONMENT: "ON"
 
 on:
   workflow_dispatch:
-    inputs:
-      dev_cicd_debug_override:
-        description: 'Enable CICD debug (YES/NO)'
-        required: false
-        default: ''
   pull_request:
     branches:
       - "main"
