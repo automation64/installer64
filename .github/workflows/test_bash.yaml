@@ -18,6 +18,7 @@ on:
         description: 'Enable CICD debug (YES/NO)'
         required: false
         default: ''
+  pull_request:
     branches:
       - "main"
   push:
