@@ -243,13 +243,15 @@ function inst64_bashlib64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_bashlib64_initialize() {
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
+  if [[ -z "$INST64_BASHLIB64_TARGET" ]]; then
+    if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
+      INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
+    else
+      INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
+    fi
+    INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
   fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    [[ "$INST64_SYSTEM_WIDE" == 'NO' ]] && INST64_OPT_ROOT="$INST64_HOME" || INST64_OPT_ROOT='/opt'
-  fi
-  INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+
   [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
     echo 'Error: unsupported installation method' &&
     return 1
