@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-github-3.0.0
-#   Skeleton: installer-base-2.4.0
+# Template: install-github-3.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -117,6 +116,11 @@ function inst64_gomplate_install_binary_release() {
 function inst64_gomplate_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
+  if [[ "$INST64_GOMPLATE_METHOD" == 'BINARY' ]]; then
+    if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_bsh_xdg_create "$HOME"
+    fi
+  fi
 }
 
 #######################################
@@ -152,13 +156,10 @@ function inst64_gomplate_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
   if [[ "$INST64_GOMPLATE_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      app_cli_source="${INST64_GOMPLATE_TARGET}/${INST64_GOMPLATE_CLI_NAME}_${INST64_GOMPLATE_PLATFORM}"
-      bl64_msg_show_task "publish application to searchable path (${INST64_GOMPLATE_CLI_PATH})"
-      # shellcheck disable=SC2086
-      bl64_fs_symlink_create "${app_cli_source}" "$INST64_GOMPLATE_CLI_PATH" "$BL64_VAR_ON" ||
-        return $?
-    fi
+    app_cli_source="${INST64_GOMPLATE_TARGET}/${INST64_GOMPLATE_CLI_NAME}_${INST64_GOMPLATE_PLATFORM}"
+    bl64_msg_show_task "publish application to searchable path (${INST64_GOMPLATE_CLI_PATH})"
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${app_cli_source}" "$INST64_GOMPLATE_CLI_PATH" "$BL64_VAR_ON"
   fi
 }
 
@@ -236,7 +237,7 @@ function inst64_gomplate_select_packages() {
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_GOMPLATE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_GOMPLATE_CLI_NAME}"
     else
-      INST64_GOMPLATE_CLI_PATH="${INST64_GOMPLATE_TARGET}/${INST64_GOMPLATE_CLI_NAME}"
+      INST64_GOMPLATE_CLI_PATH="${INST64_USER_BIN}/${INST64_GOMPLATE_CLI_NAME}"
     fi
   fi
   [[ -z "$INST64_GOMPLATE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
@@ -294,7 +295,7 @@ function inst64_gomplate_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
