@@ -90,7 +90,7 @@ function inst64_bashlib64_fetch_latest_version() {
 
 function inst64_bashlib64_identify_latest() {
   local max_retries=5
-  local wait_time=2
+  local wait_time=5
 
   inst64_bashlib64_retry "$max_retries" "$wait_time" inst64_bashlib64_fetch_latest_version
 }
