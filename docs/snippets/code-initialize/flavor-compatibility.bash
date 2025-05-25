@@ -1,4 +1,4 @@
-# X_OS_VERSION_TAG_X
+# X_PRE_OS_PLACEHOLDER_X
       "${BL64_OS_ALM}" \
       "${BL64_OS_ALP}" \
       "${BL64_OS_AMZ}" \
