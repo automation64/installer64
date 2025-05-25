@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-github-4.0.0
-#   Skeleton: installer-base-4.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -57,34 +56,33 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 # Install progress status
-declare INST64_X_APP_NAME_CAPS_X_STATUS='CONTINUE'
+declare INST64_VOLTA_STATUS='CONTINUE'
 
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
-declare INST64_X_APP_NAME_CAPS_X_TARGET=''
-declare INST64_X_APP_NAME_CAPS_X_STATUS=''
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
-declare INST64_X_APP_NAME_CAPS_X_INSTALLED=''
+declare INST64_VOLTA_PLATFORM="${INST64_VOLTA_PLATFORM:-}"
+declare INST64_VOLTA_TARGET=''
+declare INST64_VOLTA_VERSION="${INST64_VOLTA_VERSION:-latest}"
+declare INST64_VOLTA_INSTALLED=''
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BINARY}"
+declare INST64_VOLTA_METHOD="${INST64_VOLTA_METHOD:-BINARY}"
 
-declare INST64_X_APP_NAME_CAPS_X_REPO_NAME='X_REPO_NAME_X'
-declare INST64_X_APP_NAME_CAPS_X_REPO_OWNER='X_REPO_OWNER_X'
-declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
-declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
-declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
+declare INST64_VOLTA_REPO_NAME='volta'
+declare INST64_VOLTA_REPO_OWNER='volta-cli'
+declare INST64_VOLTA_PACKAGES=''
+declare INST64_VOLTA_CLI_NAME='volta'
+declare INST64_VOLTA_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_binary_release() {
+function inst64_volta_install_binary_release() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_work_path="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  local app_work_path="${INST64_VOLTA_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -94,14 +92,17 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_X_APP_NAME_CAPS_X_REPO_OWNER" "$INST64_X_APP_NAME_CAPS_X_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_X_APP_NAME_CAPS_X_PACKAGES" "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+    "$INST64_VOLTA_REPO_OWNER" "$INST64_VOLTA_REPO_NAME" "$INST64_VOLTA_VERSION" "$INST64_VOLTA_PACKAGES" "${work_path}/${INST64_VOLTA_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_VOLTA_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_work_path}" &&
-    echo "$INST64_X_APP_NAME_CAPS_X_VERSION" > "$INST64_X_APP_NAME_CAPS_X_STATUS" ||
+  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_VOLTA_TARGET" &&
+    bl64_fs_path_copy "$app_cli_mode" "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_VOLTA_TARGET" \
+      "${work_path}/${app_work_path}" \
+      "${work_path}/${app_work_path}-migrate" \
+      "${work_path}/${app_work_path}-shim" &&
+    echo "$INST64_VOLTA_VERSION" >"$INST64_VOLTA_INSTALLED" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -120,11 +121,11 @@ function inst64_X_APP_NAME_X_install_binary_release() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_X_APP_NAME_X_prepare() {
+function inst64_volta_prepare() {
   bl64_dbg_app_show_function
-  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
+  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_bsh_xdg_create "$HOME"
     fi
@@ -142,11 +143,11 @@ function inst64_X_APP_NAME_X_prepare() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_X_APP_NAME_X_install() {
+function inst64_volta_install() {
   bl64_dbg_app_show_function
-  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    inst64_X_APP_NAME_X_install_binary_release
+  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
+  if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
+    inst64_volta_install_binary_release
   fi
 }
 
@@ -161,15 +162,16 @@ function inst64_X_APP_NAME_X_install() {
 #   0: setup completed ok
 #   >0: unable to setup
 #######################################
-function inst64_X_APP_NAME_X_setup() {
+function inst64_volta_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
-  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    app_cli_source="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
-    bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
+  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
+  if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
+    app_cli_source="${INST64_VOLTA_TARGET}/${INST64_VOLTA_CLI_NAME}"
+    bl64_msg_show_task "publish application to searchable path (${INST64_VOLTA_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON"
+    bl64_fs_symlink_create "${app_cli_source}" "$INST64_VOLTA_CLI_PATH" "$BL64_VAR_ON" &&
+      bl64_fs_symlink_create "${app_cli_source}-migrate" "${INST64_VOLTA_CLI_PATH}-migrate" "$BL64_VAR_ON"
   fi
 }
 
@@ -184,11 +186,12 @@ function inst64_X_APP_NAME_X_setup() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_X_APP_NAME_X_verify() {
+function inst64_volta_verify() {
   bl64_dbg_app_show_function
-  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
+  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
-  "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
+  cd "$HOME" &&
+    "$INST64_VOLTA_CLI_PATH" --version
 }
 
 #######################################
@@ -204,21 +207,21 @@ function inst64_X_APP_NAME_X_verify() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-function inst64_X_APP_NAME_X_select_platform() {
+function inst64_volta_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
+  if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_VOLTA_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_TAG_X'
+        INST64_VOLTA_PLATFORM='macos'
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_TAG_X'
+        INST64_VOLTA_PLATFORM='linux'
       else
         bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
         return $BL64_LIB_ERROR_OS_INCOMPATIBLE
       fi
     fi
   fi
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  [[ -z "$INST64_VOLTA_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -233,25 +236,25 @@ function inst64_X_APP_NAME_X_select_platform() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_X_APP_NAME_X_select_packages() {
+function inst64_volta_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_suffix=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_X_APP_NAME_CAPS_X_REPO_OWNER" "$INST64_X_APP_NAME_CAPS_X_REPO_NAME")" ||
+  if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_VOLTA_VERSION" == 'latest' ]]; then
+      INST64_VOLTA_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_VOLTA_REPO_OWNER" "$INST64_VOLTA_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='X_PACKAGE_PREFIX_X'
-    package_suffix='X_PACKAGE_SUFIX_X'
-    INST64_X_APP_NAME_CAPS_X_PACKAGES='X_PACKAGE_NAME_PLACEHOLDER_X'
+    package_prefix='volta-'
+    package_suffix='.tar.gz'
+    INST64_VOLTA_PACKAGES="${package_prefix}${INST64_VOLTA_VERSION#v}-${INST64_VOLTA_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+      INST64_VOLTA_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_VOLTA_CLI_NAME}"
     else
-      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_USER_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+      INST64_VOLTA_CLI_PATH="${INST64_USER_BIN}/${INST64_VOLTA_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_VOLTA_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -266,7 +269,7 @@ function inst64_X_APP_NAME_X_select_packages() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_X_APP_NAME_X_initialize() {
+function inst64_volta_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -274,15 +277,21 @@ function inst64_X_APP_NAME_X_initialize() {
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
   fi
-  INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-${INST64_OPT_ROOT}/X_APP_NAME_X}"
-  INST64_X_APP_NAME_CAPS_X_INSTALLED="${INST64_VOLTA_TARGET}/.${BL64_SCRIPT_NAME}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
-    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
+  INST64_VOLTA_TARGET="${INST64_VOLTA_TARGET:-${INST64_OPT_ROOT}/volta}"
+  INST64_VOLTA_INSTALLED="${INST64_VOLTA_TARGET}/.${BL64_SCRIPT_NAME}"
+  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_VOLTA_METHOD' \
+    "$INST64_VOLTA_METHOD" \
     'BINARY' ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    # X_PRE_OS_PLACEHOLDER_X
+  if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_MACOS" \
+      "$BL64_OS_FLAVOR_REDHAT" \
+      "$BL64_OS_FLAVOR_SUSE" ||
+      return $?
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
@@ -290,24 +299,24 @@ function inst64_X_APP_NAME_X_initialize() {
     bl64_arc_setup ||
       return $?
   fi
-  inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_select_packages ||
+  inst64_volta_select_platform &&
+    inst64_volta_select_packages ||
     return $?
-  if [[ -f "$INST64_X_APP_NAME_CAPS_X_INSTALLED" ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == "$(<"$INST64_X_APP_NAME_CAPS_X_INSTALLED")" ]]; then
-      bl64_msg_show_warning "application already installed. No further action taken (${INST64_X_APP_NAME_CAPS_X_VERSION})"
-      INST64_X_APP_NAME_CAPS_X_STATUS='SKIP'
+  if [[ -f "$INST64_VOLTA_INSTALLED" ]]; then
+    if [[ "$INST64_VOLTA_VERSION" == "$(<"$INST64_VOLTA_INSTALLED")" ]]; then
+      bl64_msg_show_warning "application already installed. No further action taken (${INST64_VOLTA_VERSION})"
+      INST64_VOLTA_STATUS='SKIP'
       return 0
     fi
   fi
-  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
-    'INST64_X_APP_NAME_CAPS_X_PLATFORM' \
-    'INST64_X_APP_NAME_CAPS_X_REPO_OWNER' \
-    'INST64_X_APP_NAME_CAPS_X_REPO_NAME' \
-    'INST64_X_APP_NAME_CAPS_X_TARGET' \
-    'INST64_X_APP_NAME_CAPS_X_VERSION' \
-    'INST64_X_APP_NAME_CAPS_X_CLI_PATH'
+  bl64_msg_show_setup 'Install application: Volta' \
+    'INST64_SYSTEM_WIDE' 'INST64_VOLTA_METHOD' \
+    'INST64_VOLTA_PLATFORM' \
+    'INST64_VOLTA_REPO_OWNER' \
+    'INST64_VOLTA_REPO_NAME' \
+    'INST64_VOLTA_TARGET' \
+    'INST64_VOLTA_VERSION' \
+    'INST64_VOLTA_CLI_PATH'
 }
 
 #
@@ -319,9 +328,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_X_APP_NAME_X_initialize &&
-  inst64_X_APP_NAME_X_prepare &&
-  inst64_X_APP_NAME_X_install &&
-  inst64_X_APP_NAME_X_setup &&
-  inst64_X_APP_NAME_X_verify
+inst64_volta_initialize &&
+  inst64_volta_prepare &&
+  inst64_volta_install &&
+  inst64_volta_setup &&
+  inst64_volta_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

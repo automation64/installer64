@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-base-3.0.0
+# Template: install-base-4.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,6 +43,8 @@ declare INST64_TMP="${INST64_TMP:-/tmp}"
 declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+# Install progress status
+declare INST64_X_APP_NAME_CAPS_X_STATUS='CONTINUE'
 
 # X_GLOBALS_PLACEHOLDER_X
 declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
@@ -70,6 +72,7 @@ declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
 #######################################
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
+  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
     : # X_PREPARE_PLACEHOLDER_X
@@ -89,6 +92,7 @@ function inst64_X_APP_NAME_X_prepare() {
 #######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
+  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
@@ -107,6 +111,7 @@ function inst64_X_APP_NAME_X_install() {
 #######################################
 function inst64_X_APP_NAME_X_setup() {
   bl64_dbg_app_show_function
+  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
@@ -125,6 +130,7 @@ function inst64_X_APP_NAME_X_setup() {
 #######################################
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
+  [[ "$INST64_X_APP_NAME_CAPS_X_STATUS" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
   : # X_VERIFY_PLACEHOLDER_X
 }

@@ -29,7 +29,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 # shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.3'
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.1.4'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
@@ -52,7 +52,25 @@ declare INST64_BASHLIB64_TARGET_MODE_FILE='0644'
 # Functions
 #
 
-function inst64_bashlib64_identify_latest() {
+function inst64_bashlib64_retry() {
+  local max_retries=$1
+  local wait_time=$2
+  local attempt=1
+
+  shift 2
+  while :; do
+    "$@" && return 0
+    ((attempt++))
+    if ((attempt > max_retries)); then
+      echo "Error: command failed after ${max_retries} attempts"
+      return 1
+    fi
+    echo "Retrying in ${wait_time} seconds... (attempt ${attempt}/${max_retries})"
+    sleep "$wait_time"
+  done
+}
+
+function inst64_bashlib64_fetch_latest_version() {
   # shellcheck disable=SC2249
   case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
   'curl')
@@ -66,6 +84,37 @@ function inst64_bashlib64_identify_latest() {
       -q -O- \
       "$INST64_BASHLIB64_GH_API" |
       grep '"tag_name":'
+    ;;
+  esac
+}
+
+function inst64_bashlib64_identify_latest() {
+  local max_retries=5
+  local wait_time=5
+
+  inst64_bashlib64_retry "$max_retries" "$wait_time" inst64_bashlib64_fetch_latest_version
+}
+
+function inst64_bashlib64_download_binary_package() {
+  local package_name="$1"
+  local package_url=''
+
+  package_url="${INST64_INSTALLER64_SOURCE}/releases/download/${INST64_INSTALLER64_VERSION}/${package_name}"
+  echo 'Task: download application'
+  # shellcheck disable=SC2249
+  case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
+  'curl')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -s \
+      -L \
+      -o "${INST64_TMP}/${package_name}" \
+      "$package_url"
+    ;;
+  'wget')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -q \
+      -O "${INST64_TMP}/${package_name}" \
+      "$package_url"
     ;;
   esac
 }
@@ -233,6 +282,8 @@ function inst64_bashlib64_verify() {
 
 #######################################
 # Initialize environment
+# * INST64_SYSTEM_WIDE defaults to YES if there is a previous installation
+# * INST64_BASHLIB64_TARGET defaults to /opt/inst64 if INST64_SYSTEM_WIDE is YES, or to $INST64_HOME otherwise
 #
 # Arguments:
 #   None
@@ -243,6 +294,13 @@ function inst64_bashlib64_verify() {
 #   >: failed to initialize
 #######################################
 function inst64_bashlib64_initialize() {
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    if [[ -d '/opt/bl64' ]]; then
+      INST64_SYSTEM_WIDE='YES'
+    else
+      INST64_SYSTEM_WIDE='NO'
+    fi
+  fi
   if [[ -z "$INST64_BASHLIB64_TARGET" ]]; then
     if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
       INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
@@ -250,6 +308,10 @@ function inst64_bashlib64_initialize() {
       INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
     fi
     INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
+  fi
+  if [[ "$INST64_SYSTEM_WIDE" == 'YES' && "$EUID" != '0' ]]; then
+    echo 'Error: root privileges are required for system-wide installation'
+    return 1
   fi
 
   [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
