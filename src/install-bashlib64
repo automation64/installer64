@@ -52,7 +52,25 @@ declare INST64_BASHLIB64_TARGET_MODE_FILE='0644'
 # Functions
 #
 
-function inst64_bashlib64_identify_latest() {
+function inst64_bashlib64_retry() {
+  local max_retries=$1
+  local wait_time=$2
+  local attempt=1
+
+  shift 2
+  while :; do
+    "$@" && return 0
+    ((attempt++))
+    if ((attempt > max_retries)); then
+      echo "Error: command failed after ${max_retries} attempts"
+      return 1
+    fi
+    echo "Retrying in ${wait_time} seconds... (attempt ${attempt}/${max_retries})"
+    sleep "$wait_time"
+  done
+}
+
+function inst64_bashlib64_fetch_latest_version() {
   # shellcheck disable=SC2249
   case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
   'curl')
@@ -66,6 +84,37 @@ function inst64_bashlib64_identify_latest() {
       -q -O- \
       "$INST64_BASHLIB64_GH_API" |
       grep '"tag_name":'
+    ;;
+  esac
+}
+
+function inst64_bashlib64_identify_latest() {
+  local max_retries=5
+  local wait_time=2
+
+  inst64_bashlib64_retry "$max_retries" "$wait_time" inst64_bashlib64_fetch_latest_version
+}
+
+function inst64_bashlib64_download_binary_package() {
+  local package_name="$1"
+  local package_url=''
+
+  package_url="${INST64_INSTALLER64_SOURCE}/releases/download/${INST64_INSTALLER64_VERSION}/${package_name}"
+  echo 'Task: download application'
+  # shellcheck disable=SC2249
+  case "$INST64_BASHLIB64_DOWNLOAD_TOOL" in
+  'curl')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -s \
+      -L \
+      -o "${INST64_TMP}/${package_name}" \
+      "$package_url"
+    ;;
+  'wget')
+    "$INST64_BASHLIB64_DOWNLOAD_TOOL" \
+      -q \
+      -O "${INST64_TMP}/${package_name}" \
+      "$package_url"
     ;;
   esac
 }
