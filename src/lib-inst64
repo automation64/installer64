@@ -1,0 +1,297 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Globals
+#
+
+# shellcheck disable=SC2034
+{
+
+  #
+  # Global parameters
+  #
+
+  # Enable debugging? Set to YES to enable
+  declare INST64_DEBUG="${INST64_DEBUG:-}"
+
+  # Base path for local applications
+  declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+
+  # Local applications binaries location
+  declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+
+  # User applications binaries location
+  declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
+
+  # Location for temporary files
+  declare INST64_TMP="${INST64_TMP:-/tmp}"
+
+  # Base path for 3rd party applications
+  declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+
+  # User wide home path
+  declare INST64_HOME="${HOME}/at64"
+
+  # Install system wide? Requires root privilege
+  declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+
+  #
+  # Global definitions
+  #
+
+  # Inst64 Library version
+  declare INST64_LIB_VERSION='1.0.0'
+
+  # App information
+  declare INST64_APP_NAME=''
+  declare INST64_APP_ID=''
+  declare INST64_APP_FULL_NAME=''
+
+  #
+  # Method definitions
+  #
+
+  # Target ownership
+  declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
+  declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
+  declare INST64_TARGET_MODE='0755'
+  declare INST64_CLI_MODE='0755'
+
+  # Install progress status
+  declare INST64_X_APP_NAME_CAPS_X_STATUS='CONTINUE'
+
+  # Application packages
+  declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
+
+  # TBD
+  declare INST64_X_APP_NAME_CAPS_X_STATUS=''
+
+  # TBD
+  declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
+
+  # CLI command
+  declare INST64_X_APP_NAME_CAPS_X_CLI_NAME=''
+
+  # Git repository information
+  declare INST64_X_APP_NAME_CAPS_X_REPO_NAME=''
+  declare INST64_X_APP_NAME_CAPS_X_REPO_OWNER=''
+}
+
+#
+# Functions
+#
+
+#######################################
+# Set default INST64_SYSTEM_WIDE value
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_base_set_system_wide() {
+  bl64_dbg_app_show_function
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+  fi
+}
+
+#######################################
+# Set base paths
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_base_set_path() {
+  bl64_dbg_app_show_function
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_OPT_ROOT='/opt'
+    else
+      INST64_OPT_ROOT="$INST64_HOME"
+    fi
+  fi
+}
+
+#######################################
+# Set target path
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_target_set_path() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  if [[ -z "${!target}" ]]; then
+    printf \
+      -v "INST64_${INST64_APP_ID}_TARGET" \
+      '%s/%s' \
+      "${INST64_OPT_ROOT}" \
+      "${INST64_APP_NAME}"
+  fi
+}
+
+#######################################
+# Set target ownership
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_target_set_owner() {
+  bl64_dbg_app_show_function
+  INST64_TARGET_MODE='0755'
+  INST64_CLI_MODE='0755'
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
+    INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
+  else
+    INST64_TARGET_OWNER="$BL64_VAR_DEFAULT"
+    INST64_TARGET_GROUP="$BL64_VAR_DEFAULT"
+  fi
+}
+
+#######################################
+# Set default INST64_SYSTEM_WIDE value
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_cli_set_path() {
+  bl64_dbg_app_show_function "$@"
+  [[ -n "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" ]] &&
+    return 0
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}"
+  else
+    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_USER_BIN}"
+  fi
+}
+
+#######################################
+# Check installation method
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_check_method() {
+  bl64_dbg_app_show_function "$@"
+  local requested="INST64_${INST64_APP_ID}_METHOD"
+  bl64_fmt_list_check_membership \
+    "invalid installation method for the parameter INST64_${INST64_APP_ID}_METHOD" \
+    "${!requested}" \
+    "$@"
+}
+
+#######################################
+# Check if the application is already installed
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_check_installed() {
+  bl64_dbg_app_show_function
+  local app_target="INST64_${INST64_APP_ID}_TARGET"
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
+  INST64_X_APP_NAME_CAPS_X_STATUS="${!app_target}/.${BL64_SCRIPT_NAME}"
+  if [[ -f "$INST64_X_APP_NAME_CAPS_X_STATUS" ]]; then
+    if [[ "${!app_version}" == "$(<"$INST64_X_APP_NAME_CAPS_X_STATUS")" ]]; then
+      bl64_msg_show_warning "application already installed. No further action taken (${app_version})"
+      INST64_X_APP_NAME_CAPS_X_STATUS='SKIP'
+      return 0
+    fi
+  fi
+}
+
+#######################################
+# Show installation parameters
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_show_parameters() {
+  bl64_dbg_app_show_function "$@"
+  local parameter_list=''
+
+  parameter_list=+" INST64_${INST64_APP_ID}_PLATFORM"
+  parameter_list=+" INST64_${INST64_APP_ID}_REPO_OWNER"
+  parameter_list=+" INST64_${INST64_APP_ID}_REPO_NAME"
+  parameter_list=+" INST64_${INST64_APP_ID}_TARGET"
+  parameter_list=+" INST64_${INST64_APP_ID}_VERSION"
+  parameter_list=+" INST64_${INST64_APP_ID}_CLI_PATH"
+
+  # shellcheck disable=SC2086
+  bl64_msg_show_setup "Install application: ${INST64_APP_FULL_NAME}" \
+    'INST64_SYSTEM_WIDE' \
+    "INST64_${INST64_APP_ID}_METHOD" \
+    $parameter_list
+}
+
+#######################################
+# Create base paths
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_base_create_path() {
+  bl64_dbg_app_show_function
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_bsh_xdg_create "$HOME" &&
+      bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
+        "$INST64_OPT_ROOT"
+  fi
+}
