@@ -106,7 +106,7 @@
 #
 
 #######################################
-# Set default INST64_SYSTEM_WIDE value
+# Sets the default value for INST64_SYSTEM_WIDE.
 #
 # Arguments:
 #   None.
@@ -124,7 +124,7 @@ function inst64_lib_base_set_system_wide() {
 }
 
 #######################################
-# Set base paths
+# Sets the base installation path (INST64_OPT_ROOT).
 #
 # Arguments:
 #   None.
@@ -146,7 +146,7 @@ function inst64_lib_base_set_path() {
 }
 
 #######################################
-# Set target path
+# Sets the application-specific target installation path.
 #
 # Arguments:
 #   None.
@@ -169,7 +169,7 @@ function inst64_lib_target_set_path() {
 }
 
 #######################################
-# Set target ownership
+# Sets target ownership and permissions based on INST64_SYSTEM_WIDE.
 #
 # Arguments:
 #   None.
@@ -193,7 +193,7 @@ function inst64_lib_target_set_owner() {
 }
 
 #######################################
-# Set default INST64_SYSTEM_WIDE value
+# Sets the default path for CLI symlinks (INST64_CLI_PATH).
 #
 # Arguments:
 #   None.
@@ -204,7 +204,7 @@ function inst64_lib_target_set_owner() {
 #   >0: error
 #######################################
 function inst64_lib_cli_set_path() {
-  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_show_function
   [[ -n "$INST64_CLI_PATH" ]] &&
     return 0
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -215,10 +215,10 @@ function inst64_lib_cli_set_path() {
 }
 
 #######################################
-# Check installation method
+# Validates the installation method for the current application.
 #
 # Arguments:
-#   None.
+#   $1..$n: List of valid installation methods.
 # Outputs:
 #   Errors
 # Returns:
@@ -235,7 +235,7 @@ function inst64_lib_check_method() {
 }
 
 #######################################
-# Check if the application is already installed
+# Checks if the application is already installed at the current version.
 #
 # Arguments:
 #   None.
@@ -260,7 +260,7 @@ function inst64_lib_check_installed() {
 }
 
 #######################################
-# Show installation parameters
+# Displays key installation parameters for the current application.
 #
 # Arguments:
 #   None.
@@ -273,23 +273,46 @@ function inst64_lib_check_installed() {
 function inst64_lib_show_parameters() {
   bl64_dbg_app_show_function
   local parameter_list=''
+  local method_variable_suffix=''
+  local var_suffix=''
+  local var_name=''
 
-  parameter_list=+" INST64_${INST64_APP_ID}_PLATFORM"
-  parameter_list=+" INST64_${INST64_APP_ID}_REPO_OWNER"
-  parameter_list=+" INST64_${INST64_APP_ID}_REPO_NAME"
-  parameter_list=+" INST64_${INST64_APP_ID}_TARGET"
-  parameter_list=+" INST64_${INST64_APP_ID}_VERSION"
-  parameter_list=+" INST64_${INST64_APP_ID}_CLI_PATH"
+  method_variable_suffix=+" ${INST64_APP_ID}_METHOD"
+  method_variable_suffix=+" ${INST64_APP_ID}_PLATFORM"
+  method_variable_suffix=+" ${INST64_APP_ID}_TARGET"
+  method_variable_suffix=+" ${INST64_APP_ID}_VERSION"
+  method_variable_suffix=+" APP_INSTALLER"
+  method_variable_suffix=+" CLI_NAME"
+  method_variable_suffix=+" CLI_PATH"
+  method_variable_suffix=+" GH_REPO_NAME"
+  method_variable_suffix=+" GH_REPO_OWNER"
+  method_variable_suffix=+" GIT_BRANCH"
+  method_variable_suffix=+" GIT_REPO"
+  method_variable_suffix=+" GIT_SERVER"
+  method_variable_suffix=+" OS_REPO_NAME"
+  method_variable_suffix=+" PKG_MAIN"
+  method_variable_suffix=+" PKG_POST"
+  method_variable_suffix=+" PKG_PRE"
+  method_variable_suffix=+" REPO_NAME"
+  method_variable_suffix=+" REPO_OWNER"
+  method_variable_suffix=+" SYSTEM_WIDE"
+  method_variable_suffix=+" WEB_REPO_URL"
+
+  for var_suffix in $method_variable_suffix; do
+    var_name="INST64_${var_suffix}"
+    if [[ -n "${!var_name}" ]]; then
+      parameter_list+=" ${var_name}"
+    fi
+  done
 
   # shellcheck disable=SC2086
-  bl64_msg_show_setup "Install application: ${INST64_APP_FULL_NAME}" \
-    'INST64_SYSTEM_WIDE' \
-    "INST64_${INST64_APP_ID}_METHOD" \
+  bl64_msg_show_setup \
+    "Install application: ${INST64_APP_FULL_NAME}" \
     $parameter_list
 }
 
 #######################################
-# Create base paths
+# Creates base installation directories if not system-wide.
 #
 # Arguments:
 #   None.
@@ -306,4 +329,21 @@ function inst64_lib_base_create_path() {
       bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
         "$INST64_OPT_ROOT"
   fi
+}
+
+#######################################
+# Shows an error message for unsupported OS/Machine combinations.
+#
+# Arguments:
+#   None.
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_alert_incompatible_platform() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
+  return $BL64_LIB_ERROR_OS_INCOMPATIBLE
 }
