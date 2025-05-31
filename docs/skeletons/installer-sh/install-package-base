@@ -24,7 +24,7 @@ INST64_DEBUG=""
 INST64_TMP="/tmp"
 
 # X_GLOBALS_PLACEHOLDER_X
-INST64_APP_PACKAGES=''
+INST64_PKG_MAIN=''
 INST64_CLI_NAME='X_CLI_NAME_X'
 INST64_CLI_PATH=''
 # shellcheck disable=SC2034
@@ -127,7 +127,7 @@ inst64_X_APP_NAME_X_install() {
 #######################################
 inst64_X_APP_NAME_X_select_packages() {
   # X_SELECT_PKG_PLACEHOLDER_X
-  if [ -z "$INST64_APP_PACKAGES" ]; then
+  if [ -z "$INST64_PKG_MAIN" ]; then
     inst64_X_APP_NAME_X_msg_show_error 'unable to determine package name'
     return 1
   fi

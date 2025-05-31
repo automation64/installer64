@@ -80,7 +80,7 @@ declare INST64_TERRAFORM_REPOSITORY_KEY_RHEL='https://rpm.releases.hashicorp.com
 declare INST64_WEB_URL=''
 declare INST64_APP_INSTALLER=''
 
-declare INST64_APP_PACKAGES=''
+declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='terraform'
 declare INST64_CLI_PATH=''
 
@@ -105,8 +105,8 @@ function inst64_terraform_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_WEB_URL}/${INST64_APP_PACKAGES}" "${work_path}/${INST64_APP_PACKAGES}" &&
-    bl64_arc_open_zip "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
+      "${INST64_WEB_URL}/${INST64_PKG_MAIN}" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_zip "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -150,7 +150,7 @@ function inst64_terraform_install_external_packages() {
   bl64_msg_show_task 'deploy packages'
   INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_APP_PACKAGES
+  bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
 #######################################
@@ -220,7 +220,7 @@ function inst64_terraform_select_packages() {
   local package_suffix=''
   if [[ "$INST64_TERRAFORM_METHOD" == 'EXTERNAL' ]]; then
     if bl64_os_is_distro "${BL64_OS_OL}"; then
-      INST64_APP_PACKAGES='terraform'
+      INST64_PKG_MAIN='terraform'
     fi
   elif [[ "$INST64_TERRAFORM_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_TERRAFORM_VERSION" == 'latest' ]]; then
@@ -229,7 +229,7 @@ function inst64_terraform_select_packages() {
     fi
     package_prefix='terraform_'
     package_suffix='.zip'
-    INST64_APP_PACKAGES="${package_prefix}${INST64_TERRAFORM_VERSION#v}_${INST64_TERRAFORM_PLATFORM}${package_suffix}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_TERRAFORM_VERSION#v}_${INST64_TERRAFORM_PLATFORM}${package_suffix}"
     INST64_WEB_URL="${INST64_TERRAFORM_SOURCE}/${INST64_TERRAFORM_VERSION#v}"
     [[ -z "$INST64_WEB_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -238,7 +238,7 @@ function inst64_terraform_select_packages() {
       INST64_CLI_PATH="${INST64_TERRAFORM_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 

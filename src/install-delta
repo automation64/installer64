@@ -64,7 +64,7 @@ declare INST64_DELTA_METHOD="${INST64_DELTA_METHOD:-BINARY}"
 
 declare INST64_GH_REPO_NAME='delta'
 declare INST64_GH_REPO_OWNER='dandavison'
-declare INST64_APP_PACKAGES=''
+declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='delta'
 declare INST64_CLI_PATH=''
 
@@ -89,13 +89,13 @@ function inst64_delta_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_DELTA_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_DELTA_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_DELTA_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_DELTA_TARGET" "${work_path}/${INST64_APP_PACKAGES%.tar.gz}/${app_cli_source}" ||
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_DELTA_TARGET" "${work_path}/${INST64_PKG_MAIN%.tar.gz}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -184,7 +184,7 @@ function inst64_delta_select_packages() {
     fi
     package_prefix='delta-'
     package_suffix='.tar.gz'
-    INST64_APP_PACKAGES="${package_prefix}${INST64_DELTA_VERSION}-${INST64_DELTA_PLATFORM}${package_suffix}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_DELTA_VERSION}-${INST64_DELTA_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
@@ -192,7 +192,7 @@ function inst64_delta_select_packages() {
       app_target_owner="$BL64_VAR_DEFAULT"
     fi
   fi
-  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 

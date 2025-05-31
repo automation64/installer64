@@ -74,7 +74,11 @@
   declare INST64_STATUS_PATH=''
 
   # Application packages
-  declare INST64_APP_PACKAGES=''
+  declare INST64_PKG_MAIN=''
+  declare INST64_PKG_PRE=''
+  declare INST64_PKG_POST=''
+
+  # Custom application installer
   declare INST64_APP_INSTALLER=''
 
   # CLI information

@@ -64,7 +64,7 @@ declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 declare INST64_NVM_METHOD="${INST64_NVM_METHOD:-GIT}"
 
 declare INST64_APP_INSTALLER=''
-declare INST64_APP_PACKAGES=''
+declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='nvm.sh'
 declare INST64_CLI_PATH=''
 
@@ -146,14 +146,14 @@ function inst64_nvm_install() {
 function inst64_nvm_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_NVM_METHOD" == 'GIT' ]]; then
-    INST64_APP_PACKAGES='NONE'
+    INST64_PKG_MAIN='NONE'
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
       INST64_CLI_PATH="${INST64_NVM_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
