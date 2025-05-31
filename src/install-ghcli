@@ -67,11 +67,11 @@ declare INST64_GHCLI_METHOD="${INST64_GHCLI_METHOD:-BINARY}"
 # Enable development packages?
 declare INST64_GHCLI_DEVELOPMENT="${INST64_GHCLI_DEVELOPMENT:-$BL64_VAR_OFF}"
 
-declare INST64_GHCLI_REPOSITORY_NAME='gh-cli'
-declare INST64_GHCLI_SOURCE_APT='https://cli.github.com/packages'
-declare INST64_GHCLI_REPOSITORY_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
-declare INST64_GHCLI_SOURCE_YUM='https://cli.github.com/packages/rpm'
-declare INST64_GHCLI_REPOSITORY_KEY_YUM='https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059'
+declare INST64_OS_REPO_NAME='gh-cli'
+declare INST64_OS_REPO_SOURCE_APT='https://cli.github.com/packages'
+declare INST64_OS_REPO_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
+declare INST64_OS_REPO_SOURCE_YUM='https://cli.github.com/packages/rpm'
+declare INST64_OS_REPO_KEY_YUM='https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059'
 
 declare INST64_GH_REPO_NAME='cli'
 declare INST64_GH_REPO_OWNER='cli'
@@ -131,17 +131,17 @@ function inst64_ghcli_add_repository() {
   local repository_extra_2=''
 
   if bl64_os_is_distro "${BL64_OS_OL}"; then
-    repository_url="${INST64_GHCLI_SOURCE_YUM}"
-    repository_key="$INST64_GHCLI_REPOSITORY_KEY_YUM"
+    repository_url="${INST64_OS_REPO_SOURCE_YUM}"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   elif bl64_os_is_distro "${BL64_OS_UB}"; then
-    repository_url="${INST64_GHCLI_SOURCE_APT}"
-    repository_key="$INST64_GHCLI_REPOSITORY_KEY_APT"
+    repository_url="${INST64_OS_REPO_SOURCE_APT}"
+    repository_key="$INST64_OS_REPO_KEY_APT"
     repository_extra_1='stable'
     repository_extra_2='main'
   fi
 
   bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_GHCLI_REPOSITORY_NAME" \
+  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
     "$repository_url" "$repository_key" \
     "$repository_extra_1" "$repository_extra_2"
 }

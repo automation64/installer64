@@ -96,6 +96,9 @@
 
   # Generic Web repository information
   declare INST64_WEB_URL=''
+
+  # OS package manager information
+  declare INST64_OS_REPO_NAME=''
 }
 
 #

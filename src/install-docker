@@ -62,11 +62,11 @@ declare INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-EXTERNAL}"
 # Enable development packages?
 declare INST64_DOCKER_DEVELOPMENT="${INST64_DOCKER_DEVELOPMENT:-$BL64_VAR_OFF}"
 
-declare INST64_DOCKER_REPOSITORY_NAME='docker'
-declare INST64_DOCKER_SOURCE_APT='https://download.docker.com/linux/ubuntu'
-declare INST64_DOCKER_REPOSITORY_KEY_APT='https://download.docker.com/linux/ubuntu/gpg'
-declare INST64_DOCKER_SOURCE_YUM='https://download.docker.com/linux/fedora'
-declare INST64_DOCKER_REPOSITORY_KEY_YUM='https://download.docker.com/linux/fedora/gpg'
+declare INST64_OS_REPO_NAME='docker'
+declare INST64_OS_REPO_SOURCE_APT='https://download.docker.com/linux/ubuntu'
+declare INST64_OS_REPO_KEY_APT='https://download.docker.com/linux/ubuntu/gpg'
+declare INST64_OS_REPO_SOURCE_YUM='https://download.docker.com/linux/fedora'
+declare INST64_OS_REPO_KEY_YUM='https://download.docker.com/linux/fedora/gpg'
 
 declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='docker'
@@ -84,17 +84,17 @@ function inst64_docker_add_repository() {
   local repository_extra_2=''
 
   if bl64_os_is_distro "${BL64_OS_FD}"; then
-    repository_url="${INST64_DOCKER_SOURCE_YUM}/\$releasever/\$basearch/stable"
-    repository_key="$INST64_DOCKER_REPOSITORY_KEY_YUM"
+    repository_url="${INST64_OS_REPO_SOURCE_YUM}/\$releasever/\$basearch/stable"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   elif bl64_os_is_distro "${BL64_OS_UB}"; then
-    repository_url="${INST64_DOCKER_SOURCE_APT}"
-    repository_key="$INST64_DOCKER_REPOSITORY_KEY_APT"
+    repository_url="${INST64_OS_REPO_SOURCE_APT}"
+    repository_key="$INST64_OS_REPO_KEY_APT"
     repository_extra_1='mantic'
     repository_extra_2='stable'
   fi
 
   bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_DOCKER_REPOSITORY_NAME" \
+  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
     "$repository_url" "$repository_key" \
     "$repository_extra_1" "$repository_extra_2"
 }

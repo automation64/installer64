@@ -72,10 +72,10 @@ declare INST64_TERRAFORM_VERSION="${INST64_TERRAFORM_VERSION:-latest}"
 declare INST64_GH_REPO_NAME='terraform'
 declare INST64_GH_REPO_OWNER='hashicorp'
 
-declare INST64_TERRAFORM_REPOSITORY_NAME='hashicorp'
+declare INST64_OS_REPO_NAME='hashicorp'
 # shellcheck disable=SC2016
-declare INST64_TERRAFORM_SOURCE_RHEL='https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable'
-declare INST64_TERRAFORM_REPOSITORY_KEY_RHEL='https://rpm.releases.hashicorp.com/gpg'
+declare INST64_OS_REPO_SOURCE_RHEL='https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable'
+declare INST64_OS_REPO_KEY_RHEL='https://rpm.releases.hashicorp.com/gpg'
 
 declare INST64_WEB_URL=''
 declare INST64_APP_INSTALLER=''
@@ -135,12 +135,12 @@ function inst64_terraform_add_repository() {
   local repository_extra_2=''
 
   if bl64_os_is_distro "${BL64_OS_OL}"; then
-    repository_url="${INST64_TERRAFORM_SOURCE_RHEL}"
-    repository_key="$INST64_TERRAFORM_REPOSITORY_KEY_RHEL"
+    repository_url="${INST64_OS_REPO_SOURCE_RHEL}"
+    repository_key="$INST64_OS_REPO_KEY_RHEL"
   fi
 
   bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_TERRAFORM_REPOSITORY_NAME" \
+  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
     "$repository_url" "$repository_key" \
     "$repository_extra_1" "$repository_extra_2"
 }
