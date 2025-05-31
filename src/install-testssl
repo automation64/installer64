@@ -54,14 +54,14 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_TESTSSL_GIT_SERVER="${INST64_TESTSSL_GIT_SERVER:-https://github.com/drwetter}"
-declare INST64_TESTSSL_GIT_REPO="${INST64_TESTSSL_GIT_REPO:-testssl.sh.git}"
+declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/drwetter}"
+declare INST64_GIT_REPO="${INST64_GIT_REPO:-testssl.sh.git}"
 declare INST64_TESTSSL_TARGET="${INST64_TESTSSL_TARGET:-}"
-declare INST64_TESTSSL_BRANCH="${INST64_TESTSSL_BRANCH:-3.2}"
+declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-3.2}"
 # Installation method
 declare INST64_TESTSSL_METHOD="${INST64_TESTSSL_METHOD:-GIT}"
 
-declare INST64_TESTSSL_INSTALLER=''
+declare INST64_APP_INSTALLER=''
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='testssl.sh'
 declare INST64_CLI_PATH=''
@@ -84,16 +84,16 @@ function inst64_testssl_install_git_repo() {
 
   bl64_msg_show_task 'download application'
   bl64_rxtx_git_get_dir \
-    "${INST64_TESTSSL_GIT_SERVER}/${INST64_TESTSSL_GIT_REPO}" \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
     '.' \
     "$INST64_TESTSSL_TARGET" \
     "$BL64_VAR_ON" \
-    "$INST64_TESTSSL_BRANCH" ||
+    "$INST64_GIT_BRANCH" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_TESTSSL_INSTALLER" ]]; then
-    "$INST64_TESTSSL_INSTALLER" ||
+  if [[ -n "$INST64_APP_INSTALLER" ]]; then
+    "$INST64_APP_INSTALLER" ||
       return $?
   fi
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

@@ -63,7 +63,7 @@ declare INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-stable}"
 # Installation method
 declare INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
 
-declare INST64_KUBECTL_PACKAGE_URL=''
+declare INST64_WEB_URL=''
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='kubectl'
 declare INST64_CLI_PATH=''
@@ -89,7 +89,7 @@ function inst64_kubectl_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_KUBECTL_PACKAGE_URL}/${INST64_APP_PACKAGES}" \
+      "${INST64_WEB_URL}/${INST64_APP_PACKAGES}" \
       "${work_path}/${INST64_APP_PACKAGES}" \
       'YES' \
       "$app_target_mode" ||
@@ -188,8 +188,8 @@ function inst64_kubectl_select_packages() {
     package_prefix='kubectl'
     package_suffix=''
     INST64_APP_PACKAGES="${package_prefix}${package_suffix}"
-    INST64_KUBECTL_PACKAGE_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
-    [[ -z "$INST64_KUBECTL_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    INST64_WEB_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
+    [[ -z "$INST64_WEB_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else

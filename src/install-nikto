@@ -54,14 +54,14 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_NIKTO_GIT_SERVER="${INST64_NIKTO_GIT_SERVER:-https://github.com/sullo}"
-declare INST64_NIKTO_GIT_REPO="${INST64_NIKTO_GIT_REPO:-nikto.git}"
+declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/sullo}"
+declare INST64_GIT_REPO="${INST64_GIT_REPO:-nikto.git}"
 declare INST64_NIKTO_TARGET="${INST64_NIKTO_TARGET:-}"
-declare INST64_NIKTO_BRANCH="${INST64_NIKTO_BRANCH:-master}"
+declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 # Installation method
 declare INST64_NIKTO_METHOD="${INST64_NIKTO_METHOD:-GIT}"
 
-declare INST64_NIKTO_INSTALLER=''
+declare INST64_APP_INSTALLER=''
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='nikto.pl'
 declare INST64_CLI_PATH=''
@@ -85,16 +85,16 @@ function inst64_nikto_install_git_repo() {
 
   bl64_msg_show_task 'download application'
   bl64_rxtx_git_get_dir \
-    "${INST64_NIKTO_GIT_SERVER}/${INST64_NIKTO_GIT_REPO}" \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
     '.' \
     "$INST64_NIKTO_TARGET" \
     "$BL64_VAR_ON" \
-    "$INST64_NIKTO_BRANCH" ||
+    "$INST64_GIT_BRANCH" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_NIKTO_INSTALLER" ]]; then
-    "$INST64_NIKTO_INSTALLER" ||
+  if [[ -n "$INST64_APP_INSTALLER" ]]; then
+    "$INST64_APP_INSTALLER" ||
       return $?
   fi
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then

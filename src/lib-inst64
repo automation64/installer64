@@ -75,14 +75,23 @@
 
   # Application packages
   declare INST64_APP_PACKAGES=''
+  declare INST64_APP_INSTALLER=''
 
   # CLI information
   declare INST64_CLI_NAME=''
   declare INST64_CLI_PATH=''
 
-  # Git repository information
+  # GitHub repository information
   declare INST64_GH_REPO_NAME=''
   declare INST64_GH_REPO_OWNER=''
+
+  # Generic Git repository information
+  declare INST64_GIT_SERVER=''
+  declare INST64_GIT_REPO=''
+  declare INST64_GIT_BRANCH=''
+
+  # Generic Web repository information
+  declare INST64_WEB_URL=''
 }
 
 #

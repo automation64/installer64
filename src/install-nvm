@@ -56,14 +56,14 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_NVM_GIT_SERVER="${INST64_NVM_GIT_SERVER:-https://github.com/nvm-sh}"
-declare INST64_NVM_GIT_REPO="${INST64_NVM_GIT_REPO:-nvm.git}"
+declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/nvm-sh}"
+declare INST64_GIT_REPO="${INST64_GIT_REPO:-nvm.git}"
 declare INST64_NVM_TARGET=''
-declare INST64_NVM_BRANCH="${INST64_NVM_BRANCH:-master}"
+declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 # Installation method
 declare INST64_NVM_METHOD="${INST64_NVM_METHOD:-GIT}"
 
-declare INST64_NVM_INSTALLER=''
+declare INST64_APP_INSTALLER=''
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='nvm.sh'
 declare INST64_CLI_PATH=''
@@ -86,16 +86,16 @@ function inst64_nvm_install_git_repo() {
 
   bl64_msg_show_task 'download application'
   bl64_rxtx_git_get_dir \
-    "${INST64_NVM_GIT_SERVER}/${INST64_NVM_GIT_REPO}" \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
     '.' \
     "$INST64_NVM_TARGET" \
     "$BL64_VAR_ON" \
-    "$INST64_NVM_BRANCH" ||
+    "$INST64_GIT_BRANCH" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_NVM_INSTALLER" ]]; then
-    "$INST64_NVM_INSTALLER" ||
+  if [[ -n "$INST64_APP_INSTALLER" ]]; then
+    "$INST64_APP_INSTALLER" ||
       return $?
   fi
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -230,9 +230,9 @@ function inst64_nvm_initialize() {
 
   bl64_msg_show_setup 'Install application: Node Version Manager (NVM)' \
     'INST64_SYSTEM_WIDE' 'INST64_NVM_METHOD' \
-    'INST64_NVM_GIT_SERVER' \
-    'INST64_NVM_GIT_REPO' \
-    'INST64_NVM_BRANCH' \
+    'INST64_GIT_SERVER' \
+    'INST64_GIT_REPO' \
+    'INST64_GIT_BRANCH' \
     'INST64_NVM_TARGET' \
     'INST64_CLI_PATH'
 }
