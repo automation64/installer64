@@ -75,6 +75,8 @@
 
   # Application packages
   declare INST64_PKG_MAIN=''
+  declare INST64_PKG_MAIN_PREFIX=''
+  declare INST64_PKG_MAIN_SUFFIX=''
   declare INST64_PKG_PRE=''
   declare INST64_PKG_POST=''
 
@@ -96,6 +98,7 @@
 
   # Generic Web repository information
   declare INST64_WEB_REPO_URL=''
+  declare INST64_WEB_REPO_PATH=''
 
   # OS package manager information
   declare INST64_OS_REPO_NAME=''
@@ -277,26 +280,21 @@ function inst64_lib_show_parameters() {
   local var_suffix=''
   local var_name=''
 
-  method_variable_suffix=+" ${INST64_APP_ID}_METHOD"
-  method_variable_suffix=+" ${INST64_APP_ID}_PLATFORM"
-  method_variable_suffix=+" ${INST64_APP_ID}_TARGET"
-  method_variable_suffix=+" ${INST64_APP_ID}_VERSION"
-  method_variable_suffix=+" APP_INSTALLER"
-  method_variable_suffix=+" CLI_NAME"
-  method_variable_suffix=+" CLI_PATH"
-  method_variable_suffix=+" GH_REPO_NAME"
-  method_variable_suffix=+" GH_REPO_OWNER"
-  method_variable_suffix=+" GIT_BRANCH"
-  method_variable_suffix=+" GIT_REPO"
-  method_variable_suffix=+" GIT_SERVER"
-  method_variable_suffix=+" OS_REPO_NAME"
-  method_variable_suffix=+" PKG_MAIN"
-  method_variable_suffix=+" PKG_POST"
-  method_variable_suffix=+" PKG_PRE"
-  method_variable_suffix=+" REPO_NAME"
-  method_variable_suffix=+" REPO_OWNER"
-  method_variable_suffix=+" SYSTEM_WIDE"
-  method_variable_suffix=+" WEB_REPO_URL"
+  method_variable_suffix+=" ${INST64_APP_ID}_METHOD"
+  method_variable_suffix+=" ${INST64_APP_ID}_PLATFORM"
+  method_variable_suffix+=" ${INST64_APP_ID}_TARGET"
+  method_variable_suffix+=" ${INST64_APP_ID}_VERSION"
+  method_variable_suffix+=" SYSTEM_WIDE"
+  method_variable_suffix+=" CLI_NAME"
+  method_variable_suffix+=" CLI_PATH"
+  method_variable_suffix+=" GH_REPO_NAME"
+  method_variable_suffix+=" GH_REPO_OWNER"
+  method_variable_suffix+=" GIT_BRANCH"
+  method_variable_suffix+=" GIT_REPO"
+  method_variable_suffix+=" GIT_SERVER"
+  method_variable_suffix+=" OS_REPO_NAME"
+  method_variable_suffix+=" WEB_REPO_PATH"
+  method_variable_suffix+=" WEB_REPO_URL"
 
   for var_suffix in $method_variable_suffix; do
     var_name="INST64_${var_suffix}"
