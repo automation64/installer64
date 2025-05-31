@@ -95,7 +95,7 @@
   declare INST64_GIT_BRANCH=''
 
   # Generic Web repository information
-  declare INST64_WEB_URL=''
+  declare INST64_WEB_REPO_URL=''
 
   # OS package manager information
   declare INST64_OS_REPO_NAME=''
@@ -271,7 +271,7 @@ function inst64_lib_check_installed() {
 #   >0: error
 #######################################
 function inst64_lib_show_parameters() {
-  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_show_function
   local parameter_list=''
 
   parameter_list=+" INST64_${INST64_APP_ID}_PLATFORM"

@@ -62,7 +62,7 @@ declare INST64_GO_VERSION="${INST64_GO_VERSION:-1.21.2}"
 # Installation method
 declare INST64_GO_METHOD="${INST64_GO_METHOD:-BINARY}"
 
-declare INST64_WEB_URL=''
+declare INST64_WEB_REPO_URL=''
 declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='go'
 declare INST64_CLI_PATH=''
@@ -85,7 +85,7 @@ function inst64_go_install_binary() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_web_get_file \
-    "${INST64_WEB_URL}/${INST64_PKG_MAIN}" "${work_path}/${INST64_PKG_MAIN}" ||
+    "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" "${work_path}/${INST64_PKG_MAIN}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -142,7 +142,7 @@ function inst64_go_select_packages() {
     package_prefix='go'
     package_suffix='tar.gz'
     INST64_PKG_MAIN="${package_prefix}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_suffix}"
-    INST64_WEB_URL="${INST64_GO_SOURCE}"
+    INST64_WEB_REPO_URL="${INST64_GO_SOURCE}"
   fi
   [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0

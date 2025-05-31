@@ -63,7 +63,7 @@ declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
 # Installation method
 declare INST64_AWSCLI_METHOD="${INST64_AWSCLI_METHOD:-CUSTOM}"
 
-declare INST64_WEB_URL=''
+declare INST64_WEB_REPO_URL=''
 declare INST64_APP_INSTALLER='aws/install'
 declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='aws'
@@ -90,7 +90,7 @@ function inst64_awscli_install_custom_package_linux() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_WEB_URL}" "${work_path}/${INST64_PKG_MAIN}" &&
+      "${INST64_WEB_REPO_URL}" "${work_path}/${INST64_PKG_MAIN}" &&
     bl64_arc_open_zip "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
@@ -117,7 +117,7 @@ function inst64_awscli_install_custom_package_macos() {
 
   bl64_msg_show_task 'download application'
   bl64_rxtx_web_get_file \
-    "${INST64_WEB_URL}" "${work_path}/${INST64_PKG_MAIN}" ||
+    "${INST64_WEB_REPO_URL}" "${work_path}/${INST64_PKG_MAIN}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -205,18 +205,18 @@ function inst64_awscli_select_packages() {
       package_prefix='awscli-exe-'
       package_suffix='.zip'
       INST64_PKG_MAIN="${package_prefix}${INST64_AWSCLI_PLATFORM}${package_suffix}"
-      INST64_WEB_URL="${INST64_AWSCLI_SOURCE}/${INST64_PKG_MAIN}"
+      INST64_WEB_REPO_URL="${INST64_AWSCLI_SOURCE}/${INST64_PKG_MAIN}"
     elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
       package_prefix='AWSCLIV2'
       package_suffix='.pkg'
       INST64_PKG_MAIN="${package_prefix}${package_suffix}"
     fi
-    INST64_WEB_URL="${INST64_AWSCLI_SOURCE}/${INST64_PKG_MAIN}"
+    INST64_WEB_REPO_URL="${INST64_AWSCLI_SOURCE}/${INST64_PKG_MAIN}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_WEB_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+  [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }

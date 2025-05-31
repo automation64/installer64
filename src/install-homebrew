@@ -31,7 +31,7 @@ declare INST64_HOMEBREW_SCRIPT_VERSION='1.0.0'
 declare INST64_HOMEBREW_METHOD="${INST64_HOMEBREW_METHOD:-CUSTOM}"
 
 declare INST64_PKG_MAIN='install.sh'
-declare INST64_WEB_URL=''
+declare INST64_WEB_REPO_URL=''
 declare INST64_APP_INSTALLER='install.sh'
 declare INST64_CLI_NAME='brew'
 declare INST64_CLI_PATH=''
@@ -58,13 +58,13 @@ function inst64_homebrew_download_custom_package() {
       -s \
       -L \
       -o "$INST64_APP_INSTALLER" \
-      "$INST64_WEB_URL"
+      "$INST64_WEB_REPO_URL"
     ;;
   'wget')
     "$INST64_HOMEBREW_DOWNLOAD_TOOL" \
       -q \
       -O "$INST64_APP_INSTALLER" \
-      "$INST64_WEB_URL"
+      "$INST64_WEB_REPO_URL"
     ;;
   esac
   [[ -f "$INST64_APP_INSTALLER" ]] &&
@@ -137,7 +137,7 @@ function inst64_homebrew_install() {
 #######################################
 function inst64_homebrew_select_packages() {
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
-    INST64_WEB_URL="${INST64_HOMEBREW_SOURCE}/HEAD/${INST64_PKG_MAIN}"
+    INST64_WEB_REPO_URL="${INST64_HOMEBREW_SOURCE}/HEAD/${INST64_PKG_MAIN}"
     INST64_APP_INSTALLER="${INST64_TMP}/${INST64_APP_INSTALLER}"
   fi
 }

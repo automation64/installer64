@@ -77,7 +77,7 @@ declare INST64_OS_REPO_NAME='hashicorp'
 declare INST64_OS_REPO_SOURCE_RHEL='https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable'
 declare INST64_OS_REPO_KEY_RHEL='https://rpm.releases.hashicorp.com/gpg'
 
-declare INST64_WEB_URL=''
+declare INST64_WEB_REPO_URL=''
 declare INST64_APP_INSTALLER=''
 
 declare INST64_PKG_MAIN=''
@@ -105,7 +105,7 @@ function inst64_terraform_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_WEB_URL}/${INST64_PKG_MAIN}" "${work_path}/${INST64_PKG_MAIN}" &&
+      "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" "${work_path}/${INST64_PKG_MAIN}" &&
     bl64_arc_open_zip "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
@@ -230,8 +230,8 @@ function inst64_terraform_select_packages() {
     package_prefix='terraform_'
     package_suffix='.zip'
     INST64_PKG_MAIN="${package_prefix}${INST64_TERRAFORM_VERSION#v}_${INST64_TERRAFORM_PLATFORM}${package_suffix}"
-    INST64_WEB_URL="${INST64_TERRAFORM_SOURCE}/${INST64_TERRAFORM_VERSION#v}"
-    [[ -z "$INST64_WEB_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    INST64_WEB_REPO_URL="${INST64_TERRAFORM_SOURCE}/${INST64_TERRAFORM_VERSION#v}"
+    [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else

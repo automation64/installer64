@@ -63,7 +63,7 @@ declare INST64_ZOHOVAULT_VERSION="${INST64_ZOHOVAULT_VERSION:-}"
 # Installation method
 declare INST64_ZOHOVAULT_METHOD="${INST64_ZOHOVAULT_METHOD:-CUSTOM}"
 
-declare INST64_WEB_URL=''
+declare INST64_WEB_REPO_URL=''
 declare INST64_APP_INSTALLER=''
 declare INST64_PKG_MAIN=''
 declare INST64_CLI_NAME='zv'
@@ -90,7 +90,7 @@ function inst64_zohovault_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_WEB_URL}/${INST64_PKG_MAIN}" \
+      "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" \
       "${work_path}/${INST64_PKG_MAIN}" \
       'YES' \
       "$app_target_mode" &&
@@ -173,8 +173,8 @@ function inst64_zohovault_select_packages() {
     package_prefix='zv_cli'
     package_suffix='.zip'
     INST64_PKG_MAIN="${package_prefix}${package_suffix}"
-    INST64_WEB_URL="${INST64_ZOHOVAULT_SOURCE}/${INST64_ZOHOVAULT_PLATFORM}"
-    [[ -z "$INST64_WEB_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    INST64_WEB_REPO_URL="${INST64_ZOHOVAULT_SOURCE}/${INST64_ZOHOVAULT_PLATFORM}"
+    [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi
   [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0

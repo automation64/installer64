@@ -63,7 +63,7 @@ declare INST64_NODEJS_VERSION="${INST64_NODEJS_VERSION:-latest}"
 # Installation method
 declare INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
 
-declare INST64_WEB_URL=''
+declare INST64_WEB_REPO_URL=''
 declare INST64_APP_INSTALLER=''
 declare INST64_PKG_MAIN=''
 declare INST64_NODEJS_CLI_NAME_NODE='node'
@@ -90,7 +90,7 @@ function inst64_nodejs_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_WEB_URL}/${INST64_PKG_MAIN}" \
+      "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" \
       "${work_path}/${INST64_PKG_MAIN}" \
       'YES' \
       "$app_target_mode" ||
@@ -261,8 +261,8 @@ function inst64_nodejs_select_packages() {
     package_prefix='node-'
     package_suffix='.tar.gz'
     INST64_PKG_MAIN="${package_prefix}${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_suffix}"
-    INST64_WEB_URL="${INST64_NODEJS_SOURCE}${INST64_NODEJS_VERSION}"
-    [[ -z "$INST64_WEB_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    INST64_WEB_REPO_URL="${INST64_NODEJS_SOURCE}${INST64_NODEJS_VERSION}"
+    [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}"
     else
