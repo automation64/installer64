@@ -62,24 +62,24 @@ declare INST64_RUFF_VERSION="${INST64_RUFF_VERSION:-latest}"
 # Installation method
 declare INST64_RUFF_METHOD="${INST64_RUFF_METHOD:-BINARY}"
 
-declare INST64_RUFF_REPO_NAME='ruff'
-declare INST64_RUFF_REPO_OWNER='astral-sh'
-declare INST64_RUFF_PACKAGES=''
-declare INST64_RUFF_CLI_NAME='ruff'
-declare INST64_RUFF_CLI_PATH=''
+declare INST64_GH_REPO_NAME='ruff'
+declare INST64_GH_REPO_OWNER='astral-sh'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='ruff'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_ruff_install_binary_release() {
+function inst64_ruff_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_RUFF_CLI_NAME}"
+  local app_cli_source="${INST64_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -89,19 +89,19 @@ function inst64_ruff_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_RUFF_REPO_OWNER" "$INST64_RUFF_REPO_NAME" "$INST64_RUFF_VERSION" "$INST64_RUFF_PACKAGES" "${work_path}/${INST64_RUFF_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_RUFF_PACKAGES}" "${work_path}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_RUFF_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_RUFF_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_RUFF_TARGET" "${work_path}/${INST64_RUFF_PACKAGES%.tar.gz}/${app_cli_source}" ||
+    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_RUFF_TARGET" "${work_path}/${INST64_PKG_MAIN%.tar.gz}/${app_cli_source}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_RUFF_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_RUFF_TARGET}/${app_cli_source}" "$INST64_RUFF_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_RUFF_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -159,7 +159,7 @@ function inst64_ruff_install() {
     inst64_ruff_select_packages ||
     return $?
   if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
-    inst64_ruff_install_binary_release
+    inst64_ruff_install_binary
   fi
 }
 
@@ -180,19 +180,19 @@ function inst64_ruff_select_packages() {
   local package_suffix=''
   if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_RUFF_VERSION" == 'latest' ]]; then
-      INST64_RUFF_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_RUFF_REPO_OWNER" "$INST64_RUFF_REPO_NAME")" ||
+      INST64_RUFF_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='ruff-'
     package_suffix='.tar.gz'
-    INST64_RUFF_PACKAGES="${package_prefix}${INST64_RUFF_PLATFORM}${package_suffix}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_RUFF_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_RUFF_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_RUFF_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_RUFF_CLI_PATH="${INST64_RUFF_TARGET}/${INST64_RUFF_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_RUFF_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_RUFF_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -229,7 +229,7 @@ function inst64_ruff_prepare() {
 function inst64_ruff_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_RUFF_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -269,11 +269,11 @@ function inst64_ruff_initialize() {
   bl64_msg_show_setup 'Install application: Ruff' \
     'INST64_SYSTEM_WIDE' 'INST64_RUFF_METHOD' \
     'INST64_RUFF_PLATFORM' \
-    'INST64_RUFF_REPO_OWNER' \
-    'INST64_RUFF_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_RUFF_TARGET' \
     'INST64_RUFF_VERSION' \
-    'INST64_RUFF_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

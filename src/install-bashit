@@ -54,17 +54,17 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_BASHIT_GIT_SERVER="${INST64_BASHIT_GIT_SERVER:-https://github.com/Bash-it}"
-declare INST64_BASHIT_GIT_REPO="${INST64_BASHIT_GIT_REPO:-bash-it.git}"
+declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/Bash-it}"
+declare INST64_GIT_REPO="${INST64_GIT_REPO:-bash-it.git}"
 declare INST64_BASHIT_TARGET="${INST64_BASHIT_TARGET:-}"
-declare INST64_BASHIT_BRANCH="${INST64_BASHIT_BRANCH:-master}"
+declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 # Installation method
 declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-GIT}"
 
-declare INST64_BASHIT_INSTALLER=''
-declare INST64_BASHIT_PACKAGES=''
-declare INST64_BASHIT_CLI_NAME='bash_it.sh'
-declare INST64_BASHIT_CLI_PATH=''
+declare INST64_APP_INSTALLER=''
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='bash_it.sh'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -74,14 +74,14 @@ function inst64_bashit_install_git_repo() {
   bl64_dbg_app_show_function
   local app_target_mode='0755'
 
-  INST64_BASHIT_CLI_PATH="${INST64_BASHIT_TARGET}/${INST64_BASHIT_CLI_NAME}"
+  INST64_CLI_PATH="${INST64_BASHIT_TARGET}/${INST64_CLI_NAME}"
   bl64_msg_show_task 'download application'
   bl64_rxtx_git_get_dir \
-    "${INST64_BASHIT_GIT_SERVER}/${INST64_BASHIT_GIT_REPO}" \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
     '.' \
     "$INST64_BASHIT_TARGET" \
     "$BL64_VAR_ON" \
-    "$INST64_BASHIT_BRANCH" ||
+    "$INST64_GIT_BRANCH" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -126,9 +126,9 @@ function inst64_bashit_install() {
 function inst64_bashit_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_BASHIT_METHOD" == 'GIT' ]]; then
-    INST64_BASHIT_PACKAGES="$INST64_BASHIT_GIT_REPO"
+    INST64_PKG_MAIN="$INST64_GIT_REPO"
   fi
-  [[ -z "$INST64_BASHIT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -163,7 +163,7 @@ function inst64_bashit_prepare() {
 function inst64_bashit_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_BASHIT_CLI_PATH" --help
+  "$INST64_CLI_PATH" --help
 }
 
 #######################################

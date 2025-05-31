@@ -51,17 +51,17 @@ declare INST64_MINIKUBE_VERSION="${INST64_MINIKUBE_VERSION:-latest}"
 # Installation method
 declare INST64_MINIKUBE_METHOD="${INST64_MINIKUBE_METHOD:-BINARY}"
 
-declare INST64_MINIKUBE_REPO_NAME='minikube'
-declare INST64_MINIKUBE_REPO_OWNER='kubernetes'
-declare INST64_MINIKUBE_PACKAGES=''
-declare INST64_MINIKUBE_CLI_NAME='minikube'
-declare INST64_MINIKUBE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_MINIKUBE_CLI_NAME}"
+declare INST64_GH_REPO_NAME='minikube'
+declare INST64_GH_REPO_OWNER='kubernetes'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='minikube'
+declare INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
 
 #
 # Functions
 #
 
-function inst64_minikube_install_binary_release() {
+function inst64_minikube_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -72,8 +72,8 @@ function inst64_minikube_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_MINIKUBE_REPO_OWNER" "$INST64_MINIKUBE_REPO_NAME" "$INST64_MINIKUBE_VERSION" "$INST64_MINIKUBE_PACKAGES" "${work_path}/${INST64_MINIKUBE_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_MINIKUBE_PACKAGES}" "${work_path}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_MINIKUBE_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -82,10 +82,10 @@ function inst64_minikube_install_binary_release() {
     bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_owner" "$INST64_MINIKUBE_TARGET" "${work_path}/out/${app_cli_source}" ||
     return $?
 
-  bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" || INST64_MINIKUBE_CLI_PATH="${INST64_MINIKUBE_TARGET}/${INST64_MINIKUBE_CLI_NAME}"
-  bl64_msg_show_task "publish application to searchable path (${INST64_MINIKUBE_CLI_PATH})"
+  bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" || INST64_CLI_PATH="${INST64_MINIKUBE_TARGET}/${INST64_CLI_NAME}"
+  bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
   # shellcheck disable=SC2086
-  bl64_fs_symlink_create "${INST64_MINIKUBE_TARGET}/${app_cli_source}" "$INST64_MINIKUBE_CLI_PATH" "$BL64_VAR_ON" ||
+  bl64_fs_symlink_create "${INST64_MINIKUBE_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -108,7 +108,7 @@ function inst64_minikube_install() {
   bl64_dbg_app_show_function
   inst64_minikube_select_packages || return $?
   if [[ "$INST64_MINIKUBE_METHOD" == 'BINARY' ]]; then
-    inst64_minikube_install_binary_release
+    inst64_minikube_install_binary
   fi
 }
 
@@ -129,14 +129,14 @@ function inst64_minikube_select_packages() {
   local package_suffix=''
   if [[ "$INST64_MINIKUBE_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_MINIKUBE_VERSION" == 'latest' ]]; then
-      INST64_MINIKUBE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_MINIKUBE_REPO_OWNER" "$INST64_MINIKUBE_REPO_NAME")" ||
+      INST64_MINIKUBE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='minikube-'
     package_suffix='.tar.gz'
-    INST64_MINIKUBE_PACKAGES="${package_prefix}${INST64_MINIKUBE_PLATFORM}${package_suffix}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_MINIKUBE_PLATFORM}${package_suffix}"
   fi
-  [[ -z "$INST64_MINIKUBE_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -172,7 +172,7 @@ function inst64_minikube_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_MINIKUBE_METHOD" == 'BINARY' ]]; then
-    "${INST64_MINIKUBE_CLI_PATH}" version
+    "${INST64_CLI_PATH}" version
   fi
 }
 

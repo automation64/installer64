@@ -24,9 +24,9 @@ INST64_DEBUG=""
 INST64_TMP="/tmp"
 
 # X_GLOBALS_PLACEHOLDER_X
-INST64_X_APP_NAME_CAPS_X_PACKAGES=''
-INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
-INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
+INST64_PKG_MAIN=''
+INST64_CLI_NAME='X_CLI_NAME_X'
+INST64_CLI_PATH=''
 # shellcheck disable=SC2034
 INST64_X_APP_NAME_CAPS_X_SCRIPT_VERSION='1.0.0'
 INST64_X_APP_NAME_CAPS_X_PLATFORM=''
@@ -127,7 +127,7 @@ inst64_X_APP_NAME_X_install() {
 #######################################
 inst64_X_APP_NAME_X_select_packages() {
   # X_SELECT_PKG_PLACEHOLDER_X
-  if [ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]; then
+  if [ -z "$INST64_PKG_MAIN" ]; then
     inst64_X_APP_NAME_X_msg_show_error 'unable to determine package name'
     return 1
   fi
@@ -164,7 +164,7 @@ inst64_X_APP_NAME_X_prepare() {
 inst64_X_APP_NAME_X_verify() {
   inst64_X_APP_NAME_X_msg_show_task 'verify deployment'
   # X_VERIFY_PLACEHOLDER_X
-  # example # "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
+  # example # "$INST64_CLI_PATH" --version
 }
 
 #######################################

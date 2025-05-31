@@ -62,24 +62,24 @@ declare INST64_BAT_VERSION="${INST64_BAT_VERSION:-latest}"
 # Installation method
 declare INST64_BAT_METHOD="${INST64_BAT_METHOD:-BINARY}"
 
-declare INST64_BAT_REPO_NAME='bat'
-declare INST64_BAT_REPO_OWNER='sharkdp'
-declare INST64_BAT_PACKAGES=''
-declare INST64_BAT_CLI_NAME='bat'
-declare INST64_BAT_CLI_PATH=''
+declare INST64_GH_REPO_NAME='bat'
+declare INST64_GH_REPO_OWNER='sharkdp'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='bat'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_bat_install_binary_release() {
+function inst64_bat_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_BAT_CLI_NAME}-${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}/${INST64_BAT_CLI_NAME}"
+  local app_cli_source="${INST64_CLI_NAME}-${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}/${INST64_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -89,8 +89,8 @@ function inst64_bat_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_BAT_REPO_OWNER" "$INST64_BAT_REPO_NAME" "$INST64_BAT_VERSION" "$INST64_BAT_PACKAGES" "${work_path}/${INST64_BAT_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_BAT_PACKAGES}" "${work_path}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_BAT_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -99,9 +99,9 @@ function inst64_bat_install_binary_release() {
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_BAT_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_BAT_TARGET}/${INST64_BAT_CLI_NAME}" "$INST64_BAT_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_BAT_TARGET}/${INST64_CLI_NAME}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -159,7 +159,7 @@ function inst64_bat_select_platform() {
 function inst64_bat_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_BAT_METHOD" == 'BINARY' ]]; then
-    inst64_bat_install_binary_release
+    inst64_bat_install_binary
   fi
 }
 
@@ -180,20 +180,20 @@ function inst64_bat_select_packages() {
   local package_suffix=''
   if [[ "$INST64_BAT_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_BAT_VERSION" == 'latest' ]]; then
-      INST64_BAT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_BAT_REPO_OWNER" "$INST64_BAT_REPO_NAME")" ||
+      INST64_BAT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='bat-'
     package_suffix='.tar.gz'
-    INST64_BAT_PACKAGES="${package_prefix}${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}${package_suffix}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_BAT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_BAT_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_BAT_CLI_PATH="${INST64_BAT_TARGET}/${INST64_BAT_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_BAT_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
 
-  [[ -z "$INST64_BAT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -230,7 +230,7 @@ function inst64_bat_prepare() {
 function inst64_bat_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_BAT_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -278,11 +278,11 @@ function inst64_bat_initialize() {
   bl64_msg_show_setup 'Install application: Bat' \
     'INST64_BAT_METHOD' 'INST64_SYSTEM_WIDE' \
     'INST64_BAT_PLATFORM' \
-    'INST64_BAT_REPO_OWNER' \
-    'INST64_BAT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_BAT_TARGET' \
     'INST64_BAT_VERSION' \
-    'INST64_BAT_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #
