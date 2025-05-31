@@ -81,8 +81,8 @@
   declare INST64_CLI_PATH=''
 
   # Git repository information
-  declare INST64_GIT_REPO_NAME=''
-  declare INST64_GIT_REPO_OWNER=''
+  declare INST64_GH_REPO_NAME=''
+  declare INST64_GH_REPO_OWNER=''
 }
 
 #

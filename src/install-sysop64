@@ -62,8 +62,8 @@ declare INST64_SYSOP64_VERSION="${INST64_SYSOP64_VERSION:-latest}"
 # Installation method
 declare INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-CUSTOM}"
 
-declare INST64_GIT_REPO_NAME='sysop64'
-declare INST64_GIT_REPO_OWNER='automation64'
+declare INST64_GH_REPO_NAME='sysop64'
+declare INST64_GH_REPO_OWNER='automation64'
 
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='so64'
@@ -88,8 +88,8 @@ function inst64_sysop64_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_github_get_asset \
-      "$INST64_GIT_REPO_OWNER" \
-      "$INST64_GIT_REPO_NAME" \
+      "$INST64_GH_REPO_OWNER" \
+      "$INST64_GH_REPO_NAME" \
       "$INST64_SYSOP64_VERSION" \
       "$INST64_APP_PACKAGES" \
       "${work_path}/${INST64_APP_PACKAGES}" ||
@@ -249,8 +249,8 @@ function inst64_sysop64_initialize() {
   bl64_msg_show_setup 'Install application: SysOp64' \
     'INST64_SYSTEM_WIDE' 'INST64_SYSOP64_METHOD' \
     'INST64_SYSOP64_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_SYSOP64_TARGET' \
     'INST64_SYSOP64_VERSION' \
     'INST64_CLI_PATH'

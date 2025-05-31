@@ -60,8 +60,8 @@ INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
 INST64_CLI_NAME='X_CLI_NAME_X'
 INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 # Git repository information
-INST64_GIT_REPO_NAME='X_REPO_NAME_X'
-INST64_GIT_REPO_OWNER='X_REPO_OWNER_X'
+INST64_GH_REPO_NAME='X_REPO_NAME_X'
+INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
 
 #
 # Functions
@@ -75,7 +75,7 @@ function inst64_X_APP_NAME_X_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -218,7 +218,7 @@ function inst64_X_APP_NAME_X_select_packages() {
   local package_suffix=''
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='X_PACKAGE_PREFIX_X'

@@ -62,8 +62,8 @@ declare INST64_ARGOCDCLI_VERSION="${INST64_ARGOCDCLI_VERSION:-latest}"
 # Installation method
 declare INST64_ARGOCDCLI_METHOD="${INST64_ARGOCDCLI_METHOD:-BINARY}"
 
-declare INST64_GIT_REPO_NAME='argo-cd'
-declare INST64_GIT_REPO_OWNER='argoproj'
+declare INST64_GH_REPO_NAME='argo-cd'
+declare INST64_GH_REPO_OWNER='argoproj'
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='argocd'
 declare INST64_CLI_PATH=''
@@ -89,7 +89,7 @@ function inst64_argocdcli_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_ARGOCDCLI_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_ARGOCDCLI_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -176,7 +176,7 @@ function inst64_argocdcli_select_packages() {
   local package_suffix=''
   if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_ARGOCDCLI_VERSION" == 'latest' ]]; then
-      INST64_ARGOCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_ARGOCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='argocd-'
@@ -265,8 +265,8 @@ function inst64_argocdcli_initialize() {
   bl64_msg_show_setup 'Install application: ArgoCD CLI' \
     'INST64_ARGOCDCLI_METHOD' 'INST64_SYSTEM_WIDE' \
     'INST64_ARGOCDCLI_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_ARGOCDCLI_TARGET' \
     'INST64_ARGOCDCLI_VERSION' \
     'INST64_CLI_PATH'

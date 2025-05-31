@@ -69,8 +69,8 @@ declare INST64_TERRAFORM_SOURCE="${INST64_TERRAFORM_SOURCE:-https://releases.has
 declare INST64_TERRAFORM_TARGET="${INST64_TERRAFORM_TARGET:-}"
 declare INST64_TERRAFORM_VERSION="${INST64_TERRAFORM_VERSION:-latest}"
 
-declare INST64_GIT_REPO_NAME='terraform'
-declare INST64_GIT_REPO_OWNER='hashicorp'
+declare INST64_GH_REPO_NAME='terraform'
+declare INST64_GH_REPO_OWNER='hashicorp'
 
 declare INST64_TERRAFORM_REPOSITORY_NAME='hashicorp'
 # shellcheck disable=SC2016
@@ -224,7 +224,7 @@ function inst64_terraform_select_packages() {
     fi
   elif [[ "$INST64_TERRAFORM_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_TERRAFORM_VERSION" == 'latest' ]]; then
-      INST64_TERRAFORM_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_TERRAFORM_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='terraform_'

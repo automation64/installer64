@@ -51,8 +51,8 @@ declare INST64_MINIKUBE_VERSION="${INST64_MINIKUBE_VERSION:-latest}"
 # Installation method
 declare INST64_MINIKUBE_METHOD="${INST64_MINIKUBE_METHOD:-BINARY}"
 
-declare INST64_GIT_REPO_NAME='minikube'
-declare INST64_GIT_REPO_OWNER='kubernetes'
+declare INST64_GH_REPO_NAME='minikube'
+declare INST64_GH_REPO_OWNER='kubernetes'
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='minikube'
 declare INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
@@ -72,7 +72,7 @@ function inst64_minikube_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_MINIKUBE_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_MINIKUBE_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -129,7 +129,7 @@ function inst64_minikube_select_packages() {
   local package_suffix=''
   if [[ "$INST64_MINIKUBE_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_MINIKUBE_VERSION" == 'latest' ]]; then
-      INST64_MINIKUBE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_MINIKUBE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='minikube-'

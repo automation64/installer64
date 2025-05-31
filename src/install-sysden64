@@ -62,8 +62,8 @@ declare INST64_SYSDEN64_VERSION="${INST64_SYSDEN64_VERSION:-latest}"
 # Installation method
 declare INST64_SYSDEN64_METHOD="${INST64_SYSDEN64_METHOD:-CUSTOM}"
 
-declare INST64_GIT_REPO_NAME='sysden64'
-declare INST64_GIT_REPO_OWNER='automation64'
+declare INST64_GH_REPO_NAME='sysden64'
+declare INST64_GH_REPO_OWNER='automation64'
 
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='sysden64'
@@ -89,7 +89,7 @@ function inst64_sysden64_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_github_get_asset \
-      "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_SYSDEN64_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
+      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_SYSDEN64_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -234,8 +234,8 @@ function inst64_sysden64_initialize() {
   bl64_msg_show_setup 'Install application: SysDen64' \
     'INST64_SYSTEM_WIDE' 'INST64_SYSDEN64_METHOD' \
     'INST64_SYSDEN64_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_SYSDEN64_TARGET' \
     'INST64_SYSDEN64_VERSION' \
     'INST64_CLI_PATH'

@@ -51,8 +51,8 @@ declare INST64_HUGO_VERSION="${INST64_HUGO_VERSION:-latest}"
 # Installation method
 declare INST64_HUGO_METHOD="${INST64_HUGO_METHOD:-BINARY}"
 
-declare INST64_GIT_REPO_NAME='hugo'
-declare INST64_GIT_REPO_OWNER='gohugoio'
+declare INST64_GH_REPO_NAME='hugo'
+declare INST64_GH_REPO_OWNER='gohugoio'
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='hugo'
 
@@ -71,7 +71,7 @@ function inst64_hugo_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_HUGO_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_HUGO_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -126,7 +126,7 @@ function inst64_hugo_select_packages() {
   local package_suffix=''
   if [[ "$INST64_HUGO_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_HUGO_VERSION" == 'latest' ]]; then
-      INST64_HUGO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_HUGO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='hugo_extended_'

@@ -67,8 +67,8 @@ declare INST64_SHELLCHECK_METHOD="${INST64_SHELLCHECK_METHOD:-BINARY}"
 # Enable development packages?
 declare INST64_SHELLCHECK_DEVELOPMENT="${INST64_SHELLCHECK_DEVELOPMENT:-$BL64_VAR_OFF}"
 
-declare INST64_GIT_REPO_NAME='shellcheck'
-declare INST64_GIT_REPO_OWNER='koalaman'
+declare INST64_GH_REPO_NAME='shellcheck'
+declare INST64_GH_REPO_OWNER='koalaman'
 
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='shellcheck'
@@ -95,7 +95,7 @@ function inst64_shellcheck_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_SHELLCHECK_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_SHELLCHECK_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -199,7 +199,7 @@ function inst64_shellcheck_select_packages() {
     INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
   elif [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_SHELLCHECK_VERSION" == 'latest' ]]; then
-      INST64_SHELLCHECK_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_SHELLCHECK_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='shellcheck-'
@@ -303,8 +303,8 @@ function inst64_shellcheck_initialize() {
   bl64_msg_show_setup 'Install application: ShellCheck' \
     'INST64_SHELLCHECK_METHOD' 'INST64_SYSTEM_WIDE' \
     'INST64_SHELLCHECK_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_SHELLCHECK_TARGET' \
     'INST64_SHELLCHECK_VERSION' \
     'INST64_CLI_PATH'

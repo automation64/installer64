@@ -63,8 +63,8 @@ declare INST64_YAZI_VERSION="${INST64_YAZI_VERSION:-latest}"
 # Installation method
 declare INST64_YAZI_METHOD="${INST64_YAZI_METHOD:-BINARY}"
 
-declare INST64_GIT_REPO_NAME='yazi'
-declare INST64_GIT_REPO_OWNER='sxyazi'
+declare INST64_GH_REPO_NAME='yazi'
+declare INST64_GH_REPO_OWNER='sxyazi'
 declare INST64_APP_PACKAGES=''
 declare INST64_YAZI_CLI_NAME_YAZI='yazi'
 declare INST64_YAZI_CLI_NAME_YA='ya'
@@ -92,7 +92,7 @@ function inst64_yazi_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_YAZI_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_YAZI_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_zip "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -234,7 +234,7 @@ function inst64_yazi_select_packages() {
   local package_suffix=''
   if [[ "$INST64_YAZI_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_YAZI_VERSION" == 'latest' ]]; then
-      INST64_YAZI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_YAZI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='yazi-'
@@ -292,8 +292,8 @@ function inst64_yazi_initialize() {
   bl64_msg_show_setup 'Install application: Yazi file manager' \
     'INST64_SYSTEM_WIDE' 'INST64_YAZI_METHOD' \
     'INST64_YAZI_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_YAZI_TARGET' \
     'INST64_YAZI_VERSION' \
     'INST64_YAZI_CLI_PATH_YAZI' \

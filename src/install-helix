@@ -62,8 +62,8 @@ declare INST64_HELIX_VERSION="${INST64_HELIX_VERSION:-latest}"
 # Installation method
 declare INST64_HELIX_METHOD="${INST64_HELIX_METHOD:-BINARY}"
 
-declare INST64_GIT_REPO_NAME='helix'
-declare INST64_GIT_REPO_OWNER='helix-editor'
+declare INST64_GH_REPO_NAME='helix'
+declare INST64_GH_REPO_OWNER='helix-editor'
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='hx'
 declare INST64_CLI_PATH=''
@@ -89,7 +89,7 @@ function inst64_helix_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_HELIX_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_HELIX_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -232,7 +232,7 @@ function inst64_helix_select_packages() {
   local package_suffix=''
   if [[ "$INST64_HELIX_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_HELIX_VERSION" == 'latest' ]]; then
-      INST64_HELIX_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_HELIX_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='helix-'
@@ -293,8 +293,8 @@ function inst64_helix_initialize() {
   bl64_msg_show_setup 'Install application: Helix Editor' \
     'INST64_SYSTEM_WIDE' 'INST64_HELIX_METHOD' \
     'INST64_HELIX_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_HELIX_TARGET' \
     'INST64_HELIX_VERSION' \
     'INST64_CLI_PATH'

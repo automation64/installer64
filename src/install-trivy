@@ -71,8 +71,8 @@ declare INST64_TRIVY_REPOSITORY_NAME='trivy'
 declare INST64_TRIVY_SOURCE_YUM='https://aquasecurity.github.io/trivy-repo/rpm/releases/9'
 declare INST64_TRIVY_REPOSITORY_KEY_YUM='https://aquasecurity.github.io/trivy-repo/rpm/public.key'
 
-declare INST64_GIT_REPO_NAME='trivy'
-declare INST64_GIT_REPO_OWNER='aquasecurity'
+declare INST64_GH_REPO_NAME='trivy'
+declare INST64_GH_REPO_OWNER='aquasecurity'
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='trivy'
 declare INST64_CLI_PATH=''
@@ -124,7 +124,7 @@ function inst64_trivy_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_TRIVY_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_TRIVY_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
     bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
@@ -212,7 +212,7 @@ function inst64_trivy_select_packages() {
   local package_suffix=''
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_TRIVY_VERSION" == 'latest' ]]; then
-      INST64_TRIVY_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_TRIVY_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='trivy_'
@@ -315,8 +315,8 @@ function inst64_trivy_initialize() {
   bl64_msg_show_setup 'Install application: Trivy' \
     'INST64_SYSTEM_WIDE' 'INST64_TRIVY_METHOD' \
     'INST64_TRIVY_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_TRIVY_TARGET' \
     'INST64_TRIVY_VERSION' \
     'INST64_CLI_PATH'

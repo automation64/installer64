@@ -62,8 +62,8 @@ declare INST64_CTOP_VERSION="${INST64_CTOP_VERSION:-latest}"
 # Installation method
 declare INST64_CTOP_METHOD="${INST64_CTOP_METHOD:-BINARY}"
 
-declare INST64_GIT_REPO_NAME='ctop'
-declare INST64_GIT_REPO_OWNER='bcicen'
+declare INST64_GH_REPO_NAME='ctop'
+declare INST64_GH_REPO_OWNER='bcicen'
 declare INST64_APP_PACKAGES=''
 declare INST64_CLI_NAME='ctop'
 declare INST64_CLI_PATH=''
@@ -90,7 +90,7 @@ function inst64_ctop_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_CTOP_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_CTOP_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -172,7 +172,7 @@ function inst64_ctop_select_packages() {
   local package_suffix=''
   if [[ "$INST64_CTOP_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_CTOP_VERSION" == 'latest' ]]; then
-      INST64_CTOP_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
+      INST64_CTOP_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='ctop-'
@@ -261,8 +261,8 @@ function inst64_ctop_initialize() {
   bl64_msg_show_setup 'Install application: CTop' \
     'INST64_SYSTEM_WIDE' 'INST64_CTOP_METHOD' \
     'INST64_CTOP_PLATFORM' \
-    'INST64_GIT_REPO_OWNER' \
-    'INST64_GIT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_CTOP_TARGET' \
     'INST64_CTOP_VERSION' \
     'INST64_CLI_PATH'
