@@ -78,7 +78,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_shellcheck_install_binary_release() {
+function inst64_shellcheck_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -169,7 +169,7 @@ function inst64_shellcheck_install() {
   if [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
     inst64_shellcheck_install_os_packages
   elif [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
-    inst64_shellcheck_install_binary_release
+    inst64_shellcheck_install_binary
   fi
 }
 

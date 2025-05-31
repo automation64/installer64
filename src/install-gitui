@@ -57,7 +57,7 @@ declare INST64_GITUI_METHOD="${INST64_GITUI_METHOD:-CUSTOM}"
 # Functions
 #
 
-function inst64_gitui_install_binary_release() {
+function inst64_gitui_install_binary() {
   bl64_dbg_app_show_function
   local repo_owner='extrawurst'
   local repo_name='gitui'
@@ -110,7 +110,7 @@ function inst64_gitui_install_binary_release() {
 #######################################
 function inst64_gitui_install() {
   bl64_dbg_app_show_function
-  inst64_gitui_install_binary_release
+  inst64_gitui_install_binary
 }
 
 #######################################

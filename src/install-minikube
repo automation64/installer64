@@ -61,7 +61,7 @@ declare INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
 # Functions
 #
 
-function inst64_minikube_install_binary_release() {
+function inst64_minikube_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -108,7 +108,7 @@ function inst64_minikube_install() {
   bl64_dbg_app_show_function
   inst64_minikube_select_packages || return $?
   if [[ "$INST64_MINIKUBE_METHOD" == 'BINARY' ]]; then
-    inst64_minikube_install_binary_release
+    inst64_minikube_install_binary
   fi
 }
 

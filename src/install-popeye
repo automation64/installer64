@@ -62,7 +62,7 @@ declare INST64_GH_REPO_OWNER='derailed'
 # Functions
 #
 
-function inst64_popeye_install_binary_release() {
+function inst64_popeye_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -107,7 +107,7 @@ function inst64_popeye_install() {
   bl64_dbg_app_show_function
   inst64_popeye_select_packages || return $?
   if [[ "$INST64_POPEYE_METHOD" == 'BINARY' ]]; then
-    inst64_popeye_install_binary_release
+    inst64_popeye_install_binary
   fi
 }
 

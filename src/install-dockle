@@ -63,7 +63,7 @@ declare INST64_CLI_NAME='dockle'
 # Functions
 #
 
-function inst64_dockle_install_binary_release() {
+function inst64_dockle_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -108,7 +108,7 @@ function inst64_dockle_install() {
   bl64_dbg_app_show_function
   inst64_dockle_select_packages || return $?
   if [[ "$INST64_DOCKLE_METHOD" == 'BINARY' ]]; then
-    inst64_dockle_install_binary_release
+    inst64_dockle_install_binary
   fi
 }
 

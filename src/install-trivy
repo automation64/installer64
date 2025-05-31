@@ -106,7 +106,7 @@ function inst64_trivy_install_external_packages() {
   bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
-function inst64_trivy_install_binary_release() {
+function inst64_trivy_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -189,7 +189,7 @@ function inst64_trivy_select_platform() {
 function inst64_trivy_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
-    inst64_trivy_install_binary_release
+    inst64_trivy_install_binary
   elif [[ "$INST64_TRIVY_METHOD" == 'EXTERNAL' ]]; then
     inst64_trivy_install_external_packages
   fi

@@ -138,7 +138,7 @@ function inst64_installer64_open_binary_package() {
   return 0
 }
 
-function inst64_installer64_install_binary_release() {
+function inst64_installer64_install_binary() {
   local package_name=''
 
   for package_name in $INST64_PKG_MAIN; do
@@ -190,7 +190,7 @@ inst64_installer64_select_platform() {
 #######################################
 function inst64_installer64_install() {
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
-    inst64_installer64_install_binary_release &&
+    inst64_installer64_install_binary &&
       "${INST64_INSTALLER64_TARGET}/install-bashlib64"
   fi
 }

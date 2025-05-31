@@ -63,7 +63,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_cosign_install_binary_release() {
+function inst64_cosign_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -114,7 +114,7 @@ function inst64_cosign_install() {
   bl64_dbg_app_show_function
   inst64_cosign_select_packages || return $?
   if [[ "$INST64_COSIGN_METHOD" == 'BINARY' ]]; then
-    inst64_cosign_install_binary_release
+    inst64_cosign_install_binary
   fi
 }
 

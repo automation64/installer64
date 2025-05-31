@@ -67,7 +67,7 @@ INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_binary_release() {
+function inst64_X_APP_NAME_X_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_work_path="${INST64_CLI_NAME}"
@@ -125,7 +125,7 @@ function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
-    inst64_X_APP_NAME_X_install_binary_release
+    inst64_X_APP_NAME_X_install_binary
   fi
 }
 

@@ -75,7 +75,7 @@ declare INST64_YAZI_CLI_PATH_YA=''
 # Functions
 #
 
-function inst64_yazi_install_binary_release() {
+function inst64_yazi_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -137,7 +137,7 @@ function inst64_yazi_prepare() {
 function inst64_yazi_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_YAZI_METHOD" == 'BINARY' ]]; then
-    inst64_yazi_install_binary_release
+    inst64_yazi_install_binary
   fi
 }
 

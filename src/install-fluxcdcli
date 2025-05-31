@@ -60,7 +60,7 @@ declare INST64_GH_REPO_OWNER='fluxcd'
 # Functions
 #
 
-function inst64_fluxcdcli_install_binary_release() {
+function inst64_fluxcdcli_install_binary() {
   bl64_dbg_app_show_function
   local package_prefix='flux_'
   local package_suffix='.tar.gz'
@@ -112,7 +112,7 @@ function inst64_fluxcdcli_install_binary_release() {
 function inst64_fluxcdcli_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_FLUXCDCLI_METHOD" == 'BINARY' ]]; then
-    inst64_fluxcdcli_install_binary_release
+    inst64_fluxcdcli_install_binary
   fi
 }
 

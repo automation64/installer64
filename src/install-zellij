@@ -72,7 +72,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_zellij_install_binary_release() {
+function inst64_zellij_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -158,7 +158,7 @@ function inst64_zellij_select_platform() {
 function inst64_zellij_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_ZELLIJ_METHOD" == 'BINARY' ]]; then
-    inst64_zellij_install_binary_release
+    inst64_zellij_install_binary
   fi
 }
 

@@ -71,7 +71,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_kubelinter_install_binary_release() {
+function inst64_kubelinter_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -149,7 +149,7 @@ function inst64_kubelinter_install() {
     inst64_kubelinter_select_packages ||
     return $?
   if [[ "$INST64_KUBELINTER_METHOD" == 'BINARY' ]]; then
-    inst64_kubelinter_install_binary_release
+    inst64_kubelinter_install_binary
   fi
 }
 

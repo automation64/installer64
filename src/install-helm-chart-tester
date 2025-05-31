@@ -60,7 +60,7 @@ declare INST64_CLI_NAME='ct'
 # Functions
 #
 
-function inst64_helmct_install_binary_release() {
+function inst64_helmct_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -105,7 +105,7 @@ function inst64_helmct_install() {
   bl64_dbg_app_show_function
   inst64_helmct_select_packages || return $?
   if [[ "$INST64_HELMCT_METHOD" == 'BINARY' ]]; then
-    inst64_helmct_install_binary_release
+    inst64_helmct_install_binary
   fi
 }
 

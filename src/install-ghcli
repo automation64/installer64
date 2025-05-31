@@ -84,7 +84,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_ghcli_install_binary_release() {
+function inst64_ghcli_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -200,7 +200,7 @@ function inst64_ghcli_install() {
   if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
     inst64_ghcli_install_external_packages
   elif [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
-    inst64_ghcli_install_binary_release
+    inst64_ghcli_install_binary
   fi
 }
 
