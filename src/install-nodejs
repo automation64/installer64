@@ -65,11 +65,11 @@ declare INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
 
 declare INST64_NODEJS_PACKAGE_URL=''
 declare INST64_NODEJS_INSTALLER=''
-declare INST64_NODEJS_PACKAGES=''
+declare INST64_APP_PACKAGES=''
 declare INST64_NODEJS_CLI_NAME_NODE='node'
 declare INST64_NODEJS_CLI_NAME_NPM='npm'
 declare INST64_NODEJS_CLI_NAME_NPX='npx'
-declare INST64_NODEJS_CLI_PATH=''
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -90,15 +90,15 @@ function inst64_nodejs_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_NODEJS_PACKAGE_URL}/${INST64_NODEJS_PACKAGES}" \
-      "${work_path}/${INST64_NODEJS_PACKAGES}" \
+      "${INST64_NODEJS_PACKAGE_URL}/${INST64_APP_PACKAGES}" \
+      "${work_path}/${INST64_APP_PACKAGES}" \
       'YES' \
       "$app_target_mode" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_NODEJS_TARGET" &&
-    bl64_arc_open_tar "${work_path}/${INST64_NODEJS_PACKAGES}" "${INST64_NODEJS_TARGET}" ||
+    bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${INST64_NODEJS_TARGET}" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -166,21 +166,21 @@ function inst64_nodejs_setup() {
   local app_component=''
 
   if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    app_cli_source="${INST64_NODEJS_TARGET}/${INST64_NODEJS_PACKAGES%.tar.gz}/bin"
+    app_cli_source="${INST64_NODEJS_TARGET}/${INST64_APP_PACKAGES%.tar.gz}/bin"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_msg_show_task "publish application to searchable path (${INST64_NODEJS_CLI_PATH})"
+      bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
       for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
         bl64_fs_symlink_create \
-          "${app_cli_source}/$app_component" "${INST64_NODEJS_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
+          "${app_cli_source}/$app_component" "${INST64_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
           return $?
       done
     else
-      bl64_msg_show_task "publish generic application name (${INST64_NODEJS_CLI_PATH})"
-      bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$INST64_NODEJS_CLI_PATH" ||
+      bl64_msg_show_task "publish generic application name (${INST64_CLI_PATH})"
+      bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$INST64_CLI_PATH" ||
         return $?
       for app_component in "$INST64_NODEJS_CLI_NAME_NODE" "$INST64_NODEJS_CLI_NAME_NPM" "$INST64_NODEJS_CLI_NAME_NPX"; do
         bl64_fs_symlink_create \
-          "${app_cli_source}/$app_component" "${INST64_NODEJS_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
+          "${app_cli_source}/$app_component" "${INST64_CLI_PATH}/${app_component}" "$BL64_VAR_ON" ||
           return $?
       done
     fi
@@ -201,10 +201,10 @@ function inst64_nodejs_setup() {
 function inst64_nodejs_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  export PATH="${PATH}:${INST64_NODEJS_CLI_PATH}"
-  "${INST64_NODEJS_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NODE}" --version &&
-    "${INST64_NODEJS_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NPM}" --version &&
-    "${INST64_NODEJS_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NPX}" --version
+  export PATH="${PATH}:${INST64_CLI_PATH}"
+  "${INST64_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NODE}" --version &&
+    "${INST64_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NPM}" --version &&
+    "${INST64_CLI_PATH}/${INST64_NODEJS_CLI_NAME_NPX}" --version
 }
 
 #######################################
@@ -260,16 +260,16 @@ function inst64_nodejs_select_packages() {
     fi
     package_prefix='node-'
     package_suffix='.tar.gz'
-    INST64_NODEJS_PACKAGES="${package_prefix}${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_suffix}"
+    INST64_APP_PACKAGES="${package_prefix}${INST64_NODEJS_VERSION}-${INST64_NODEJS_PLATFORM}${package_suffix}"
     INST64_NODEJS_PACKAGE_URL="${INST64_NODEJS_SOURCE}${INST64_NODEJS_VERSION}"
     [[ -z "$INST64_NODEJS_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_NODEJS_CLI_PATH="${INST64_LOCAL_BIN}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}"
     else
-      INST64_NODEJS_CLI_PATH="${INST64_NODEJS_TARGET}/bin"
+      INST64_CLI_PATH="${INST64_NODEJS_TARGET}/bin"
     fi
   fi
-  [[ -z "$INST64_NODEJS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -321,7 +321,7 @@ function inst64_nodejs_initialize() {
     'INST64_NODEJS_SOURCE' \
     'INST64_NODEJS_TARGET' \
     'INST64_NODEJS_VERSION' \
-    'INST64_NODEJS_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

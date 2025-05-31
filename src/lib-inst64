@@ -70,23 +70,19 @@
   declare INST64_CLI_MODE='0755'
 
   # Install progress status
-  declare INST64_X_APP_NAME_CAPS_X_STATUS='CONTINUE'
+  declare INST64_STATUS_FLAG='CONTINUE'
+  declare INST64_STATUS_PATH=''
 
   # Application packages
-  declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
+  declare INST64_APP_PACKAGES=''
 
-  # TBD
-  declare INST64_X_APP_NAME_CAPS_X_STATUS=''
-
-  # TBD
-  declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
-
-  # CLI command
-  declare INST64_X_APP_NAME_CAPS_X_CLI_NAME=''
+  # CLI information
+  declare INST64_CLI_NAME=''
+  declare INST64_CLI_PATH=''
 
   # Git repository information
-  declare INST64_X_APP_NAME_CAPS_X_REPO_NAME=''
-  declare INST64_X_APP_NAME_CAPS_X_REPO_OWNER=''
+  declare INST64_GIT_REPO_NAME=''
+  declare INST64_GIT_REPO_OWNER=''
 }
 
 #
@@ -193,12 +189,12 @@ function inst64_lib_target_set_owner() {
 #######################################
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function "$@"
-  [[ -n "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" ]] &&
+  [[ -n "$INST64_CLI_PATH" ]] &&
     return 0
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}"
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}"
   else
-    INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_USER_BIN}"
+    INST64_CLI_PATH="${INST64_USER_BIN}"
   fi
 }
 
@@ -237,11 +233,11 @@ function inst64_lib_check_installed() {
   bl64_dbg_app_show_function
   local app_target="INST64_${INST64_APP_ID}_TARGET"
   local app_version="INST64_${INST64_APP_ID}_VERSION"
-  INST64_X_APP_NAME_CAPS_X_STATUS="${!app_target}/.${BL64_SCRIPT_NAME}"
-  if [[ -f "$INST64_X_APP_NAME_CAPS_X_STATUS" ]]; then
-    if [[ "${!app_version}" == "$(<"$INST64_X_APP_NAME_CAPS_X_STATUS")" ]]; then
+  INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
+  if [[ -f "$INST64_STATUS_FLAG" ]]; then
+    if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
       bl64_msg_show_warning "application already installed. No further action taken (${app_version})"
-      INST64_X_APP_NAME_CAPS_X_STATUS='SKIP'
+      INST64_STATUS_FLAG='SKIP'
       return 0
     fi
   fi

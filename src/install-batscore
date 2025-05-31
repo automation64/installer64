@@ -66,12 +66,12 @@ declare INST64_BATSCORE_PACKAGE_URL=''
 declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_SUPPORT=''
 declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT=''
 declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILEexport=''
-declare INST64_BATSCORE_PACKAGES=''
+declare INST64_APP_PACKAGES=''
 declare INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT=''
 declare INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT=''
 declare INST64_BATSCORE_PACKAGES_PLUGIN_FILE=''
-declare INST64_BATSCORE_CLI_NAME='bats'
-declare INST64_BATSCORE_CLI_PATH=''
+declare INST64_CLI_NAME='bats'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -82,9 +82,9 @@ function inst64_batscore_install_custom_package() {
   local app_target_mode='0755'
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_BATSCORE_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_BATSCORE_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
   else
-    INST64_BATSCORE_CLI_PATH="${INST64_BATSCORE_TARGET}/${INST64_BATSCORE_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_BATSCORE_TARGET}/${INST64_CLI_NAME}"
   fi
 
   bl64_msg_show_task 'deploy application'
@@ -101,9 +101,9 @@ function inst64_batscore_install_custom_package() {
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_BATSCORE_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_BATSCORE_TARGET}/bin/${INST64_BATSCORE_CLI_NAME}" "$INST64_BATSCORE_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_BATSCORE_TARGET}/bin/${INST64_CLI_NAME}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
   return 0
@@ -142,11 +142,11 @@ function inst64_batscore_install() {
 function inst64_batscore_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
-    INST64_BATSCORE_PACKAGES='bats-core'
+    INST64_APP_PACKAGES='bats-core'
     INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT='bats-support'
     INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT='bats-assert'
     INST64_BATSCORE_PACKAGES_PLUGIN_FILE='bats-file'
-    INST64_BATSCORE_PACKAGE_URL="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES}.git"
+    INST64_BATSCORE_PACKAGE_URL="${INST64_BATSCORE_SOURCE}/${INST64_APP_PACKAGES}.git"
     INST64_BATSCORE_PACKAGE_URL_PLUGIN_SUPPORT="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT}.git"
     INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}.git"
     INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILE="${INST64_BATSCORE_SOURCE}/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}.git"
@@ -190,7 +190,7 @@ function inst64_batscore_verify() {
   bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT}" &&
   bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}" &&
   bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}" &&
-  "$INST64_BATSCORE_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################

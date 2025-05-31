@@ -53,8 +53,8 @@ declare INST64_FLUXCDCLI_VERSION="${INST64_FLUXCDCLI_VERSION:-latest}"
 # Installation method
 declare INST64_FLUXCDCLI_METHOD="${INST64_FLUXCDCLI_METHOD:-BINARY}"
 
-declare INST64_FLUXCDCLI_REPO_NAME='flux2'
-declare INST64_FLUXCDCLI_REPO_OWNER='fluxcd'
+declare INST64_GIT_REPO_NAME='flux2'
+declare INST64_GIT_REPO_OWNER='fluxcd'
 
 #
 # Functions
@@ -74,12 +74,12 @@ function inst64_fluxcdcli_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   if [[ "$INST64_FLUXCDCLI_VERSION" == 'latest' ]]; then
-    INST64_FLUXCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_FLUXCDCLI_REPO_OWNER" "$INST64_FLUXCDCLI_REPO_NAME")" ||
+    INST64_FLUXCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
       return $?
   fi
   package_name="${package_prefix}${INST64_FLUXCDCLI_VERSION:1}_${INST64_FLUXCDCLI_PLATFORM}${package_suffix}"
 
-  bl64_rxtx_github_get_asset "$INST64_FLUXCDCLI_REPO_OWNER" "$INST64_FLUXCDCLI_REPO_NAME" "$INST64_FLUXCDCLI_VERSION" "$package_name" "${work_path}/${package_name}" &&
+  bl64_rxtx_github_get_asset "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_FLUXCDCLI_VERSION" "$package_name" "${work_path}/${package_name}" &&
     bl64_arc_open_tar "${work_path}/${package_name}" "${work_path}" ||
     return $?
 

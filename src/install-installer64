@@ -44,7 +44,7 @@ declare INST64_INSTALLER64_SYSTEM_USER=''
 declare INST64_INSTALLER64_SYSTEM_GROUP=''
 declare INST64_INSTALLER64_DOWNLOAD_TOOL='none'
 declare INST64_INSTALLER64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
-declare INST64_INSTALLER64_PACKAGES=''
+declare INST64_APP_PACKAGES=''
 declare INST64_INSTALLER64_TARGET_MODE_DIR='0755'
 declare INST64_INSTALLER64_TARGET_MODE_FILE='0755'
 
@@ -141,7 +141,7 @@ function inst64_installer64_open_binary_package() {
 function inst64_installer64_install_binary_release() {
   local package_name=''
 
-  for package_name in $INST64_INSTALLER64_PACKAGES; do
+  for package_name in $INST64_APP_PACKAGES; do
     inst64_installer64_download_binary_package "$package_name" &&
       inst64_installer64_open_binary_package "$package_name" ||
       return $?
@@ -208,7 +208,7 @@ function inst64_installer64_install() {
 #######################################
 function inst64_installer64_select_packages() {
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
-    INST64_INSTALLER64_PACKAGES='installer64-scripts.tgz'
+    INST64_APP_PACKAGES='installer64-scripts.tgz'
     if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
       INST64_INSTALLER64_VERSION="$(inst64_installer64_identify_latest)" &&
         INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION##*:??}" &&
@@ -216,7 +216,7 @@ function inst64_installer64_select_packages() {
     fi
   fi
   [[ -z "$INST64_INSTALLER64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
-  [[ -z "$INST64_INSTALLER64_PACKAGES" ]] && echo 'Error: unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && echo 'Error: unable to determine package name' && return 1
   return 0
 }
 

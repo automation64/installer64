@@ -56,7 +56,7 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 # Install progress status
-declare INST64_VOLTA_STATUS='CONTINUE'
+declare INST64_STATUS_FLAG='CONTINUE'
 
 declare INST64_VOLTA_PLATFORM="${INST64_VOLTA_PLATFORM:-}"
 declare INST64_VOLTA_TARGET=''
@@ -65,11 +65,11 @@ declare INST64_VOLTA_INSTALLED=''
 # Installation method
 declare INST64_VOLTA_METHOD="${INST64_VOLTA_METHOD:-BINARY}"
 
-declare INST64_VOLTA_REPO_NAME='volta'
-declare INST64_VOLTA_REPO_OWNER='volta-cli'
-declare INST64_VOLTA_PACKAGES=''
-declare INST64_VOLTA_CLI_NAME='volta'
-declare INST64_VOLTA_CLI_PATH=''
+declare INST64_GIT_REPO_NAME='volta'
+declare INST64_GIT_REPO_OWNER='volta-cli'
+declare INST64_APP_PACKAGES=''
+declare INST64_CLI_NAME='volta'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -82,7 +82,7 @@ function inst64_volta_install_binary_release() {
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_work_path="${INST64_VOLTA_CLI_NAME}"
+  local app_work_path="${INST64_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -92,8 +92,8 @@ function inst64_volta_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_VOLTA_REPO_OWNER" "$INST64_VOLTA_REPO_NAME" "$INST64_VOLTA_VERSION" "$INST64_VOLTA_PACKAGES" "${work_path}/${INST64_VOLTA_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_VOLTA_PACKAGES}" "${work_path}" ||
+    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_VOLTA_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -123,7 +123,7 @@ function inst64_volta_install_binary_release() {
 #######################################
 function inst64_volta_prepare() {
   bl64_dbg_app_show_function
-  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -145,7 +145,7 @@ function inst64_volta_prepare() {
 #######################################
 function inst64_volta_install() {
   bl64_dbg_app_show_function
-  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     inst64_volta_install_binary_release
   fi
@@ -165,13 +165,13 @@ function inst64_volta_install() {
 function inst64_volta_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
-  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
-    app_cli_source="${INST64_VOLTA_TARGET}/${INST64_VOLTA_CLI_NAME}"
-    bl64_msg_show_task "publish application to searchable path (${INST64_VOLTA_CLI_PATH})"
+    app_cli_source="${INST64_VOLTA_TARGET}/${INST64_CLI_NAME}"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${app_cli_source}" "$INST64_VOLTA_CLI_PATH" "$BL64_VAR_ON" &&
-      bl64_fs_symlink_create "${app_cli_source}-migrate" "${INST64_VOLTA_CLI_PATH}-migrate" "$BL64_VAR_ON"
+    bl64_fs_symlink_create "${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" &&
+      bl64_fs_symlink_create "${app_cli_source}-migrate" "${INST64_CLI_PATH}-migrate" "$BL64_VAR_ON"
   fi
 }
 
@@ -188,10 +188,10 @@ function inst64_volta_setup() {
 #######################################
 function inst64_volta_verify() {
   bl64_dbg_app_show_function
-  [[ "$INST64_VOLTA_STATUS" == 'SKIP' ]] && return 0
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
   cd "$HOME" &&
-    "$INST64_VOLTA_CLI_PATH" --version
+    "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -242,19 +242,19 @@ function inst64_volta_select_packages() {
   local package_suffix=''
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_VOLTA_VERSION" == 'latest' ]]; then
-      INST64_VOLTA_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_VOLTA_REPO_OWNER" "$INST64_VOLTA_REPO_NAME")" ||
+      INST64_VOLTA_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
         return $?
     fi
     package_prefix='volta-'
     package_suffix='.tar.gz'
-    INST64_VOLTA_PACKAGES="${package_prefix}${INST64_VOLTA_VERSION#v}-${INST64_VOLTA_PLATFORM}${package_suffix}"
+    INST64_APP_PACKAGES="${package_prefix}${INST64_VOLTA_VERSION#v}-${INST64_VOLTA_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_VOLTA_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_VOLTA_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_VOLTA_CLI_PATH="${INST64_USER_BIN}/${INST64_VOLTA_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_USER_BIN}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_VOLTA_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -305,18 +305,18 @@ function inst64_volta_initialize() {
   if [[ -f "$INST64_VOLTA_INSTALLED" ]]; then
     if [[ "$INST64_VOLTA_VERSION" == "$(<"$INST64_VOLTA_INSTALLED")" ]]; then
       bl64_msg_show_warning "application already installed. No further action taken (${INST64_VOLTA_VERSION})"
-      INST64_VOLTA_STATUS='SKIP'
+      INST64_STATUS_FLAG='SKIP'
       return 0
     fi
   fi
   bl64_msg_show_setup 'Install application: Volta' \
     'INST64_SYSTEM_WIDE' 'INST64_VOLTA_METHOD' \
     'INST64_VOLTA_PLATFORM' \
-    'INST64_VOLTA_REPO_OWNER' \
-    'INST64_VOLTA_REPO_NAME' \
+    'INST64_GIT_REPO_OWNER' \
+    'INST64_GIT_REPO_NAME' \
     'INST64_VOLTA_TARGET' \
     'INST64_VOLTA_VERSION' \
-    'INST64_VOLTA_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

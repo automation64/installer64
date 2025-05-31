@@ -1,3 +1,3 @@
 # X_INSTALL_DOWNLOAD_PLACEHOLDER_X
-    bl64_arc_open_zip "${work_path}/${INST64_X_APP_NAME_CAPS_X_PACKAGES}" "${work_path}" ||
+    bl64_arc_open_zip "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?

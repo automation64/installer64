@@ -62,9 +62,9 @@ declare INST64_TESTSSL_BRANCH="${INST64_TESTSSL_BRANCH:-3.2}"
 declare INST64_TESTSSL_METHOD="${INST64_TESTSSL_METHOD:-GIT}"
 
 declare INST64_TESTSSL_INSTALLER=''
-declare INST64_TESTSSL_PACKAGES=''
-declare INST64_TESTSSL_CLI_NAME='testssl.sh'
-declare INST64_TESTSSL_CLI_PATH=''
+declare INST64_APP_PACKAGES=''
+declare INST64_CLI_NAME='testssl.sh'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -76,9 +76,9 @@ function inst64_testssl_install_git_repo() {
   local app_target_owner='root'
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_TESTSSL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_TESTSSL_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
   else
-    INST64_TESTSSL_CLI_PATH="${INST64_TESTSSL_TARGET}/${INST64_TESTSSL_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_TESTSSL_TARGET}/${INST64_CLI_NAME}"
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
@@ -103,9 +103,9 @@ function inst64_testssl_install_git_repo() {
   fi
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_TESTSSL_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_TESTSSL_TARGET}/${INST64_TESTSSL_CLI_NAME}" "$INST64_TESTSSL_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_TESTSSL_TARGET}/${INST64_CLI_NAME}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -144,9 +144,9 @@ function inst64_testssl_install() {
 function inst64_testssl_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_TESTSSL_METHOD" == 'GIT' ]]; then
-    INST64_TESTSSL_PACKAGES='NONE'
+    INST64_APP_PACKAGES='NONE'
   fi
-  [[ -z "$INST64_TESTSSL_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -181,7 +181,7 @@ function inst64_testssl_prepare() {
 function inst64_testssl_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_TESTSSL_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################

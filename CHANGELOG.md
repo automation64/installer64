@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core
   - Shared library lib-inst64
 
+### Changed
+
+- All
+  - Normalized internal variable names
+
 ## [5.11.0]
 
 ### Added

@@ -62,11 +62,11 @@ declare INST64_ARGOCDCLI_VERSION="${INST64_ARGOCDCLI_VERSION:-latest}"
 # Installation method
 declare INST64_ARGOCDCLI_METHOD="${INST64_ARGOCDCLI_METHOD:-BINARY}"
 
-declare INST64_ARGOCDCLI_REPO_NAME='argo-cd'
-declare INST64_ARGOCDCLI_REPO_OWNER='argoproj'
-declare INST64_ARGOCDCLI_PACKAGES=''
-declare INST64_ARGOCDCLI_CLI_NAME='argocd'
-declare INST64_ARGOCDCLI_CLI_PATH=''
+declare INST64_GIT_REPO_NAME='argo-cd'
+declare INST64_GIT_REPO_OWNER='argoproj'
+declare INST64_APP_PACKAGES=''
+declare INST64_CLI_NAME='argocd'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -79,7 +79,7 @@ function inst64_argocdcli_install_binary_release() {
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_ARGOCDCLI_CLI_NAME}-${INST64_ARGOCDCLI_PLATFORM}"
+  local app_cli_source="${INST64_CLI_NAME}-${INST64_ARGOCDCLI_PLATFORM}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -89,7 +89,7 @@ function inst64_argocdcli_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_ARGOCDCLI_REPO_OWNER" "$INST64_ARGOCDCLI_REPO_NAME" "$INST64_ARGOCDCLI_VERSION" "$INST64_ARGOCDCLI_PACKAGES" "${work_path}/${INST64_ARGOCDCLI_PACKAGES}" ||
+    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_ARGOCDCLI_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -98,13 +98,13 @@ function inst64_argocdcli_install_binary_release() {
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_ARGOCDCLI_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_ARGOCDCLI_TARGET}/${app_cli_source}" "$INST64_ARGOCDCLI_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_ARGOCDCLI_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   else
-    bl64_msg_show_task "normalize CLI name (${INST64_ARGOCDCLI_CLI_PATH})"
-    bl64_fs_symlink_create "${INST64_ARGOCDCLI_TARGET}/${app_cli_source}" "$INST64_ARGOCDCLI_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_msg_show_task "normalize CLI name (${INST64_CLI_PATH})"
+    bl64_fs_symlink_create "${INST64_ARGOCDCLI_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -176,19 +176,19 @@ function inst64_argocdcli_select_packages() {
   local package_suffix=''
   if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_ARGOCDCLI_VERSION" == 'latest' ]]; then
-      INST64_ARGOCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_ARGOCDCLI_REPO_OWNER" "$INST64_ARGOCDCLI_REPO_NAME")" ||
+      INST64_ARGOCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
         return $?
     fi
     package_prefix='argocd-'
     package_suffix=''
-    INST64_ARGOCDCLI_PACKAGES="${package_prefix}${INST64_ARGOCDCLI_PLATFORM}${package_suffix}"
+    INST64_APP_PACKAGES="${package_prefix}${INST64_ARGOCDCLI_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_ARGOCDCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ARGOCDCLI_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_ARGOCDCLI_CLI_PATH="${INST64_ARGOCDCLI_TARGET}/${INST64_ARGOCDCLI_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_ARGOCDCLI_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_ARGOCDCLI_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -225,7 +225,7 @@ function inst64_argocdcli_prepare() {
 function inst64_argocdcli_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_ARGOCDCLI_CLI_PATH" version --client
+  "$INST64_CLI_PATH" version --client
 }
 
 #######################################
@@ -265,11 +265,11 @@ function inst64_argocdcli_initialize() {
   bl64_msg_show_setup 'Install application: ArgoCD CLI' \
     'INST64_ARGOCDCLI_METHOD' 'INST64_SYSTEM_WIDE' \
     'INST64_ARGOCDCLI_PLATFORM' \
-    'INST64_ARGOCDCLI_REPO_OWNER' \
-    'INST64_ARGOCDCLI_REPO_NAME' \
+    'INST64_GIT_REPO_OWNER' \
+    'INST64_GIT_REPO_NAME' \
     'INST64_ARGOCDCLI_TARGET' \
     'INST64_ARGOCDCLI_VERSION' \
-    'INST64_ARGOCDCLI_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

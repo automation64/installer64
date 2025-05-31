@@ -60,9 +60,9 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 declare INST64_YAMLLINT_METHOD="${INST64_YAMLLINT_METHOD:-NATIVE}"
 # Enable development packages?
 declare INST64_YAMLLINT_DEVELOPMENT="${INST64_YAMLLINT_DEVELOPMENT:-$BL64_VAR_OFF}"
-declare INST64_YAMLLINT_PACKAGES=''
-declare INST64_YAMLLINT_CLI_NAME='yamllint'
-declare INST64_YAMLLINT_CLI_PATH=''
+declare INST64_APP_PACKAGES=''
+declare INST64_CLI_NAME='yamllint'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -71,9 +71,9 @@ declare INST64_YAMLLINT_CLI_PATH=''
 function inst64_yamllint_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
-  INST64_YAMLLINT_CLI_PATH="/usr/bin/${INST64_YAMLLINT_CLI_NAME}"
+  INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_YAMLLINT_PACKAGES
+  bl64_pkg_deploy $INST64_APP_PACKAGES
 }
 
 #######################################
@@ -110,10 +110,10 @@ function inst64_yamllint_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_YAMLLINT_METHOD" == 'NATIVE' ]]; then
     if bl64_os_is_distro "$BL64_OS_UB" "$BL64_OS_ALP"; then
-      INST64_YAMLLINT_PACKAGES='yamllint'
+      INST64_APP_PACKAGES='yamllint'
     fi
   fi
-  [[ -z "$INST64_YAMLLINT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -150,7 +150,7 @@ function inst64_yamllint_prepare() {
 function inst64_yamllint_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_YAMLLINT_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################

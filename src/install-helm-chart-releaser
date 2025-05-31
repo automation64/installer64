@@ -50,8 +50,8 @@ declare INST64_HCR_VERSION="${INST64_HCR_VERSION:-latest}"
 # Installation method
 declare INST64_HCR_METHOD="${INST64_HCR_METHOD:-CUSTOM}"
 
-declare INST64_HCR_REPO_NAME='chart-releaser'
-declare INST64_HCR_REPO_OWNER='helm'
+declare INST64_GIT_REPO_NAME='chart-releaser'
+declare INST64_GIT_REPO_OWNER='helm'
 
 #
 # Functions
@@ -72,7 +72,7 @@ function inst64_hcr_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   if [[ "$INST64_HCR_VERSION" == 'latest' ]]; then
-    INST64_HCR_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_HCR_REPO_OWNER" "$INST64_HCR_REPO_NAME")" ||
+    INST64_HCR_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
       return $?
     INST64_HCR_VERSION="${INST64_HCR_VERSION#v}"
   fi

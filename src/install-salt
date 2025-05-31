@@ -62,9 +62,9 @@ declare INST64_SALT_METHOD="${INST64_SALT_METHOD:-NATIVE}"
 declare INST64_SALT_DEVELOPMENT="${INST64_SALT_DEVELOPMENT:-$BL64_VAR_OFF}"
 declare INST64_SALT_PLATFORM="${INST64_SALT_PLATFORM:-}"
 
-declare INST64_SALT_PACKAGES=''
-declare INST64_SALT_CLI_NAME='salt'
-declare INST64_SALT_CLI_PATH=''
+declare INST64_APP_PACKAGES=''
+declare INST64_CLI_NAME='salt'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -73,9 +73,9 @@ declare INST64_SALT_CLI_PATH=''
 function inst64_salt_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
-  INST64_SALT_CLI_PATH="/usr/bin/${INST64_SALT_CLI_NAME}"
+  INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_SALT_PACKAGES
+  bl64_pkg_deploy $INST64_APP_PACKAGES
 }
 
 #######################################
@@ -133,29 +133,29 @@ function inst64_salt_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
     if bl64_os_is_distro "${BL64_OS_FD}"; then
-      INST64_SALT_PACKAGES=''
-      INST64_SALT_PACKAGES+=' salt-api'
-      INST64_SALT_PACKAGES+=' salt-cloud'
-      INST64_SALT_PACKAGES+=' salt-master'
-      INST64_SALT_PACKAGES+=' salt-minion'
-      INST64_SALT_PACKAGES+=' salt-ssh'
-      INST64_SALT_PACKAGES+=' salt-syndic'
-      INST64_SALT_PACKAGES+=' salt'
+      INST64_APP_PACKAGES=''
+      INST64_APP_PACKAGES+=' salt-api'
+      INST64_APP_PACKAGES+=' salt-cloud'
+      INST64_APP_PACKAGES+=' salt-master'
+      INST64_APP_PACKAGES+=' salt-minion'
+      INST64_APP_PACKAGES+=' salt-ssh'
+      INST64_APP_PACKAGES+=' salt-syndic'
+      INST64_APP_PACKAGES+=' salt'
       bl64_lib_flag_is_enabled "$INST64_SALT_DEVELOPMENT" &&
-        INST64_SALT_PACKAGES="${INST64_SALT_PACKAGES}"
+        INST64_APP_PACKAGES="${INST64_APP_PACKAGES}"
     elif bl64_os_is_distro "${BL64_OS_UB}"; then
-      INST64_SALT_PACKAGES=''
-      INST64_SALT_PACKAGES+=' salt-api'
-      INST64_SALT_PACKAGES+=' salt-cloud'
-      INST64_SALT_PACKAGES+=' salt-master'
-      INST64_SALT_PACKAGES+=' salt-minion'
-      INST64_SALT_PACKAGES+=' salt-ssh'
-      INST64_SALT_PACKAGES+=' salt-syndic'
+      INST64_APP_PACKAGES=''
+      INST64_APP_PACKAGES+=' salt-api'
+      INST64_APP_PACKAGES+=' salt-cloud'
+      INST64_APP_PACKAGES+=' salt-master'
+      INST64_APP_PACKAGES+=' salt-minion'
+      INST64_APP_PACKAGES+=' salt-ssh'
+      INST64_APP_PACKAGES+=' salt-syndic'
       bl64_lib_flag_is_enabled "$INST64_SALT_DEVELOPMENT" &&
-        INST64_SALT_PACKAGES="${INST64_SALT_PACKAGES}"
+        INST64_APP_PACKAGES="${INST64_APP_PACKAGES}"
     fi
   fi
-  [[ -z "$INST64_SALT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -194,7 +194,7 @@ function inst64_salt_prepare() {
 function inst64_salt_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_SALT_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################

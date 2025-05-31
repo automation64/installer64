@@ -64,9 +64,9 @@ declare INST64_X_APP_NAME_CAPS_X_BRANCH="${INST64_X_APP_NAME_CAPS_X_BRANCH:-main
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-GIT}"
 
 declare INST64_X_APP_NAME_CAPS_X_INSTALLER=''
-declare INST64_X_APP_NAME_CAPS_X_PACKAGES=''
-declare INST64_X_APP_NAME_CAPS_X_CLI_NAME='X_CLI_NAME_X'
-declare INST64_X_APP_NAME_CAPS_X_CLI_PATH=''
+declare INST64_APP_PACKAGES=''
+declare INST64_CLI_NAME='X_CLI_NAME_X'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -77,7 +77,7 @@ function inst64_X_APP_NAME_X_install_git_repo() {
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
-  local app_cli_source="${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+  local app_cli_source="${INST64_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -105,9 +105,9 @@ function inst64_X_APP_NAME_X_install_git_repo() {
   fi
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_X_APP_NAME_CAPS_X_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_X_APP_NAME_CAPS_X_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -146,14 +146,14 @@ function inst64_X_APP_NAME_X_install() {
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'GIT' ]]; then
-    INST64_X_APP_NAME_CAPS_X_PACKAGES='NONE'
+    INST64_APP_PACKAGES='NONE'
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_X_APP_NAME_CAPS_X_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_X_APP_NAME_CAPS_X_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -187,7 +187,7 @@ function inst64_X_APP_NAME_X_prepare() {
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_X_APP_NAME_CAPS_X_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -230,7 +230,7 @@ function inst64_X_APP_NAME_X_initialize() {
     'INST64_X_APP_NAME_CAPS_X_GIT_REPO' \
     'INST64_X_APP_NAME_CAPS_X_BRANCH' \
     'INST64_X_APP_NAME_CAPS_X_TARGET' \
-    'INST64_X_APP_NAME_CAPS_X_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

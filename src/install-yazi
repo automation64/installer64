@@ -63,9 +63,9 @@ declare INST64_YAZI_VERSION="${INST64_YAZI_VERSION:-latest}"
 # Installation method
 declare INST64_YAZI_METHOD="${INST64_YAZI_METHOD:-BINARY}"
 
-declare INST64_YAZI_REPO_NAME='yazi'
-declare INST64_YAZI_REPO_OWNER='sxyazi'
-declare INST64_YAZI_PACKAGES=''
+declare INST64_GIT_REPO_NAME='yazi'
+declare INST64_GIT_REPO_OWNER='sxyazi'
+declare INST64_APP_PACKAGES=''
 declare INST64_YAZI_CLI_NAME_YAZI='yazi'
 declare INST64_YAZI_CLI_NAME_YA='ya'
 declare INST64_YAZI_CLI_PATH_YAZI=''
@@ -92,8 +92,8 @@ function inst64_yazi_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_YAZI_REPO_OWNER" "$INST64_YAZI_REPO_NAME" "$INST64_YAZI_VERSION" "$INST64_YAZI_PACKAGES" "${work_path}/${INST64_YAZI_PACKAGES}" &&
-    bl64_arc_open_zip "${work_path}/${INST64_YAZI_PACKAGES}" "${work_path}" ||
+    "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME" "$INST64_YAZI_VERSION" "$INST64_APP_PACKAGES" "${work_path}/${INST64_APP_PACKAGES}" &&
+    bl64_arc_open_zip "${work_path}/${INST64_APP_PACKAGES}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -234,12 +234,12 @@ function inst64_yazi_select_packages() {
   local package_suffix=''
   if [[ "$INST64_YAZI_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_YAZI_VERSION" == 'latest' ]]; then
-      INST64_YAZI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_YAZI_REPO_OWNER" "$INST64_YAZI_REPO_NAME")" ||
+      INST64_YAZI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GIT_REPO_OWNER" "$INST64_GIT_REPO_NAME")" ||
         return $?
     fi
     package_prefix='yazi-'
     package_suffix='.zip'
-    INST64_YAZI_PACKAGES="${package_prefix}${INST64_YAZI_PLATFORM}${package_suffix}"
+    INST64_APP_PACKAGES="${package_prefix}${INST64_YAZI_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_YAZI_CLI_PATH_YAZI="${INST64_LOCAL_BIN}/${INST64_YAZI_CLI_NAME_YAZI}"
       INST64_YAZI_CLI_PATH_YA="${INST64_LOCAL_BIN}/${INST64_YAZI_CLI_NAME_YA}"
@@ -248,7 +248,7 @@ function inst64_yazi_select_packages() {
       INST64_YAZI_CLI_PATH_YA="${INST64_YAZI_TARGET}/${INST64_YAZI_CLI_NAME_YA}"
     fi
   fi
-  [[ -z "$INST64_YAZI_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_APP_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -292,8 +292,8 @@ function inst64_yazi_initialize() {
   bl64_msg_show_setup 'Install application: Yazi file manager' \
     'INST64_SYSTEM_WIDE' 'INST64_YAZI_METHOD' \
     'INST64_YAZI_PLATFORM' \
-    'INST64_YAZI_REPO_OWNER' \
-    'INST64_YAZI_REPO_NAME' \
+    'INST64_GIT_REPO_OWNER' \
+    'INST64_GIT_REPO_NAME' \
     'INST64_YAZI_TARGET' \
     'INST64_YAZI_VERSION' \
     'INST64_YAZI_CLI_PATH_YAZI' \
