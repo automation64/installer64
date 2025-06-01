@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All
   - Normalized internal variable names
 - **breaking-change** Installers migrated to lib-inst64
+  - sysden64
   - sysop64
+  - devbin64
 
 ## [5.11.0]
 

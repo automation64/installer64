@@ -358,8 +358,7 @@ function inst64_lib_alert_incompatible_platform() {
 #   >0: error
 #######################################
 function inst64_lib_app_register_version() {
-  bl64_dbg_app_show_function "$@"
-  local version="$1"
-  bl64_check_parameter 'version' &&
-    echo "$version" >"$INST64_STATUS_PATH"
+  bl64_dbg_app_show_function
+  local version="INST64_${INST64_APP_ID}_VERSION"
+  echo "${!version}" >"$INST64_STATUS_PATH"
 }

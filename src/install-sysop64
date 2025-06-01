@@ -56,7 +56,6 @@ INST64_PKG_MAIN_SUFFIX='.tar.gz'
 function inst64_sysop64_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
-  local app_work_path="${INST64_CLI_NAME}"
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
@@ -68,7 +67,8 @@ function inst64_sysop64_install_binary() {
   bl64_fs_path_remove "$INST64_SYSOP64_TARGET"
   bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_SYSOP64_TARGET" &&
     bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "$INST64_SYSOP64_TARGET" &&
-    inst64_lib_app_register_version "$INST64_SYSOP64_VERSION" ||
+    bl64_fs_path_permission_set "$INST64_TARGET_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$BL64_VAR_ON" \
+      "$INST64_SYSOP64_TARGET" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -110,7 +110,8 @@ function inst64_sysop64_verify() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
   [[ -d "$INST64_SYSOP64_TARGET" ]] &&
-    "${INST64_CLI_PATH}/${INST64_CLI_NAME}"
+    "${INST64_CLI_PATH}/${INST64_CLI_NAME}" &&
+    inst64_lib_app_register_version
 }
 
 function inst64_sysop64_select_platform() {

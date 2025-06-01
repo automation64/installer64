@@ -36,7 +36,7 @@ declare INST64_APP_INSTALLER='install.sh'
 declare INST64_CLI_NAME='brew'
 declare INST64_CLI_PATH=''
 
-declare INST64_HOMEBREW_DOWNLOAD_TOOL='none'
+declare INST64_WEB_CMD_GET='none'
 declare INST64_HOMEBREW_OS=''
 
 #
@@ -52,16 +52,16 @@ function inst64_homebrew_os_detect() {
 function inst64_homebrew_download_custom_package() {
   echo "Task: download application (${INST64_PKG_MAIN})"
   # shellcheck disable=SC2249
-  case "$INST64_HOMEBREW_DOWNLOAD_TOOL" in
+  case "$INST64_WEB_CMD_GET" in
   'curl')
-    "$INST64_HOMEBREW_DOWNLOAD_TOOL" \
+    "$INST64_WEB_CMD_GET" \
       -s \
       -L \
       -o "$INST64_APP_INSTALLER" \
       "$INST64_WEB_REPO_URL"
     ;;
   'wget')
-    "$INST64_HOMEBREW_DOWNLOAD_TOOL" \
+    "$INST64_WEB_CMD_GET" \
       -q \
       -O "$INST64_APP_INSTALLER" \
       "$INST64_WEB_REPO_URL"
@@ -203,9 +203,9 @@ function inst64_homebrew_initialize() {
     return 1
 
   if command -v 'curl' >/dev/null 2>&1; then
-    INST64_HOMEBREW_DOWNLOAD_TOOL='curl'
+    INST64_WEB_CMD_GET='curl'
   elif command -v 'wget' >/dev/null 2>&1; then
-    INST64_HOMEBREW_DOWNLOAD_TOOL='wget'
+    INST64_WEB_CMD_GET='wget'
   else
     echo 'Error: no download tool found (curl, wget)'
     return 1

@@ -82,8 +82,7 @@ function inst64_X_APP_NAME_X_install_binary() {
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_work_path}" &&
-    echo "$INST64_X_APP_NAME_CAPS_X_VERSION" >"$INST64_STATUS_FLAG" ||
+    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_X_APP_NAME_CAPS_X_TARGET" "${work_path}/${app_work_path}" ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -124,7 +123,8 @@ function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version &&
+    inst64_lib_app_register_version
 }
 
 function inst64_X_APP_NAME_X_select_platform() {
