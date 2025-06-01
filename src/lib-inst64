@@ -25,27 +25,22 @@
 
   # Enable debugging? Set to YES to enable
   declare INST64_DEBUG="${INST64_DEBUG:-}"
-
   # Base path for local applications
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-
   # Local applications binaries location
   declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-
   # User applications binaries location
   declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-
   # Location for temporary files
   declare INST64_TMP="${INST64_TMP:-/tmp}"
-
   # Base path for 3rd party applications
   declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
-
   # Install system wide? Requires root privilege
   declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+  # Replace if already installed?
+  declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
 
   #
   # Global definitions
@@ -228,7 +223,7 @@ function inst64_lib_cli_set_path() {
 #   0: success
 #   >0: error
 #######################################
-function inst64_lib_check_method() {
+function inst64_lib_app_check_method() {
   bl64_dbg_app_show_function "$@"
   local requested="INST64_${INST64_APP_ID}_METHOD"
   bl64_fmt_list_check_membership \
@@ -248,16 +243,18 @@ function inst64_lib_check_method() {
 #   0: success
 #   >0: error
 #######################################
-function inst64_lib_check_installed() {
+function inst64_lib_app_check_installed() {
   bl64_dbg_app_show_function
   local app_target="INST64_${INST64_APP_ID}_TARGET"
   local app_version="INST64_${INST64_APP_ID}_VERSION"
   INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
-  if [[ -f "$INST64_STATUS_FLAG" ]]; then
+  if [[ -f "$INST64_STATUS_PATH" ]]; then
     if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
-      bl64_msg_show_warning "application already installed. No further action taken (${app_version})"
-      INST64_STATUS_FLAG='SKIP'
-      return 0
+      if ! bl64_lib_flag_is_enabled "$INST64_REPLACE_INSTALLED"; then
+        bl64_msg_show_warning "application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
+        INST64_STATUS_FLAG='SKIP'
+        return 0
+      fi
     fi
   fi
 }
@@ -344,4 +341,25 @@ function inst64_lib_alert_incompatible_platform() {
   bl64_dbg_app_show_function
   bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
   return $BL64_LIB_ERROR_OS_INCOMPATIBLE
+}
+
+#######################################
+# Register current app version.
+#
+# * Optional function used mainly by BINARY installation methods
+# * Used to register the current application version in the status file
+#
+# Arguments:
+#   $1: Application version
+# Outputs:
+#   Errors
+# Returns:
+#   0: success
+#   >0: error
+#######################################
+function inst64_lib_app_register_version() {
+  bl64_dbg_app_show_function "$@"
+  local version="$1"
+  bl64_check_parameter 'version' &&
+    echo "$version" >"$INST64_STATUS_PATH"
 }
