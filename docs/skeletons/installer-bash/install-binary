@@ -37,7 +37,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 # shellcheck source-path=src disable=SC2015
 source "${BL64_SCRIPT_PATH}/lib-inst64" ||
-  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-inst64)" && exit 1; }
 
 #
 # Globals
@@ -59,6 +59,10 @@ INST64_CLI_NAME='X_CLI_NAME_X'
 INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 
 # X_GLOBALS_METHOD_PLACEHOLDER_X
+INST64_GH_REPO_NAME='X_REPO_NAME_X'
+INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
+INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
+INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
 
 #
 # Functions
@@ -87,17 +91,6 @@ function inst64_X_APP_NAME_X_install_binary() {
   return 0
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
@@ -107,17 +100,6 @@ function inst64_X_APP_NAME_X_prepare() {
   fi
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
@@ -126,17 +108,6 @@ function inst64_X_APP_NAME_X_install() {
   fi
 }
 
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
 function inst64_X_APP_NAME_X_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
@@ -149,17 +120,6 @@ function inst64_X_APP_NAME_X_setup() {
   fi
 }
 
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
@@ -167,72 +127,34 @@ function inst64_X_APP_NAME_X_verify() {
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
 function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      : # X_PLATFORM_SELECTION_PLACEHOLDER_X
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X
+      INST64_X_APP_NAME_CAPS_X_PLATFORM='ALL'
     fi
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
 function inst64_X_APP_NAME_X_select_packages() {
-  bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_suffix=''
+  bl64_dbg_app_show_functionPREFIX
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='X_PACKAGE_PREFIX_X'
-    package_suffix='X_PACKAGE_SUFIX_X'
-    INST64_PKG_MAIN='X_PACKAGE_NAME_PLACEHOLDER_X'
+    INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
   fi
   [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  inst64_lib_check_method \
+  inst64_lib_app_check_method \
     'BINARY' &&
     inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
@@ -254,7 +176,7 @@ function inst64_X_APP_NAME_X_initialize() {
   inst64_X_APP_NAME_X_select_platform &&
     inst64_X_APP_NAME_X_select_packages ||
     return $?
-  inst64_lib_check_installed && return 0
+  inst64_lib_app_check_installed && return 0
   inst64_lib_show_parameters
 }
 
