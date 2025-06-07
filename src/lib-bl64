@@ -79,7 +79,7 @@
   declare INST64_CPU_DARWIN_ARM64=''
   declare INST64_CPU_LINUX_AMD64=''
   declare INST64_CPU_LINUX_ARM64=''
-  declare INST64_CPU_ALL_ALL=''
+  declare INST64_CPU_ALL_ALL='none'
 
   # Custom application installer
   declare INST64_APP_INSTALLER=''
