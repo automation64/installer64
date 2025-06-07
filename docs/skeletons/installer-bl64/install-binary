@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-binary-1.0.0
-#   Skeleton: installer-bl64-5.0.0
+# Template: install-bl64-binary-1.0.0
+#   Skeleton: install-bl64-custom-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bash-binary-1.0.0
-#   Skeleton: installer-bash-1.0.0
+#   Skeleton: install-bash-custom-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-base-5.0.0
+# Template: install-bl64-custom-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -70,8 +70,7 @@ INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 #######################################
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  bl64_msg_show_task 'prepare deployment'
+  inst64_lib_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
     : # X_PREPARE_PLACEHOLDER_X
   fi
@@ -90,7 +89,7 @@ function inst64_X_APP_NAME_X_prepare() {
 #######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
+  inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
@@ -109,7 +108,7 @@ function inst64_X_APP_NAME_X_install() {
 #######################################
 function inst64_X_APP_NAME_X_setup() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
+  inst64_lib_step_setup || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
@@ -128,8 +127,7 @@ function inst64_X_APP_NAME_X_setup() {
 #######################################
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  bl64_msg_show_task 'verify deployment'
+  inst64_lib_step_verify || return 0
   # X_VERIFY_PLACEHOLDER_X
 }
 
