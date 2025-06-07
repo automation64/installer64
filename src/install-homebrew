@@ -56,7 +56,7 @@ INST64_APP_INSTALLER='install.sh'
 # Functions
 #
 
-function inst64_homebrew_install_binary() {
+function inst64_homebrew_install_custom() {
   local installer_path=''
   inst64_lib_gh_asset_download "$INST64_APP_INSTALLER" || return $?
 
@@ -87,7 +87,7 @@ function inst64_homebrew_prepare() {
 function inst64_homebrew_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
-    inst64_homebrew_install_binary
+    inst64_homebrew_install_custom
   fi
 }
 
