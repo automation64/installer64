@@ -78,23 +78,25 @@ function inst64_homebrew_install_binary() {
 }
 
 function inst64_homebrew_prepare() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  inst64_lib_message_show_task 'prepare deployment'
+  inst64_lib_step_prepare || return 0
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
     :
   fi
 }
 
 function inst64_homebrew_install() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
+  inst64_lib_step_install || return 0
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
     inst64_homebrew_install_binary
   fi
 }
 
+function inst64_homebrew_setup() {
+  inst64_lib_step_setup || return 0
+}
+
 function inst64_homebrew_verify() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  inst64_lib_message_show_task 'verify deployment'
+  inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
@@ -142,18 +144,19 @@ function inst64_homebrew_initialize() {
 
 declare -i inst64_script_status=0
 
-inst64_lib_message_show_process "[${0}] started"
+inst64_lib_message_show_process "started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
 inst64_homebrew_initialize &&
   inst64_homebrew_prepare &&
   inst64_homebrew_install &&
+  inst64_homebrew_setup &&
   inst64_homebrew_verify
 inst64_script_status=$?
 
 # shellcheck disable=SC2015
 ((inst64_script_status == 0)) &&
-  inst64_lib_message_show_process "[${0}] finished successfully" ||
-  inst64_lib_message_show_process "[${0}] finished with errors: exit-status-${inst64_script_status}"
+  inst64_lib_message_show_process "finished successfully" ||
+  inst64_lib_message_show_process "finished with errors: exit-status-${inst64_script_status}"
 # shellcheck disable=SC2086
 exit $inst64_script_status

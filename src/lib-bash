@@ -118,7 +118,7 @@ function inst64_lib_check_os_incompatibility() {
 }
 
 function inst64_lib_message_show_process() {
-  echo "Process: ${1:-}"
+  echo "Process: [install-${INST64_APP_NAME}] ${1:-}"
 }
 
 function inst64_lib_message_show_task() {
@@ -135,6 +135,10 @@ function inst64_lib_message_show_fatal() {
 
 function inst64_lib_message_show_warning() {
   echo "Warning: ${1:-}" >&2
+}
+
+function inst64_lib_message_show_phase() {
+  echo "Phase  : ${1:-}"
 }
 
 function inst64_lib_message_show_parameters() {
@@ -423,6 +427,7 @@ function inst64_lib_cli_set_path() {
 }
 
 function inst64_lib_base_initialize() {
+  inst64_lib_message_show_phase 'initialize installer'
   # shellcheck disable=SC2015
   inst64_lib_command_set &&
     inst64_lib_os_platform_get &&
@@ -432,10 +437,33 @@ function inst64_lib_base_initialize() {
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
     inst64_lib_cli_set_path ||
-    { inst64_lib_message_show_fatal \
-      'unable to initialize base environment' &&
+    { inst64_lib_message_show_error \
+      'installer initialization failed' &&
       return 1; }
   return 0
+}
+
+function inst64_lib_step_prepare() {
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'prepare deployment'
+}
+
+function inst64_lib_step_install() {
+  bl64_dbg_app_show_function
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'deploy application'
+}
+
+function inst64_lib_step_setup() {
+  bl64_dbg_app_show_function
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'setup environment'
+}
+
+function inst64_lib_step_verify() {
+  bl64_dbg_app_show_function
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'verify deployment'
 }
 
 #

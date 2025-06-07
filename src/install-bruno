@@ -88,8 +88,7 @@ function inst64_bruno_install_binary() {
 
 function inst64_bruno_prepare() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  bl64_msg_show_task 'prepare deployment'
+  inst64_lib_step_prepare || return 0
   if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
   fi
@@ -97,7 +96,7 @@ function inst64_bruno_prepare() {
 
 function inst64_bruno_install() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
+  inst64_lib_step_install || return 0
   if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
     inst64_bruno_install_binary
   fi
@@ -106,7 +105,7 @@ function inst64_bruno_install() {
 function inst64_bruno_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
+  inst64_lib_step_setup || return 0
   if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
     app_cli_source="${INST64_BRUNO_TARGET}/${INST64_PKG_MAIN}"
     bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
@@ -117,8 +116,7 @@ function inst64_bruno_setup() {
 
 function inst64_bruno_verify() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  bl64_msg_show_task 'verify deployment'
+  inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
   if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
