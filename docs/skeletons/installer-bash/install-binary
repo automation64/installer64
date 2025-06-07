@@ -36,8 +36,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 # shellcheck source-path=src disable=SC2015
-source "${BL64_SCRIPT_PATH}/lib-inst64" ||
-  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-inst64)" && exit 1; }
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
@@ -132,7 +132,7 @@ function inst64_X_APP_NAME_X_select_platform() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
       # X_PLATFORM_SELECTION_PLACEHOLDER_X
-      INST64_X_APP_NAME_CAPS_X_PLATFORM='ALL'
+      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
@@ -140,7 +140,7 @@ function inst64_X_APP_NAME_X_select_platform() {
 }
 
 function inst64_X_APP_NAME_X_select_packages() {
-  bl64_dbg_app_show_functionPREFIX
+  bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||

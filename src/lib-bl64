@@ -47,7 +47,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION='1.0.0'
+  declare INST64_LIB_VERSION_BL64='1.0.0'
 
   # App information
   declare INST64_APP_NAME=''
@@ -263,6 +263,8 @@ function inst64_lib_app_check_installed() {
       fi
     fi
   fi
+  bl64_dbg_app_show_comments 'use return-1 to inform that the application is not installed'
+  return 1
 }
 
 #######################################

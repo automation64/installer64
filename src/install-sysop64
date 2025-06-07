@@ -31,8 +31,8 @@ source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 # shellcheck source-path=src disable=SC2015
-source "${BL64_SCRIPT_PATH}/lib-inst64" ||
-  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-inst64)" && exit 1; }
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 # Installation method
 declare INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-BINARY}"
