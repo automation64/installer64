@@ -156,13 +156,9 @@ function inst64_X_APP_NAME_X_select_packages() {
 
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
-    'BINARY' &&
-    inst64_lib_base_set_system_wide &&
-    inst64_lib_base_set_path &&
-    inst64_lib_target_set_owner &&
-    inst64_lib_target_set_path &&
-    inst64_lib_cli_set_path ||
+  inst64_lib_base_initialize &&
+    inst64_lib_app_check_method \
+      'BINARY' ||
     return $?
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
@@ -178,6 +174,7 @@ function inst64_X_APP_NAME_X_initialize() {
   inst64_X_APP_NAME_X_select_platform &&
     inst64_X_APP_NAME_X_select_packages ||
     return $?
+
   inst64_lib_app_check_installed && return 0
   inst64_lib_show_parameters
 }

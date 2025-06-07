@@ -22,7 +22,7 @@ declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
 # X_IMPORTS_PLACEHOLDER_X
-  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 # shellcheck source-path=src disable=SC2015
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
@@ -190,19 +190,18 @@ function inst64_X_APP_NAME_X_select_packages() {
 #######################################
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
-    'X_INIT_METHOD_PLACEHOLDER_X' &&
-    inst64_lib_base_set_system_wide &&
-    inst64_lib_base_set_path &&
-    inst64_lib_target_set_owner &&
-    inst64_lib_target_set_path &&
-    inst64_lib_cli_set_path ||
+  inst64_lib_base_initialize &&
+    inst64_lib_app_check_method \
+      'X_INIT_METHOD_PLACEHOLDER_X' ||
     return $?
+
   # X_INIT_PLACEHOLDER_X
   # X_PRE_REQ_PLACEHOLDER_X
+
   inst64_X_APP_NAME_X_select_platform &&
     inst64_X_APP_NAME_X_select_packages ||
     return $?
+
   inst64_lib_app_check_installed && return 0
   inst64_lib_show_parameters
 }

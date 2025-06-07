@@ -368,3 +368,16 @@ function inst64_lib_app_register_version() {
   local version="INST64_${INST64_APP_ID}_VERSION"
   echo "${!version}" >"$INST64_STATUS_PATH"
 }
+
+function inst64_lib_base_initialize() {
+  # shellcheck disable=SC2015
+  inst64_lib_base_set_system_wide &&
+    inst64_lib_base_set_path &&
+    inst64_lib_target_set_owner &&
+    inst64_lib_target_set_path &&
+    inst64_lib_cli_set_path ||
+    { inst64_lib_message_show_fatal \
+      'unable to initialize base environment' &&
+      return 1; }
+  return 0
+}

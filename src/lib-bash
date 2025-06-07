@@ -415,6 +415,22 @@ function inst64_lib_cli_set_path() {
   fi
 }
 
+function inst64_lib_base_initialize() {
+  # shellcheck disable=SC2015
+  inst64_lib_command_set &&
+    inst64_lib_os_platform_get &&
+    inst64_lib_os_flavor_get &&
+    inst64_lib_base_set_system_wide &&
+    inst64_lib_base_set_path &&
+    inst64_lib_target_set_owner &&
+    inst64_lib_target_set_path &&
+    inst64_lib_cli_set_path ||
+    { inst64_lib_message_show_fatal \
+      'unable to initialize base environment' &&
+      return 1; }
+  return 0
+}
+
 #
 # Bootstrap
 #
@@ -475,16 +491,3 @@ builtin unset MAILPATH
   exit 1
 
 [[ -n "$INST64_DEBUG" ]] && set -x
-
-# shellcheck disable=SC2015
-inst64_lib_command_set &&
-  inst64_lib_os_platform_get &&
-  inst64_lib_os_flavor_get &&
-  inst64_lib_base_set_system_wide &&
-  inst64_lib_base_set_path &&
-  inst64_lib_target_set_owner &&
-  inst64_lib_target_set_path &&
-  inst64_lib_cli_set_path ||
-  { inst64_lib_message_show_fatal \
-    'unable to initialize base environment' &&
-    exit 1; }
