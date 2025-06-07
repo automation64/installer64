@@ -35,8 +35,6 @@
   declare INST64_TMP="${INST64_TMP:-/tmp}"
   # Base path for 3rd party applications
   declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-  # User wide home path
-  declare INST64_HOME="${HOME}/at64"
   # Install system wide? Requires root privilege
   declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
   # Replace if already installed?
@@ -48,6 +46,9 @@
 
   # Inst64 Library version
   declare INST64_LIB_VERSION_BL64='1.0.0'
+
+  # User wide home path
+  declare INST64_HOME="${HOME}/at64"
 
   # App information
   declare INST64_APP_NAME=''
@@ -89,8 +90,8 @@
   declare INST64_CLI_PATH=''
 
   # GitHub repository information
-  declare INST64_GH_REPO_NAME=''
   declare INST64_GH_REPO_OWNER=''
+  declare INST64_GH_REPO_NAME=''
 
   # Generic Git repository information
   declare INST64_GIT_SERVER=''
@@ -185,8 +186,6 @@ function inst64_lib_target_set_path() {
 #######################################
 function inst64_lib_target_set_owner() {
   bl64_dbg_app_show_function
-  INST64_TARGET_MODE='0755'
-  INST64_CLI_MODE='0755'
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
     INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
@@ -209,8 +208,7 @@ function inst64_lib_target_set_owner() {
 #######################################
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function
-  [[ -n "$INST64_CLI_PATH" ]] &&
-    return 0
+  [[ -n "$INST64_CLI_PATH" ]] && return 0
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_CLI_PATH="${INST64_LOCAL_BIN}"
   else

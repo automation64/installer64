@@ -1,0 +1,442 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+[[ -n "$INST64_LIB_VERSION_BL64" ]] &&
+  echo "Fatal: lib-bash can not be used along with lib-bl64. Use lib-bash for pure bash scripts, and lib-bl64 for bash scripts usingBashLib64." &&
+  exit 1
+
+#
+# Security
+#
+
+# Do not inherit aliases and commands
+builtin unset -f unalias
+builtin unalias -a
+builtin unset -f command
+builtin hash -r
+
+# Normalize shtop defaults
+builtin shopt -qu \
+  'dotglob' \
+  'extdebug' \
+  'failglob' \
+  'globstar' \
+  'gnu_errfmt' \
+  'huponexit' \
+  'lastpipe' \
+  'login_shell' \
+  'nocaseglob' \
+  'nocasematch' \
+  'nullglob' \
+  'xpg_echo'
+builtin shopt -qs \
+  'extquote'
+
+# Ensure pipeline exit status is failed when any cmd fails
+builtin set -o 'pipefail'
+
+# Enable error processing
+builtin set -o 'errtrace'
+builtin set -o 'functrace'
+
+# Disable fast-fail. Developer must implement error handling (check for exit status)
+builtin set +o 'errexit'
+
+# Reset bash set options to defaults
+builtin set -o 'braceexpand'
+builtin set -o 'hashall'
+builtin set +o 'allexport'
+builtin set +o 'histexpand'
+builtin set +o 'history'
+builtin set +o 'ignoreeof'
+builtin set +o 'monitor'
+builtin set +o 'noclobber'
+builtin set +o 'noglob'
+builtin set +o 'nolog'
+builtin set +o 'notify'
+builtin set +o 'onecmd'
+builtin set +o 'posix'
+
+# Do not set/unset - Breaks bats-core
+# set -o 'keyword'
+# set -o 'noexec'
+
+# Do not inherit sensitive environment variables
+builtin unset CDPATH
+builtin unset ENV
+builtin unset IFS
+builtin unset MAIL
+builtin unset MAILPATH
+
+#
+# Globals
+#
+
+# shellcheck disable=SC2034
+{
+
+  #
+  # Global parameters
+  #
+
+  # Enable debugging? Set to YES to enable
+  declare INST64_DEBUG="${INST64_DEBUG:-}"
+  # Base path for local applications
+  declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+  # Local applications binaries location
+  declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+  # User applications binaries location
+  declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
+  # Location for temporary files
+  declare INST64_TMP="${INST64_TMP:-/tmp}"
+  # Base path for 3rd party applications
+  declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+  # Install system wide? Requires root privilege
+  declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+  # Replace if already installed?
+  declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
+
+  #
+  # Global definitions
+  #
+
+  # Inst64 Library version
+  declare INST64_LIB_VERSION_BASH='1.0.0'
+
+  # User wide home path
+  declare INST64_HOME="${HOME}/at64"
+
+  # App information
+  declare INST64_APP_NAME=''
+  declare INST64_APP_ID=''
+  declare INST64_APP_FULL_NAME=''
+
+  # Application packages
+  declare INST64_PKG_MAIN=''
+  declare INST64_PKG_MAIN_PREFIX=''
+  declare INST64_PKG_MAIN_SUFFIX=''
+  declare INST64_PKG_PRE=''
+  declare INST64_PKG_POST=''
+
+  # Current CPU architecture
+  declare INST64_CPU_ALL_ALL='ALL'
+  declare INST64_CPU_CURRENT=''
+
+  # Installer version
+  declare INST64_SCRIPT_VERSION=''
+
+  #
+  # Method definitions
+  #
+
+  # Target ownership
+  declare INST64_TARGET_OWNER=''
+  declare INST64_TARGET_GROUP=''
+  declare INST64_TARGET_MODE_DIR='0755'
+  declare INST64_TARGET_MODE_FILE='0644'
+
+  # External commands
+  declare INST64_CMD_GET='none'
+  declare INST64_CMD_TAR='none'
+  declare INST64_CMD_UNAME='none'
+  declare INST64_CMD_GREP='none'
+
+  # Install progress status
+  declare INST64_STATUS_FLAG='CONTINUE'
+  declare INST64_STATUS_PATH=''
+
+  # Custom application installer
+  declare INST64_APP_INSTALLER=''
+
+  # GitHub repository information
+  declare INST64_GH_REPO_OWNER=''
+  declare INST64_GH_REPO_NAME=''
+
+  # Generic Web repository information
+  declare INST64_WEB_REPO_URL=''
+  declare INST64_WEB_REPO_PATH=''
+}
+
+#
+# Functions
+#
+
+function inst64_lib_message_show_process() {
+  echo "Process: ${1:-}"
+}
+
+function inst64_lib_message_show_task() {
+  echo "Task   : ${1:-}"
+}
+
+function inst64_lib_message_show_error() {
+  echo "Error  : ${1:-}" >&2
+}
+
+function inst64_lib_message_show_fatal() {
+  echo "Fatal  : ${1:-}" >&2
+}
+
+function inst64_lib_message_show_warning() {
+  echo "Warning: ${1:-}" >&2
+}
+
+function inst64_lib_message_show_parameters() {
+  echo "Install application: ${INST64_APP_FULL_NAME}"
+  echo "  INST64_SYSTEM_WIDE: ${INST64_SYSTEM_WIDE}"
+  echo "  INST64_X_APP_NAME_CAPS_X_METHOD: ${INST64_X_APP_NAME_CAPS_X_METHOD}"
+  echo "  INST64_X_APP_NAME_CAPS_X_TARGET: ${INST64_X_APP_NAME_CAPS_X_TARGET}"
+  echo "  INST64_X_APP_NAME_CAPS_X_PLATFORM: ${INST64_X_APP_NAME_CAPS_X_PLATFORM}"
+  echo "  INST64_X_APP_NAME_CAPS_X_VERSION: ${INST64_X_APP_NAME_CAPS_X_VERSION}"
+}
+
+function inst64_lib_app_register_version() {
+  local version="INST64_${INST64_APP_ID}_VERSION"
+  echo "${!version}" >"$INST64_STATUS_PATH"
+}
+
+function inst64_lib_base_create_path() {
+  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
+    mkdir "$INST64_OPT_ROOT" &&
+      chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
+      return $?
+  fi
+}
+
+function inst64_lib_os_platform_get() {
+  INST64_CPU_CURRENT="$(${INST64_CMD_UNAME} -s)"
+}
+
+function inst64_lib_task_retry() {
+  local max_retries=$1
+  local wait_time=$2
+  local attempt=1
+
+  shift 2
+  while :; do
+    "$@" && return 0
+    ((attempt++))
+    if ((attempt > max_retries)); then
+      inst64_lib_message_show_error "command failed after ${max_retries} attempts"
+      return 1
+    fi
+    if ((attempt == 2)); then
+      inst64_lib_message_show_warning "retrying in ${wait_time} seconds... (attempt ${attempt}/${max_retries})"
+    fi
+    sleep "$wait_time"
+  done
+}
+
+function _inst64_lib_gh_release_get_version() {
+  local github_api=''
+
+  github_api="https://api.github.com/repos/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/latest"
+
+  # shellcheck disable=SC2249
+  case "$INST64_CMD_GET" in
+  'curl')
+    "$INST64_CMD_GET" \
+      -s \
+      "$github_api" |
+      grep '"tag_name":'
+    ;;
+  'wget')
+    "$INST64_CMD_GET" \
+      -q -O- \
+      "$github_api" |
+      grep '"tag_name":'
+    ;;
+  esac
+}
+
+function inst64_lib_gh_asset_download() {
+  local asset="$1"
+  local asset_url=''
+
+  asset_url="https://raw.githubusercontent.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/HEAD/${asset}"
+  inst64_lib_message_show_task "download application (${asset_url} -> ${INST64_TMP})"
+  # shellcheck disable=SC2249
+  case "$INST64_CMD_GET" in
+  'curl')
+    "$INST64_CMD_GET" \
+      -s \
+      -L \
+      -o "${INST64_TMP}/${asset}" \
+      "$asset_url"
+    ;;
+  'wget')
+    "$INST64_CMD_GET" \
+      -q \
+      -O "${INST64_TMP}/${asset}" \
+      "$asset_url"
+    ;;
+  esac
+  [[ -f "${INST64_TMP}/${asset}" ]]
+}
+
+function inst64_lib_gh_release_download() {
+  local package_name="$1"
+  local package_version="$1"
+  local package_url=''
+
+  package_url="https://github.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/download/${package_version}/${package_name}"
+  inst64_lib_message_show_task "download application (${package_url} -> ${INST64_TMP})"
+  # shellcheck disable=SC2249
+  case "$INST64_CMD_GET" in
+  'curl')
+    "$INST64_CMD_GET" \
+      -s \
+      -L \
+      -o "${INST64_TMP}/${package_name}" \
+      "$package_url"
+    ;;
+  'wget')
+    "$INST64_CMD_GET" \
+      -q \
+      -O "${INST64_TMP}/${package_name}" \
+      "$package_url"
+    ;;
+  esac
+  [[ -f "${INST64_TMP}/${package_name}" ]]
+}
+
+function inst64_lib_gh_release_get_version() {
+  local max_retries=5
+  local wait_time=5
+  local version=''
+  version="$(inst64_lib_task_retry "$max_retries" "$wait_time" _inst64_lib_gh_release_get_version)" &&
+    version="${version##*:??}" &&
+    version="${version%%?,*}" &&
+    echo "$version"
+}
+
+# shellcheck disable=SC2034
+function inst64_lib_command_set() {
+  if command -v 'curl' >/dev/null 2>&1; then
+    INST64_CMD_GET='curl'
+  elif command -v 'wget' >/dev/null 2>&1; then
+    INST64_CMD_GET='wget'
+  else
+    echo 'Error: no download tool found (curl, wget)'
+    return 1
+  fi
+
+  if ! command -v 'tar' >/dev/null 2>&1; then
+    echo 'Error: no archive tool found (tar)'
+    return 1
+  else
+    INST64_CMD_TAR='tar'
+  fi
+
+  if ! command -v 'uname' >/dev/null 2>&1; then
+    echo 'Error: no uname tool found'
+    return 1
+  else
+    INST64_CMD_UNAME='uname'
+  fi
+
+  if ! command -v 'grep' >/dev/null 2>&1; then
+    echo 'Error: no grep tool found'
+    return 1
+  else
+    INST64_CMD_GREP='grep'
+  fi
+}
+
+function inst64_lib_base_is_system_wide() {
+  [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]
+}
+
+function inst64_lib_base_set_system_wide() {
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+  fi
+}
+
+function inst64_lib_base_set_path() {
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    if inst64_lib_base_is_system_wide; then
+      INST64_OPT_ROOT='/opt'
+    else
+      INST64_OPT_ROOT="$INST64_HOME"
+    fi
+  fi
+}
+
+function inst64_lib_target_set_path() {
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  if [[ -z "${!target}" ]]; then
+    printf \
+      -v "INST64_${INST64_APP_ID}_TARGET" \
+      '%s/%s' \
+      "${INST64_OPT_ROOT}" \
+      "${INST64_APP_NAME}"
+  fi
+}
+
+function inst64_lib_target_set_owner() {
+  if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
+    if [[ "$INST64_CPU_CURRENT" == 'Linux' ]]; then
+      INST64_TARGET_OWNER='root'
+      INST64_TARGET_GROUP='root'
+    elif [[ "$INST64_CPU_CURRENT" == 'Darwin' ]]; then
+      INST64_TARGET_OWNER='root'
+      INST64_TARGET_GROUP='wheel'
+    fi
+  else
+    INST64_TARGET_OWNER="$(id -n -u)"
+    INST64_TARGET_GROUP="$(id -n -g)"
+  fi
+}
+
+function inst64_lib_app_check_installed() {
+  local app_target="INST64_${INST64_APP_ID}_TARGET"
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
+  INST64_STATUS_PATH="${!app_target}/.install-${INST64_APP_NAME}"
+  if [[ -f "$INST64_STATUS_PATH" ]]; then
+    if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
+      if [[ "$INST64_REPLACE_INSTALLED" != 'NO' ]]; then
+        inst64_lib_message_show_warning "application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
+        INST64_STATUS_FLAG='SKIP'
+        return 0
+      fi
+    fi
+  fi
+  return 1
+}
+
+function inst64_lib_check_privilege_root() {
+  if inst64_lib_base_is_system_wide && [[ "$EUID" != '0' ]]; then
+    inst64_lib_message_show_error 'root privileges are required for system-wide installation'
+    return 1
+  fi
+}
+
+function inst64_lib_app_check_method() {
+  local allowed="${1:-}"
+  local requested="INST64_${INST64_APP_ID}_METHOD"
+  if [[ "${!requested}" != "$allowed" ]]; then
+    inst64_lib_message_show_error "invalid installation method for the parameter INST64_${INST64_APP_ID}_METHOD"
+    return 1
+  fi
+}
+
+function inst64_lib_cli_set_path() {
+  [[ -n "$INST64_CLI_PATH" ]] && return 0
+  if inst64_lib_base_is_system_wide; then
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}"
+  else
+    INST64_CLI_PATH="${INST64_USER_BIN}"
+  fi
+}

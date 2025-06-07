@@ -123,8 +123,10 @@ function inst64_7zip_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" -h &&
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" -h || return $?
+  if [[ "$INST64_7ZIP_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
+  fi
 }
 
 function inst64_7zip_select_platform() {
