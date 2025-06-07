@@ -130,7 +130,7 @@ function inst64_sysden64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_SYSDEN64_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_SYSDEN64_PLATFORM" ]]; then
-      INST64_SYSDEN64_PLATFORM='ALL'
+      INST64_SYSDEN64_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
   fi
   [[ -z "$INST64_SYSDEN64_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1

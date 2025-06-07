@@ -75,6 +75,12 @@
   declare INST64_PKG_PRE=''
   declare INST64_PKG_POST=''
 
+  # CPU Architecture definitions
+  declare INST64_CPU_DARWIN_ARM64=''
+  declare INST64_CPU_LINUX_AMD64=''
+  declare INST64_CPU_LINUX_ARM64=''
+  declare INST64_CPU_ALL_ALL=''
+
   # Custom application installer
   declare INST64_APP_INSTALLER=''
 
