@@ -28,7 +28,7 @@ source "${INST64_LIB_PATH}/lib-bash" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-X_METHOD_X}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
@@ -40,16 +40,11 @@ declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-la
 INST64_APP_NAME='X_APP_NAME_X'
 INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+# shellcheck disable=SC2034
+INST64_SCRIPT_VERSION='1.0.0'
 # CLI information
 INST64_CLI_NAME='X_CLI_NAME_X'
 INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
-# shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='1.0.0'
-
-# Source repository
-INST64_WEB_REPO_URL='X_REPO_URL_X'
-INST64_WEB_REPO_PATH='X_REPO_PATH_X'
-INST64_WEB_REPO_API='X_REPO_API_X'
 
 #
 # Functions
@@ -57,23 +52,21 @@ INST64_WEB_REPO_API='X_REPO_API_X'
 
 function inst64_lib_prepare() {
   inst64_lib_step_prepare || return 0
-  inst64_lib_base_create_path
-  if [[ ! -d "$INST64_X_APP_NAME_CAPS_X_TARGET" ]]; then
-    mkdir -p "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-      chmod "$INST64_TARGET_MODE_DIR" "$INST64_X_APP_NAME_CAPS_X_TARGET"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    : # X_PREPARE_PLACEHOLDER_X
   fi
 }
 
 function inst64_lib_install() {
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
 }
 
 function inst64_lib_setup() {
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
 }
@@ -84,9 +77,10 @@ function inst64_lib_verify() {
 }
 
 inst64_lib_select_platform() {
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      : # X_PLATFORM_SELECTION_PLACEHOLDER_X
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X
+      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
@@ -94,7 +88,7 @@ inst64_lib_select_platform() {
 }
 
 function inst64_lib_select_packages() {
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
   [[ -z "$INST64_X_APP_NAME_CAPS_X_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
@@ -104,7 +98,7 @@ function inst64_lib_select_packages() {
 
 function inst64_lib_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method 'X_METHOD_X' ||
+    inst64_lib_app_check_method 'CUSTOM' ||
     return $?
 
   # X_INIT_PLACEHOLDER_X

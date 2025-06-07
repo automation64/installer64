@@ -118,6 +118,7 @@ function inst64_X_APP_NAME_X_verify() {
 inst64_X_APP_NAME_X_select_platform() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X
       INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
   fi

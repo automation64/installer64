@@ -33,7 +33,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BINARY}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
@@ -71,7 +71,7 @@ INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_PREPARE_PLACEHOLDER_X
   fi
 }
@@ -90,7 +90,7 @@ function inst64_X_APP_NAME_X_prepare() {
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
 }
@@ -109,7 +109,7 @@ function inst64_X_APP_NAME_X_install() {
 function inst64_X_APP_NAME_X_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
 }
@@ -146,7 +146,7 @@ function inst64_X_APP_NAME_X_verify() {
 #######################################
 function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
       : # X_PLATFORM_SELECTION_PLACEHOLDER_X
     fi
@@ -168,7 +168,7 @@ function inst64_X_APP_NAME_X_select_platform() {
 #######################################
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'X_METHOD_X' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
   [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
