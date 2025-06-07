@@ -449,19 +449,16 @@ function inst64_lib_step_prepare() {
 }
 
 function inst64_lib_step_install() {
-  bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'deploy application'
 }
 
 function inst64_lib_step_setup() {
-  bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'setup environment'
 }
 
 function inst64_lib_step_verify() {
-  bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'verify deployment'
 }
