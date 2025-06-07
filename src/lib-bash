@@ -12,73 +12,6 @@
 # limitations under the License.
 #######################################
 
-[[ -n "$INST64_LIB_VERSION_BL64" ]] &&
-  echo "Fatal: lib-bash can not be used along with lib-bl64. Use lib-bash for pure bash scripts, and lib-bl64 for bash scripts usingBashLib64." &&
-  exit 1
-
-#
-# Security
-#
-
-# Do not inherit aliases and commands
-builtin unset -f unalias
-builtin unalias -a
-builtin unset -f command
-builtin hash -r
-
-# Normalize shtop defaults
-builtin shopt -qu \
-  'dotglob' \
-  'extdebug' \
-  'failglob' \
-  'globstar' \
-  'gnu_errfmt' \
-  'huponexit' \
-  'lastpipe' \
-  'login_shell' \
-  'nocaseglob' \
-  'nocasematch' \
-  'nullglob' \
-  'xpg_echo'
-builtin shopt -qs \
-  'extquote'
-
-# Ensure pipeline exit status is failed when any cmd fails
-builtin set -o 'pipefail'
-
-# Enable error processing
-builtin set -o 'errtrace'
-builtin set -o 'functrace'
-
-# Disable fast-fail. Developer must implement error handling (check for exit status)
-builtin set +o 'errexit'
-
-# Reset bash set options to defaults
-builtin set -o 'braceexpand'
-builtin set -o 'hashall'
-builtin set +o 'allexport'
-builtin set +o 'histexpand'
-builtin set +o 'history'
-builtin set +o 'ignoreeof'
-builtin set +o 'monitor'
-builtin set +o 'noclobber'
-builtin set +o 'noglob'
-builtin set +o 'nolog'
-builtin set +o 'notify'
-builtin set +o 'onecmd'
-builtin set +o 'posix'
-
-# Do not set/unset - Breaks bats-core
-# set -o 'keyword'
-# set -o 'noexec'
-
-# Do not inherit sensitive environment variables
-builtin unset CDPATH
-builtin unset ENV
-builtin unset IFS
-builtin unset MAIL
-builtin unset MAILPATH
-
 #
 # Globals
 #
@@ -133,6 +66,9 @@ builtin unset MAILPATH
   declare INST64_CPU_ALL_ALL='ALL'
   declare INST64_CPU_CURRENT=''
 
+  # Current OS flavor
+  declare INST64_OS_FLAVOR=''
+
   # Installer version
   declare INST64_SCRIPT_VERSION=''
 
@@ -172,6 +108,15 @@ builtin unset MAILPATH
 # Functions
 #
 
+function inst64_lib_check_os_incompatibility() {
+  local not_supported="$1"
+  if [[ "$INST64_OS_FLAVOR" == "$not_supported" ]]; then
+    inst64_lib_message_show_error "installer not supported on the current OS (${INST64_OS_FLAVOR})"
+    return 1
+  fi
+  return 0
+}
+
 function inst64_lib_message_show_process() {
   echo "Process: ${1:-}"
 }
@@ -193,12 +138,25 @@ function inst64_lib_message_show_warning() {
 }
 
 function inst64_lib_message_show_parameters() {
-  echo "Install application: ${INST64_APP_FULL_NAME}"
-  echo "  INST64_SYSTEM_WIDE: ${INST64_SYSTEM_WIDE}"
-  echo "  INST64_X_APP_NAME_CAPS_X_METHOD: ${INST64_X_APP_NAME_CAPS_X_METHOD}"
-  echo "  INST64_X_APP_NAME_CAPS_X_TARGET: ${INST64_X_APP_NAME_CAPS_X_TARGET}"
-  echo "  INST64_X_APP_NAME_CAPS_X_PLATFORM: ${INST64_X_APP_NAME_CAPS_X_PLATFORM}"
-  echo "  INST64_X_APP_NAME_CAPS_X_VERSION: ${INST64_X_APP_NAME_CAPS_X_VERSION}"
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  local platform="INST64_${INST64_APP_ID}_PLATFORM"
+  local version="INST64_${INST64_APP_ID}_VERSION"
+
+  [[ -n "$INST64_APP_FULL_NAME" ]] && echo "Install application: ${INST64_APP_FULL_NAME}"
+  [[ -n "${!version}" ]] && echo "  ${version} : ${!version}"
+  [[ -n "${!target}" ]] && echo "  ${target}  : ${!target}"
+  [[ -n "${!platform}" ]] && echo "  ${platform}: ${!platform}"
+  [[ -n "${!method}" ]] && echo "  ${method}  : ${!method}"
+  [[ -n "$INST64_SYSTEM_WIDE" ]] && echo "  INST64_SYSTEM_WIDE      : ${INST64_SYSTEM_WIDE}"
+  [[ -n "$INST64_SCRIPT_VERSION" ]] && echo "  INST64_SCRIPT_VERSION   : ${INST64_SCRIPT_VERSION}"
+
+  [[ -n "$INST64_APP_INSTALLER" ]] && echo "  INST64_APP_INSTALLER    : ${INST64_APP_INSTALLER}"
+  [[ -n "$INST64_GH_REPO_OWNER" ]] && echo "  INST64_GH_REPO_OWNER    : ${INST64_GH_REPO_OWNER}"
+  [[ -n "$INST64_GH_REPO_NAME" ]] && echo "  INST64_GH_REPO_NAME     : ${INST64_GH_REPO_NAME}"
+  [[ -n "$INST64_WEB_REPO_URL" ]] && echo "  INST64_WEB_REPO_URL     : ${INST64_WEB_REPO_URL}"
+  [[ -n "$INST64_WEB_REPO_PATH" ]] && echo "  INST64_WEB_REPO_PATH    : ${INST64_WEB_REPO_PATH}"
+  return 0
 }
 
 function inst64_lib_app_register_version() {
@@ -211,6 +169,22 @@ function inst64_lib_base_create_path() {
     mkdir "$INST64_OPT_ROOT" &&
       chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
       return $?
+  fi
+}
+
+function inst64_lib_os_flavor_get() {
+  if [[ -f '/etc/alpine-release' ]]; then
+    INST64_OS_FLAVOR='ALPINE'
+  elif [[ -f '/etc/debian_version' ]]; then
+    INST64_OS_FLAVOR='DEBIAN'
+  elif [[ -f '/etc/redhat-release' ]]; then
+    INST64_OS_FLAVOR='REDHAT'
+  elif [[ -f '/etc/fedora-release' ]]; then
+    INST64_OS_FLAVOR='FEDORA'
+  elif [[ -f '/etc/macos-release' ]]; then
+    INST64_OS_FLAVOR='MACOS'
+  elif [[ -f '/etc/suse-release' ]]; then
+    INST64_OS_FLAVOR='SUSE'
   fi
 }
 
@@ -287,7 +261,7 @@ function inst64_lib_gh_asset_download() {
 
 function inst64_lib_gh_release_download() {
   local package_name="$1"
-  local package_version="$1"
+  local package_version="$2"
   local package_url=''
 
   package_url="https://github.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/download/${package_version}/${package_name}"
@@ -440,3 +414,77 @@ function inst64_lib_cli_set_path() {
     INST64_CLI_PATH="${INST64_USER_BIN}"
   fi
 }
+
+#
+# Bootstrap
+#
+# * Imported security settings from BashLib64
+# * Adapted for macOS compatibility
+#
+
+builtin unset -f unalias
+builtin unalias -a
+builtin unset -f command
+builtin hash -r
+
+builtin shopt -qu \
+  'dotglob' \
+  'extdebug' \
+  'failglob' \
+  'globstar' \
+  'gnu_errfmt' \
+  'huponexit' \
+  'lastpipe' \
+  'login_shell' \
+  'nocaseglob' \
+  'nocasematch' \
+  'nullglob' \
+  'xpg_echo'
+
+builtin shopt -qs \
+  'extquote'
+
+builtin set -o 'pipefail'
+
+builtin set +o 'errexit'
+
+builtin set -o 'braceexpand'
+builtin set -o 'hashall'
+builtin set +o 'allexport'
+builtin set +o 'histexpand'
+builtin set +o 'history'
+builtin set +o 'ignoreeof'
+builtin set +o 'monitor'
+builtin set +o 'noclobber'
+builtin set +o 'noglob'
+builtin set +o 'nolog'
+builtin set +o 'notify'
+builtin set +o 'onecmd'
+builtin set +o 'posix'
+
+builtin unset CDPATH
+builtin unset ENV
+builtin unset IFS
+builtin unset MAIL
+builtin unset MAILPATH
+
+# Ensure lib-bash is not used along with lib-bl64
+[[ -n "$INST64_LIB_VERSION_BL64" ]] &&
+  inst64_lib_message_show_fatal \
+    'lib-bash can not be used along with lib-bl64. Use lib-bash for pure bash scripts, and lib-bl64 for bash scripts usingBashLib64.' &&
+  exit 1
+
+[[ -n "$INST64_DEBUG" ]] && set -x
+
+# shellcheck disable=SC2015
+inst64_lib_command_set &&
+  inst64_lib_os_platform_get &&
+  inst64_lib_os_flavor_get &&
+  inst64_lib_base_set_system_wide &&
+  inst64_lib_base_set_path &&
+  inst64_lib_target_set_owner &&
+  inst64_lib_target_set_path &&
+  inst64_lib_cli_set_path ||
+  { inst64_lib_message_show_fatal \
+    'unable to initialize base environment' &&
+    exit 1; }
