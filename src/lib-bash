@@ -397,6 +397,13 @@ function inst64_lib_check_privilege_root() {
   fi
 }
 
+function inst64_lib_check_privilege_not_root() {
+  if [[ "$EUID" == '0' ]]; then
+    inst64_lib_message_show_error 'the installer can not be run as root or with root privileges'
+    return 1
+  fi
+}
+
 function inst64_lib_app_check_method() {
   local allowed="${1:-}"
   local requested="INST64_${INST64_APP_ID}_METHOD"
@@ -447,10 +454,8 @@ builtin shopt -qu \
   'dotglob' \
   'extdebug' \
   'failglob' \
-  'globstar' \
   'gnu_errfmt' \
   'huponexit' \
-  'lastpipe' \
   'login_shell' \
   'nocaseglob' \
   'nocasematch' \
@@ -491,3 +496,4 @@ builtin unset MAILPATH
   exit 1
 
 [[ -n "$INST64_DEBUG" ]] && set -x
+:

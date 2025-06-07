@@ -123,11 +123,8 @@ function inst64_homebrew_initialize() {
     return $?
 
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
-    if inst64_lib_base_is_system_wide; then
-      inst64_lib_check_privilege_root ||
-        return $?
-    fi
-    inst64_lib_check_os_incompatibility 'ALPINE' ||
+    inst64_lib_check_privilege_not_root &&
+      inst64_lib_check_os_incompatibility 'ALPINE' ||
       return $?
   fi
 
