@@ -54,17 +54,17 @@ declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
 # Install system wide? Requires root privilege
 declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
-declare INST64_LYNIS_GIT_SERVER="${INST64_LYNIS_GIT_SERVER:-https://github.com/CISOfy}"
-declare INST64_LYNIS_GIT_REPO="${INST64_LYNIS_GIT_REPO:-lynis}"
+declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/CISOfy}"
+declare INST64_GIT_REPO="${INST64_GIT_REPO:-lynis}"
 declare INST64_LYNIS_TARGET="${INST64_LYNIS_TARGET:-}"
-declare INST64_LYNIS_BRANCH="${INST64_LYNIS_BRANCH:-master}"
+declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 # Installation method
 declare INST64_LYNIS_METHOD="${INST64_LYNIS_METHOD:-GIT}"
 
-declare INST64_LYNIS_INSTALLER=''
-declare INST64_LYNIS_PACKAGES=''
-declare INST64_LYNIS_CLI_NAME='lynis'
-declare INST64_LYNIS_CLI_PATH=''
+declare INST64_APP_INSTALLER=''
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='lynis'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -76,27 +76,27 @@ function inst64_lynis_install_git_repo() {
   local app_target_mode_dir='0755'
   local app_target_mode_file='0644'
   local app_target_owner='root'
-  local app_cli_source="${INST64_LYNIS_CLI_NAME}"
+  local app_cli_source="${INST64_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_LYNIS_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_LYNIS_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
   else
-    INST64_LYNIS_CLI_PATH="${INST64_LYNIS_TARGET}/${INST64_LYNIS_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_LYNIS_TARGET}/${INST64_CLI_NAME}"
     app_target_owner="$BL64_VAR_DEFAULT"
   fi
 
   bl64_msg_show_task 'download application'
   bl64_rxtx_git_get_dir \
-    "${INST64_LYNIS_GIT_SERVER}/${INST64_LYNIS_GIT_REPO}" \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
     '.' \
     "$INST64_LYNIS_TARGET" \
     "$BL64_VAR_ON" \
-    "$INST64_LYNIS_BRANCH" ||
+    "$INST64_GIT_BRANCH" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_LYNIS_INSTALLER" ]]; then
-    "$INST64_LYNIS_INSTALLER" ||
+  if [[ -n "$INST64_APP_INSTALLER" ]]; then
+    "$INST64_APP_INSTALLER" ||
       return $?
   fi
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -108,9 +108,9 @@ function inst64_lynis_install_git_repo() {
   fi
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_LYNIS_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_LYNIS_TARGET}/${app_cli_source}" "$INST64_LYNIS_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_LYNIS_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -149,9 +149,9 @@ function inst64_lynis_install() {
 function inst64_lynis_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_LYNIS_METHOD" == 'GIT' ]]; then
-    INST64_LYNIS_PACKAGES='NONE'
+    INST64_PKG_MAIN='NONE'
   fi
-  [[ -z "$INST64_LYNIS_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -189,7 +189,7 @@ function inst64_lynis_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   cd "${INST64_LYNIS_TARGET}" &&
-    "$INST64_LYNIS_CLI_PATH" show version
+    "$INST64_CLI_PATH" show version
 }
 
 #######################################

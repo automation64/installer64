@@ -53,14 +53,14 @@ declare INST64_JENKINSXCLI_VERSION="${INST64_JENKINSXCLI_VERSION:-latest}"
 # Installation method
 declare INST64_JENKINSXCLI_METHOD="${INST64_JENKINSXCLI_METHOD:-BINARY}"
 
-declare INST64_JENKINSXCLI_REPO_NAME='jx'
-declare INST64_JENKINSXCLI_REPO_OWNER='jenkins-x'
+declare INST64_GH_REPO_NAME='jx'
+declare INST64_GH_REPO_OWNER='jenkins-x'
 
 #
 # Functions
 #
 
-function inst64_jenkinsxcli_install_binary_release() {
+function inst64_jenkinsxcli_install_binary() {
   bl64_dbg_app_show_function
   local package_prefix='jx-'
   local package_suffix='.tar.gz'
@@ -74,12 +74,12 @@ function inst64_jenkinsxcli_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   if [[ "$INST64_JENKINSXCLI_VERSION" == 'latest' ]]; then
-    INST64_JENKINSXCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_JENKINSXCLI_REPO_OWNER" "$INST64_JENKINSXCLI_REPO_NAME")" ||
+    INST64_JENKINSXCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
       return $?
   fi
   package_name="${package_prefix}${INST64_JENKINSXCLI_PLATFORM}${package_suffix}"
 
-  bl64_rxtx_github_get_asset "$INST64_JENKINSXCLI_REPO_OWNER" "$INST64_JENKINSXCLI_REPO_NAME" "$INST64_JENKINSXCLI_VERSION" "$package_name" "${work_path}/${package_name}" &&
+  bl64_rxtx_github_get_asset "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_JENKINSXCLI_VERSION" "$package_name" "${work_path}/${package_name}" &&
     bl64_arc_open_tar "${work_path}/${package_name}" "${work_path}" ||
     return $?
 
@@ -112,7 +112,7 @@ function inst64_jenkinsxcli_install_binary_release() {
 function inst64_jenkinsxcli_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_JENKINSXCLI_METHOD" == 'BINARY' ]]; then
-    inst64_jenkinsxcli_install_binary_release
+    inst64_jenkinsxcli_install_binary
   fi
 }
 

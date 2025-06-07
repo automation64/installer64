@@ -63,10 +63,10 @@ declare INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-stable}"
 # Installation method
 declare INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-CUSTOM}"
 
-declare INST64_KUBECTL_PACKAGE_URL=''
-declare INST64_KUBECTL_PACKAGES=''
-declare INST64_KUBECTL_CLI_NAME='kubectl'
-declare INST64_KUBECTL_CLI_PATH=''
+declare INST64_WEB_REPO_URL=''
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='kubectl'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -79,7 +79,7 @@ function inst64_kubectl_install_custom_package() {
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_cli_source="${INST64_KUBECTL_CLI_NAME}"
+  local app_cli_source="${INST64_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -89,8 +89,8 @@ function inst64_kubectl_install_custom_package() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_KUBECTL_PACKAGE_URL}/${INST64_KUBECTL_PACKAGES}" \
-      "${work_path}/${INST64_KUBECTL_PACKAGES}" \
+      "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" \
+      "${work_path}/${INST64_PKG_MAIN}" \
       'YES' \
       "$app_target_mode" ||
     return $?
@@ -101,9 +101,9 @@ function inst64_kubectl_install_custom_package() {
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_KUBECTL_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_KUBECTL_TARGET}/${app_cli_source}" "$INST64_KUBECTL_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_KUBECTL_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -187,16 +187,16 @@ function inst64_kubectl_select_packages() {
     fi
     package_prefix='kubectl'
     package_suffix=''
-    INST64_KUBECTL_PACKAGES="${package_prefix}${package_suffix}"
-    INST64_KUBECTL_PACKAGE_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
-    [[ -z "$INST64_KUBECTL_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    INST64_PKG_MAIN="${package_prefix}${package_suffix}"
+    INST64_WEB_REPO_URL="${INST64_KUBECTL_SOURCE}/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
+    [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_KUBECTL_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_KUBECTL_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_KUBECTL_CLI_PATH="${INST64_KUBECTL_TARGET}/${INST64_KUBECTL_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_KUBECTL_TARGET}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_KUBECTL_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -233,7 +233,7 @@ function inst64_kubectl_prepare() {
 function inst64_kubectl_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_KUBECTL_CLI_PATH" version --client=true
+  "$INST64_CLI_PATH" version --client=true
 }
 
 #######################################
@@ -277,7 +277,7 @@ function inst64_kubectl_initialize() {
     'INST64_KUBECTL_SOURCE' \
     'INST64_KUBECTL_TARGET' \
     'INST64_KUBECTL_VERSION' \
-    'INST64_KUBECTL_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #
