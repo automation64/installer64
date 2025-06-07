@@ -130,7 +130,7 @@ function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
-  : # X_VERIFY_PLACEHOLDER_X
+  # X_VERIFY_PLACEHOLDER_X
 }
 
 #######################################

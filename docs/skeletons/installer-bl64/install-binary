@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-binary-1.0.0
-#   Skeleton: installer-base-5.0.0
+#   Skeleton: installer-bl64-5.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -123,8 +123,10 @@ function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   bl64_msg_show_task 'verify deployment'
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version &&
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
+  fi
 }
 
 function inst64_X_APP_NAME_X_select_platform() {
