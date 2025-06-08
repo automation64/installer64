@@ -495,7 +495,7 @@ function inst64_lib_command_run_pipx() {
   local verbose=''
   local command_pipx=''
 
-  command_pipx="$(bl64_bsh_command_locate 'pipx')"
+  command_pipx="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
   [[ -z "$command_pipx" ]] &&
     bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
     return 1
