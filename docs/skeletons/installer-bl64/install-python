@@ -41,7 +41,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PIPX}"
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
@@ -203,7 +203,8 @@ function inst64_X_APP_NAME_X_initialize() {
   fi
 
   inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_select_packages ||
+    inst64_X_APP_NAME_X_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
 
   inst64_lib_app_check_installed && return 0
