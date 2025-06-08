@@ -58,9 +58,9 @@ INST64_APP_INSTALLER='install.sh'
 
 function inst64_homebrew_install_custom() {
   local installer_path=''
-  inst64_lib_gh_asset_download "$INST64_APP_INSTALLER" || return $?
+  inst64_lib_github_asset_download "$INST64_APP_INSTALLER" || return $?
 
-  inst64_lib_message_show_task "deploy application"
+  inst64_lib_task_deploy
   installer_path="${INST64_TMP}/${INST64_APP_INSTALLER}"
   [[ -f "$installer_path" ]] &&
     chmod 755 "$installer_path" &&
@@ -100,22 +100,11 @@ function inst64_homebrew_verify() {
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
-inst64_homebrew_select_platform() {
-  if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
-    if [[ -z "$INST64_HOMEBREW_PLATFORM" ]]; then
-      INST64_HOMEBREW_PLATFORM="$INST64_CPU_ALL_ALL"
-    fi
-  fi
-  [[ -z "$INST64_HOMEBREW_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+function inst64_homebrew_select_platform() {
   return 0
 }
 
 function inst64_homebrew_select_packages() {
-  if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
-    INST64_PKG_MAIN='none'
-  fi
-  [[ -z "$INST64_HOMEBREW_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
-  [[ -z "$INST64_PKG_MAIN" ]] && echo 'Error: unable to determine package name' && return 1
   return 0
 }
 
@@ -142,21 +131,10 @@ function inst64_homebrew_initialize() {
 # Main
 #
 
-declare -i inst64_script_status=0
-
-inst64_lib_message_show_process "started"
-
-[[ -n "$INST64_DEBUG" ]] && set -x
-inst64_homebrew_initialize &&
+inst64_lib_task_process_start &&
+  inst64_homebrew_initialize &&
   inst64_homebrew_prepare &&
   inst64_homebrew_install &&
   inst64_homebrew_setup &&
   inst64_homebrew_verify
-inst64_script_status=$?
-
-# shellcheck disable=SC2015
-((inst64_script_status == 0)) &&
-  inst64_lib_message_show_process "finished successfully" ||
-  inst64_lib_message_show_process "finished with errors: exit-status-${inst64_script_status}"
-# shellcheck disable=SC2086
-exit $inst64_script_status
+inst64_lib_task_process_finish $?

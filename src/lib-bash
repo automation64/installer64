@@ -117,6 +117,15 @@ function inst64_lib_check_os_incompatibility() {
   return 0
 }
 
+function inst64_lib_check_os_compatibility() {
+  local supported="$1"
+  if [[ "$INST64_OS_FLAVOR" != "$supported" ]]; then
+    inst64_lib_message_show_error "installer not supported on the current OS (${INST64_OS_FLAVOR})"
+    return 1
+  fi
+  return 0
+}
+
 function inst64_lib_message_show_process() {
   echo "Process: [install-${INST64_APP_NAME}] ${1:-}"
 }
@@ -176,23 +185,51 @@ function inst64_lib_base_create_path() {
   fi
 }
 
-function inst64_lib_os_flavor_get() {
-  if [[ -f '/etc/alpine-release' ]]; then
+function inst64_lib_platform_get_flavor() {
+  # macOS detection
+  if [[ "$INST64_CPU_CURRENT" == 'Darwin' ]]; then
+    if command -v sw_vers >/dev/null 2>&1; then
+      INST64_OS_FLAVOR='MACOS'
+      return 0
+    fi
+  fi
+
+  # Linux distribution detection
+  if [[ -f '/etc/os-release' ]]; then
+    # Modern Linux distributions
+    if grep -q 'ID=alpine' '/etc/os-release'; then
+      INST64_OS_FLAVOR='ALPINE'
+    elif grep -q 'ID=debian' '/etc/os-release'; then
+      INST64_OS_FLAVOR='DEBIAN'
+    elif grep -q 'ID=fedora' '/etc/os-release'; then
+      INST64_OS_FLAVOR='FEDORA'
+    elif grep -q 'ID=rhel' '/etc/os-release'; then
+      INST64_OS_FLAVOR='REDHAT'
+    elif grep -q 'ID=suse' '/etc/os-release'; then
+      INST64_OS_FLAVOR='SUSE'
+    fi
+  elif [[ -f '/etc/alpine-release' ]]; then
     INST64_OS_FLAVOR='ALPINE'
   elif [[ -f '/etc/debian_version' ]]; then
     INST64_OS_FLAVOR='DEBIAN'
-  elif [[ -f '/etc/redhat-release' ]]; then
-    INST64_OS_FLAVOR='REDHAT'
   elif [[ -f '/etc/fedora-release' ]]; then
     INST64_OS_FLAVOR='FEDORA'
-  elif [[ -f '/etc/macos-release' ]]; then
-    INST64_OS_FLAVOR='MACOS'
-  elif [[ -f '/etc/suse-release' ]]; then
+  elif [[ -f '/etc/redhat-release' ]]; then
+    INST64_OS_FLAVOR='REDHAT'
+  elif [[ -f '/etc/SuSE-release' ]]; then
     INST64_OS_FLAVOR='SUSE'
   fi
+
+  # If no OS flavor was detected
+  if [[ -z "$INST64_OS_FLAVOR" ]]; then
+    inst64_lib_message_show_error "unable to detect OS flavor"
+    return 1
+  fi
+
+  return 0
 }
 
-function inst64_lib_os_platform_get() {
+function inst64_lib_platform_get_cpu() {
   INST64_CPU_CURRENT="$(${INST64_CMD_UNAME} -s)"
 }
 
@@ -216,7 +253,7 @@ function inst64_lib_task_retry() {
   done
 }
 
-function _inst64_lib_gh_release_get_version() {
+function _inst64_lib_github_release_get_version() {
   local github_api=''
 
   github_api="https://api.github.com/repos/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/latest"
@@ -238,7 +275,7 @@ function _inst64_lib_gh_release_get_version() {
   esac
 }
 
-function inst64_lib_gh_asset_download() {
+function inst64_lib_github_asset_download() {
   local asset="$1"
   local asset_url=''
 
@@ -263,7 +300,7 @@ function inst64_lib_gh_asset_download() {
   [[ -f "${INST64_TMP}/${asset}" ]]
 }
 
-function inst64_lib_gh_release_download() {
+function inst64_lib_github_release_download() {
   local package_name="$1"
   local package_version="$2"
   local package_url=''
@@ -289,11 +326,11 @@ function inst64_lib_gh_release_download() {
   [[ -f "${INST64_TMP}/${package_name}" ]]
 }
 
-function inst64_lib_gh_release_get_version() {
+function inst64_lib_github_release_get_version() {
   local max_retries=5
   local wait_time=5
   local version=''
-  version="$(inst64_lib_task_retry "$max_retries" "$wait_time" _inst64_lib_gh_release_get_version)" &&
+  version="$(inst64_lib_task_retry "$max_retries" "$wait_time" _inst64_lib_github_release_get_version)" &&
     version="${version##*:??}" &&
     version="${version%%?,*}" &&
     echo "$version"
@@ -428,39 +465,94 @@ function inst64_lib_cli_set_path() {
 
 function inst64_lib_base_initialize() {
   inst64_lib_message_show_phase 'initialize installer'
+
   # shellcheck disable=SC2015
   inst64_lib_command_set &&
-    inst64_lib_os_platform_get &&
-    inst64_lib_os_flavor_get &&
+    inst64_lib_platform_get_cpu &&
+    inst64_lib_platform_get_flavor &&
     inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
-    inst64_lib_cli_set_path ||
-    { inst64_lib_message_show_error \
-      'installer initialization failed' &&
-      return 1; }
-  return 0
+    inst64_lib_cli_set_path &&
+    return 0
+
+  inst64_lib_message_show_error 'installer initialization failed'
+  return 1
 }
 
 function inst64_lib_step_prepare() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'prepare deployment'
+  return 0
 }
 
 function inst64_lib_step_install() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'deploy application'
+  return 0
 }
 
 function inst64_lib_step_setup() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'setup environment'
+  return 0
 }
 
 function inst64_lib_step_verify() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'verify deployment'
+  return 0
+}
+
+function inst64_lib_task_binary_download() {
+  inst64_lib_message_show_task 'download application'
+  return 0
+}
+
+function inst64_lib_task_deploy() {
+  inst64_lib_message_show_task 'deploy application'
+  return 0
+}
+
+function inst64_lib_task_publish() {
+  inst64_lib_message_show_task "publish application to searchable path (${INST64_CLI_PATH})"
+  return 0
+}
+
+function inst64_lib_task_binary_cleanup() {
+  inst64_lib_message_show_task 'cleanup temporary files'
+  return 0
+}
+
+function inst64_lib_task_process_start() {
+  inst64_lib_message_show_process "started"
+  [[ -n "$INST64_DEBUG" ]] && set -x
+  return 0
+}
+
+function inst64_lib_task_process_finish() {
+  local -i status=$1
+  if ((status == 0)); then
+    inst64_lib_message_show_process "finished successfully"
+  else
+    inst64_lib_message_show_process "finished with errors: exit-status-${status}"
+  fi
+# shellcheck disable=SC2086
+  return $status
+}
+
+function inst64_lib_package_check_definition() {
+  [[ -n "$INST64_PKG_MAIN" ]] && return 0
+  inst64_lib_message_show_error 'unable to determine application package name'
+  return 1
+}
+
+function inst64_lib_platform_check_cpu() {
+  local platform="${INST64_APP_ID}_PLATFORM"
+  [[ -n "${!platform}" ]] && return 0
+  inst64_lib_message_show_error "unable to determine platform id (${platform})"
+  return 1
 }
 
 #

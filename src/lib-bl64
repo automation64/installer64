@@ -69,6 +69,9 @@
   declare INST64_STATUS_FLAG='CONTINUE'
   declare INST64_STATUS_PATH=''
 
+  # Work path
+  declare INST64_WORK_PATH=''
+
   # Application packages
   declare INST64_PKG_MAIN=''
   declare INST64_PKG_MAIN_PREFIX=''
@@ -80,7 +83,7 @@
   declare INST64_CPU_DARWIN_ARM64=''
   declare INST64_CPU_LINUX_AMD64=''
   declare INST64_CPU_LINUX_ARM64=''
-  declare INST64_CPU_ALL_ALL='none'
+  declare INST64_CPU_ALL_ALL='ALL'
 
   # Custom application installer
   declare INST64_APP_INSTALLER=''
@@ -208,11 +211,19 @@ function inst64_lib_target_set_owner() {
 #######################################
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
   [[ -n "$INST64_CLI_PATH" ]] && return 0
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_CLI_PATH="${INST64_LOCAL_BIN}"
-  else
-    INST64_CLI_PATH="${INST64_USER_BIN}"
+
+  if [[ "${!method}" == 'PIPX' ]]; then
+    INST64_CLI_PATH="${HOME}/.local/bin"
+  elif [[ "${!method}" == 'PIP' ]]; then
+    INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_CLI_NAME}"
+  elif [[ "${!method}" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}"
+    else
+      INST64_CLI_PATH="${INST64_USER_BIN}"
+    fi
   fi
 }
 
@@ -276,7 +287,7 @@ function inst64_lib_app_check_installed() {
 #   0: success
 #   >0: error
 #######################################
-function inst64_lib_show_parameters() {
+function inst64_lib_message_show_parameters() {
   bl64_dbg_app_show_function
   local parameter_list=''
   local method_variable_suffix=''
@@ -372,38 +383,144 @@ function inst64_lib_app_register_version() {
 function inst64_lib_base_initialize() {
   bl64_dbg_app_show_function
   bl64_msg_show_phase 'initialize installer'
+
   # shellcheck disable=SC2015
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
-    inst64_lib_cli_set_path ||
-    { inst64_lib_message_show_error \
-      'installer initialization failed' &&
-      return 1; }
-  return 0
+    inst64_lib_cli_set_path &&
+    return 0
+
+  inst64_lib_message_show_error 'installer initialization failed'
+  return $BL64_LIB_ERROR_TASK_FAILED
 }
 
 function inst64_lib_step_prepare() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'prepare deployment'
+  return 0
 }
 
 function inst64_lib_step_install() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'deploy application'
+  return 0
 }
 
 function inst64_lib_step_setup() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'setup environment'
+  return 0
 }
 
 function inst64_lib_step_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'verify deployment'
+  return 0
+}
+
+function inst64_lib_task_binary_download() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'download application'
+  INST64_WORK_PATH="$(bl64_fs_create_tmpdir)" || return $?
+}
+
+function inst64_lib_task_deploy() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'deploy application'
+  return 0
+}
+
+function inst64_lib_task_publish() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
+  return 0
+}
+
+function inst64_lib_task_binary_cleanup() {
+  bl64_dbg_app_show_function
+  bl64_msg_show_task 'cleanup temporary files'
+  bl64_fs_rm_tmpdir "$INST64_WORK_PATH"
+  return 0
+}
+
+function inst64_lib_python_install_pip() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  if [[ -n "$INST64_PKG_PRE" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_PKG_PRE ||
+      return $?
+  fi
+  # shellcheck disable=SC2086
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_py_pip_usr_deploy $INST64_PKG_MAIN ||
+    return $?
+  if [[ -n "$INST64_PKG_POST" ]]; then
+    # shellcheck disable=SC2086
+    bl64_py_pip_usr_install $INST64_PKG_POST ||
+      return $?
+  fi
+  return 0
+}
+
+function inst64_lib_python_install_pipx() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  if [[ -n "$INST64_PKG_PRE" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_pipx install --preinstall $INST64_PKG_PRE $INST64_PKG_MAIN ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_pipx install $INST64_PKG_MAIN $INST64_PKG_PRE ||
+      return $?
+  fi
+  if [[ -n "$INST64_PKG_POST" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_pipx inject $INST64_PKG_MAIN $INST64_PKG_POST ||
+      return $?
+  fi
+  return 0
+}
+
+function inst64_lib_command_run_pipx() {
+  bl64_dbg_app_show_function "$@"
+  local verbose=''
+  local command_pipx=''
+
+  command_pipx="$(bl64_bsh_command_locate 'pipx')"
+  [[ -z "$command_pipx" ]] &&
+    bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
+    return 1
+
+  bl64_msg_app_verbose_is_enabled && verbose='-v'
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$command_pipx" \
+    $verbose \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
+function inst64_lib_package_check_definition() {
+  bl64_dbg_app_show_function
+  [[ -n "$INST64_PKG_MAIN" ]] && return 0
+  bl64_msg_show_error 'unable to determine application package name'
+  return $BL64_LIB_ERROR_PARAMETER_MISSING
+}
+
+function inst64_lib_platform_check_cpu() {
+  bl64_dbg_app_show_function
+  local platform="INST64_${INST64_APP_ID}_PLATFORM"
+  [[ -n "${!platform}" ]] && return 0
+  bl64_msg_show_error "unable to determine platform id (${platform})"
+  return $BL64_LIB_ERROR_PARAMETER_MISSING
 }

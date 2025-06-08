@@ -67,25 +67,21 @@ INST64_PKG_MAIN_SUFFIX='.tar.gz'
 
 function inst64_sysden64_install_binary() {
   bl64_dbg_app_show_function
-  local work_path=''
 
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_SYSDEN64_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" ||
+  inst64_lib_task_binary_download &&
+    bl64_rxtx_github_get_asset \
+      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_SYSDEN64_VERSION" "$INST64_PKG_MAIN" "${INST64_WORK_PATH}/${INST64_PKG_MAIN}" ||
     return $?
 
-  bl64_msg_show_task 'deploy application'
+  inst64_lib_task_deploy
   bl64_fs_path_remove "$INST64_SYSDEN64_TARGET"
   bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_SYSDEN64_TARGET" &&
-    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "$INST64_SYSDEN64_TARGET" &&
+    bl64_arc_open_tar "${INST64_WORK_PATH}/${INST64_PKG_MAIN}" "$INST64_SYSDEN64_TARGET" &&
     bl64_fs_path_permission_set "$INST64_TARGET_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$BL64_VAR_ON" \
       "$INST64_SYSDEN64_TARGET" ||
     return $?
 
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
-  return 0
+  inst64_lib_task_binary_cleanup
 }
 
 function inst64_sysden64_prepare() {
@@ -110,7 +106,7 @@ function inst64_sysden64_setup() {
   inst64_lib_step_setup || return 0
   if [[ "$INST64_SYSDEN64_METHOD" == 'BINARY' ]]; then
     app_cli_source="${INST64_SYSDEN64_TARGET}/bin/${INST64_CLI_NAME}"
-    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
+    inst64_lib_task_publish
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${app_cli_source}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
   fi
@@ -128,12 +124,6 @@ function inst64_sysden64_verify() {
 
 function inst64_sysden64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_SYSDEN64_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_SYSDEN64_PLATFORM" ]]; then
-      INST64_SYSDEN64_PLATFORM="$INST64_CPU_ALL_ALL"
-    fi
-  fi
-  [[ -z "$INST64_SYSDEN64_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
@@ -146,8 +136,7 @@ function inst64_sysden64_select_packages() {
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
 function inst64_sysden64_initialize() {
@@ -171,7 +160,7 @@ function inst64_sysden64_initialize() {
     return $?
 
   inst64_lib_app_check_installed && return 0
-  inst64_lib_show_parameters
+  inst64_lib_message_show_parameters
 }
 
 #

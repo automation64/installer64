@@ -12,19 +12,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers
   - Bruno
   - 7Zip
+  - XCodeCLI
 - Core
-  - Shared library lib-inst64
+  - Shared library lib-bl64
+  - Shared library lib-bash
 
 ### Changed
 
 - All
   - Normalized internal variable names
-- **breaking-change** Installers migrated to lib-inst64
+- **breaking-change** Installers migrated to lib-bl64
   - sysden64
   - sysop64
   - devbin64
   - eksctl
   - volta
+  - pipx
+- **breaking-change** Installers migrated to lib-bash
   - homebrew
 
 ## [5.11.0]
