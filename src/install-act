@@ -62,24 +62,24 @@ declare INST64_ACT_VERSION="${INST64_ACT_VERSION:-latest}"
 # Installation method
 declare INST64_ACT_METHOD="${INST64_ACT_METHOD:-BINARY}"
 
-declare INST64_ACT_REPO_NAME='act'
-declare INST64_ACT_REPO_OWNER='nektos'
-declare INST64_ACT_PACKAGES=''
-declare INST64_ACT_CLI_NAME='act'
-declare INST64_ACT_CLI_PATH=''
+declare INST64_GH_REPO_NAME='act'
+declare INST64_GH_REPO_OWNER='nektos'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='act'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_act_install_binary_release() {
+function inst64_act_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
   local app_cli_mode='0755'
-  local app_work_path="${INST64_ACT_CLI_NAME}"
+  local app_work_path="${INST64_CLI_NAME}"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     app_target_owner="$BL64_VAR_DEFAULT"
@@ -89,8 +89,8 @@ function inst64_act_install_binary_release() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_github_get_asset \
-    "$INST64_ACT_REPO_OWNER" "$INST64_ACT_REPO_NAME" "$INST64_ACT_VERSION" "$INST64_ACT_PACKAGES" "${work_path}/${INST64_ACT_PACKAGES}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_ACT_PACKAGES}" "${work_path}" ||
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_ACT_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
@@ -139,7 +139,7 @@ function inst64_act_install() {
   bl64_dbg_app_show_function
   inst64_act_select_packages || return $?
   if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
-    inst64_act_install_binary_release
+    inst64_act_install_binary
   fi
 }
 
@@ -160,10 +160,10 @@ function inst64_act_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
   if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
-      app_cli_source="${INST64_ACT_TARGET}/${INST64_ACT_CLI_NAME}"
-      bl64_msg_show_task "publish application to searchable path (${INST64_ACT_CLI_PATH})"
+      app_cli_source="${INST64_ACT_TARGET}/${INST64_CLI_NAME}"
+      bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
       # shellcheck disable=SC2086
-      bl64_fs_symlink_create "${app_cli_source}" "$INST64_ACT_CLI_PATH" "$BL64_VAR_ON"
+      bl64_fs_symlink_create "${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON"
   fi
 }
 
@@ -181,7 +181,7 @@ function inst64_act_setup() {
 function inst64_act_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_ACT_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -232,19 +232,19 @@ function inst64_act_select_packages() {
   local package_suffix=''
   if [[ "$INST64_ACT_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_ACT_VERSION" == 'latest' ]]; then
-      INST64_ACT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_ACT_REPO_OWNER" "$INST64_ACT_REPO_NAME")" ||
+      INST64_ACT_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
     package_prefix='act_'
     package_suffix='.tar.gz'
-    INST64_ACT_PACKAGES="${package_prefix}${INST64_ACT_PLATFORM}${package_suffix}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_ACT_PLATFORM}${package_suffix}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_ACT_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_ACT_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     else
-      INST64_ACT_CLI_PATH="${INST64_USER_BIN}/${INST64_ACT_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_USER_BIN}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_ACT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -288,11 +288,11 @@ function inst64_act_initialize() {
   bl64_msg_show_setup 'Install application: Act' \
     'INST64_SYSTEM_WIDE' 'INST64_ACT_METHOD' \
     'INST64_ACT_PLATFORM' \
-    'INST64_ACT_REPO_OWNER' \
-    'INST64_ACT_REPO_NAME' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
     'INST64_ACT_TARGET' \
     'INST64_ACT_VERSION' \
-    'INST64_ACT_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

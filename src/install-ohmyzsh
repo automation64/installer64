@@ -62,11 +62,11 @@ declare INST64_OHMYZSH_VERSION=''
 # Installation method
 declare INST64_OHMYZSH_METHOD="${INST64_OHMYZSH_METHOD:-CUSTOM}"
 
-declare INST64_OHMYZSH_PACKAGE_URL=''
-declare INST64_OHMYZSH_INSTALLER='install.sh'
-declare INST64_OHMYZSH_PACKAGES=''
-declare INST64_OHMYZSH_CLI_NAME='oh-my-zsh.sh'
-declare INST64_OHMYZSH_CLI_PATH=''
+declare INST64_WEB_REPO_URL=''
+declare INST64_APP_INSTALLER='install.sh'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='oh-my-zsh.sh'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -77,18 +77,18 @@ function inst64_ohmyzsh_install_custom_package() {
   local work_path=''
   local app_target_mode='0755'
 
-  INST64_OHMYZSH_CLI_PATH="${INST64_OHMYZSH_TARGET}/${INST64_OHMYZSH_CLI_NAME}"
+  INST64_CLI_PATH="${INST64_OHMYZSH_TARGET}/${INST64_CLI_NAME}"
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_OHMYZSH_PACKAGE_URL}/${INST64_OHMYZSH_PACKAGES}" \
-      "${work_path}/${INST64_OHMYZSH_PACKAGES}" \
+      "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" \
+      "${work_path}/${INST64_PKG_MAIN}" \
       'YES' \
       "$app_target_mode" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  "${work_path}/${INST64_OHMYZSH_INSTALLER}" --unattended ||
+  "${work_path}/${INST64_APP_INSTALLER}" --unattended ||
     return $?
 
   bl64_msg_show_task 'cleanup temporary files'
@@ -130,13 +130,13 @@ function inst64_ohmyzsh_select_packages() {
   local package_prefix=''
   local package_suffix=''
   if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
-    package_prefix="$INST64_OHMYZSH_INSTALLER"
+    package_prefix="$INST64_APP_INSTALLER"
     package_suffix=''
-    INST64_OHMYZSH_PACKAGES="${package_prefix}${package_suffix}"
-    INST64_OHMYZSH_PACKAGE_URL="${INST64_OHMYZSH_SOURCE}"
-    [[ -z "$INST64_OHMYZSH_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+    INST64_PKG_MAIN="${package_prefix}${package_suffix}"
+    INST64_WEB_REPO_URL="${INST64_OHMYZSH_SOURCE}"
+    [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
   fi
-  [[ -z "$INST64_OHMYZSH_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -175,7 +175,7 @@ function inst64_ohmyzsh_prepare() {
 function inst64_ohmyzsh_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  [[ -f "$INST64_OHMYZSH_CLI_PATH" ]]
+  [[ -f "$INST64_CLI_PATH" ]]
 }
 
 #######################################

@@ -52,8 +52,8 @@ declare INST64_RUBY_METHOD="${INST64_RUBY_METHOD:-NATIVE}"
 declare INST64_RUBY_DEVELOPMENT="${INST64_RUBY_DEVELOPMENT:-$BL64_VAR_OFF}"
 
 declare INST64_RUBY_ENV='ruby.env'
-declare INST64_RUBY_PACKAGES=''
-declare INST64_RUBY_CLI_NAME='ruby'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='ruby'
 declare INST64_RUBY_ENV_NAME='ruby'
 
 #
@@ -64,7 +64,7 @@ function inst64_ruby_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
   # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_RUBY_PACKAGES
+  bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
 #######################################
@@ -137,12 +137,12 @@ function inst64_ruby_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
     if bl64_os_is_distro "$BL64_OS_UB"; then
-      INST64_RUBY_PACKAGES='ruby ruby-rubygems'
+      INST64_PKG_MAIN='ruby ruby-rubygems'
       bl64_lib_flag_is_enabled "$INST64_RUBY_DEVELOPMENT" &&
-        INST64_RUBY_PACKAGES="${INST64_RUBY_PACKAGES} ruby-dev"
+        INST64_PKG_MAIN="${INST64_PKG_MAIN} ruby-dev"
     fi
   fi
-  [[ -z "$INST64_RUBY_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -178,7 +178,7 @@ function inst64_ruby_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
-    "/usr/bin/${INST64_RUBY_CLI_NAME}" --version
+    "/usr/bin/${INST64_CLI_NAME}" --version
   fi
 }
 

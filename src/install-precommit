@@ -56,11 +56,11 @@ declare INST64_PRECOMMIT_VERSION="${INST64_PRECOMMIT_VERSION:-latest}"
 declare INST64_PRECOMMIT_METHOD="${INST64_PRECOMMIT_METHOD:-PIP}"
 
 declare INST64_PRECOMMIT_PIPX_BIN="${INST64_PRECOMMIT_PIPX_BIN:-pipx}"
-declare INST64_PRECOMMIT_PACKAGES=''
-declare INST64_PRECOMMIT_PACKAGES_PRE=''
-declare INST64_PRECOMMIT_PACKAGES_POST=''
-declare INST64_PRECOMMIT_CLI_NAME='pre-commit'
-declare INST64_PRECOMMIT_CLI_PATH=''
+declare INST64_PKG_MAIN=''
+declare INST64_PKG_PRE=''
+declare INST64_PKG_POST=''
+declare INST64_CLI_NAME='pre-commit'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -70,18 +70,18 @@ function inst64_precommit_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_PRECOMMIT_PACKAGES_PRE" ]]; then
+  if [[ -n "$INST64_PKG_PRE" ]]; then
     # shellcheck disable=SC2086
-    bl64_py_pip_usr_install $INST64_PRECOMMIT_PACKAGES_PRE ||
+    bl64_py_pip_usr_install $INST64_PKG_PRE ||
       return $?
   fi
   # shellcheck disable=SC2086
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_deploy $INST64_PRECOMMIT_PACKAGES ||
+    bl64_py_pip_usr_deploy $INST64_PKG_MAIN ||
     return $?
-  if [[ -n "$INST64_PRECOMMIT_PACKAGES_POST" ]]; then
+  if [[ -n "$INST64_PKG_POST" ]]; then
     # shellcheck disable=SC2086
-    bl64_py_pip_usr_install $INST64_PRECOMMIT_PACKAGES_POST ||
+    bl64_py_pip_usr_install $INST64_PKG_POST ||
       return $?
   fi
   return 0
@@ -91,18 +91,18 @@ function inst64_precommit_install_with_pipx() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_PRECOMMIT_PACKAGES_PRE" ]]; then
+  if [[ -n "$INST64_PKG_PRE" ]]; then
     # shellcheck disable=SC2086
-    "$INST64_PRECOMMIT_PIPX_BIN" install --preinstall $INST64_PRECOMMIT_PACKAGES_PRE $INST64_PRECOMMIT_PACKAGES ||
+    "$INST64_PRECOMMIT_PIPX_BIN" install --preinstall $INST64_PKG_PRE $INST64_PKG_MAIN ||
       return $?
   else
     # shellcheck disable=SC2086
-    "$INST64_PRECOMMIT_PIPX_BIN" install $INST64_PRECOMMIT_PACKAGES $INST64_PRECOMMIT_PACKAGES_PRE ||
+    "$INST64_PRECOMMIT_PIPX_BIN" install $INST64_PKG_MAIN $INST64_PKG_PRE ||
       return $?
   fi
-  if [[ -n "$INST64_PRECOMMIT_PACKAGES_POST" ]]; then
+  if [[ -n "$INST64_PKG_POST" ]]; then
     # shellcheck disable=SC2086
-    "$INST64_PRECOMMIT_PIPX_BIN" inject $INST64_PRECOMMIT_PACKAGES $INST64_PRECOMMIT_PACKAGES_POST ||
+    "$INST64_PRECOMMIT_PIPX_BIN" inject $INST64_PKG_MAIN $INST64_PKG_POST ||
       return $?
   fi
   return 0
@@ -149,14 +149,14 @@ function inst64_precommit_select_packages() {
     else
       version_target="==${INST64_PRECOMMIT_VERSION}.*"
     fi
-    INST64_PRECOMMIT_PACKAGES="pre-commit${version_target}"
+    INST64_PKG_MAIN="pre-commit${version_target}"
     if [[ "$INST64_PRECOMMIT_METHOD" == 'PIP' ]]; then
-      INST64_PRECOMMIT_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_PRECOMMIT_CLI_NAME}"
+      INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_CLI_NAME}"
     elif [[ "$INST64_PRECOMMIT_METHOD" == 'PIPX' ]]; then
-      INST64_PRECOMMIT_CLI_PATH="${INST64_PRECOMMIT_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_PRECOMMIT_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -190,7 +190,7 @@ function inst64_precommit_prepare() {
 function inst64_precommit_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_PRECOMMIT_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -231,7 +231,7 @@ function inst64_precommit_initialize() {
   bl64_msg_show_setup 'Install application: PreCommit' \
     'INST64_SYSTEM_WIDE' 'INST64_PRECOMMIT_METHOD' \
     'INST64_PRECOMMIT_VERSION' \
-    'INST64_PRECOMMIT_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

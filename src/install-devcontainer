@@ -55,11 +55,11 @@ declare INST64_DEVCONTAINER_VERSION="${INST64_DEVCONTAINER_VERSION:-latest}"
 declare INST64_DEVCONTAINER_METHOD="${INST64_DEVCONTAINER_METHOD:-NPM}"
 
 declare INST64_DEVCONTAINER_NPM_BIN="${INST64_DEVCONTAINER_NPM_BIN:-npm}"
-declare INST64_DEVCONTAINER_PACKAGES=''
-declare INST64_DEVCONTAINER_PACKAGES_PRE=''
-declare INST64_DEVCONTAINER_PACKAGES_POST=''
-declare INST64_DEVCONTAINER_CLI_NAME='devcontainer'
-declare INST64_DEVCONTAINER_CLI_PATH=''
+declare INST64_PKG_MAIN=''
+declare INST64_PKG_PRE=''
+declare INST64_PKG_POST=''
+declare INST64_CLI_NAME='devcontainer'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -69,19 +69,19 @@ function inst64_devcontainer_install_with_npm() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
-  INST64_DEVCONTAINER_CLI_PATH="${HOME}/node_modules/.bin/${INST64_DEVCONTAINER_CLI_NAME}"
-  if [[ -n "$INST64_DEVCONTAINER_PACKAGES_PRE" ]]; then
+  INST64_CLI_PATH="${HOME}/node_modules/.bin/${INST64_CLI_NAME}"
+  if [[ -n "$INST64_PKG_PRE" ]]; then
     # shellcheck disable=SC2086
-    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES_PRE $INST64_DEVCONTAINER_PACKAGES ||
+    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_PKG_PRE $INST64_PKG_MAIN ||
       return $?
   else
     # shellcheck disable=SC2086
-    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES $INST64_DEVCONTAINER_PACKAGES_PRE ||
+    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_PKG_MAIN $INST64_PKG_PRE ||
       return $?
   fi
-  if [[ -n "$INST64_DEVCONTAINER_PACKAGES_POST" ]]; then
+  if [[ -n "$INST64_PKG_POST" ]]; then
     # shellcheck disable=SC2086
-    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_DEVCONTAINER_PACKAGES $INST64_DEVCONTAINER_PACKAGES_POST ||
+    "$INST64_DEVCONTAINER_NPM_BIN" install $INST64_PKG_MAIN $INST64_PKG_POST ||
       return $?
   fi
   return 0
@@ -150,7 +150,7 @@ function inst64_devcontainer_setup() {
 function inst64_devcontainer_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_DEVCONTAINER_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -174,11 +174,11 @@ function inst64_devcontainer_select_packages() {
     else
       version_target="@${INST64_DEVCONTAINER_VERSION}"
     fi
-    INST64_DEVCONTAINER_PACKAGES="@devcontainers/cli${version_target}"
-    INST64_DEVCONTAINER_PACKAGES_PRE=''
-    INST64_DEVCONTAINER_PACKAGES_POST=''
+    INST64_PKG_MAIN="@devcontainers/cli${version_target}"
+    INST64_PKG_PRE=''
+    INST64_PKG_POST=''
   fi
-  [[ -z "$INST64_DEVCONTAINER_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -218,7 +218,7 @@ function inst64_devcontainer_initialize() {
   bl64_msg_show_setup 'Install application: DevContainer CLI' \
     'INST64_SYSTEM_WIDE' 'INST64_DEVCONTAINER_METHOD' \
     'INST64_DEVCONTAINER_VERSION' \
-    'INST64_DEVCONTAINER_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

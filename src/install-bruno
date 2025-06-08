@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+# Template: install-bl64-binary-1.0.0
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# BashLib64 location
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
+
+#
+# Globals
+#
+
+# Installation method
+declare INST64_BRUNO_METHOD="${INST64_BRUNO_METHOD:-BINARY}"
+# Installation destination
+declare INST64_BRUNO_TARGET="${INST64_BRUNO_TARGET:-}"
+# Hardware architecture
+declare INST64_BRUNO_PLATFORM="${INST64_BRUNO_PLATFORM:-}"
+# Application version
+declare INST64_BRUNO_VERSION="${INST64_BRUNO_VERSION:-latest}"
+
+INST64_APP_NAME='bruno'
+INST64_APP_ID='BRUNO'
+INST64_APP_FULL_NAME='Bruno API IDE'
+INST64_CLI_NAME='bruno'
+
+INST64_GH_REPO_NAME='bruno'
+INST64_GH_REPO_OWNER='usebruno'
+INST64_PKG_MAIN_PREFIX='bruno_'
+INST64_CPU_LINUX_AMD64='x86_64_linux.AppImage'
+
+#
+# Functions
+#
+
+function inst64_bruno_install_binary() {
+  bl64_dbg_app_show_function
+  local app_work_path="${INST64_PKG_MAIN}"
+
+  inst64_lib_task_binary_download &&
+    bl64_rxtx_github_get_asset \
+      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_BRUNO_VERSION" "$INST64_PKG_MAIN" "${INST64_WORK_PATH}/${INST64_PKG_MAIN}" ||
+    return $?
+
+  inst64_lib_task_deploy
+  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_BRUNO_TARGET" &&
+    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_BRUNO_TARGET" "${INST64_WORK_PATH}/${app_work_path}" ||
+    return $?
+
+  inst64_lib_task_binary_cleanup
+}
+
+function inst64_bruno_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    inst64_lib_base_create_path
+  fi
+}
+
+function inst64_bruno_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    inst64_bruno_install_binary
+  fi
+}
+
+function inst64_bruno_setup() {
+  bl64_dbg_app_show_function
+  local app_cli_source=''
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    app_cli_source="${INST64_BRUNO_TARGET}/${INST64_PKG_MAIN}"
+    inst64_lib_task_publish
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${app_cli_source}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+  fi
+}
+
+function inst64_bruno_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
+}
+
+function inst64_bruno_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_BRUNO_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_BRUNO_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      else
+        inst64_lib_alert_incompatible_platform
+        return $?
+      fi
+    fi
+    inst64_lib_platform_check_cpu
+  fi
+}
+
+function inst64_bruno_select_packages() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_BRUNO_VERSION" == 'latest' ]]; then
+      INST64_BRUNO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_BRUNO_VERSION#v}_${INST64_BRUNO_PLATFORM}"
+  fi
+  inst64_lib_package_check_definition
+}
+
+function inst64_bruno_initialize() {
+  bl64_dbg_app_show_function
+  inst64_lib_base_initialize &&
+    inst64_lib_app_check_method \
+      'BINARY' ||
+    return $?
+
+  if [[ "$INST64_BRUNO_METHOD" == 'BINARY' ]]; then
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" ||
+      return $?
+    bl64_arc_setup ||
+      return $?
+  fi
+
+  inst64_bruno_select_platform &&
+    inst64_bruno_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
+}
+
+#
+# Main
+#
+
+bl64_lib_script_version_set '1.0.0'
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
+inst64_bruno_initialize &&
+  inst64_bruno_prepare &&
+  inst64_bruno_install &&
+  inst64_bruno_setup &&
+  inst64_bruno_verify
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

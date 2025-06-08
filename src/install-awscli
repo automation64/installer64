@@ -63,11 +63,11 @@ declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-}"
 # Installation method
 declare INST64_AWSCLI_METHOD="${INST64_AWSCLI_METHOD:-CUSTOM}"
 
-declare INST64_AWSCLI_PACKAGE_URL=''
-declare INST64_AWSCLI_INSTALLER='aws/install'
-declare INST64_AWSCLI_PACKAGES=''
-declare INST64_AWSCLI_CLI_NAME='aws'
-declare INST64_AWSCLI_CLI_PATH=''
+declare INST64_WEB_REPO_URL=''
+declare INST64_APP_INSTALLER='aws/install'
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='aws'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
@@ -79,7 +79,7 @@ function inst64_awscli_install_custom_package_linux() {
   local app_target_mode='0755'
   local app_target_owner="$BL64_IAM_SYSTEM_USER"
   local app_target_group="$BL64_IAM_SYSTEM_GROUP"
-  local app_cli_source="bin/${INST64_AWSCLI_CLI_NAME}"
+  local app_cli_source="bin/${INST64_CLI_NAME}"
   local app_cli_source2="bin/aws_completer"
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -90,22 +90,22 @@ function inst64_awscli_install_custom_package_linux() {
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" &&
     bl64_rxtx_web_get_file \
-      "${INST64_AWSCLI_PACKAGE_URL}" "${work_path}/${INST64_AWSCLI_PACKAGES}" &&
-    bl64_arc_open_zip "${work_path}/${INST64_AWSCLI_PACKAGES}" "${work_path}" ||
+      "${INST64_WEB_REPO_URL}" "${work_path}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_zip "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
   bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_AWSCLI_TARGET" &&
     bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    "${work_path}/$INST64_AWSCLI_INSTALLER" \
+    "${work_path}/$INST64_APP_INSTALLER" \
       --bin-dir "${INST64_AWSCLI_TARGET}/bin" \
       --install-dir "${INST64_AWSCLI_TARGET}/versions" \
       --update ||
     return $?
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_AWSCLI_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_AWSCLI_TARGET}/${app_cli_source}" "$INST64_AWSCLI_CLI_PATH" "$BL64_VAR_ON" &&
+    bl64_fs_symlink_create "${INST64_AWSCLI_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" &&
       bl64_fs_symlink_create "${INST64_AWSCLI_TARGET}/${app_cli_source2}" "${INST64_LOCAL_BIN}/aws_completer" "$BL64_VAR_ON" ||
       return $?
   fi
@@ -117,11 +117,11 @@ function inst64_awscli_install_custom_package_macos() {
 
   bl64_msg_show_task 'download application'
   bl64_rxtx_web_get_file \
-    "${INST64_AWSCLI_PACKAGE_URL}" "${work_path}/${INST64_AWSCLI_PACKAGES}" ||
+    "${INST64_WEB_REPO_URL}" "${work_path}/${INST64_PKG_MAIN}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  installer -pkg "${work_path}/${INST64_AWSCLI_PACKAGES}" -target /
+  installer -pkg "${work_path}/${INST64_PKG_MAIN}" -target /
 }
 
 function inst64_awscli_install_custom_package() {
@@ -204,20 +204,20 @@ function inst64_awscli_select_packages() {
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
       package_prefix='awscli-exe-'
       package_suffix='.zip'
-      INST64_AWSCLI_PACKAGES="${package_prefix}${INST64_AWSCLI_PLATFORM}${package_suffix}"
-      INST64_AWSCLI_PACKAGE_URL="${INST64_AWSCLI_SOURCE}/${INST64_AWSCLI_PACKAGES}"
+      INST64_PKG_MAIN="${package_prefix}${INST64_AWSCLI_PLATFORM}${package_suffix}"
+      INST64_WEB_REPO_URL="${INST64_AWSCLI_SOURCE}/${INST64_PKG_MAIN}"
     elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
       package_prefix='AWSCLIV2'
       package_suffix='.pkg'
-      INST64_AWSCLI_PACKAGES="${package_prefix}${package_suffix}"
+      INST64_PKG_MAIN="${package_prefix}${package_suffix}"
     fi
-    INST64_AWSCLI_PACKAGE_URL="${INST64_AWSCLI_SOURCE}/${INST64_AWSCLI_PACKAGES}"
+    INST64_WEB_REPO_URL="${INST64_AWSCLI_SOURCE}/${INST64_PKG_MAIN}"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_AWSCLI_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_AWSCLI_CLI_NAME}"
+      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
     fi
   fi
-  [[ -z "$INST64_AWSCLI_PACKAGE_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
-  [[ -z "$INST64_AWSCLI_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -254,7 +254,7 @@ function inst64_awscli_prepare() {
 function inst64_awscli_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_AWSCLI_CLI_PATH" --version
+  "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -303,7 +303,7 @@ function inst64_awscli_initialize() {
     'INST64_AWSCLI_SOURCE' \
     'INST64_AWSCLI_TARGET' \
     'INST64_AWSCLI_VERSION' \
-    'INST64_AWSCLI_CLI_PATH'
+    'INST64_CLI_PATH'
 }
 
 #

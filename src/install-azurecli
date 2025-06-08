@@ -50,10 +50,10 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 # Installation method
 declare INST64_AZURECLI_METHOD="${INST64_AZURECLI_METHOD:-EXTERNAL}"
 
-declare INST64_AZURECLI_REPOSITORY_NAME='azure-cli'
-declare INST64_AZURECLI_SOURCE_RHEL='https://packages.microsoft.com/config/rhel'
-declare INST64_AZURECLI_SOURCE_DEB='https://packages.microsoft.com/repos/azure-cli'
-declare INST64_AZURECLI_REPOSITORY_KEY_DEB='https://packages.microsoft.com/keys/microsoft.asc'
+declare INST64_OS_REPO_NAME='azure-cli'
+declare INST64_OS_REPO_SOURCE_RHEL='https://packages.microsoft.com/config/rhel'
+declare INST64_OS_REPO_SOURCE_DEB='https://packages.microsoft.com/repos/azure-cli'
+declare INST64_OS_REPO_KEY_DEB='https://packages.microsoft.com/keys/microsoft.asc'
 
 #
 # Functions
@@ -80,11 +80,11 @@ function inst64_azurecli_add_repository() {
 
   bl64_msg_show_task 'Add external package repository'
   if bl64_os_is_distro "${BL64_OS_OL}"; then
-    repository_url="${INST64_AZURECLI_SOURCE_RHEL}/9.0/packages-microsoft-prod.rpm"
+    repository_url="${INST64_OS_REPO_SOURCE_RHEL}/9.0/packages-microsoft-prod.rpm"
     bl64_pkg_deploy "$repository_url"
   elif bl64_os_is_distro "${BL64_OS_UB}"; then
-    repository_url="$INST64_AZURECLI_SOURCE_DEB"
-    repository_key="$INST64_AZURECLI_REPOSITORY_KEY_DEB"
+    repository_url="$INST64_OS_REPO_SOURCE_DEB"
+    repository_key="$INST64_OS_REPO_KEY_DEB"
     repository_extra_2='main'
     bl64_pkg_deploy 'gnupg' 'lsb-release' &&
       bl64_rxtx_run_curl -sLS "$repository_key" |
@@ -92,7 +92,7 @@ function inst64_azurecli_add_repository() {
       bl64_fs_run_chmod go+r "$repository_key_file" &&
       repository_extra_1="$(lsb_release -cs)" &&
       echo "deb [signed-by=${repository_key_file}] ${repository_url} ${repository_extra_1} ${repository_extra_2}" |
-      "$BL64_OS_CMD_TEE" "/etc/apt/sources.list.d/${INST64_AZURECLI_REPOSITORY_NAME}.list" >/dev/null
+      "$BL64_OS_CMD_TEE" "/etc/apt/sources.list.d/${INST64_OS_REPO_NAME}.list" >/dev/null
   fi
 }
 

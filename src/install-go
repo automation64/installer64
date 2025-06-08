@@ -62,40 +62,40 @@ declare INST64_GO_VERSION="${INST64_GO_VERSION:-1.21.2}"
 # Installation method
 declare INST64_GO_METHOD="${INST64_GO_METHOD:-BINARY}"
 
-declare INST64_GO_PACKAGE_URL=''
-declare INST64_GO_PACKAGES=''
-declare INST64_GO_CLI_NAME='go'
-declare INST64_GO_CLI_PATH=''
+declare INST64_WEB_REPO_URL=''
+declare INST64_PKG_MAIN=''
+declare INST64_CLI_NAME='go'
+declare INST64_CLI_PATH=''
 
 #
 # Functions
 #
 
-function inst64_go_install_binary_release() {
+function inst64_go_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
-  local app_cli_source="${INST64_GO_CLI_NAME}"
+  local app_cli_source="${INST64_CLI_NAME}"
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_GO_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_GO_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
   else
-    INST64_GO_CLI_PATH="${INST64_GO_TARGET}/${INST64_GO_CLI_NAME}"
+    INST64_CLI_PATH="${INST64_GO_TARGET}/${INST64_CLI_NAME}"
   fi
 
   bl64_msg_show_task 'download application'
   work_path="$(bl64_fs_create_tmpdir)" || return $?
   bl64_rxtx_web_get_file \
-    "${INST64_GO_PACKAGE_URL}/${INST64_GO_PACKAGES}" "${work_path}/${INST64_GO_PACKAGES}" ||
+    "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" "${work_path}/${INST64_PKG_MAIN}" ||
     return $?
 
   bl64_msg_show_task 'deploy application'
-  bl64_arc_open_tar "${work_path}/${INST64_GO_PACKAGES}" "${INST64_OPT_ROOT}" ||
+  bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${INST64_OPT_ROOT}" ||
     return $?
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_GO_CLI_PATH})"
+    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_GO_TARGET}/bin/${app_cli_source}" "$INST64_GO_CLI_PATH" "$BL64_VAR_ON" ||
+    bl64_fs_symlink_create "${INST64_GO_TARGET}/bin/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
       return $?
   fi
 
@@ -119,7 +119,7 @@ function inst64_go_install() {
   bl64_dbg_app_show_function
   inst64_go_select_packages || return $?
   if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
-    inst64_go_install_binary_release
+    inst64_go_install_binary
   fi
 }
 
@@ -141,10 +141,10 @@ function inst64_go_select_packages() {
   if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
     package_prefix='go'
     package_suffix='tar.gz'
-    INST64_GO_PACKAGES="${package_prefix}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_suffix}"
-    INST64_GO_PACKAGE_URL="${INST64_GO_SOURCE}"
+    INST64_PKG_MAIN="${package_prefix}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${package_suffix}"
+    INST64_WEB_REPO_URL="${INST64_GO_SOURCE}"
   fi
-  [[ -z "$INST64_GO_PACKAGES" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
   return 0
 }
 
@@ -181,7 +181,7 @@ function inst64_go_prepare() {
 function inst64_go_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
-  "$INST64_GO_CLI_PATH" version
+  "$INST64_CLI_PATH" version
 }
 
 #######################################
