@@ -40,7 +40,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_PIPX_METHOD="${INST64_PIPX_METHOD:-CUSTOM}"
+declare INST64_PIPX_METHOD="${INST64_PIPX_METHOD:-PIP}"
 # Installation destination
 declare INST64_PIPX_TARGET="${INST64_PIPX_TARGET:-}"
 # Hardware architecture
@@ -198,7 +198,8 @@ function inst64_pipx_initialize() {
   fi
 
   inst64_pipx_select_platform &&
-    inst64_pipx_select_packages ||
+    inst64_pipx_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
 
   inst64_lib_app_check_installed && return 0

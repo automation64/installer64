@@ -119,7 +119,8 @@ function inst64_ksh_initialize() {
   fi
 
   inst64_ksh_select_platform &&
-    inst64_ksh_select_packages ||
+    inst64_ksh_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
 
   inst64_lib_app_check_installed && return 0

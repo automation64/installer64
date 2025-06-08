@@ -169,7 +169,8 @@ function inst64_eksctl_initialize() {
   fi
 
   inst64_eksctl_select_platform &&
-    inst64_eksctl_select_packages ||
+    inst64_eksctl_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
 
   inst64_lib_app_check_installed && return 0

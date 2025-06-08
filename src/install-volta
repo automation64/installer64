@@ -180,7 +180,8 @@ function inst64_volta_initialize() {
   fi
 
   inst64_volta_select_platform &&
-    inst64_volta_select_packages ||
+    inst64_volta_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
 
   inst64_lib_app_check_installed && return 0
