@@ -72,7 +72,7 @@ function inst64_X_APP_NAME_X_install_binary() {
   bl64_dbg_app_show_function
   local app_work_path="${INST64_CLI_NAME}"
 
-  inst64_lib_task_download &&
+  inst64_lib_task_binary_download &&
     bl64_rxtx_github_get_asset \
       "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_PKG_MAIN" "${INST64_WORK_PATH}/${INST64_PKG_MAIN}" &&
     bl64_arc_open_tar "${INST64_WORK_PATH}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH}" ||
