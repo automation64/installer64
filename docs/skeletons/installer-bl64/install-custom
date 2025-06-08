@@ -57,17 +57,6 @@ INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 
 # X_STAND_ALONE_FUNCTIONS_X #
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
 function inst64_X_APP_NAME_X_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
@@ -76,17 +65,6 @@ function inst64_X_APP_NAME_X_prepare() {
   fi
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
 function inst64_X_APP_NAME_X_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
@@ -95,17 +73,6 @@ function inst64_X_APP_NAME_X_install() {
   fi
 }
 
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
 function inst64_X_APP_NAME_X_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
@@ -114,83 +81,31 @@ function inst64_X_APP_NAME_X_setup() {
   fi
 }
 
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
 function inst64_X_APP_NAME_X_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   # X_VERIFY_PLACEHOLDER_X
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
 function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
-    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      : # X_PLATFORM_SELECTION_PLACEHOLDER_X
-    fi
-  fi
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
+  # X_PLATFORM_SELECTION_PLACEHOLDER_X
   return 0
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method \
-      'X_INIT_METHOD_PLACEHOLDER_X' ||
+      'CUSTOM' ||
     return $?
 
   # X_INIT_PLACEHOLDER_X
@@ -201,7 +116,7 @@ function inst64_X_APP_NAME_X_initialize() {
     return $?
 
   inst64_lib_app_check_installed && return 0
-  inst64_lib_show_parameters
+  inst64_lib_message_show_parameters
 }
 
 #
