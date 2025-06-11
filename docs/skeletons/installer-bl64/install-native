@@ -22,7 +22,9 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
@@ -126,10 +128,11 @@ function inst64_X_APP_NAME_X_select_packages() {
     case "$BL64_OS_FLAVOR" in
     "$BL64_OS_FLAVOR_X_FLAVOR_X")
       bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
-        INST64_PKG_DEV="X_OS_DEV_PACKAGE_LIST_X"
-      INST64_PKG_MAIN="X_OS_PACKAGE_LIST_X ${INST64_PKG_DEV}"
+        INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
+      INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
       ;;
     esac
+    INST64_PKG_MAIN="X_OS_PACKAGE_LIST_X ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
 }
