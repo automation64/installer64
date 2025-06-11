@@ -78,6 +78,7 @@
   declare INST64_PKG_MAIN_SUFFIX=''
   declare INST64_PKG_PRE=''
   declare INST64_PKG_POST=''
+  declare INST64_PKG_DEV=''
 
   # CPU Architecture definitions
   declare INST64_CPU_DARWIN_ARM64=''
@@ -303,6 +304,9 @@ function inst64_lib_message_show_parameters() {
   method_variable_suffix+=" CLI_PATH"
   method_variable_suffix+=" GH_REPO_NAME"
   method_variable_suffix+=" GH_REPO_OWNER"
+  method_variable_suffix+=" GH_REPO_OWNER"
+  method_variable_suffix+=" PKG_MAIN"
+  method_variable_suffix+=" PKG_DEV"
   method_variable_suffix+=" GIT_BRANCH"
   method_variable_suffix+=" GIT_REPO"
   method_variable_suffix+=" GIT_SERVER"
