@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.0.0
+# Template: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -87,9 +87,22 @@ function inst64_X_APP_NAME_X_verify() {
   # X_VERIFY_PLACEHOLDER_X
 }
 
+function inst64_X_APP_NAME_X_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'CUSTOM' ||
+    return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+    : # X_METHOD_AUTO_PLACEHOLDER_X
+  fi
+}
+
 function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
-  # X_PLATFORM_SELECTION_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    : # X_PLATFORM_SELECTION_PLACEHOLDER_X
+  fi
   return 0
 }
 
@@ -104,8 +117,7 @@ function inst64_X_APP_NAME_X_select_packages() {
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method \
-      'CUSTOM' ||
+    inst64_X_APP_NAME_X_select_method ||
     return $?
 
   # X_INIT_PLACEHOLDER_X

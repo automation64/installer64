@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-native-2.5.0
-#   Skeleton: installer-base-2.4.0
-#   Snippet: select-platform-1.1.0
+# Template: install-bl64-native-1.0.0
+#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -19,13 +18,13 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
@@ -36,192 +35,129 @@ source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
-# Enable development packages?
-declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-$BL64_VAR_OFF}"
+# Installation destination
+declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
+# Hardware architecture
 declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+# Application version
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+# Enable development packages?
+declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
 
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='X_CLI_NAME_X'
-declare INST64_CLI_PATH=''
+# App information
+INST64_APP_NAME='X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+# CLI information
+INST64_CLI_NAME='X_CLI_NAME_X'
 
 #
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_os_packages() {
+function inst64_X_APP_NAME_X_install_native() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'deploy packages'
   # shellcheck disable=SC2086
   bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
+function inst64_X_APP_NAME_X_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+}
+
+function inst64_X_APP_NAME_X_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    inst64_X_APP_NAME_X_install_native
+  fi
+}
+
+function inst64_X_APP_NAME_X_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+}
+
+function inst64_X_APP_NAME_X_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  # X_VERIFY_PLACEHOLDER_X
+}
+
+function inst64_X_APP_NAME_X_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'NATIVE' ||
+    return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+    : # X_METHOD_AUTO_PLACEHOLDER_X
+  fi
+}
+
 function inst64_X_APP_NAME_X_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_TAG_X'
-      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_X_APP_NAME_CAPS_X_PLATFORM='X_PLATFORM_TAG_X'
-      else
-        bl64_msg_show_error "unsupported OS and Machine combination (OS_TYPE:${BL64_OS_TYPE} / MACHINE: ${BL64_OS_MACHINE})"
-        return $BL64_LIB_ERROR_OS_INCOMPATIBLE
-      fi
-    fi
+    # X_PLATFORM_SELECTION_PLACEHOLDER_X
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+    "$BL64_OS_FLAVOR_X_FLAVOR_X")
+      INST64_CLI_PATH='X_CLI_PATH_X'
+      ;;
+    esac
   fi
-  [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_X_APP_NAME_X_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    inst64_X_APP_NAME_X_install_os_packages
-  fi
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
 function inst64_X_APP_NAME_X_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_is_distro $X_OS_VERSION_TAG_X; then
-      INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+    "$BL64_OS_FLAVOR_X_FLAVOR_X")
       bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
-        INST64_PKG_MAIN="${INST64_PKG_MAIN} X_OS_PACKAGE_LIST_X"
-    fi
-    INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
+        INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
+      INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
+      ;;
+    esac
+    INST64_PKG_MAIN="X_OS_PACKAGE_LIST_X ${INST64_PKG_DEV}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_X_APP_NAME_X_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_X_APP_NAME_X_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_X_APP_NAME_X_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
-    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
-    'NATIVE' ||
+  inst64_lib_base_initialize &&
+    inst64_X_APP_NAME_X_select_method ||
     return $?
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
-      bl64_os_check_compatibility \
-        "${BL64_OS_UB}" &&
+      bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_ALPINE" &&
       bl64_pkg_setup ||
       return $?
   fi
+
   inst64_X_APP_NAME_X_select_platform &&
-    inst64_X_APP_NAME_X_select_packages ||
+    inst64_X_APP_NAME_X_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
-  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
-    'INST64_CLI_PATH'
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
@@ -236,5 +172,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_X_APP_NAME_X_initialize &&
   inst64_X_APP_NAME_X_prepare &&
   inst64_X_APP_NAME_X_install &&
+  inst64_X_APP_NAME_X_setup &&
   inst64_X_APP_NAME_X_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
