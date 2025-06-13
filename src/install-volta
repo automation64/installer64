@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.0.0
-#   Skeleton: installer-base-5.0.0
+# Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -127,6 +126,17 @@ function inst64_verify() {
     inst64_lib_app_register_version
 }
 
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'BINARY' ||
+    return $?
+  if [[ "$INST64_VOLTA_METHOD" == 'AUTO' ]]; then
+    INST64_VOLTA_METHOD='BINARY'
+  fi
+}
+
 function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
@@ -135,9 +145,6 @@ function inst64_select_platform() {
         INST64_VOLTA_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_VOLTA_PLATFORM="$INST64_CPU_LINUX_AMD64"
-      else
-        inst64_lib_alert_incompatible_platform
-        return $?
       fi
     fi
     inst64_lib_platform_check_cpu
@@ -159,8 +166,7 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method \
-      'BINARY' ||
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then

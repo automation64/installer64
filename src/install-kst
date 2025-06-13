@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-python-1.0.0
+# Template: install-bl64-python-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -87,6 +87,17 @@ function inst64_verify() {
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'PIP' 'PIPX' ||
+    return $?
+  if [[ "$INST64_KST_METHOD" == 'AUTO' ]]; then
+    INST64_KST_METHOD='PIPX'
+  fi
+}
+
 function inst64_select_platform() {
   bl64_dbg_app_show_function
   return 0
@@ -108,8 +119,7 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method \
-      'PIPX' ||
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_KST_METHOD" == 'PIPX' || "$INST64_KST_METHOD" == 'PIP' ]]; then
