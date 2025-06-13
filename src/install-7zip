@@ -104,13 +104,12 @@ function inst64_install() {
 
 function inst64_setup() {
   bl64_dbg_app_show_function
-  local app_cli_source=''
   inst64_lib_step_setup || return 0
   if [[ "$INST64_7ZIP_METHOD" == 'BINARY' ]]; then
     INST64_WORK_PATH_CLI="${INST64_7ZIP_TARGET}/${INST64_CLI_NAME}"
     inst64_lib_task_publish
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${app_cli_source}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
   fi
 }
 
