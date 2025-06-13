@@ -69,8 +69,9 @@
   declare INST64_STATUS_FLAG='CONTINUE'
   declare INST64_STATUS_PATH=''
 
-  # Work path
-  declare INST64_WORK_PATH=''
+  # Work paths
+  declare INST64_WORK_PATH_STAGING=''
+  declare INST64_WORK_PATH_CLI=''
 
   # Application packages
   declare INST64_PKG_MAIN=''
@@ -213,13 +214,13 @@ function inst64_lib_target_set_owner() {
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
-  [[ -n "$INST64_CLI_PATH" ]] && return 0
 
+  [[ -n "$INST64_CLI_PATH" ]] && return 0
   if [[ "${!method}" == 'PIPX' ]]; then
     INST64_CLI_PATH="${HOME}/.local/bin"
   elif [[ "${!method}" == 'PIP' ]]; then
     INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}"
-  elif [[ "${!method}" == 'BINARY' ]]; then
+  elif [[ "${!method}" == 'BINARY' || "${!method}" == 'CUSTOM' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}"
     else
@@ -303,7 +304,6 @@ function inst64_lib_message_show_parameters() {
   method_variable_suffix+=" CLI_NAME"
   method_variable_suffix+=" CLI_PATH"
   method_variable_suffix+=" GH_REPO_NAME"
-  method_variable_suffix+=" GH_REPO_OWNER"
   method_variable_suffix+=" GH_REPO_OWNER"
   method_variable_suffix+=" PKG_MAIN"
   method_variable_suffix+=" PKG_DEV"
@@ -417,20 +417,22 @@ function inst64_lib_step_setup() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'setup environment'
-  return 0
+  bl64_check_parameter 'INST64_CLI_PATH' &&
+    bl64_check_parameter 'INST64_CLI_NAME'
 }
 
 function inst64_lib_step_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'verify deployment'
-  return 0
+  bl64_check_parameter 'INST64_CLI_PATH' &&
+    bl64_check_parameter 'INST64_CLI_NAME'
 }
 
 function inst64_lib_task_binary_download() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'download application'
-  INST64_WORK_PATH="$(bl64_fs_create_tmpdir)" || return $?
+  INST64_WORK_PATH_STAGING="$(bl64_fs_create_tmpdir)" || return $?
 }
 
 function inst64_lib_task_deploy() {
@@ -448,7 +450,7 @@ function inst64_lib_task_publish() {
 function inst64_lib_task_binary_cleanup() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$INST64_WORK_PATH"
+  bl64_fs_rm_tmpdir "$INST64_WORK_PATH_STAGING"
   return 0
 }
 
@@ -526,4 +528,22 @@ function inst64_lib_platform_check_cpu() {
   [[ -n "${!platform}" ]] && return 0
   bl64_msg_show_error "unable to determine platform id (${platform})"
   return $BL64_LIB_ERROR_PARAMETER_MISSING
+}
+
+function inst64_lib_app_check_mode_user() {
+  bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_msg_show_error 'system wide installation is not supported'
+    return $BL64_LIB_ERROR_PARAMETER_INVALID
+  fi
+  return 0
+}
+
+function inst64_lib_app_check_mode_system() {
+  bl64_dbg_app_show_function
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_msg_show_error 'user wide installation is not supported'
+    return $BL64_LIB_ERROR_PARAMETER_INVALID
+  fi
+  return 0
 }
