@@ -68,7 +68,7 @@ INST64_CPU_LINUX_AMD64='linux'
 # Functions
 #
 
-function inst64_volta_install_binary() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
   local app_work_path="${INST64_CLI_NAME}"
 
@@ -89,7 +89,7 @@ function inst64_volta_install_binary() {
   inst64_lib_task_binary_cleanup
 }
 
-function inst64_volta_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
@@ -97,15 +97,15 @@ function inst64_volta_prepare() {
   fi
 }
 
-function inst64_volta_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
-    inst64_volta_install_binary
+    inst64_install_binary
   fi
 }
 
-function inst64_volta_setup() {
+function inst64_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
   inst64_lib_step_setup || return 0
@@ -119,7 +119,7 @@ function inst64_volta_setup() {
   fi
 }
 
-function inst64_volta_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   cd "$HOME" &&
@@ -127,7 +127,7 @@ function inst64_volta_verify() {
     inst64_lib_app_register_version
 }
 
-function inst64_volta_select_platform() {
+function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_VOLTA_PLATFORM" ]]; then
@@ -144,7 +144,7 @@ function inst64_volta_select_platform() {
   fi
 }
 
-function inst64_volta_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_VOLTA_VERSION" == 'latest' ]]; then
@@ -156,7 +156,7 @@ function inst64_volta_select_packages() {
   inst64_lib_package_check_definition
 }
 
-function inst64_volta_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method \
@@ -179,8 +179,8 @@ function inst64_volta_initialize() {
       return $?
   fi
 
-  inst64_volta_select_platform &&
-    inst64_volta_select_packages &&
+  inst64_select_platform &&
+    inst64_select_packages &&
     inst64_lib_cli_set_path ||
     return $?
 
@@ -197,9 +197,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_volta_initialize &&
-  inst64_volta_prepare &&
-  inst64_volta_install &&
-  inst64_volta_setup &&
-  inst64_volta_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

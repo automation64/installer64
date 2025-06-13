@@ -51,7 +51,7 @@ declare INST64_MONGODBCLI_VERSION="${INST64_MONGODBCLI_VERSION:-6}"
 # Functions
 #
 
-function inst64_mongodbcli_install_v5() {
+function inst64_install_v5() {
   local repository_name=''
   local repository_platform=''
   local repository_url=''
@@ -75,7 +75,7 @@ function inst64_mongodbcli_install_v5() {
   bl64_pkg_deploy $packages
 }
 
-function inst64_mongodbcli_install_v6() {
+function inst64_install_v6() {
   local repository_name=''
   local repository_platform=''
   local repository_url=''
@@ -110,13 +110,13 @@ function inst64_mongodbcli_install_v6() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_mongodbcli_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
 
   # shellcheck disable=SC2249
   case "$INST64_MONGODBCLI_VERSION" in
-  '5') inst64_mongodbcli_install_v5 ;;
-  '6') inst64_mongodbcli_install_v6 ;;
+  '5') inst64_install_v5 ;;
+  '6') inst64_install_v6 ;;
   esac
   # shellcheck disable=SC2181
   (($? != 0)) && return 1
@@ -137,7 +137,7 @@ function inst64_mongodbcli_install() {
 #   0: initialization ok
 #   >: failed to initialize
 #######################################
-function inst64_mongodbcli_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -173,6 +173,6 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_mongodbcli_initialize &&
-  inst64_mongodbcli_install
+inst64_initialize &&
+  inst64_install
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

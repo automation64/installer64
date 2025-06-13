@@ -65,7 +65,7 @@ INST64_PKG_MAIN_SUFFIX='.tar.gz'
 # Functions
 #
 
-function inst64_trivy_install_binary() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
   local app_work_path="${INST64_CLI_NAME}"
 
@@ -85,7 +85,7 @@ function inst64_trivy_install_binary() {
   inst64_lib_task_binary_cleanup
 }
 
-function inst64_trivy_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
@@ -93,15 +93,15 @@ function inst64_trivy_prepare() {
   fi
 }
 
-function inst64_trivy_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
-    inst64_trivy_install_binary
+    inst64_install_binary
   fi
 }
 
-function inst64_trivy_setup() {
+function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
@@ -112,7 +112,7 @@ function inst64_trivy_setup() {
   fi
 }
 
-function inst64_trivy_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
@@ -121,7 +121,7 @@ function inst64_trivy_verify() {
   fi
 }
 
-function inst64_trivy_select_method() {
+function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
@@ -132,7 +132,7 @@ function inst64_trivy_select_method() {
   fi
 }
 
-function inst64_trivy_select_platform() {
+function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_TRIVY_PLATFORM" ]]; then
@@ -146,7 +146,7 @@ function inst64_trivy_select_platform() {
   fi
 }
 
-function inst64_trivy_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_TRIVY_VERSION" == 'latest' ]]; then
@@ -158,10 +158,10 @@ function inst64_trivy_select_packages() {
   inst64_lib_package_check_definition
 }
 
-function inst64_trivy_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_trivy_select_method ||
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_TRIVY_METHOD" == 'BINARY' ]]; then
@@ -173,8 +173,8 @@ function inst64_trivy_initialize() {
       return $?
   fi
 
-  inst64_trivy_select_platform &&
-    inst64_trivy_select_packages &&
+  inst64_select_platform &&
+    inst64_select_packages &&
     inst64_lib_cli_set_path ||
     return $?
 
@@ -191,9 +191,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_trivy_initialize &&
-  inst64_trivy_prepare &&
-  inst64_trivy_install &&
-  inst64_trivy_setup &&
-  inst64_trivy_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

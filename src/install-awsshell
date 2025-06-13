@@ -61,12 +61,12 @@ INST64_PKG_MAIN='aws-shell'
 # Functions
 #
 
-function inst64_awsshell_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
 }
 
-function inst64_awsshell_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' ]]; then
@@ -76,18 +76,18 @@ function inst64_awsshell_install() {
   fi
 }
 
-function inst64_awsshell_setup() {
+function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
 }
 
-function inst64_awsshell_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --help
 }
 
-function inst64_awsshell_select_method() {
+function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
@@ -98,12 +98,12 @@ function inst64_awsshell_select_method() {
   fi
 }
 
-function inst64_awsshell_select_platform() {
+function inst64_select_platform() {
   bl64_dbg_app_show_function
   return 0
 }
 
-function inst64_awsshell_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_AWSSHELL_VERSION" == 'latest' ]]; then
@@ -116,10 +116,10 @@ function inst64_awsshell_select_packages() {
   inst64_lib_package_check_definition
 }
 
-function inst64_awsshell_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_awsshell_select_method ||
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_AWSSHELL_METHOD" == 'PIPX' || "$INST64_AWSSHELL_METHOD" == 'PIP' ]]; then
@@ -128,8 +128,8 @@ function inst64_awsshell_initialize() {
       return $?
   fi
 
-  inst64_awsshell_select_platform &&
-    inst64_awsshell_select_packages &&
+  inst64_select_platform &&
+    inst64_select_packages &&
     inst64_lib_cli_set_path ||
     return $?
 
@@ -146,9 +146,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_awsshell_initialize &&
-  inst64_awsshell_prepare &&
-  inst64_awsshell_install &&
-  inst64_awsshell_setup &&
-  inst64_awsshell_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

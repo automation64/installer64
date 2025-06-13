@@ -50,7 +50,7 @@ declare INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-NATIVE}"
 # Functions
 #
 
-function inst64_docker_install_centos() {
+function inst64_install_centos() {
   local repository_name='docker-ce'
   # shellcheck disable=SC2016
   local repository_url='https://download.docker.com/linux/centos/$releasever/$basearch/stable'
@@ -77,10 +77,10 @@ function inst64_docker_install_centos() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_docker_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   if bl64_os_is_distro "${BL64_OS_OL}"; then
-    inst64_docker_install_centos
+    inst64_install_centos
   fi
   # shellcheck disable=SC2181
   (($? != 0)) && return 1
@@ -101,7 +101,7 @@ function inst64_docker_install() {
 #   0: initialization ok
 #   >: failed to initialize
 #######################################
-function inst64_docker_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -130,6 +130,6 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_docker_initialize &&
-  inst64_docker_install
+inst64_initialize &&
+  inst64_install
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

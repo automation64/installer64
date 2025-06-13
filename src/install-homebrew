@@ -56,7 +56,7 @@ INST64_APP_INSTALLER='install.sh'
 # Functions
 #
 
-function inst64_homebrew_install_custom() {
+function inst64_install_custom() {
   local installer_path=''
   inst64_lib_github_asset_download "$INST64_APP_INSTALLER" || return $?
 
@@ -77,38 +77,38 @@ function inst64_homebrew_install_custom() {
   return 0
 }
 
-function inst64_homebrew_prepare() {
+function inst64_prepare() {
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
     :
   fi
 }
 
-function inst64_homebrew_install() {
+function inst64_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
-    inst64_homebrew_install_custom
+    inst64_install_custom
   fi
 }
 
-function inst64_homebrew_setup() {
+function inst64_setup() {
   inst64_lib_step_setup || return 0
 }
 
-function inst64_homebrew_verify() {
+function inst64_verify() {
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
-function inst64_homebrew_select_platform() {
+function inst64_select_platform() {
   return 0
 }
 
-function inst64_homebrew_select_packages() {
+function inst64_select_packages() {
   return 0
 }
 
-function inst64_homebrew_initialize() {
+function inst64_initialize() {
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method 'CUSTOM' ||
     return $?
@@ -119,8 +119,8 @@ function inst64_homebrew_initialize() {
       return $?
   fi
 
-  inst64_homebrew_select_platform &&
-    inst64_homebrew_select_packages ||
+  inst64_select_platform &&
+    inst64_select_packages ||
     return $?
 
   inst64_lib_app_check_installed && return 0
@@ -132,9 +132,9 @@ function inst64_homebrew_initialize() {
 #
 
 inst64_lib_task_process_start &&
-  inst64_homebrew_initialize &&
-  inst64_homebrew_prepare &&
-  inst64_homebrew_install &&
-  inst64_homebrew_setup &&
-  inst64_homebrew_verify
+  inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 inst64_lib_task_process_finish $?

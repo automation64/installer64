@@ -66,7 +66,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_pgadmin_install_with_pip() {
+function inst64_install_with_pip() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
@@ -87,7 +87,7 @@ function inst64_pgadmin_install_with_pip() {
   return 0
 }
 
-function inst64_pgadmin_install_with_pipx() {
+function inst64_install_with_pipx() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
@@ -119,12 +119,12 @@ function inst64_pgadmin_install_with_pipx() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_pgadmin_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_PGADMIN_METHOD" == 'PIPX' ]]; then
-    inst64_pgadmin_install_with_pipx
+    inst64_install_with_pipx
   elif [[ "$INST64_PGADMIN_METHOD" == 'PIP' ]]; then
-    inst64_pgadmin_install_with_pip
+    inst64_install_with_pip
   fi
 }
 
@@ -139,7 +139,7 @@ function inst64_pgadmin_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_pgadmin_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   local version_target=''
 
@@ -172,7 +172,7 @@ function inst64_pgadmin_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_pgadmin_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
 }
@@ -188,7 +188,7 @@ function inst64_pgadmin_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_pgadmin_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   "$INST64_CLI_PATH" --help
@@ -205,7 +205,7 @@ function inst64_pgadmin_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_pgadmin_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -227,7 +227,7 @@ function inst64_pgadmin_initialize() {
       bl64_py_setup ||
       return $?
   fi
-  inst64_pgadmin_select_packages ||
+  inst64_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: PGAdmin' \
     'INST64_SYSTEM_WIDE' 'INST64_PGADMIN_METHOD' \
@@ -244,8 +244,8 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_pgadmin_initialize &&
-  inst64_pgadmin_prepare &&
-  inst64_pgadmin_install &&
-  inst64_pgadmin_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

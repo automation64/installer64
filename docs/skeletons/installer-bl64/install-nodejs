@@ -66,7 +66,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_X_APP_NAME_X_install_with_npm() {
+function inst64_install_with_npm() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
@@ -98,7 +98,7 @@ function inst64_X_APP_NAME_X_install_with_npm() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_X_APP_NAME_X_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
 }
@@ -114,10 +114,10 @@ function inst64_X_APP_NAME_X_prepare() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_X_APP_NAME_X_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    inst64_X_APP_NAME_X_install_with_npm
+    inst64_install_with_npm
   fi
 }
 
@@ -132,7 +132,7 @@ function inst64_X_APP_NAME_X_install() {
 #   0: setup completed ok
 #   >0: unable to setup
 #######################################
-function inst64_X_APP_NAME_X_setup() {
+function inst64_setup() {
   bl64_dbg_app_show_function
 }
 
@@ -147,7 +147,7 @@ function inst64_X_APP_NAME_X_setup() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_X_APP_NAME_X_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   "$INST64_CLI_PATH" --version
@@ -164,7 +164,7 @@ function inst64_X_APP_NAME_X_verify() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_X_APP_NAME_X_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   local version_target=''
 
@@ -194,7 +194,7 @@ function inst64_X_APP_NAME_X_select_packages() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_X_APP_NAME_X_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -214,7 +214,7 @@ function inst64_X_APP_NAME_X_initialize() {
       bl64_check_privilege_not_root ||
       return $?
   fi
-  inst64_X_APP_NAME_X_select_packages ||
+  inst64_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
     'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
@@ -231,9 +231,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_X_APP_NAME_X_initialize &&
-  inst64_X_APP_NAME_X_prepare &&
-  inst64_X_APP_NAME_X_install &&
-  inst64_X_APP_NAME_X_setup &&
-  inst64_X_APP_NAME_X_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

@@ -67,7 +67,7 @@ INST64_CPU_LINUX_AMD64='Linux_amd64'
 # Functions
 #
 
-function inst64_eksctl_install_binary() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
   local app_work_path="${INST64_CLI_NAME}"
 
@@ -85,7 +85,7 @@ function inst64_eksctl_install_binary() {
   inst64_lib_task_binary_cleanup
 }
 
-function inst64_eksctl_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_EKSCTL_METHOD" == 'BINARY' ]]; then
@@ -93,15 +93,15 @@ function inst64_eksctl_prepare() {
   fi
 }
 
-function inst64_eksctl_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_EKSCTL_METHOD" == 'BINARY' ]]; then
-    inst64_eksctl_install_binary
+    inst64_install_binary
   fi
 }
 
-function inst64_eksctl_setup() {
+function inst64_setup() {
   bl64_dbg_app_show_function
   local app_cli_source=''
   inst64_lib_step_setup || return 0
@@ -113,7 +113,7 @@ function inst64_eksctl_setup() {
   fi
 }
 
-function inst64_eksctl_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" version || return $?
@@ -122,7 +122,7 @@ function inst64_eksctl_verify() {
   fi
 }
 
-function inst64_eksctl_select_platform() {
+function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_EKSCTL_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_EKSCTL_PLATFORM" ]]; then
@@ -140,7 +140,7 @@ function inst64_eksctl_select_platform() {
   fi
 }
 
-function inst64_eksctl_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_functionPREFIX
   if [[ "$INST64_EKSCTL_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_EKSCTL_VERSION" == 'latest' ]]; then
@@ -152,7 +152,7 @@ function inst64_eksctl_select_packages() {
   inst64_lib_package_check_definition
 }
 
-function inst64_eksctl_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method \
@@ -168,8 +168,8 @@ function inst64_eksctl_initialize() {
       return $?
   fi
 
-  inst64_eksctl_select_platform &&
-    inst64_eksctl_select_packages &&
+  inst64_select_platform &&
+    inst64_select_packages &&
     inst64_lib_cli_set_path ||
     return $?
 
@@ -186,9 +186,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_eksctl_initialize &&
-  inst64_eksctl_prepare &&
-  inst64_eksctl_install &&
-  inst64_eksctl_setup &&
-  inst64_eksctl_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

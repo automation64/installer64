@@ -56,7 +56,7 @@ declare INST64_STATUS_PATH=''
 # Functions
 #
 
-function inst64_installer64_retry() {
+function inst64_retry() {
   local max_retries=$1
   local wait_time=$2
   local attempt=1
@@ -74,7 +74,7 @@ function inst64_installer64_retry() {
   done
 }
 
-function inst64_installer64_fetch_latest_version() {
+function inst64_fetch_latest_version() {
   # shellcheck disable=SC2249
   case "$INST64_WEB_CMD_GET" in
   'curl')
@@ -92,14 +92,14 @@ function inst64_installer64_fetch_latest_version() {
   esac
 }
 
-function inst64_installer64_identify_latest() {
+function inst64_identify_latest() {
   local max_retries=5
   local wait_time=5
 
-  inst64_installer64_retry "$max_retries" "$wait_time" inst64_installer64_fetch_latest_version
+  inst64_retry "$max_retries" "$wait_time" inst64_fetch_latest_version
 }
 
-function inst64_installer64_download_binary_package() {
+function inst64_download_binary_package() {
   local package_name="$1"
   local package_url=''
 
@@ -123,7 +123,7 @@ function inst64_installer64_download_binary_package() {
   esac
 }
 
-function inst64_installer64_open_binary_package() {
+function inst64_open_binary_package() {
   local package_name="$1"
 
   echo "Task: deploy application (package: ${package_name})"
@@ -140,17 +140,17 @@ function inst64_installer64_open_binary_package() {
   return 0
 }
 
-function inst64_installer64_install_binary() {
+function inst64_install_binary() {
   local package_name=''
 
   for package_name in $INST64_PKG_MAIN; do
-    inst64_installer64_download_binary_package "$package_name" &&
-      inst64_installer64_open_binary_package "$package_name" ||
+    inst64_download_binary_package "$package_name" &&
+      inst64_open_binary_package "$package_name" ||
       return $?
   done
 }
 
-inst64_installer64_select_platform() {
+inst64_select_platform() {
   INST64_INSTALLER64_PLATFORM="$(uname -s)"
   [ -z "$INST64_INSTALLER64_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
   if [ "$INST64_INSTALLER64_PLATFORM" != 'Darwin' ] && [ "$INST64_INSTALLER64_PLATFORM" != 'Linux' ]; then
@@ -166,11 +166,11 @@ inst64_installer64_select_platform() {
   fi
 }
 
-function inst64_installer64_select_packages() {
+function inst64_select_packages() {
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
     INST64_PKG_MAIN='installer64-scripts.tgz'
     if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
-      INST64_INSTALLER64_VERSION="$(inst64_installer64_identify_latest)" &&
+      INST64_INSTALLER64_VERSION="$(inst64_identify_latest)" &&
         INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION##*:??}" &&
         INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION%%?,*}"
     fi
@@ -180,7 +180,7 @@ function inst64_installer64_select_packages() {
   return 0
 }
 
-function inst64_installer64_prepare() {
+function inst64_prepare() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   echo 'Task: prepare deployment'
   if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
@@ -194,15 +194,15 @@ function inst64_installer64_prepare() {
   fi
 }
 
-function inst64_installer64_install() {
+function inst64_install() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
-    inst64_installer64_install_binary &&
+    inst64_install_binary &&
       "${INST64_INSTALLER64_TARGET}/install-bashlib64"
   fi
 }
 
-function inst64_installer64_verify() {
+function inst64_verify() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
   echo 'Task: verify deployment'
   [[ -d "${INST64_INSTALLER64_TARGET}" ]] &&
@@ -211,7 +211,7 @@ function inst64_installer64_verify() {
     echo "$INST64_INSTALLER64_VERSION" >"$INST64_STATUS_PATH"
 }
 
-function inst64_installer64_initialize() {
+function inst64_initialize() {
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     if [[ -d '/opt/inst64' ]]; then
       INST64_SYSTEM_WIDE='YES'
@@ -251,8 +251,8 @@ function inst64_installer64_initialize() {
     return 1
   fi
   INST64_STATUS_PATH="${INST64_INSTALLER64_TARGET}/version"
-  inst64_installer64_select_platform &&
-    inst64_installer64_select_packages ||
+  inst64_select_platform &&
+    inst64_select_packages ||
     return $?
   if [[ -f "$INST64_STATUS_PATH" ]]; then
     if [[ "${INST64_INSTALLER64_VERSION}" == "$(<"$INST64_STATUS_PATH")" ]]; then
@@ -276,19 +276,19 @@ function inst64_installer64_initialize() {
 # Main
 #
 
-declare -i inst64_installer64_status=0
+declare -i inst64_status=0
 
 echo "Process: [${0}] started"
 
 [[ -n "$INST64_DEBUG" ]] && set -x
-inst64_installer64_initialize &&
-  inst64_installer64_prepare &&
-  inst64_installer64_install &&
-  inst64_installer64_verify
-inst64_installer64_status=$?
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_verify
+inst64_status=$?
 
-((inst64_installer64_status == 0)) &&
+((inst64_status == 0)) &&
   echo "Process: [${0}] finished successfully" ||
-  echo "Process: [${0}] finished with errors: exit-status-${inst64_installer64_status}"
+  echo "Process: [${0}] finished with errors: exit-status-${inst64_status}"
 # shellcheck disable=SC2086
-exit $inst64_installer64_status
+exit $inst64_status

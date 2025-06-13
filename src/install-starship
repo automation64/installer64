@@ -72,7 +72,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_starship_install_binary() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -123,7 +123,7 @@ function inst64_starship_install_binary() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-function inst64_starship_select_platform() {
+function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_STARSHIP_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_STARSHIP_PLATFORM" ]]; then
@@ -155,10 +155,10 @@ function inst64_starship_select_platform() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_starship_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_STARSHIP_METHOD" == 'BINARY' ]]; then
-    inst64_starship_install_binary
+    inst64_install_binary
   fi
 }
 
@@ -173,7 +173,7 @@ function inst64_starship_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_starship_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_suffix=''
@@ -206,7 +206,7 @@ function inst64_starship_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_starship_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_STARSHIP_METHOD" == 'BINARY' ]]; then
@@ -225,7 +225,7 @@ function inst64_starship_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_starship_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   "$INST64_CLI_PATH" --version
@@ -242,7 +242,7 @@ function inst64_starship_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_starship_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -262,8 +262,8 @@ function inst64_starship_initialize() {
         return $?
     fi
   fi
-  inst64_starship_select_platform &&
-    inst64_starship_select_packages ||
+  inst64_select_platform &&
+    inst64_select_packages ||
     return $?
   bl64_msg_show_setup 'Install application: Starship' \
     'INST64_SYSTEM_WIDE' 'INST64_STARSHIP_METHOD' \
@@ -284,8 +284,8 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_starship_initialize &&
-  inst64_starship_prepare &&
-  inst64_starship_install &&
-  inst64_starship_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
