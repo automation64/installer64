@@ -151,6 +151,9 @@ function inst64_select_method() {
     'AUTO' \
     'CUSTOM' ||
     return $?
+  if [[ "$INST64_NODEJS_METHOD" == 'AUTO' ]]; then
+    INST64_NODEJS_METHOD='CUSTOM'
+  fi
 }
 
 function inst64_select_platform() {
