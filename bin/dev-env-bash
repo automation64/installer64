@@ -53,7 +53,7 @@
     export DEV_TEST_BASH_CONTAINER_CNT="${DEV_TEST_BASH_CONTAINER_CNT:-bash-test/centos-9-bash-test}"
     export DEV_TEST_BASH_CONTAINER_DEB="${DEV_TEST_BASH_CONTAINER_DEB:-bash-test/debian-11-bash-test}"
     export DEV_TEST_BASH_CONTAINER_FD="${DEV_TEST_BASH_CONTAINER_FD:-bash-test/fedora-39-bash-test}"
-    export DEV_TEST_BASH_CONTAINER_KL="${DEV_TEST_BASH_CONTAINER_KL:-bash-test/kalilinux-2024.3-bash-test}"
+    # TEMP # export DEV_TEST_BASH_CONTAINER_KL="${DEV_TEST_BASH_CONTAINER_KL:-bash-test/kalilinux-2024.3-bash-test}"
     export DEV_TEST_BASH_CONTAINER_OEL="${DEV_TEST_BASH_CONTAINER_OEL:-bash-test/oraclelinux-9-bash-test}"
     export DEV_TEST_BASH_CONTAINER_RCK="${DEV_TEST_BASH_CONTAINER_RCK:-bash-test/rockylinux-9-bash-test}"
     export DEV_TEST_BASH_CONTAINER_RHEL="${DEV_TEST_BASH_CONTAINER_RHEL:-bash-test/rhel-9-bash-test}"

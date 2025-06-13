@@ -1,4 +1,4 @@
-function inst64_X_APP_NAME_X_install_git_repo() {
+function inst64_install_git_repo() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'download application'

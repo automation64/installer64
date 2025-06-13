@@ -88,7 +88,7 @@ declare INST64_CLI_PATH=''
 # Functions
 #
 
-function inst64_terraform_install_custom_package() {
+function inst64_install_custom_package() {
   bl64_dbg_app_show_function
   local work_path=''
   local app_target_mode='0755'
@@ -127,7 +127,7 @@ function inst64_terraform_install_custom_package() {
   return 0
 }
 
-function inst64_terraform_add_repository() {
+function inst64_add_repository() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
@@ -145,7 +145,7 @@ function inst64_terraform_add_repository() {
     "$repository_extra_1" "$repository_extra_2"
 }
 
-function inst64_terraform_install_external_packages() {
+function inst64_install_external_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
   INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
@@ -166,7 +166,7 @@ function inst64_terraform_install_external_packages() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-function inst64_terraform_select_platform() {
+function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_TERRAFORM_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_TERRAFORM_PLATFORM" ]]; then
@@ -194,12 +194,12 @@ function inst64_terraform_select_platform() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_terraform_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
   if [[ "$INST64_TERRAFORM_METHOD" == 'EXTERNAL' ]]; then
-    inst64_terraform_install_external_packages
+    inst64_install_external_packages
   elif [[ "$INST64_TERRAFORM_METHOD" == 'BINARY' ]]; then
-    inst64_terraform_install_custom_package
+    inst64_install_custom_package
   fi
 }
 
@@ -214,7 +214,7 @@ function inst64_terraform_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_terraform_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   local package_prefix=''
   local package_suffix=''
@@ -253,12 +253,12 @@ function inst64_terraform_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_terraform_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   if [[ "$INST64_TERRAFORM_METHOD" == 'EXTERNAL' ]]; then
     bl64_pkg_setup &&
-      inst64_terraform_add_repository
+      inst64_add_repository
   elif [[ "$INST64_TERRAFORM_METHOD" == 'BINARY' ]]; then
     bl64_arc_setup
   fi
@@ -275,7 +275,7 @@ function inst64_terraform_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_terraform_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   "$INST64_CLI_PATH" --version
@@ -292,7 +292,7 @@ function inst64_terraform_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_terraform_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -325,8 +325,8 @@ function inst64_terraform_initialize() {
       "${BL64_OS_UB}" ||
       return $?
   fi
-  inst64_terraform_select_platform &&
-    inst64_terraform_select_packages ||
+  inst64_select_platform &&
+    inst64_select_packages ||
     return $?
 
   bl64_msg_show_setup 'Install application: Hashicorp Terraform CLI' \
@@ -347,8 +347,8 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_terraform_initialize &&
-  inst64_terraform_prepare &&
-  inst64_terraform_install &&
-  inst64_terraform_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

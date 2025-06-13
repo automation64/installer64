@@ -60,7 +60,7 @@ declare INST64_RUBY_ENV_NAME='ruby'
 # Functions
 #
 
-function inst64_ruby_install_os_packages() {
+function inst64_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
   # shellcheck disable=SC2086
@@ -78,7 +78,7 @@ function inst64_ruby_install_os_packages() {
 #   0: setup completed ok
 #   >0: unable to setup
 #######################################
-function inst64_ruby_setup() {
+function inst64_setup() {
   bl64_dbg_app_show_function
   local mode='0644'
 
@@ -114,11 +114,11 @@ PATH="${GEM_HOME}/bin:${PATH}"
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_ruby_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
-  inst64_ruby_select_packages || return $?
+  inst64_select_packages || return $?
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
-    inst64_ruby_install_os_packages
+    inst64_install_os_packages
   fi
 }
 
@@ -133,7 +133,7 @@ function inst64_ruby_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_ruby_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
     if bl64_os_is_distro "$BL64_OS_UB"; then
@@ -157,7 +157,7 @@ function inst64_ruby_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_ruby_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   bl64_pkg_setup
@@ -174,7 +174,7 @@ function inst64_ruby_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_ruby_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
@@ -193,7 +193,7 @@ function inst64_ruby_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_ruby_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -222,9 +222,9 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_ruby_initialize &&
-  inst64_ruby_prepare &&
-  inst64_ruby_install &&
-  inst64_ruby_setup &&
-  inst64_ruby_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

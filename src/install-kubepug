@@ -60,7 +60,7 @@ declare INST64_CLI_NAME='deprecations'
 # Functions
 #
 
-function inst64_kubepug_install_krew_package() {
+function inst64_install_krew_package() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application to local kubectl'
@@ -82,11 +82,11 @@ function inst64_kubepug_install_krew_package() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_kubepug_install() {
+function inst64_install() {
   bl64_dbg_app_show_function
-  inst64_kubepug_select_packages || return $?
+  inst64_select_packages || return $?
   if [[ "$INST64_KUBEPUG_METHOD" == 'KREW' ]]; then
-    inst64_kubepug_install_krew_package
+    inst64_install_krew_package
   fi
 }
 
@@ -101,7 +101,7 @@ function inst64_kubepug_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_kubepug_select_packages() {
+function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KUBEPUG_METHOD" == 'KREW' ]]; then
     INST64_PKG_MAIN='deprecations'
@@ -121,7 +121,7 @@ function inst64_kubepug_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_kubepug_prepare() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
   bl64_k8s_setup
@@ -138,7 +138,7 @@ function inst64_kubepug_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_kubepug_verify() {
+function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   bl64_k8s_run_kubectl_plugin "$INST64_KUBEPUG_K8S_KUBECONFIG" \
@@ -156,7 +156,7 @@ function inst64_kubepug_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_kubepug_initialize() {
+function inst64_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -186,8 +186,8 @@ bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
 [[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
-inst64_kubepug_initialize &&
-  inst64_kubepug_prepare &&
-  inst64_kubepug_install &&
-  inst64_kubepug_verify
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

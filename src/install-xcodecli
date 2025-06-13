@@ -52,44 +52,44 @@ INST64_PKG_MAIN='Command Line Tools for Xcode'
 # Functions
 #
 
-function inst64_xcodecli_install_custom() {
+function inst64_install_custom() {
   /usr/sbin/softwareupdate \
     --install \
     --all \
     "$INST64_PKG_MAIN"
 }
 
-function inst64_xcodecli_prepare() {
+function inst64_prepare() {
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     :
   fi
 }
 
-function inst64_xcodecli_install() {
+function inst64_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_XCODECLI_METHOD" == 'CUSTOM' ]]; then
-    inst64_xcodecli_install_custom
+    inst64_install_custom
   fi
 }
 
-function inst64_xcodecli_setup() {
+function inst64_setup() {
   inst64_lib_step_setup || return 0
   if [[ "$INST64_XCODECLI_METHOD" == 'CUSTOM' ]]; then
     :
   fi
 }
 
-function inst64_xcodecli_verify() {
+function inst64_verify() {
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --print-path
 }
 
-function inst64_xcodecli_select_platform() {
+function inst64_select_platform() {
   return 0
 }
 
-function inst64_xcodecli_select_packages() {
+function inst64_select_packages() {
   if [[ "$INST64_XCODECLI_METHOD" == 'CUSTOM' ]]; then
     INST64_PKG_MAIN="${INST64_PKG_MAIN}-${INST64_XCODECLI_VERSION}"
     [[ -z "$INST64_PKG_MAIN" ]] && echo 'Error: unable to determine package name' && return 1
@@ -97,7 +97,7 @@ function inst64_xcodecli_select_packages() {
   return 0
 }
 
-function inst64_xcodecli_initialize() {
+function inst64_initialize() {
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method 'CUSTOM' ||
     return $?
@@ -108,8 +108,8 @@ function inst64_xcodecli_initialize() {
       return $?
   fi
 
-  inst64_xcodecli_select_platform &&
-    inst64_xcodecli_select_packages ||
+  inst64_select_platform &&
+    inst64_select_packages ||
     return $?
 
   inst64_lib_app_check_installed && return 0
@@ -121,9 +121,9 @@ function inst64_xcodecli_initialize() {
 #
 
 inst64_lib_task_process_start &&
-  inst64_xcodecli_initialize &&
-  inst64_xcodecli_prepare &&
-  inst64_xcodecli_install &&
-  inst64_xcodecli_setup &&
-  inst64_xcodecli_verify
+  inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
 inst64_lib_task_process_finish $?

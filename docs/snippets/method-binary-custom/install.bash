@@ -1,4 +1,4 @@
-function inst64_X_APP_NAME_X_install_binary() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
   local work_path=''
 
