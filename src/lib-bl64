@@ -84,6 +84,8 @@
   # CPU Architecture definitions
   declare INST64_CPU_DARWIN_ARM64=''
   declare INST64_CPU_LINUX_AMD64=''
+  declare INST64_CPU_LINUX_AMD64_GNU=''
+  declare INST64_CPU_LINUX_AMD64_MUSL=''
   declare INST64_CPU_LINUX_ARM64=''
   declare INST64_CPU_ALL_ALL='ALL'
 

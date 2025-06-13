@@ -261,7 +261,7 @@ function inst64_initialize() {
   inst64_select_platform &&
     inst64_select_packages ||
     return $?
-  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
+  bl64_msg_show_setup 'Install application: Terraform Docs' \
     'INST64_SYSTEM_WIDE' 'INST64_TERRAFORMDOCS_METHOD' \
     'INST64_TERRAFORMDOCS_PLATFORM' \
     'INST64_GH_REPO_OWNER' \

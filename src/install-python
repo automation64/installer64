@@ -131,7 +131,7 @@ function inst64_select_packages() {
       ;;
     "$BL64_OS_FLAVOR_FEDORA")
       bl64_lib_flag_is_enabled "$INST64_PYTHON_DEVELOPMENT" &&
-        INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
+        INST64_PKG_DEV='python3-setuptools'
       INST64_PKG_MAIN='python3 python3-pip'
       ;;
     "$BL64_OS_FLAVOR_REDHAT")
