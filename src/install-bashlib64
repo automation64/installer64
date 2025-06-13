@@ -31,7 +31,7 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
 
 # shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.2.0'
+declare INST64_BASHLIB64_SCRIPT_VERSION='1.2.1'
 # Installation method
 declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Source repository
@@ -171,7 +171,8 @@ function inst64_select_packages() {
     if [[ "$INST64_BASHLIB64_VERSION" == 'latest' ]]; then
       INST64_BASHLIB64_VERSION="$(inst64_identify_latest)" &&
         INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION##*:??}" &&
-        INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION%%?,*}"
+        INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION%%?,*}" ||
+        return $?
     fi
   fi
   [[ -z "$INST64_BASHLIB64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
