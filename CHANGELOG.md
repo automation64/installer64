@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **breaking-change** Installers migrated to lib-bash
   - homebrew
   - bashlib64
+  - installer64
 - Added MacOS support
   - lnav
   - duf

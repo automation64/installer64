@@ -322,7 +322,6 @@ function inst64_lib_github_release_download() {
   local package_url=''
 
   package_url="https://github.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/download/${!package_version}/${package_name}"
-  inst64_lib_message_show_task "download application (${package_url} -> ${INST64_WORK_PATH_STAGING})"
   # shellcheck disable=SC2249
   case "$INST64_CMD_GET" in
   'curl')

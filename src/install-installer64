@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Template: install-bash-binary-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -12,67 +13,129 @@
 # limitations under the License.
 #######################################
 
+#######################################
+# start of import: lib-bash
+#######################################
+
 #
 # Globals
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
-
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-# Replace if already installed?
-declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
-
 # shellcheck disable=SC2034
-declare INST64_INSTALLER64_SCRIPT_VERSION='1.2.2'
-# Installation method
-declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
-# Source repository
-declare INST64_INSTALLER64_SOURCE="${INST64_INSTALLER64_SOURCE:-https://github.com/automation64/installer64}"
-# Target installation directory
-declare INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-}"
-# Target application version
-declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
+{
 
-declare INST64_INSTALLER64_PLATFORM=''
-declare INST64_TARGET_SYSTEM_USER=''
-declare INST64_TARGET_SYSTEM_GROUP=''
-declare INST64_WEB_CMD_GET='none'
-declare INST64_GH_API='https://api.github.com/repos/automation64/installer64/releases/latest'
-declare INST64_PKG_MAIN=''
-declare INST64_TARGET_MODE_DIR='0755'
-declare INST64_TARGET_MODE_FILE='0755'
-declare INST64_STATUS_FLAG='CONTINUE'
-declare INST64_STATUS_PATH=''
+  #
+  # Global parameters
+  #
+
+  # Enable debugging? Set to YES to enable
+  declare INST64_DEBUG="${INST64_DEBUG:-}"
+  # Base path for local applications
+  declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
+  # Local applications binaries location
+  declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
+  # User applications binaries location
+  declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
+  # Location for temporary files
+  declare INST64_TMP="${INST64_TMP:-/tmp}"
+  # Base path for 3rd party applications
+  declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
+  # Install system wide? Requires root privilege
+  declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
+  # Replace if already installed?
+  declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
+
+  #
+  # Global definitions
+  #
+
+  # Inst64 Library version
+  declare INST64_LIB_VERSION_BASH='1.0.0'
+
+  # User wide home path
+  declare INST64_HOME="${HOME}/at64"
+
+  # App information
+  declare INST64_APP_NAME=''
+  declare INST64_APP_ID=''
+  declare INST64_APP_FULL_NAME=''
+
+  # Application packages
+  declare INST64_PKG_MAIN=''
+  declare INST64_PKG_MAIN_PREFIX=''
+  declare INST64_PKG_MAIN_SUFFIX=''
+  declare INST64_PKG_PRE=''
+  declare INST64_PKG_POST=''
+
+  # Current CPU architecture
+  declare INST64_CPU_ALL_ALL='ALL'
+  declare INST64_CPU_CURRENT=''
+
+  # Current OS flavor
+  declare INST64_OS_FLAVOR=''
+
+  # Installer version
+  declare INST64_SCRIPT_VERSION=''
+
+  #
+  # Method definitions
+  #
+
+  # Target ownership
+  declare INST64_TARGET_OWNER=''
+  declare INST64_TARGET_GROUP=''
+  declare INST64_TARGET_MODE_DIR='0755'
+  declare INST64_TARGET_MODE_FILE='0644'
+
+  # External commands
+  declare INST64_CMD_MKDIR='none'
+  declare INST64_CMD_CHMOD='none'
+  declare INST64_CMD_CHOWN='none'
+  declare INST64_CMD_RM='none'
+  declare INST64_CMD_GET='none'
+  declare INST64_CMD_TAR='none'
+  declare INST64_CMD_UNAME='none'
+  declare INST64_CMD_GREP='none'
+
+  # Install progress status
+  declare INST64_STATUS_FLAG='CONTINUE'
+  declare INST64_STATUS_PATH=''
+
+  # Work paths
+  declare INST64_WORK_PATH_STAGING=''
+
+  # Custom application installer
+  declare INST64_APP_INSTALLER=''
+
+  # GitHub repository information
+  declare INST64_GH_REPO_OWNER=''
+  declare INST64_GH_REPO_NAME=''
+
+  # Generic Web repository information
+  declare INST64_WEB_REPO_URL=''
+  declare INST64_WEB_REPO_PATH=''
+}
 
 #
-# Lib
-#
-# * Imported from lib-bash
+# Functions
 #
 
-function inst64_lib_task_process_start() {
-  inst64_lib_message_show_process "started"
-  [[ -n "$INST64_DEBUG" ]] && set -x
+function inst64_lib_check_os_incompatibility() {
+  local not_supported="$1"
+  if [[ "$INST64_OS_FLAVOR" == "$not_supported" ]]; then
+    inst64_lib_message_show_error "installer not supported on the current OS (${INST64_OS_FLAVOR})"
+    return 1
+  fi
   return 0
 }
 
-function inst64_lib_task_process_finish() {
-  local -i status=$1
-  if ((status == 0)); then
-    inst64_lib_message_show_process "finished successfully"
-  else
-    inst64_lib_message_show_process "finished with errors: exit-status-${status}"
+function inst64_lib_check_os_compatibility() {
+  local supported="$1"
+  if [[ "$INST64_OS_FLAVOR" != "$supported" ]]; then
+    inst64_lib_message_show_error "installer not supported on the current OS (${INST64_OS_FLAVOR})"
+    return 1
   fi
-  # shellcheck disable=SC2086
-  return $status
+  return 0
 }
 
 function inst64_lib_message_show_process() {
@@ -87,12 +150,103 @@ function inst64_lib_message_show_error() {
   echo "Error  : ${1:-}" >&2
 }
 
+function inst64_lib_message_show_fatal() {
+  echo "Fatal  : ${1:-}" >&2
+}
+
 function inst64_lib_message_show_warning() {
   echo "Warning: ${1:-}" >&2
 }
 
 function inst64_lib_message_show_phase() {
   echo "Phase  : ${1:-}"
+}
+
+function inst64_lib_message_show_parameters() {
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  local platform="INST64_${INST64_APP_ID}_PLATFORM"
+  local version="INST64_${INST64_APP_ID}_VERSION"
+
+  [[ -n "$INST64_APP_FULL_NAME" ]] && echo "Install application: ${INST64_APP_FULL_NAME}"
+  [[ -n "${!version}" ]] && echo "  ${version} : ${!version}"
+  [[ -n "${!target}" ]] && echo "  ${target}  : ${!target}"
+  [[ -n "${!platform}" ]] && echo "  ${platform}: ${!platform}"
+  [[ -n "${!method}" ]] && echo "  ${method}  : ${!method}"
+  [[ -n "$INST64_SYSTEM_WIDE" ]] && echo "  INST64_SYSTEM_WIDE      : ${INST64_SYSTEM_WIDE}"
+  [[ -n "$INST64_SCRIPT_VERSION" ]] && echo "  INST64_SCRIPT_VERSION   : ${INST64_SCRIPT_VERSION}"
+
+  [[ -n "$INST64_APP_INSTALLER" ]] && echo "  INST64_APP_INSTALLER    : ${INST64_APP_INSTALLER}"
+  [[ -n "$INST64_GH_REPO_OWNER" ]] && echo "  INST64_GH_REPO_OWNER    : ${INST64_GH_REPO_OWNER}"
+  [[ -n "$INST64_GH_REPO_NAME" ]] && echo "  INST64_GH_REPO_NAME     : ${INST64_GH_REPO_NAME}"
+  [[ -n "$INST64_WEB_REPO_URL" ]] && echo "  INST64_WEB_REPO_URL     : ${INST64_WEB_REPO_URL}"
+  [[ -n "$INST64_WEB_REPO_PATH" ]] && echo "  INST64_WEB_REPO_PATH    : ${INST64_WEB_REPO_PATH}"
+  return 0
+}
+
+function inst64_lib_app_register_version() {
+  local version="INST64_${INST64_APP_ID}_VERSION"
+  echo "${!version}" >"$INST64_STATUS_PATH"
+}
+
+function inst64_lib_base_create_path() {
+  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
+    mkdir "$INST64_OPT_ROOT" &&
+      chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
+      return $?
+  fi
+}
+
+function inst64_lib_platform_get_flavor() {
+  # macOS detection
+  if [[ "$INST64_CPU_CURRENT" == 'Darwin' ]]; then
+    if command -v sw_vers >/dev/null 2>&1; then
+      INST64_OS_FLAVOR='MACOS'
+      return 0
+    fi
+  fi
+
+  # Linux distribution detection
+  if [[ -f '/etc/os-release' ]]; then
+    # Modern Linux distributions
+    if "$INST64_CMD_GREP" -q 'ID=alpine' '/etc/os-release'; then
+      INST64_OS_FLAVOR='ALPINE'
+    elif "$INST64_CMD_GREP" -q 'ID=debian' '/etc/os-release'; then
+      INST64_OS_FLAVOR='DEBIAN'
+    elif "$INST64_CMD_GREP" -q 'ID=ubuntu' '/etc/os-release'; then
+      INST64_OS_FLAVOR='DEBIAN'
+    elif "$INST64_CMD_GREP" -q 'ID=fedora' '/etc/os-release'; then
+      INST64_OS_FLAVOR='FEDORA'
+    elif "$INST64_CMD_GREP" -q 'ID=rhel' '/etc/os-release'; then
+      INST64_OS_FLAVOR='REDHAT'
+    elif "$INST64_CMD_GREP" -q 'ID=almalinux' '/etc/os-release'; then
+      INST64_OS_FLAVOR='REDHAT'
+    elif "$INST64_CMD_GREP" -q 'ID=suse' '/etc/os-release'; then
+      INST64_OS_FLAVOR='SUSE'
+    fi
+  elif [[ -f '/etc/alpine-release' ]]; then
+    INST64_OS_FLAVOR='ALPINE'
+  elif [[ -f '/etc/debian_version' ]]; then
+    INST64_OS_FLAVOR='DEBIAN'
+  elif [[ -f '/etc/fedora-release' ]]; then
+    INST64_OS_FLAVOR='FEDORA'
+  elif [[ -f '/etc/redhat-release' ]]; then
+    INST64_OS_FLAVOR='REDHAT'
+  elif [[ -f '/etc/SuSE-release' ]]; then
+    INST64_OS_FLAVOR='SUSE'
+  fi
+
+  # If no OS flavor was detected
+  if [[ -z "$INST64_OS_FLAVOR" ]]; then
+    inst64_lib_message_show_error "unable to detect OS flavor"
+    return 1
+  fi
+
+  return 0
+}
+
+function inst64_lib_platform_get_cpu() {
+  INST64_CPU_CURRENT="$(${INST64_CMD_UNAME} -s)"
 }
 
 function inst64_lib_task_retry() {
@@ -115,207 +269,504 @@ function inst64_lib_task_retry() {
   done
 }
 
-#
-# Functions
-#
+function _inst64_lib_github_release_get_version() {
+  local github_api=''
 
-function inst64_fetch_latest_version() {
+  github_api="https://api.github.com/repos/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/latest"
+
   # shellcheck disable=SC2249
-  case "$INST64_WEB_CMD_GET" in
+  case "$INST64_CMD_GET" in
   'curl')
-    "$INST64_WEB_CMD_GET" \
+    "$INST64_CMD_GET" \
+      -L \
+      -f \
       -s \
-      "$INST64_GH_API" |
-      grep '"tag_name":'
+      "$github_api" |
+      "$INST64_CMD_GREP" '"tag_name":'
     ;;
   'wget')
-    "$INST64_WEB_CMD_GET" \
+    "$INST64_CMD_GET" \
       -q -O- \
-      "$INST64_GH_API" |
-      grep '"tag_name":'
+      "$github_api" |
+      "$INST64_CMD_GREP" '"tag_name":'
     ;;
   esac
 }
 
-function inst64_identify_latest() {
-  local max_retries=5
-  local wait_time=5
+function inst64_lib_github_asset_download() {
+  local asset="$1"
+  local asset_url=''
 
-  inst64_lib_task_retry "$max_retries" "$wait_time" inst64_fetch_latest_version
+  asset_url="https://raw.githubusercontent.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/HEAD/${asset}"
+  inst64_lib_message_show_task "download application (${asset_url} -> ${INST64_WORK_PATH_STAGING})"
+  # shellcheck disable=SC2249
+  case "$INST64_CMD_GET" in
+  'curl')
+    "$INST64_CMD_GET" \
+      -s \
+      -f \
+      -L \
+      -o "${INST64_WORK_PATH_STAGING}/${asset}" \
+      "$asset_url" ||
+      return $?
+    ;;
+  'wget')
+    "$INST64_CMD_GET" \
+      -q \
+      -O "${INST64_WORK_PATH_STAGING}/${asset}" \
+      "$asset_url" ||
+      return $?
+    ;;
+  esac
+  [[ -f "${INST64_WORK_PATH_STAGING}/${asset}" ]]
 }
 
-function inst64_download_binary_package() {
+function inst64_lib_github_release_download() {
   local package_name="$1"
+  local package_version="INST64_${INST64_APP_ID}_VERSION"
   local package_url=''
 
-  package_url="${INST64_INSTALLER64_SOURCE}/releases/download/${INST64_INSTALLER64_VERSION}/${package_name}"
-  inst64_lib_message_show_task 'download application'
+  package_url="https://github.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/download/${!package_version}/${package_name}"
   # shellcheck disable=SC2249
-  case "$INST64_WEB_CMD_GET" in
+  case "$INST64_CMD_GET" in
   'curl')
-    "$INST64_WEB_CMD_GET" \
+    "$INST64_CMD_GET" \
       -s \
       -L \
-      -o "${INST64_TMP}/${package_name}" \
-      "$package_url"
+      -f \
+      -o "${INST64_WORK_PATH_STAGING}/${package_name}" \
+      "$package_url" ||
+      return $?
     ;;
   'wget')
-    "$INST64_WEB_CMD_GET" \
+    "$INST64_CMD_GET" \
       -q \
-      -O "${INST64_TMP}/${package_name}" \
-      "$package_url"
+      -O "${INST64_WORK_PATH_STAGING}/${package_name}" \
+      "$package_url" ||
+      return $?
     ;;
   esac
+  [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]]
 }
 
-function inst64_open_binary_package() {
-  local package_name="$1"
-
-  inst64_lib_message_show_task "deploy application (package: ${package_name})"
-  [[ -f "${INST64_TMP}/${package_name}" ]] &&
-    tar zx -C "$INST64_INSTALLER64_TARGET" -f "${INST64_TMP}/${package_name}" &&
-    chmod "$INST64_TARGET_MODE_FILE" "$INST64_INSTALLER64_TARGET"/* ||
-    return $?
-
-  if [[ "$EUID" == '0' ]]; then
-    chown -R "${INST64_TARGET_SYSTEM_USER}:${INST64_TARGET_SYSTEM_GROUP}" "${INST64_INSTALLER64_TARGET}" ||
-      return $?
-  fi
-  rm -f "${INST64_TMP}/${package_name}"
-  return 0
+function inst64_lib_github_release_get_version() {
+  local max_retries=5
+  local wait_time=5
+  local version=''
+  version="$(inst64_lib_task_retry "$max_retries" "$wait_time" _inst64_lib_github_release_get_version)" &&
+    version="${version##*:??}" &&
+    version="${version%%?,*}" &&
+    echo "$version"
 }
 
-function inst64_install_binary() {
-  local package_name=''
-
-  for package_name in $INST64_PKG_MAIN; do
-    inst64_download_binary_package "$package_name" &&
-      inst64_open_binary_package "$package_name" ||
-      return $?
-  done
-}
-
-inst64_select_platform() {
-  INST64_INSTALLER64_PLATFORM="$(uname -s)"
-  [ -z "$INST64_INSTALLER64_PLATFORM" ] && inst64_lib_message_show_error 'unable to determine platform id' && return 1
-  if [ "$INST64_INSTALLER64_PLATFORM" != 'Darwin' ] && [ "$INST64_INSTALLER64_PLATFORM" != 'Linux' ]; then
-    inst64_lib_message_show_error "unsupported platform (${INST64_INSTALLER64_PLATFORM})"
-    return 1
-  fi
-  if [[ "$INST64_INSTALLER64_PLATFORM" == 'Linux' ]]; then
-    INST64_TARGET_SYSTEM_USER='root'
-    INST64_TARGET_SYSTEM_GROUP='root'
-  elif [[ "$INST64_INSTALLER64_PLATFORM" == 'Darwin' ]]; then
-    INST64_TARGET_SYSTEM_USER='root'
-    INST64_TARGET_SYSTEM_GROUP='wheel'
-  fi
-}
-
-function inst64_select_packages() {
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
-    INST64_PKG_MAIN='installer64-scripts.tgz'
-    if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
-      INST64_INSTALLER64_VERSION="$(inst64_identify_latest)" &&
-        INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION##*:??}" &&
-        INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION%%?,*}" ||
-        return $?
-    fi
-  fi
-  [[ -z "$INST64_INSTALLER64_VERSION" ]] && inst64_lib_message_show_error 'unable to determine package version' && return 1
-  [[ -z "$INST64_PKG_MAIN" ]] && inst64_lib_message_show_error 'unable to determine package name' && return 1
-  return 0
-}
-
-function inst64_prepare() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  inst64_lib_message_show_phase 'prepare deployment'
-  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
-    mkdir "$INST64_OPT_ROOT" &&
-      chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
-      return $?
-  fi
-  if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
-    mkdir "$INST64_INSTALLER64_TARGET" &&
-      chmod "$INST64_TARGET_MODE_DIR" "$INST64_INSTALLER64_TARGET"
-  fi
-}
-
-function inst64_install() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
-    inst64_install_binary &&
-      "${INST64_INSTALLER64_TARGET}/install-bashlib64"
-  fi
-}
-
-function inst64_verify() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  inst64_lib_message_show_phase 'verify deployment'
-  [[ -d "${INST64_INSTALLER64_TARGET}" ]] &&
-    [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
-    [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] &&
-    echo "$INST64_INSTALLER64_VERSION" >"$INST64_STATUS_PATH"
-}
-
-function inst64_initialize() {
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    if [[ -d '/opt/inst64' ]]; then
-      INST64_SYSTEM_WIDE='YES'
-    else
-      INST64_SYSTEM_WIDE='NO'
-    fi
-  fi
-  if [[ -z "$INST64_INSTALLER64_TARGET" ]]; then
-    if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
-      INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-    else
-      INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
-    fi
-    INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-${INST64_OPT_ROOT}/inst64}"
-  fi
-
-  if [[ "$INST64_SYSTEM_WIDE" == 'YES' && "$EUID" != '0' ]]; then
-    inst64_lib_message_show_error 'root privileges are required for system-wide installation'
-    return 1
-  fi
-
-  [[ "$INST64_INSTALLER64_METHOD" != 'BINARY' ]] &&
-    inst64_lib_message_show_error 'unsupported installation method' &&
-    return 1
+# shellcheck disable=SC2034
+function inst64_lib_command_set() {
+  INST64_CMD_UNAME='uname'
+  INST64_CMD_CHMOD='chmod'
+  INST64_CMD_CHOWN='chown'
+  INST64_CMD_MKDIR='mkdir'
+  INST64_CMD_MKTEMP='mktemp'
+  INST64_CMD_RM='rm'
 
   if command -v 'curl' >/dev/null 2>&1; then
-    INST64_WEB_CMD_GET='curl'
+    INST64_CMD_GET='curl'
   elif command -v 'wget' >/dev/null 2>&1; then
-    INST64_WEB_CMD_GET='wget'
+    INST64_CMD_GET='wget'
   else
-    inst64_lib_message_show_error 'no download tool found (curl, wget)'
+    echo 'Error: no download tool found (curl, wget)'
     return 1
   fi
 
   if ! command -v 'tar' >/dev/null 2>&1; then
-    inst64_lib_message_show_error 'no archive tool found (tar)'
+    echo 'Error: no archive tool found (tar)'
     return 1
+  else
+    INST64_CMD_TAR='tar'
   fi
-  INST64_STATUS_PATH="${INST64_INSTALLER64_TARGET}/version"
-  inst64_select_platform &&
-    inst64_select_packages ||
-    return $?
+
+  if ! command -v 'grep' >/dev/null 2>&1; then
+    echo 'Error: no grep tool found'
+    return 1
+  else
+    INST64_CMD_GREP='grep'
+  fi
+}
+
+function inst64_lib_base_is_system_wide() {
+  [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]
+}
+
+function inst64_lib_base_set_system_wide() {
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+  fi
+}
+
+function inst64_lib_base_set_path() {
+  if [[ -z "$INST64_OPT_ROOT" ]]; then
+    if inst64_lib_base_is_system_wide; then
+      INST64_OPT_ROOT='/opt'
+    else
+      INST64_OPT_ROOT="$INST64_HOME"
+    fi
+  fi
+}
+
+function inst64_lib_target_set_path() {
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  if [[ -z "${!target}" ]]; then
+    printf \
+      -v "INST64_${INST64_APP_ID}_TARGET" \
+      '%s/%s' \
+      "${INST64_OPT_ROOT}" \
+      "${INST64_APP_NAME}"
+  fi
+}
+
+function inst64_lib_target_set_owner() {
+  if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
+    if [[ "$INST64_CPU_CURRENT" == 'Linux' ]]; then
+      INST64_TARGET_OWNER='root'
+      INST64_TARGET_GROUP='root'
+    elif [[ "$INST64_CPU_CURRENT" == 'Darwin' ]]; then
+      INST64_TARGET_OWNER='root'
+      INST64_TARGET_GROUP='wheel'
+    fi
+  else
+    INST64_TARGET_OWNER="$(id -n -u)"
+    INST64_TARGET_GROUP="$(id -n -g)"
+  fi
+}
+
+function inst64_lib_app_check_installed() {
+  local app_target="INST64_${INST64_APP_ID}_TARGET"
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
+  INST64_STATUS_PATH="${!app_target}/.install-${INST64_APP_NAME}"
   if [[ -f "$INST64_STATUS_PATH" ]]; then
-    if [[ "${INST64_INSTALLER64_VERSION}" == "$(<"$INST64_STATUS_PATH")" ]]; then
+    if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
       if [[ "$INST64_REPLACE_INSTALLED" != 'YES' ]]; then
-        inst64_lib_message_show_warning "application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${INST64_INSTALLER64_VERSION})"
+        inst64_lib_message_show_warning "application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
         INST64_STATUS_FLAG='SKIP'
         return 0
       fi
     fi
   fi
-  echo 'Install application: Installer64'
-  echo "  INST64_SYSTEM_WIDE: ${INST64_SYSTEM_WIDE}"
-  echo "  INST64_INSTALLER64_METHOD: ${INST64_INSTALLER64_METHOD}"
-  echo "  INST64_INSTALLER64_PLATFORM: ${INST64_INSTALLER64_PLATFORM}"
-  echo "  INST64_INSTALLER64_SOURCE: ${INST64_INSTALLER64_SOURCE}"
-  echo "  INST64_INSTALLER64_TARGET: ${INST64_INSTALLER64_TARGET}"
-  echo "  INST64_INSTALLER64_VERSION: ${INST64_INSTALLER64_VERSION}"
+  return 1
+}
+
+function inst64_lib_check_privilege_root() {
+  if inst64_lib_base_is_system_wide && [[ "$EUID" != '0' ]]; then
+    inst64_lib_message_show_error 'root privileges are required for system-wide installation'
+    return 1
+  fi
+}
+
+function inst64_lib_check_privilege_not_root() {
+  if [[ "$EUID" == '0' ]]; then
+    inst64_lib_message_show_error 'the installer can not be run as root or with root privileges'
+    return 1
+  fi
+}
+
+function inst64_lib_app_check_method() {
+  local allowed="${1:-}"
+  local requested="INST64_${INST64_APP_ID}_METHOD"
+  if [[ "${!requested}" != "$allowed" ]]; then
+    inst64_lib_message_show_error "invalid installation method for the parameter INST64_${INST64_APP_ID}_METHOD"
+    return 1
+  fi
+}
+
+function inst64_lib_cli_set_path() {
+  [[ -n "$INST64_CLI_PATH" ]] && return 0
+  if inst64_lib_base_is_system_wide; then
+    INST64_CLI_PATH="${INST64_LOCAL_BIN}"
+  else
+    INST64_CLI_PATH="${INST64_USER_BIN}"
+  fi
+}
+
+function inst64_lib_base_initialize() {
+  inst64_lib_message_show_phase 'initialize installer'
+
+  # shellcheck disable=SC2015
+  inst64_lib_command_set &&
+    inst64_lib_platform_get_cpu &&
+    inst64_lib_platform_get_flavor &&
+    inst64_lib_base_set_system_wide &&
+    inst64_lib_base_set_path &&
+    inst64_lib_target_set_owner &&
+    inst64_lib_target_set_path &&
+    inst64_lib_cli_set_path &&
+    return 0
+
+  inst64_lib_message_show_error 'installer initialization failed'
+  return 1
+}
+
+function inst64_lib_step_prepare() {
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'prepare deployment'
+  return 0
+}
+
+function inst64_lib_step_install() {
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'deploy application'
+  return 0
+}
+
+function inst64_lib_step_setup() {
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'setup environment'
+  return 0
+}
+
+function inst64_lib_step_verify() {
+  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  inst64_lib_message_show_phase 'verify deployment'
+  return 0
+}
+
+function inst64_lib_task_binary_download() {
+  inst64_lib_message_show_task 'download application'
+  INST64_WORK_PATH_STAGING="$("$INST64_CMD_MKTEMP" -d)" &&
+    return 0
+  inst64_lib_message_show_error "unable to create temporary staging path (${INST64_WORK_PATH_STAGING})"
+  return 1
+}
+
+function inst64_lib_task_deploy() {
+  inst64_lib_message_show_task 'install application'
+  return 0
+}
+
+function inst64_lib_task_publish() {
+  inst64_lib_message_show_task "publish application to searchable path (${INST64_CLI_PATH})"
+  return 0
+}
+
+function inst64_lib_task_binary_cleanup() {
+  inst64_lib_message_show_task 'cleanup temporary files'
+  "$INST64_CMD_RM" -fr "$INST64_WORK_PATH_STAGING"
+  return 0
+}
+
+function inst64_lib_task_process_start() {
+  inst64_lib_message_show_process "started"
+  [[ -n "$INST64_DEBUG" ]] && set -x
+  return 0
+}
+
+function inst64_lib_task_process_finish() {
+  local -i status=$1
+  if ((status == 0)); then
+    inst64_lib_message_show_process "finished successfully"
+  else
+    inst64_lib_message_show_process "finished with errors: exit-status-${status}"
+  fi
+  # shellcheck disable=SC2086
+  return $status
+}
+
+function inst64_lib_package_check_definition() {
+  [[ -n "$INST64_PKG_MAIN" ]] && return 0
+  inst64_lib_message_show_error 'unable to determine application package name'
+  return 1
+}
+
+function inst64_lib_platform_check_cpu() {
+  local platform="INST64_${INST64_APP_ID}_PLATFORM"
+  [[ -n "${!platform}" ]] && return 0
+  inst64_lib_message_show_error "unable to determine platform id (${platform})"
+  return 1
+}
+
+#
+# Bootstrap
+#
+# * Imported security settings from BashLib64
+# * Adapted for macOS compatibility
+#
+
+builtin unset -f unalias
+builtin unalias -a
+builtin unset -f command
+builtin hash -r
+
+builtin shopt -qu \
+  'dotglob' \
+  'extdebug' \
+  'failglob' \
+  'gnu_errfmt' \
+  'huponexit' \
+  'login_shell' \
+  'nocaseglob' \
+  'nocasematch' \
+  'nullglob' \
+  'xpg_echo'
+
+builtin shopt -qs \
+  'extquote'
+
+builtin set -o 'pipefail'
+
+builtin set +o 'errexit'
+
+builtin set -o 'braceexpand'
+builtin set -o 'hashall'
+builtin set +o 'allexport'
+builtin set +o 'histexpand'
+builtin set +o 'history'
+builtin set +o 'ignoreeof'
+builtin set +o 'monitor'
+builtin set +o 'noclobber'
+builtin set +o 'noglob'
+builtin set +o 'nolog'
+builtin set +o 'notify'
+builtin set +o 'onecmd'
+builtin set +o 'posix'
+
+builtin unset CDPATH
+builtin unset ENV
+builtin unset IFS
+builtin unset MAIL
+builtin unset MAILPATH
+
+[[ -n "$INST64_DEBUG" ]] && set -x
+
+#######################################
+# end of import: lib-bash
+#######################################
+
+#
+# Globals
+#
+
+# Installation method
+declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
+# Installation destination
+declare INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-}"
+# Hardware architecture
+declare INST64_INSTALLER64_PLATFORM="${INST64_INSTALLER64_PLATFORM:-}"
+# Application version
+declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
+
+# App information
+INST64_APP_NAME='inst64'
+INST64_APP_ID='INSTALLER64'
+INST64_APP_FULL_NAME='Installer64 - Automated application installers'
+
+# shellcheck disable=SC2034
+INST64_SCRIPT_VERSION='2.0.0'
+
+INST64_GH_REPO_OWNER='automation64'
+INST64_GH_REPO_NAME='installer64'
+INST64_PKG_MAIN='installer64-scripts.tgz'
+INST64_TARGET_MODE_FILE='0755'
+
+#
+# Functions
+#
+
+function inst64_open_binary_package() {
+  local package_name="$1"
+
+  inst64_lib_message_show_task "deploy application (package: ${package_name})"
+  [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]] &&
+    "$INST64_CMD_TAR" zx -C "$INST64_INSTALLER64_TARGET" -f "${INST64_WORK_PATH_STAGING}/${package_name}" &&
+    "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_FILE" "$INST64_INSTALLER64_TARGET"/* ||
+    return $?
+
+  if [[ "$EUID" == '0' ]]; then
+    "$INST64_CMD_CHOWN" -R "${INST64_TARGET_OWNER}:${INST64_TARGET_GROUP}" "${INST64_INSTALLER64_TARGET}" ||
+      return $?
+  fi
+  return 0
+}
+
+function inst64_install_binary() {
+  inst64_lib_task_deploy
+
+  inst64_lib_task_binary_download &&
+    inst64_lib_github_release_download "$INST64_PKG_MAIN" &&
+    inst64_open_binary_package "$INST64_PKG_MAIN" ||
+    return $?
+
+  inst64_lib_task_binary_cleanup
+}
+
+function inst64_prepare() {
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    inst64_lib_base_create_path
+    if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
+      "$INST64_CMD_MKDIR" -p "$INST64_INSTALLER64_TARGET" &&
+        "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_INSTALLER64_TARGET"
+    fi
+  fi
+}
+
+function inst64_install() {
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    inst64_install_binary
+  fi
+}
+
+function inst64_setup() {
+  inst64_lib_step_setup || return 0
+  "${INST64_INSTALLER64_TARGET}/install-bashlib64"
+}
+
+function inst64_verify() {
+  inst64_lib_step_verify || return 0
+  [[ -d "${INST64_INSTALLER64_TARGET}" ]] &&
+    [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
+    [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] ||
+    return $?
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
+}
+
+function inst64_select_platform() {
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_INSTALLER64_PLATFORM" ]]; then
+      INST64_INSTALLER64_PLATFORM="$INST64_CPU_ALL_ALL"
+    fi
+    inst64_lib_platform_check_cpu
+  fi
+}
+
+function inst64_select_packages() {
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
+      INST64_INSTALLER64_VERSION="$(inst64_lib_github_release_get_version)" ||
+        return $?
+    fi
+  fi
+  inst64_lib_package_check_definition
+}
+
+function inst64_initialize() {
+  inst64_lib_base_initialize &&
+    inst64_lib_app_check_method 'BINARY' ||
+    return $?
+
+  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+    if inst64_lib_base_is_system_wide; then
+      inst64_lib_check_privilege_root ||
+        return $?
+    fi
+  fi
+
+  inst64_select_platform &&
+    inst64_select_packages ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
@@ -326,5 +777,6 @@ inst64_lib_task_process_start &&
   inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 inst64_lib_task_process_finish $?
