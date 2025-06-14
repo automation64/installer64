@@ -528,8 +528,7 @@ function inst64_lib_platform_check_cpu() {
   bl64_dbg_app_show_function
   local platform="INST64_${INST64_APP_ID}_PLATFORM"
   [[ -n "${!platform}" ]] && return 0
-  bl64_msg_show_error "unable to determine platform id (${platform})"
-  return $BL64_LIB_ERROR_PARAMETER_MISSING
+  inst64_lib_alert_incompatible_platform
 }
 
 function inst64_lib_app_check_mode_user() {
