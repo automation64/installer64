@@ -28,17 +28,17 @@ source "${INST64_LIB_PATH}/lib-bash" ||
 #
 
 # Installation method
-declare INST64_BL64_METHOD="${INST64_BL64_METHOD:-BINARY}"
+declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
 # Installation destination
-declare INST64_BL64_TARGET="${INST64_BL64_TARGET:-}"
+declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-}"
 # Hardware architecture
-declare INST64_BL64_PLATFORM="${INST64_BL64_PLATFORM:-}"
+declare INST64_BASHLIB64_PLATFORM="${INST64_BASHLIB64_PLATFORM:-}"
 # Application version
-declare INST64_BL64_VERSION="${INST64_BL64_VERSION:-latest}"
+declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
 # App information
 INST64_APP_NAME='bashlib64'
-INST64_APP_ID='BL64'
+INST64_APP_ID='BASHLIB64'
 INST64_APP_FULL_NAME='BashLib64 - Automation Library'
 # shellcheck disable=SC2034
 INST64_SCRIPT_VERSION='2.0.0'
@@ -55,11 +55,11 @@ function inst64_install_binary_deploy() {
   local package_name="$1"
   inst64_lib_task_deploy
   [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]] &&
-    "$INST64_CMD_TAR" zx -C "$INST64_BL64_TARGET" -f "${INST64_WORK_PATH_STAGING}/${package_name}" &&
-    "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_FILE" "$INST64_BL64_TARGET"/* ||
+    "$INST64_CMD_TAR" zx -C "$INST64_BASHLIB64_TARGET" -f "${INST64_WORK_PATH_STAGING}/${package_name}" &&
+    "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
-    "$INST64_CMD_CHOWN" -R "${INST64_TARGET_OWNER}:${INST64_TARGET_GROUP}" "${INST64_BL64_TARGET}" ||
+    "$INST64_CMD_CHOWN" -R "${INST64_TARGET_OWNER}:${INST64_TARGET_GROUP}" "${INST64_BASHLIB64_TARGET}" ||
       return $?
   fi
 }
@@ -77,18 +77,18 @@ function inst64_install_binary() {
 
 function inst64_prepare() {
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
-    if [[ ! -d "$INST64_BL64_TARGET" ]]; then
-      "$INST64_CMD_MKDIR" -p "$INST64_BL64_TARGET" &&
-        "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_BL64_TARGET"
+    if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
+      "$INST64_CMD_MKDIR" -p "$INST64_BASHLIB64_TARGET" &&
+        "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET"
     fi
   fi
 }
 
 function inst64_install() {
   inst64_lib_step_install || return 0
-  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
   fi
 }
@@ -99,27 +99,27 @@ function inst64_setup() {
 
 function inst64_verify() {
   inst64_lib_step_verify || return 0
-  [[ -d "${INST64_BL64_TARGET}" ]] &&
-    [[ -f "${INST64_BL64_TARGET}/bashlib64.bash" ]] ||
+  [[ -d "${INST64_BASHLIB64_TARGET}" ]] &&
+    [[ -f "${INST64_BASHLIB64_TARGET}/bashlib64.bash" ]] ||
     return $?
-  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
   fi
 }
 
 function inst64_select_platform() {
-  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_BL64_PLATFORM" ]]; then
-      INST64_BL64_PLATFORM="$INST64_CPU_ALL_ALL"
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_BASHLIB64_PLATFORM" ]]; then
+      INST64_BASHLIB64_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
     inst64_lib_platform_check_cpu
   fi
 }
 
 function inst64_select_packages() {
-  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_BL64_VERSION" == 'latest' ]]; then
-      INST64_BL64_VERSION="$(inst64_lib_github_release_get_version)" ||
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_BASHLIB64_VERSION" == 'latest' ]]; then
+      INST64_BASHLIB64_VERSION="$(inst64_lib_github_release_get_version)" ||
         return $?
     fi
     INST64_PKG_MAIN='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
@@ -132,7 +132,7 @@ function inst64_initialize() {
     inst64_lib_app_check_method 'BINARY' ||
     return $?
 
-  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
     if inst64_lib_base_is_system_wide; then
       inst64_lib_check_privilege_root ||
         return $?
