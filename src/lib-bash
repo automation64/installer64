@@ -199,7 +199,6 @@ function _inst64_lib_platform_get_flavor_from_release() {
     inst64_lib_message_show_error 'failed to load OS information from /etc/os-release file'
     return 1
   fi
-  # shellcheck disable=SC2249
   case "${ID^^}" in
   'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
   'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
@@ -214,6 +213,10 @@ function _inst64_lib_platform_get_flavor_from_release() {
   'RHEL') INST64_OS_FLAVOR='REDHAT' ;;
   'SLES') INST64_OS_FLAVOR='SUSE' ;;
   'UBUNTU') INST64_OS_FLAVOR='DEBIAN' ;;
+  *)
+    inst64_lib_message_show_error "unknown OS flavor (${ID})"
+    return 1
+    ;;
   esac
 }
 
