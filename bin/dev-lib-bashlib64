@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# * Version: 4.3.1
+# * Version: 4.3.2
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -30,6 +30,8 @@ source ./bin/dev-env-bashlib64 || exit 1
 
 # Lib / BashLib64 / Installer64 parameters
 export INST64_BASHLIB64_TARGET="$DEV_LIB_BASHLIB64_TARGET"
+# Lib / Installer64 / Force user install type
+export INST64_SYSTEM_WIDE='NO'
 
 #
 # Main
