@@ -70,8 +70,9 @@
   declare INST64_STATUS_PATH=''
 
   # Work paths
-  declare INST64_WORK_PATH_STAGING=''
   declare INST64_WORK_PATH_CLI=''
+  declare INST64_WORK_PATH_SOURCE=''
+  declare INST64_WORK_PATH_STAGING=''
 
   # Application packages
   declare INST64_PKG_MAIN=''
@@ -390,6 +391,8 @@ function inst64_lib_base_initialize() {
   bl64_dbg_app_show_function
   bl64_msg_show_phase 'initialize installer'
 
+  bl64_dbg_app_show_comments 'Set default value for INST64_CLI_NAME'
+  INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
   # shellcheck disable=SC2015
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
