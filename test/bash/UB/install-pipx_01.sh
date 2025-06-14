@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export INST64_ANSIBLELINT_PIPX="OFF"
-
+# Warning: requires python 3.12
 source test/lib/check.bash
-src/install-pipx
+export INST64_SYSTEM_WIDE='YES'
+sudo -E src/install-pipx
