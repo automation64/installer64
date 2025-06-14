@@ -82,12 +82,13 @@
   # Method definitions
   #
 
-  # Target ownership
+  # Target configuration
   declare INST64_TARGET_DEFAULT=''
   declare INST64_TARGET_OWNER=''
   declare INST64_TARGET_GROUP=''
   declare INST64_TARGET_MODE_DIR='0755'
   declare INST64_TARGET_MODE_FILE='0644'
+  declare INST64_TARGET_REQUESTED='NO'
 
   # External commands
   declare INST64_CMD_MKDIR='none'
@@ -192,10 +193,12 @@ function inst64_lib_app_register_version() {
 }
 
 function inst64_lib_base_create_path() {
-  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
-    mkdir "$INST64_OPT_ROOT" &&
-      chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
-      return $?
+  if [[ "$INST64_TARGET_REQUESTED" == 'NO' ]]; then
+    if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
+      "$INST64_CMD_MKDIR" "$INST64_OPT_ROOT" &&
+        "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
+        return $?
+    fi
   fi
 }
 
@@ -431,6 +434,7 @@ function inst64_lib_base_set_path() {
 function inst64_lib_target_set_path() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local target_basename="$INST64_APP_NAME"
+
   [[ -n "$INST64_TARGET_DEFAULT" ]] && target_basename="$INST64_TARGET_DEFAULT"
   if [[ -z "${!target}" ]]; then
     printf \
@@ -438,6 +442,8 @@ function inst64_lib_target_set_path() {
       '%s/%s' \
       "${INST64_OPT_ROOT}" \
       "${target_basename}"
+  else
+    INST64_TARGET_REQUESTED='YES'
   fi
 }
 

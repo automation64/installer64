@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# * Version: 4.3.2
+# * Version: 5.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -25,15 +25,6 @@ source ./bin/dev-env-installer64 || exit 1
 source ./bin/dev-env-bashlib64 || exit 1
 
 #
-# Globals
-#
-
-# Lib / BashLib64 / Installer64 parameters
-export INST64_BASHLIB64_TARGET="$DEV_LIB_BASHLIB64_TARGET"
-# Lib / Installer64 / Force user install type
-export INST64_SYSTEM_WIDE='NO'
-
-#
 # Main
 #
 
@@ -45,5 +36,5 @@ export INST64_SYSTEM_WIDE='NO'
 echo 'dev-lib-bashlib64: Task: remove BashLib64 older versions'
 [[ -d "$DEV_LIB_BASHLIB64_TARGET" ]] && rm -Rf "$DEV_LIB_BASHLIB64_TARGET"
 
-echo 'dev-lib-bashlib64: Task: download Installer64'
+echo 'dev-lib-bashlib64: Task: download BashLib64'
 "${DEV_LIB_INSTALLER64_TARGET}/install-bashlib64"
