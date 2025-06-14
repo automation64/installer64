@@ -50,7 +50,6 @@ INST64_SCRIPT_VERSION='1.0.0'
 # X_GLOBALS_METHOD_PLACEHOLDER_X
 INST64_GH_REPO_OWNER='X_REPO_PATH_X'
 INST64_GH_REPO_NAME='X_REPO_URL_X'
-INST64_GH_REPO_API='X_REPO_API_X'
 
 #
 # Functions
@@ -58,7 +57,13 @@ INST64_GH_REPO_API='X_REPO_API_X'
 
 function inst64_install_binary() {
   inst64_lib_task_deploy
+
+  inst64_lib_task_binary_download &&
+    inst64_lib_github_release_download "$package_name" ||
+    return $?
   # X_INSTALL_BINARY_PLACEHOLDER_X
+
+  inst64_lib_task_binary_cleanup
 }
 
 function inst64_prepare() {
@@ -66,8 +71,8 @@ function inst64_prepare() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
     if [[ ! -d "$INST64_X_APP_NAME_CAPS_X_TARGET" ]]; then
-      mkdir -p "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
-        chmod "$INST64_TARGET_MODE_DIR" "$INST64_X_APP_NAME_CAPS_X_TARGET"
+      "$INST64_CMD_MKDIR" -p "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
+        "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_X_APP_NAME_CAPS_X_TARGET"
     fi
   fi
 }
