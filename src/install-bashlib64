@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Template: install-bash-binary-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -13,279 +14,146 @@
 #######################################
 
 #
+# Imports
+#
+
+declare INST64_LIB_PATH="${INST64_LIB_PATH:-/opt/inst64}"
+[[ ! -d "$INST64_LIB_PATH" && -d "${HOME}/at64/inst64" ]] && INST64_LIB_PATH="${HOME}/at64/inst64"
+# shellcheck source-path=src disable=SC2015
+source "${INST64_LIB_PATH}/lib-bash" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+
+#
 # Globals
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
-
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-# Replace if already installed?
-declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
-
-# shellcheck disable=SC2034
-declare INST64_BASHLIB64_SCRIPT_VERSION='1.2.1'
 # Installation method
-declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
-# Source repository
-declare INST64_BASHLIB64_SOURCE="${INST64_BASHLIB64_SOURCE:-https://github.com/automation64/bashlib64}"
-# Target installation directory
-declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-}"
-# Target application version
-declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
+declare INST64_BL64_METHOD="${INST64_BL64_METHOD:-BINARY}"
+# Installation destination
+declare INST64_BL64_TARGET="${INST64_BL64_TARGET:-}"
+# Hardware architecture
+declare INST64_BL64_PLATFORM="${INST64_BL64_PLATFORM:-}"
+# Application version
+declare INST64_BL64_VERSION="${INST64_BL64_VERSION:-latest}"
 
-declare INST64_BASHLIB64_PLATFORM=''
-declare INST64_TARGET_SYSTEM_USER=''
-declare INST64_TARGET_SYSTEM_GROUP=''
-declare INST64_WEB_CMD_GET='none'
-declare INST64_GH_API='https://api.github.com/repos/automation64/bashlib64/releases/latest'
-declare INST64_PKG_MAIN=''
-declare INST64_TARGET_MODE_DIR='0755'
-declare INST64_TARGET_MODE_FILE='0644'
-declare INST64_STATUS_FLAG='CONTINUE'
-declare INST64_STATUS_PATH=''
+# App information
+INST64_APP_NAME='bl64'
+INST64_APP_ID='BL64'
+INST64_APP_FULL_NAME='BashLib64 - Automation Library'
+# shellcheck disable=SC2034
+INST64_SCRIPT_VERSION='2.0.0'
+
+INST64_GH_REPO_OWNER='automation64'
+INST64_GH_REPO_NAME='bashlib64'
 
 #
 # Functions
 #
 
-function inst64_retry() {
-  local max_retries=$1
-  local wait_time=$2
-  local attempt=1
-
-  shift 2
-  while :; do
-    "$@" && return 0
-    ((attempt++))
-    if ((attempt > max_retries)); then
-      echo "Error: command failed after ${max_retries} attempts"
-      return 1
-    fi
-    echo "Retrying in ${wait_time} seconds... (attempt ${attempt}/${max_retries})"
-    sleep "$wait_time"
-  done
-}
-
-function inst64_fetch_latest_version() {
-  # shellcheck disable=SC2249
-  case "$INST64_WEB_CMD_GET" in
-  'curl')
-    "$INST64_WEB_CMD_GET" \
-      -s \
-      "$INST64_GH_API" |
-      grep '"tag_name":'
-    ;;
-  'wget')
-    "$INST64_WEB_CMD_GET" \
-      -q -O- \
-      "$INST64_GH_API" |
-      grep '"tag_name":'
-    ;;
-  esac
-}
-
-function inst64_identify_latest() {
-  local max_retries=5
-  local wait_time=5
-
-  inst64_retry "$max_retries" "$wait_time" inst64_fetch_latest_version
-}
-
-function inst64_download_binary_package() {
+function inst64_install_binary_deploy() {
   local package_name="$1"
-  local package_url=''
-
-  package_url="${INST64_BASHLIB64_SOURCE}/releases/download/${INST64_BASHLIB64_VERSION}/${package_name}"
-  echo 'Task: download application'
-  # shellcheck disable=SC2249
-  case "$INST64_WEB_CMD_GET" in
-  'curl')
-    "$INST64_WEB_CMD_GET" \
-      -s \
-      -L \
-      -o "${INST64_TMP}/${package_name}" \
-      "$package_url"
-    ;;
-  'wget')
-    "$INST64_WEB_CMD_GET" \
-      -q \
-      -O "${INST64_TMP}/${package_name}" \
-      "$package_url"
-    ;;
-  esac
-}
-
-function inst64_open_binary_package() {
-  local package_name="$1"
-
-  echo "Task: deploy application (package: ${package_name})"
-  [[ -f "${INST64_TMP}/${package_name}" ]] &&
-    tar zx -C "$INST64_BASHLIB64_TARGET" -f "${INST64_TMP}/${package_name}" &&
-    chmod "$INST64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
+  inst64_lib_task_deploy
+  [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]] &&
+    "$INST64_CMD_TAR" zx -C "$INST64_BL64_TARGET" -f "${INST64_WORK_PATH_STAGING}/${package_name}" &&
+    "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_FILE" "$INST64_BL64_TARGET"/* ||
     return $?
   if [[ "$EUID" == '0' ]]; then
-    chown -R "${INST64_TARGET_SYSTEM_USER}:${INST64_TARGET_SYSTEM_GROUP}" "${INST64_BASHLIB64_TARGET}" ||
+    "$INST64_CMD_CHOWN" -R "${INST64_TARGET_OWNER}:${INST64_TARGET_GROUP}" "${INST64_BL64_TARGET}" ||
       return $?
   fi
-  rm -f "${INST64_TMP}/${package_name}"
-  return 0
 }
 
 function inst64_install_binary() {
   local package_name=''
-
+  inst64_lib_task_binary_download || return $?
   for package_name in $INST64_PKG_MAIN; do
-    inst64_download_binary_package "$package_name" &&
-      inst64_open_binary_package "$package_name" ||
+    inst64_lib_github_release_download "$package_name" &&
+      inst64_install_binary_deploy "$package_name" ||
       return $?
   done
-}
-
-inst64_select_platform() {
-  INST64_BASHLIB64_PLATFORM="$(uname -s)"
-  [ -z "$INST64_BASHLIB64_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
-  if [ "$INST64_BASHLIB64_PLATFORM" != 'Darwin' ] && [ "$INST64_BASHLIB64_PLATFORM" != 'Linux' ]; then
-    echo "Error: unsupported platform (${INST64_BASHLIB64_PLATFORM})"
-    return 1
-  fi
-  if [[ "$INST64_BASHLIB64_PLATFORM" == 'Linux' ]]; then
-    INST64_TARGET_SYSTEM_USER='root'
-    INST64_TARGET_SYSTEM_GROUP='root'
-  elif [[ "$INST64_BASHLIB64_PLATFORM" == 'Darwin' ]]; then
-    INST64_TARGET_SYSTEM_USER='root'
-    INST64_TARGET_SYSTEM_GROUP='wheel'
-  fi
-}
-
-function inst64_select_packages() {
-  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
-    INST64_PKG_MAIN='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
-    if [[ "$INST64_BASHLIB64_VERSION" == 'latest' ]]; then
-      INST64_BASHLIB64_VERSION="$(inst64_identify_latest)" &&
-        INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION##*:??}" &&
-        INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION%%?,*}" ||
-        return $?
-    fi
-  fi
-  [[ -z "$INST64_BASHLIB64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
-  [[ -z "$INST64_PKG_MAIN" ]] && echo 'Error: unable to determine package name' && return 1
-  return 0
+  inst64_lib_task_binary_cleanup
 }
 
 function inst64_prepare() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  echo 'Task: prepare deployment'
-  if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
-    mkdir "$INST64_OPT_ROOT" &&
-      chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
-      return $?
-  fi
-  if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
-    mkdir -p "$INST64_BASHLIB64_TARGET" &&
-      chmod "$INST64_TARGET_MODE_DIR" "$INST64_BASHLIB64_TARGET"
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+    inst64_lib_base_create_path
+    if [[ ! -d "$INST64_BL64_TARGET" ]]; then
+      "$INST64_CMD_MKDIR" -p "$INST64_BL64_TARGET" &&
+        "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_BL64_TARGET"
+    fi
   fi
 }
 
 function inst64_install() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
   fi
 }
 
+function inst64_setup() {
+  inst64_lib_step_setup || return 0
+}
+
 function inst64_verify() {
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  echo 'Task: verify deployment'
-  [[ -d "${INST64_BASHLIB64_TARGET}" ]] &&
-    [[ -f "${INST64_BASHLIB64_TARGET}/bashlib64.bash" ]] &&
-    echo "$INST64_BASHLIB64_VERSION" >"$INST64_STATUS_PATH"
+  inst64_lib_step_verify || return 0
+  [[ -d "${INST64_BL64_TARGET}" ]] &&
+    [[ -f "${INST64_BL64_TARGET}/bashlib64.bash" ]] ||
+    return $?
+  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
+}
+
+function inst64_select_platform() {
+  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_BL64_PLATFORM" ]]; then
+      INST64_BL64_PLATFORM="$INST64_CPU_ALL_ALL"
+    fi
+    inst64_lib_platform_check_cpu
+  fi
+}
+
+function inst64_select_packages() {
+  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_BL64_VERSION" == 'latest' ]]; then
+      INST64_BL64_VERSION="$(inst64_lib_github_release_get_version)" ||
+        return $?
+    fi
+    INST64_PKG_MAIN='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
+  fi
+  inst64_lib_package_check_definition
 }
 
 function inst64_initialize() {
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    if [[ -d '/opt/bl64' ]]; then
-      INST64_SYSTEM_WIDE='YES'
-    else
-      INST64_SYSTEM_WIDE='NO'
+  inst64_lib_base_initialize &&
+    inst64_lib_app_check_method 'BINARY' ||
+    return $?
+
+  if [[ "$INST64_BL64_METHOD" == 'BINARY' ]]; then
+    if inst64_lib_base_is_system_wide; then
+      inst64_lib_check_privilege_root ||
+        return $?
     fi
   fi
-  if [[ -z "$INST64_BASHLIB64_TARGET" ]]; then
-    if [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]; then
-      INST64_OPT_ROOT="${INST64_OPT_ROOT:-/opt}"
-    else
-      INST64_OPT_ROOT="${INST64_OPT_ROOT:-$INST64_HOME}"
-    fi
-    INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-${INST64_OPT_ROOT}/bl64}"
-  fi
-  if [[ "$INST64_SYSTEM_WIDE" == 'YES' && "$EUID" != '0' ]]; then
-    echo 'Error: root privileges are required for system-wide installation'
-    return 1
-  fi
 
-  [[ "$INST64_BASHLIB64_METHOD" != 'BINARY' ]] &&
-    echo 'Error: unsupported installation method' &&
-    return 1
-
-  if command -v 'curl' >/dev/null 2>&1; then
-    INST64_WEB_CMD_GET='curl'
-  elif command -v 'wget' >/dev/null 2>&1; then
-    INST64_WEB_CMD_GET='wget'
-  else
-    echo 'Error: no download tool found (curl, wget)'
-    return 1
-  fi
-
-  if ! command -v 'tar' >/dev/null 2>&1; then
-    echo 'Error: no archive tool found (tar)'
-    return 1
-  fi
-  INST64_STATUS_PATH="${INST64_BASHLIB64_TARGET}/version"
   inst64_select_platform &&
     inst64_select_packages ||
     return $?
-  if [[ -f "$INST64_STATUS_PATH" ]]; then
-    if [[ "${INST64_BASHLIB64_VERSION}" == "$(<"$INST64_STATUS_PATH")" ]]; then
-      if [[ "$INST64_REPLACE_INSTALLED" != 'YES' ]]; then
-        echo "Warning: application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${INST64_BASHLIB64_VERSION})"
-        INST64_STATUS_FLAG='SKIP'
-        return 0
-      fi
-    fi
-  fi
-  echo 'Install application: Bashlib64'
-  echo "  INST64_SYSTEM_WIDE: ${INST64_SYSTEM_WIDE}"
-  echo "  INST64_BASHLIB64_METHOD: ${INST64_BASHLIB64_METHOD}"
-  echo "  INST64_BASHLIB64_PLATFORM: ${INST64_BASHLIB64_PLATFORM}"
-  echo "  INST64_BASHLIB64_SOURCE: ${INST64_BASHLIB64_SOURCE}"
-  echo "  INST64_BASHLIB64_TARGET: ${INST64_BASHLIB64_TARGET}"
-  echo "  INST64_BASHLIB64_VERSION: ${INST64_BASHLIB64_VERSION}"
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-declare -i inst64_status=0
-
-echo "Process: [${0}] started"
-
-[[ -n "$INST64_DEBUG" ]] && set -x
-inst64_initialize &&
+inst64_lib_task_process_start &&
+  inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
-inst64_status=$?
-
-((inst64_status == 0)) &&
-  echo "Process: [${0}] finished successfully" ||
-  echo "Process: [${0}] finished with errors: exit-status-${inst64_status}"
-# shellcheck disable=SC2086
-exit $inst64_status
+inst64_lib_task_process_finish $?
