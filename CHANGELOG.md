@@ -47,6 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - fzf
   - gomplate
   - hwatch
+  - rclone
+  - neovim
+  - ripgrep
+  - yq
+  - zoxide
 - **breaking-change** Installers migrated to lib-bash
   - homebrew
 - Added MacOS support
