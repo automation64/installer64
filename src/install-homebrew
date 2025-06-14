@@ -58,12 +58,14 @@ INST64_APP_INSTALLER='install.sh'
 
 function inst64_install_custom() {
   local installer_path=''
-  inst64_lib_github_asset_download "$INST64_APP_INSTALLER" || return $?
+  inst64_lib_task_binary_download &&
+    inst64_lib_github_asset_download "$INST64_APP_INSTALLER" ||
+    return $?
 
   inst64_lib_task_deploy
-  installer_path="${INST64_TMP}/${INST64_APP_INSTALLER}"
+  installer_path="${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}"
   [[ -f "$installer_path" ]] &&
-    chmod 755 "$installer_path" &&
+    "$INST64_CMD_CHMOD" 755 "$installer_path" &&
     NONINTERACTIVE='YES' "$installer_path" ||
     return $?
 
@@ -73,8 +75,7 @@ function inst64_install_custom() {
     INST64_CLI_PATH="/home/linuxbrew/.linuxbrew/bin"
   fi
 
-  rm -f "$installer_path"
-  return 0
+  inst64_lib_task_binary_cleanup
 }
 
 function inst64_prepare() {

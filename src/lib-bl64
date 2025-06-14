@@ -437,7 +437,7 @@ function inst64_lib_step_verify() {
 function inst64_lib_task_binary_download() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'download application'
-  INST64_WORK_PATH_STAGING="$(bl64_fs_create_tmpdir)" || return $?
+  INST64_WORK_PATH_STAGING="$(bl64_fs_create_tmpdir)"
 }
 
 function inst64_lib_task_deploy() {

@@ -92,6 +92,12 @@ function inst64_install_binary() {
   inst64_lib_task_binary_cleanup
 }
 
+function inst64_install_native() {
+  bl64_dbg_app_show_function
+  # shellcheck disable=SC2086
+  bl64_pkg_deploy $INST64_PKG_MAIN
+}
+
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
