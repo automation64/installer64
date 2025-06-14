@@ -21,8 +21,7 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -45,133 +44,84 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_BTOP_METHOD="${INST64_BTOP_METHOD:-AUTO}"
+declare INST64_BZIP2_METHOD="${INST64_BZIP2_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_BTOP_TARGET="${INST64_BTOP_TARGET:-}"
+declare INST64_BZIP2_TARGET="${INST64_BZIP2_TARGET:-}"
 # Hardware architecture
-declare INST64_BTOP_PLATFORM="${INST64_BTOP_PLATFORM:-}"
+declare INST64_BZIP2_PLATFORM="${INST64_BZIP2_PLATFORM:-}"
 # Application version
-declare INST64_BTOP_VERSION="${INST64_BTOP_VERSION:-latest}"
+declare INST64_BZIP2_VERSION="${INST64_BZIP2_VERSION:-latest}"
 # Enable development packages?
-declare INST64_BTOP_DEVELOPMENT="${INST64_BTOP_DEVELOPMENT:-NO}"
+declare INST64_BZIP2_DEVELOPMENT="${INST64_BZIP2_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='btop'
-INST64_APP_ID='BTOP'
-INST64_APP_FULL_NAME='BTop'
+INST64_APP_NAME='bzip2'
+INST64_APP_ID='BZIP2'
+INST64_APP_FULL_NAME='BZip2'
 # CLI information
-INST64_CLI_NAME='btop'
-
-INST64_GH_REPO_NAME='btop'
-INST64_GH_REPO_OWNER='aristocratos'
-INST64_PKG_MAIN_PREFIX='btop-'
-INST64_PKG_MAIN_SUFFIX='.tbz'
-INST64_CPU_LINUX_AMD64_MUSL='x86_64-linux-musl'
+INST64_CLI_NAME='bzip2'
 
 #
 # Functions
 #
 
-function inst64_install_binary() {
+function inst64_install_native() {
   bl64_dbg_app_show_function
-  local app_work_path="btop/bin/${INST64_CLI_NAME}"
-
-  inst64_lib_task_binary_download &&
-    bl64_rxtx_github_get_asset \
-      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_BTOP_VERSION" "$INST64_PKG_MAIN" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
-    return $?
-
-  inst64_lib_task_deploy
-  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_BTOP_TARGET" &&
-    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-      "$INST64_BTOP_TARGET" "${INST64_WORK_PATH_STAGING}/${app_work_path}" ||
-    return $?
-
-  inst64_lib_task_binary_cleanup
+  # shellcheck disable=SC2086
+  bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    inst64_lib_base_create_path
-  fi
 }
 
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_BTOP_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_BZIP2_METHOD" == 'NATIVE' ]]; then
     inst64_install_native
-  elif [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    inst64_install_binary
   fi
 }
 
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    INST64_WORK_PATH_CLI="${INST64_BTOP_TARGET}/${INST64_CLI_NAME}"
-    inst64_lib_task_publish
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
-  fi
 }
 
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
-  if [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    inst64_lib_app_register_version
-  fi
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'BINARY' \
     'NATIVE' ||
     return $?
-  if [[ "$INST64_BTOP_METHOD" == 'AUTO' ]]; then
-    INST64_BTOP_METHOD='NATIVE'
+  if [[ "$INST64_BZIP2_METHOD" == 'AUTO' ]]; then
+    INST64_BZIP2_METHOD='NATIVE'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_BTOP_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_BZIP2_METHOD" == 'NATIVE' ]]; then
     INST64_CLI_PATH='/usr/bin'
-  elif [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_BTOP_PLATFORM" ]]; then
-      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_BTOP_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
-      else
-        INST64_BTOP_PLATFORM=''
-      fi
-    fi
-    inst64_lib_platform_check_cpu
   fi
   return 0
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_BTOP_METHOD" == 'NATIVE' ]]; then
-    bl64_lib_flag_is_enabled "$INST64_BTOP_DEVELOPMENT" &&
+  if [[ "$INST64_BZIP2_METHOD" == 'NATIVE' ]]; then
+    # shellcheck disable=SC2249
+    bl64_lib_flag_is_enabled "$INST64_BZIP2_DEVELOPMENT" &&
       INST64_PKG_DEV=''
-    INST64_PKG_MAIN='btop'
+    INST64_PKG_MAIN='bzip2'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
-  elif [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_BTOP_VERSION" == 'latest' ]]; then
-      INST64_BTOP_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
-        return $?
-    fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_BTOP_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
@@ -182,7 +132,7 @@ function inst64_initialize() {
     inst64_select_method ||
     return $?
 
-  if [[ "$INST64_BTOP_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_BZIP2_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
       bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_ALPINE" \
@@ -192,19 +142,6 @@ function inst64_initialize() {
         "$BL64_OS_FLAVOR_REDHAT" \
         "$BL64_OS_FLAVOR_SUSE" &&
       bl64_pkg_setup ||
-      return $?
-  elif [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ALPINE" \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" \
-      "$BL64_OS_FLAVOR_SUSE" &&
-      bl64_arc_setup ||
       return $?
   fi
 
@@ -221,7 +158,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

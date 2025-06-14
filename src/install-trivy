@@ -67,7 +67,6 @@ INST64_PKG_MAIN_SUFFIX='.tar.gz'
 
 function inst64_install_binary() {
   bl64_dbg_app_show_function
-  local app_work_path="${INST64_CLI_NAME}"
 
   inst64_lib_task_binary_download &&
     bl64_rxtx_github_get_asset \
@@ -79,7 +78,7 @@ function inst64_install_binary() {
   inst64_lib_task_deploy
   bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_TRIVY_TARGET" &&
     bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-      "$INST64_TRIVY_TARGET" "${INST64_WORK_PATH_STAGING}/${app_work_path}" ||
+      "$INST64_TRIVY_TARGET" "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" ||
     return $?
 
   inst64_lib_task_binary_cleanup
