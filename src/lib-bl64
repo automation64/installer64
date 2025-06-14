@@ -60,6 +60,7 @@
   #
 
   # Target ownership
+  declare INST64_TARGET_DEFAULT=''
   declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
   declare INST64_TARGET_MODE='0755'
@@ -172,12 +173,14 @@ function inst64_lib_base_set_path() {
 function inst64_lib_target_set_path() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
+  local target_basename="$INST64_APP_NAME"
+  [[ -n "$INST64_TARGET_DEFAULT" ]] && target_basename="$INST64_TARGET_DEFAULT"
   if [[ -z "${!target}" ]]; then
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s/%s' \
       "${INST64_OPT_ROOT}" \
-      "${INST64_APP_NAME}"
+      "${target_basename}"
   fi
 }
 

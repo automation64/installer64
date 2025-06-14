@@ -73,6 +73,7 @@
 
   # Current OS flavor
   declare INST64_OS_FLAVOR=''
+  declare INST64_OS_TYPE=''
 
   # Installer version
   declare INST64_SCRIPT_VERSION=''
@@ -82,6 +83,7 @@
   #
 
   # Target ownership
+  declare INST64_TARGET_DEFAULT=''
   declare INST64_TARGET_OWNER=''
   declare INST64_TARGET_GROUP=''
   declare INST64_TARGET_MODE_DIR='0755'
@@ -197,45 +199,56 @@ function inst64_lib_base_create_path() {
   fi
 }
 
+function _inst64_lib_platform_get_flavor_from_release() {
+  if ! source '/etc/os-release' || [[ -z "$ID" || -z "$VERSION_ID" ]]; then
+    inst64_lib_message_show_error 'failed to load OS information from /etc/os-release file'
+    return 1
+  fi
+  # shellcheck disable=SC2249
+  case "${ID^^}" in
+  'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
+  'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
+  'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
+  'CENTOS') INST64_OS_FLAVOR='REDHAT' ;;
+  'DEBIAN') INST64_OS_FLAVOR='DEBIAN' ;;
+  'FEDORA') INST64_OS_FLAVOR='FEDORA' ;;
+  'DARWIN') INST64_OS_FLAVOR='MACOS' ;;
+  'KALI') INST64_OS_FLAVOR='DEBIAN' ;;
+  'OL') INST64_OS_FLAVOR='REDHAT' ;;
+  'ROCKY') INST64_OS_FLAVOR='REDHAT' ;;
+  'RHEL') INST64_OS_FLAVOR='REDHAT' ;;
+  'SLES') INST64_OS_FLAVOR='SUSE' ;;
+  'UBUNTU') INST64_OS_FLAVOR='DEBIAN' ;;
+  esac
+}
+
+function _inst64_lib_platform_get_flavor_from_uname() {
+  # shellcheck disable=SC2249
+  case "$INST64_OS_TYPE" in
+  'MACOS') BL64_OS_FLAVOR='MACOS' ;;
+  esac
+}
+
+function inst64_lib_platform_get_type() {
+  type="$(uname -o)"
+  case "$type" in
+  'Darwin') INST64_OS_TYPE='MACOS' ;;
+  'GNU/Linux' | 'Linux') INST64_OS_TYPE='LINUX' ;;
+  *)
+    inst64_lib_message_show_error \
+      "Installer64 was unable to identify the current OS type (${type})"
+    return 1
+    ;;
+  esac
+}
+
 function inst64_lib_platform_get_flavor() {
-  # macOS detection
-  if [[ "$INST64_CPU_CURRENT" == 'Darwin' ]]; then
-    if command -v sw_vers >/dev/null 2>&1; then
-      INST64_OS_FLAVOR='MACOS'
-      return 0
-    fi
-  fi
 
-  # Linux distribution detection
   if [[ -f '/etc/os-release' ]]; then
-    # Modern Linux distributions
-    if "$INST64_CMD_GREP" -q 'ID=alpine' '/etc/os-release'; then
-      INST64_OS_FLAVOR='ALPINE'
-    elif "$INST64_CMD_GREP" -q 'ID=debian' '/etc/os-release'; then
-      INST64_OS_FLAVOR='DEBIAN'
-    elif "$INST64_CMD_GREP" -q 'ID=ubuntu' '/etc/os-release'; then
-      INST64_OS_FLAVOR='DEBIAN'
-    elif "$INST64_CMD_GREP" -q 'ID=fedora' '/etc/os-release'; then
-      INST64_OS_FLAVOR='FEDORA'
-    elif "$INST64_CMD_GREP" -q 'ID=rhel' '/etc/os-release'; then
-      INST64_OS_FLAVOR='REDHAT'
-    elif "$INST64_CMD_GREP" -q 'ID=almalinux' '/etc/os-release'; then
-      INST64_OS_FLAVOR='REDHAT'
-    elif "$INST64_CMD_GREP" -q 'ID=suse' '/etc/os-release'; then
-      INST64_OS_FLAVOR='SUSE'
-    fi
-  elif [[ -f '/etc/alpine-release' ]]; then
-    INST64_OS_FLAVOR='ALPINE'
-  elif [[ -f '/etc/debian_version' ]]; then
-    INST64_OS_FLAVOR='DEBIAN'
-  elif [[ -f '/etc/fedora-release' ]]; then
-    INST64_OS_FLAVOR='FEDORA'
-  elif [[ -f '/etc/redhat-release' ]]; then
-    INST64_OS_FLAVOR='REDHAT'
-  elif [[ -f '/etc/SuSE-release' ]]; then
-    INST64_OS_FLAVOR='SUSE'
+    _inst64_lib_platform_get_flavor_from_release
+  else
+    _inst64_lib_platform_get_flavor_from_uname
   fi
-
   # If no OS flavor was detected
   if [[ -z "$INST64_OS_FLAVOR" ]]; then
     inst64_lib_message_show_error "unable to detect OS flavor"
@@ -414,12 +427,14 @@ function inst64_lib_base_set_path() {
 
 function inst64_lib_target_set_path() {
   local target="INST64_${INST64_APP_ID}_TARGET"
+  local target_basename="$INST64_APP_NAME"
+  [[ -n "$INST64_TARGET_DEFAULT" ]] && target_basename="$INST64_TARGET_DEFAULT"
   if [[ -z "${!target}" ]]; then
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s/%s' \
       "${INST64_OPT_ROOT}" \
-      "${INST64_APP_NAME}"
+      "${target_basename}"
   fi
 }
 
@@ -492,6 +507,7 @@ function inst64_lib_base_initialize() {
   # shellcheck disable=SC2015
   inst64_lib_command_set &&
     inst64_lib_platform_get_cpu &&
+    inst64_lib_platform_get_type &&
     inst64_lib_platform_get_flavor &&
     inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
@@ -653,7 +669,7 @@ declare INST64_INSTALLER64_PLATFORM="${INST64_INSTALLER64_PLATFORM:-}"
 declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='inst64'
+INST64_APP_NAME='installer64'
 INST64_APP_ID='INSTALLER64'
 INST64_APP_FULL_NAME='Installer64 - Automated application installers'
 
@@ -663,6 +679,7 @@ INST64_SCRIPT_VERSION='2.0.0'
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'
 INST64_PKG_MAIN='installer64-scripts.tgz'
+INST64_TARGET_DEFAULT='inst64'
 INST64_TARGET_MODE_FILE='0755'
 
 #
