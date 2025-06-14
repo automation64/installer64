@@ -1,3 +1,4 @@
+# shellcheck disable=SC2249
 case "$BL64_OS_FLAVOR" in
   "$BL64_OS_FLAVOR_ALPINE")
     ;;
