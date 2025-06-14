@@ -31,7 +31,7 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
 
 # shellcheck disable=SC2034
-declare INST64_INSTALLER64_SCRIPT_VERSION='1.2.1'
+declare INST64_INSTALLER64_SCRIPT_VERSION='1.2.2'
 # Installation method
 declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
 # Source repository
@@ -53,10 +53,49 @@ declare INST64_STATUS_FLAG='CONTINUE'
 declare INST64_STATUS_PATH=''
 
 #
-# Functions
+# Lib
+#
+# * Imported from lib-bash
 #
 
-function inst64_retry() {
+function inst64_lib_task_process_start() {
+  inst64_lib_message_show_process "started"
+  [[ -n "$INST64_DEBUG" ]] && set -x
+  return 0
+}
+
+function inst64_lib_task_process_finish() {
+  local -i status=$1
+  if ((status == 0)); then
+    inst64_lib_message_show_process "finished successfully"
+  else
+    inst64_lib_message_show_process "finished with errors: exit-status-${status}"
+  fi
+  # shellcheck disable=SC2086
+  return $status
+}
+
+function inst64_lib_message_show_process() {
+  echo "Process: [install-${INST64_APP_NAME}] ${1:-}"
+}
+
+function inst64_lib_message_show_task() {
+  echo "Task   : ${1:-}"
+}
+
+function inst64_lib_message_show_error() {
+  echo "Error  : ${1:-}" >&2
+}
+
+function inst64_lib_message_show_warning() {
+  echo "Warning: ${1:-}" >&2
+}
+
+function inst64_lib_message_show_phase() {
+  echo "Phase  : ${1:-}"
+}
+
+function inst64_lib_task_retry() {
   local max_retries=$1
   local wait_time=$2
   local attempt=1
@@ -66,13 +105,19 @@ function inst64_retry() {
     "$@" && return 0
     ((attempt++))
     if ((attempt > max_retries)); then
-      echo "Error: command failed after ${max_retries} attempts"
+      inst64_lib_message_show_error "command failed after ${max_retries} attempts"
       return 1
     fi
-    echo "Retrying in ${wait_time} seconds... (attempt ${attempt}/${max_retries})"
+    if ((attempt == 2)); then
+      inst64_lib_message_show_warning "retrying in ${wait_time} seconds... (attempt ${attempt}/${max_retries})"
+    fi
     sleep "$wait_time"
   done
 }
+
+#
+# Functions
+#
 
 function inst64_fetch_latest_version() {
   # shellcheck disable=SC2249
@@ -96,7 +141,7 @@ function inst64_identify_latest() {
   local max_retries=5
   local wait_time=5
 
-  inst64_retry "$max_retries" "$wait_time" inst64_fetch_latest_version
+  inst64_lib_task_retry "$max_retries" "$wait_time" inst64_fetch_latest_version
 }
 
 function inst64_download_binary_package() {
@@ -104,7 +149,7 @@ function inst64_download_binary_package() {
   local package_url=''
 
   package_url="${INST64_INSTALLER64_SOURCE}/releases/download/${INST64_INSTALLER64_VERSION}/${package_name}"
-  echo 'Task: download application'
+  inst64_lib_message_show_task 'download application'
   # shellcheck disable=SC2249
   case "$INST64_WEB_CMD_GET" in
   'curl')
@@ -126,7 +171,7 @@ function inst64_download_binary_package() {
 function inst64_open_binary_package() {
   local package_name="$1"
 
-  echo "Task: deploy application (package: ${package_name})"
+  inst64_lib_message_show_task "deploy application (package: ${package_name})"
   [[ -f "${INST64_TMP}/${package_name}" ]] &&
     tar zx -C "$INST64_INSTALLER64_TARGET" -f "${INST64_TMP}/${package_name}" &&
     chmod "$INST64_TARGET_MODE_FILE" "$INST64_INSTALLER64_TARGET"/* ||
@@ -152,9 +197,9 @@ function inst64_install_binary() {
 
 inst64_select_platform() {
   INST64_INSTALLER64_PLATFORM="$(uname -s)"
-  [ -z "$INST64_INSTALLER64_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
+  [ -z "$INST64_INSTALLER64_PLATFORM" ] && inst64_lib_message_show_error 'unable to determine platform id' && return 1
   if [ "$INST64_INSTALLER64_PLATFORM" != 'Darwin' ] && [ "$INST64_INSTALLER64_PLATFORM" != 'Linux' ]; then
-    echo "Error: unsupported platform (${INST64_INSTALLER64_PLATFORM})"
+    inst64_lib_message_show_error "unsupported platform (${INST64_INSTALLER64_PLATFORM})"
     return 1
   fi
   if [[ "$INST64_INSTALLER64_PLATFORM" == 'Linux' ]]; then
@@ -176,14 +221,14 @@ function inst64_select_packages() {
         return $?
     fi
   fi
-  [[ -z "$INST64_INSTALLER64_VERSION" ]] && echo 'Error: unable to determine package version' && return 1
-  [[ -z "$INST64_PKG_MAIN" ]] && echo 'Error: unable to determine package name' && return 1
+  [[ -z "$INST64_INSTALLER64_VERSION" ]] && inst64_lib_message_show_error 'unable to determine package version' && return 1
+  [[ -z "$INST64_PKG_MAIN" ]] && inst64_lib_message_show_error 'unable to determine package name' && return 1
   return 0
 }
 
 function inst64_prepare() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  echo 'Task: prepare deployment'
+  inst64_lib_message_show_phase 'prepare deployment'
   if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
     mkdir "$INST64_OPT_ROOT" &&
       chmod "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
@@ -205,7 +250,7 @@ function inst64_install() {
 
 function inst64_verify() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 0
-  echo 'Task: verify deployment'
+  inst64_lib_message_show_phase 'verify deployment'
   [[ -d "${INST64_INSTALLER64_TARGET}" ]] &&
     [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
     [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] &&
@@ -230,12 +275,12 @@ function inst64_initialize() {
   fi
 
   if [[ "$INST64_SYSTEM_WIDE" == 'YES' && "$EUID" != '0' ]]; then
-    echo 'Error: root privileges are required for system-wide installation'
+    inst64_lib_message_show_error 'root privileges are required for system-wide installation'
     return 1
   fi
 
   [[ "$INST64_INSTALLER64_METHOD" != 'BINARY' ]] &&
-    echo 'Error: unsupported installation method' &&
+    inst64_lib_message_show_error 'unsupported installation method' &&
     return 1
 
   if command -v 'curl' >/dev/null 2>&1; then
@@ -243,12 +288,12 @@ function inst64_initialize() {
   elif command -v 'wget' >/dev/null 2>&1; then
     INST64_WEB_CMD_GET='wget'
   else
-    echo 'Error: no download tool found (curl, wget)'
+    inst64_lib_message_show_error 'no download tool found (curl, wget)'
     return 1
   fi
 
   if ! command -v 'tar' >/dev/null 2>&1; then
-    echo 'Error: no archive tool found (tar)'
+    inst64_lib_message_show_error 'no archive tool found (tar)'
     return 1
   fi
   INST64_STATUS_PATH="${INST64_INSTALLER64_TARGET}/version"
@@ -258,7 +303,7 @@ function inst64_initialize() {
   if [[ -f "$INST64_STATUS_PATH" ]]; then
     if [[ "${INST64_INSTALLER64_VERSION}" == "$(<"$INST64_STATUS_PATH")" ]]; then
       if [[ "$INST64_REPLACE_INSTALLED" != 'YES' ]]; then
-        echo "Warning: application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${INST64_INSTALLER64_VERSION})"
+        inst64_lib_message_show_warning "application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${INST64_INSTALLER64_VERSION})"
         INST64_STATUS_FLAG='SKIP'
         return 0
       fi
@@ -277,19 +322,9 @@ function inst64_initialize() {
 # Main
 #
 
-declare -i inst64_status=0
-
-echo "Process: [${0}] started"
-
-[[ -n "$INST64_DEBUG" ]] && set -x
-inst64_initialize &&
+inst64_lib_task_process_start &&
+  inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
   inst64_verify
-inst64_status=$?
-
-((inst64_status == 0)) &&
-  echo "Process: [${0}] finished successfully" ||
-  echo "Process: [${0}] finished with errors: exit-status-${inst64_status}"
-# shellcheck disable=SC2086
-exit $inst64_status
+inst64_lib_task_process_finish $?
