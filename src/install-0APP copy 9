@@ -43,24 +43,24 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_ARGOCDCLI_METHOD="${INST64_ARGOCDCLI_METHOD:-BINARY}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BINARY}"
 # Installation destination
-declare INST64_ARGOCDCLI_TARGET="${INST64_ARGOCDCLI_TARGET:-}"
+declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
-declare INST64_ARGOCDCLI_PLATFORM="${INST64_ARGOCDCLI_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
 # Application version
-declare INST64_ARGOCDCLI_VERSION="${INST64_ARGOCDCLI_VERSION:-latest}"
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 
-INST64_APP_NAME='argocdcli'
-INST64_APP_ID='ARGOCDCLI'
-INST64_APP_FULL_NAME='ArgoCD CLI'
-INST64_CLI_NAME='argocd'
+INST64_APP_NAME='X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+INST64_CLI_NAME='X_CLI_NAME_X'
+INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 
-INST64_GH_REPO_NAME='argo-cd'
-INST64_GH_REPO_OWNER='argoproj'
-INST64_PKG_MAIN_PREFIX='argocd-'
-INST64_CPU_DARWIN_ARM64='darwin-arm64'
-INST64_CPU_LINUX_AMD64='linux-amd64'
+INST64_GH_REPO_NAME='X_REPO_NAME_X'
+INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
+INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
+INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
 
 #
 # Functions
@@ -69,17 +69,17 @@ INST64_CPU_LINUX_AMD64='linux-amd64'
 function inst64_install_binary() {
   bl64_dbg_app_show_function
 
-  INST64_WORK_PATH_SOURCE="${INST64_CLI_NAME}-${INST64_ARGOCDCLI_PLATFORM}"
   inst64_lib_task_binary_download &&
     bl64_rxtx_github_get_asset \
-      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_ARGOCDCLI_VERSION" "$INST64_PKG_MAIN" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" ||
+      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_PKG_MAIN" \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
     return $?
 
   inst64_lib_task_deploy
-  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_ARGOCDCLI_TARGET" &&
+  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_X_APP_NAME_CAPS_X_TARGET" &&
     bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-      "$INST64_ARGOCDCLI_TARGET" "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" ||
+      "$INST64_X_APP_NAME_CAPS_X_TARGET" "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" ||
     return $?
 
   inst64_lib_task_binary_cleanup
@@ -88,7 +88,7 @@ function inst64_install_binary() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -96,7 +96,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
   fi
 }
@@ -104,8 +104,8 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
-    INST64_WORK_PATH_CLI="${INST64_ARGOCDCLI_TARGET}/${INST64_CLI_NAME}-${INST64_ARGOCDCLI_PLATFORM}"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+    INST64_WORK_PATH_CLI="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}"
     inst64_lib_task_publish
     # shellcheck disable=SC2086
     bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
@@ -115,8 +115,8 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" version --client || return $?
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -127,20 +127,16 @@ function inst64_select_method() {
     'AUTO' \
     'BINARY' ||
     return $?
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'AUTO' ]]; then
-    INST64_ARGOCDCLI_METHOD='BINARY'
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+    INST64_X_APP_NAME_CAPS_X_METHOD='BINARY'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_ARGOCDCLI_PLATFORM" ]]; then
-      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_ARGOCDCLI_PLATFORM="$INST64_CPU_DARWIN_ARM64"
-      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_ARGOCDCLI_PLATFORM="$INST64_CPU_LINUX_AMD64"
-      fi
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
+      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -148,12 +144,12 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_ARGOCDCLI_VERSION" == 'latest' ]]; then
-      INST64_ARGOCDCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
+      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ARGOCDCLI_PLATFORM}"
+    INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
   fi
   inst64_lib_package_check_definition
 }
@@ -164,7 +160,7 @@ function inst64_initialize() {
     inst64_select_method ||
     return $?
 
-  if [[ "$INST64_ARGOCDCLI_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BINARY' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
@@ -186,7 +182,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
