@@ -131,6 +131,11 @@ function inst64_select_packages() {
         INST64_PKG_DEV='perl-devel'
       INST64_PKG_MAIN='perl'
       ;;
+    "$BL64_OS_FLAVOR_SUSE")
+      bl64_lib_flag_is_enabled "$INST64_PERL_DEVELOPMENT" &&
+        INST64_PKG_DEV='perl-devel'
+      INST64_PKG_MAIN='perl'
+      ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
@@ -149,6 +154,7 @@ function inst64_initialize() {
         "$BL64_OS_FLAVOR_ALPINE" \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \
+        "$BL64_OS_FLAVOR_SUSE" \
         "$BL64_OS_FLAVOR_REDHAT" &&
       bl64_pkg_setup ||
       return $?
