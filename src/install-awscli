@@ -187,7 +187,6 @@ function inst64_initialize() {
         "$BL64_OS_FLAVOR_FEDORA" \
         "$BL64_OS_FLAVOR_REDHAT" \
         "$BL64_OS_FLAVOR_MACOS" &&
-      bl64_cryp_setup &&
       bl64_arc_setup ||
       return $?
   fi
