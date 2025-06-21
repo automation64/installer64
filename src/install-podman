@@ -134,6 +134,7 @@ function inst64_initialize() {
       bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_ALPINE" \
         "$BL64_OS_FLAVOR_DEBIAN" \
+        "$BL64_OS_FLAVOR_SUSE" \
         "$BL64_OS_FLAVOR_FEDORA" \
         "$BL64_OS_FLAVOR_REDHAT" &&
       bl64_pkg_setup ||
