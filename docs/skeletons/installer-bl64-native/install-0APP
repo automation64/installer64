@@ -47,9 +47,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
+declare INST64_X_APP_NAME_CAPS_X_TARGET=''
 # Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_PLATFORM=''
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Enable development packages?
@@ -113,12 +113,8 @@ function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
     # X_PLATFORM_SELECTION_PLACEHOLDER_X
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-    "$BL64_OS_FLAVOR_X_FLAVOR_X")
-      INST64_CLI_PATH='X_CLI_PATH_X'
-      ;;
-    esac
+    # X_CUSTOM_CLI_PATH_PLACEHOLDER_X
+    :
   fi
   return 0
 }
