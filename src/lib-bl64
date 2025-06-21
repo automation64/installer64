@@ -518,7 +518,6 @@ function inst64_lib_python_install_pipx() {
 
 function inst64_lib_command_run_pipx() {
   bl64_dbg_app_show_function "$@"
-  local verbose=''
   local command_pipx=''
 
   command_pipx="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
@@ -526,11 +525,9 @@ function inst64_lib_command_run_pipx() {
     bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
     return 1
 
-  bl64_msg_app_verbose_is_enabled && verbose='-v'
   bl64_dbg_app_trace_start
   # shellcheck disable=SC2086
   "$command_pipx" \
-    $verbose \
     "$@"
   bl64_dbg_app_trace_stop
 }
