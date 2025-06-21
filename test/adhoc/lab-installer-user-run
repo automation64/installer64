@@ -5,6 +5,6 @@ declare installer="/project/src/install-${1}"
 [[ ! -d /project ]] && echo 'Fatal: test for lab container only' && exit 1
 [[ ! -f "$installer" ]] && echo "Fatal: Installer not found (${installer})" && exit 1
 
-export INST64_BASHLIB64="$HOME/at64/bl64"
+export INST64_BASHLIB64='/project/lib/bl64'
 export INST64_SYSTEM_WIDE='NO'
 "$installer"
