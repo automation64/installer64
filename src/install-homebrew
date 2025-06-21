@@ -52,6 +52,10 @@ INST64_GH_REPO_OWNER='Homebrew'
 INST64_GH_REPO_NAME='install'
 INST64_APP_INSTALLER='install.sh'
 
+# Installer specific variables
+export NONINTERACTIVE='YES'
+export SUDO_ASKPASS=''
+
 #
 # Functions
 #
@@ -66,7 +70,7 @@ function inst64_install_custom() {
   installer_path="${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}"
   [[ -f "$installer_path" ]] &&
     "$INST64_CMD_CHMOD" 755 "$installer_path" &&
-    NONINTERACTIVE='YES' "$installer_path" ||
+    "$installer_path" ||
     return $?
 
   if [[ "$INST64_CPU_CURRENT" == 'Darwin' ]]; then

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.0.1
-# Snippet: setup-environment-2.0.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -18,206 +17,160 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
-# shellcheck source=lib/bl64/bashlib64.bash
-source "${INST64_BASHLIB64}/bashlib64.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
+# shellcheck source-path=lib/bl64 disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
 # Installation method
 declare INST64_RUBY_METHOD="${INST64_RUBY_METHOD:-NATIVE}"
+# Installation destination
+declare INST64_RUBY_TARGET=''
+# Hardware architecture
+declare INST64_RUBY_PLATFORM=''
+# Application version
+declare INST64_RUBY_VERSION="${INST64_RUBY_VERSION:-latest}"
 # Enable development packages?
-declare INST64_RUBY_DEVELOPMENT="${INST64_RUBY_DEVELOPMENT:-$BL64_VAR_OFF}"
+declare INST64_RUBY_DEVELOPMENT="${INST64_RUBY_DEVELOPMENT:-NO}"
 
-declare INST64_RUBY_ENV='ruby.env'
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='ruby'
-declare INST64_RUBY_ENV_NAME='ruby'
+# App information
+INST64_APP_NAME='ruby'
+INST64_APP_ID='RUBY'
+INST64_APP_FULL_NAME='Ruby - Programming Language'
+# CLI information
+INST64_CLI_NAME='ruby'
 
 #
 # Functions
 #
 
-function inst64_install_os_packages() {
+function inst64_install_native() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'deploy packages'
   # shellcheck disable=SC2086
   bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
-function inst64_setup() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
-  local mode='0644'
-
-  bl64_msg_show_task 'setup application environment'
-  INST64_RUBY_ENV="${INST64_LOCAL_BIN}/${INST64_RUBY_ENV}"
-  bl64_msg_show_subtask "create shell env file (${INST64_RUBY_ENV})"
-  # shellcheck disable=SC2016
-  printf '#!/usr/bin/env sh
-#
-# Ruby
-#
-# * Define application environment variables
-#
-
-GEM_HOME="${HOME}/gems"
-export GEM_HOME
-PATH="${GEM_HOME}/bin:${PATH}"
-' >"$INST64_RUBY_ENV" &&
-    bl64_fs_run_chmod "$mode" "$INST64_RUBY_ENV" ||
-    return $?
-
-  return 0
+  inst64_lib_step_prepare || return 0
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
 function inst64_install() {
   bl64_dbg_app_show_function
-  inst64_select_packages || return $?
+  inst64_lib_step_install || return 0
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
-    inst64_install_os_packages
+    inst64_install_native
   fi
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'NATIVE' ||
+    return $?
+  if [[ "$INST64_RUBY_METHOD" == 'AUTO' ]]; then
+    INST64_RUBY_METHOD='NATIVE'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
+    :
+  fi
+  return 0
+}
+
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_is_distro "$BL64_OS_UB"; then
-      INST64_PKG_MAIN='ruby ruby-rubygems'
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+    "$BL64_OS_FLAVOR_ALPINE")
       bl64_lib_flag_is_enabled "$INST64_RUBY_DEVELOPMENT" &&
-        INST64_PKG_MAIN="${INST64_PKG_MAIN} ruby-dev"
-    fi
+        INST64_PKG_DEV=''
+      INST64_PKG_MAIN='ruby'
+      ;;
+    "$BL64_OS_FLAVOR_DEBIAN")
+      bl64_lib_flag_is_enabled "$INST64_RUBY_DEVELOPMENT" &&
+        INST64_PKG_DEV=''
+      INST64_PKG_MAIN='ruby ruby-rubygems'
+      ;;
+    "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_FEDORA")
+      bl64_lib_flag_is_enabled "$INST64_RUBY_DEVELOPMENT" &&
+        INST64_PKG_DEV='ruby-devel'
+      INST64_PKG_MAIN='ruby rubygems'
+      ;;
+    esac
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  bl64_pkg_setup
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
-    "/usr/bin/${INST64_CLI_NAME}" --version
-  fi
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  bl64_os_check_compatibility \
-    "${BL64_OS_UB}-22" &&
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
+    return $?
+
+  if [[ "$INST64_RUBY_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
-    bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_RUBY_METHOD' \
-      "$INST64_RUBY_METHOD" \
-      'NATIVE'
-  # shellcheck disable=SC2181
-  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Ruby' \
-    'INST64_RUBY_METHOD' 'INST64_SYSTEM_WIDE' 
+      bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_ALPINE" \
+        "$BL64_OS_FLAVOR_DEBIAN" \
+        "$BL64_OS_FLAVOR_FEDORA" \
+        "$BL64_OS_FLAVOR_REDHAT" &&
+      bl64_pkg_setup ||
+      return $?
+  fi
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

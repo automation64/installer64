@@ -1,0 +1,11 @@
+# Prepare PIPX
+export PATH="${PATH}:${HOME}/.local/bin"
+if python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)"; then
+    sudo src/install-pipx
+else
+    src/install-pipx
+fi
+
+# Run test
+export INST64_MKDOCSX_APP_NAME_CAPS_X_METHOD='PIPX'
+src/install-X_APP_NAME_X

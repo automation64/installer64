@@ -1,9 +1,4 @@
 # X_PRE_OS_PLACEHOLDER_X
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ALPINE" \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_MACOS" \
-      "$BL64_OS_FLAVOR_REDHAT" \
-      "$BL64_OS_FLAVOR_SUSE" ||
-      return $?
+      X_FLAVOR_X
+      

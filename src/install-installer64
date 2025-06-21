@@ -231,12 +231,12 @@ function _inst64_lib_platform_get_flavor_from_release() {
 function _inst64_lib_platform_get_flavor_from_uname() {
   # shellcheck disable=SC2249
   case "$INST64_OS_TYPE" in
-  'MACOS') BL64_OS_FLAVOR='MACOS' ;;
+  'MACOS') INST64_OS_FLAVOR='MACOS' ;;
   esac
 }
 
 function inst64_lib_platform_get_type() {
-  type="$(uname -o)"
+  type="$(${INST64_CMD_UNAME} -o)"
   case "$type" in
   'Darwin') INST64_OS_TYPE='MACOS' ;;
   'GNU/Linux' | 'Linux') INST64_OS_TYPE='LINUX' ;;

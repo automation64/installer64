@@ -114,6 +114,10 @@
 
   # OS package manager information
   declare INST64_OS_REPO_NAME=''
+  declare INST64_OS_SOURCE_YUM='X_REPO_URL_X'
+  declare INST64_OS_SOURCE_APT='X_REPO_URL_X'
+  declare INST64_OS_REPOSITORY_KEY_YUM='X_KEY_URL_X'
+  declare INST64_OS_REPOSITORY_KEY_APT='X_KEY_URL_X'
 }
 
 #
@@ -230,6 +234,8 @@ function inst64_lib_cli_set_path() {
     INST64_CLI_PATH="${HOME}/.local/bin"
   elif [[ "${!method}" == 'PIP' ]]; then
     INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}"
+  elif [[ "${!method}" == 'NATIVE' ]]; then
+    INST64_CLI_PATH='/usr/bin'
   elif [[ "${!method}" == 'BINARY' || "${!method}" == 'CUSTOM' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}"
@@ -512,7 +518,6 @@ function inst64_lib_python_install_pipx() {
 
 function inst64_lib_command_run_pipx() {
   bl64_dbg_app_show_function "$@"
-  local verbose=''
   local command_pipx=''
 
   command_pipx="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
@@ -520,11 +525,9 @@ function inst64_lib_command_run_pipx() {
     bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
     return 1
 
-  bl64_msg_app_verbose_is_enabled && verbose='-v'
   bl64_dbg_app_trace_start
   # shellcheck disable=SC2086
   "$command_pipx" \
-    $verbose \
     "$@"
   bl64_dbg_app_trace_stop
 }
