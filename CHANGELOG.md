@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - XCodeCLI
   - KST
   - BZip2
+  - XZ
 - Core
   - Shared library lib-bl64
   - Shared library lib-bash
