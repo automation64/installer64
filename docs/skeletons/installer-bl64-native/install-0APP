@@ -111,11 +111,6 @@ function inst64_select_method() {
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    # X_PLATFORM_SELECTION_PLACEHOLDER_X
-    # X_CUSTOM_CLI_PATH_PLACEHOLDER_X
-    :
-  fi
   return 0
 }
 

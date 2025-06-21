@@ -63,6 +63,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - awscli
   - gcloud
   - azurecli
+  - helm-chart-tester
+  - yamllint
+  - act
+  - terraformer
+  - terragrunt
+  - terraform-docs
+  - perl
+  - podman
+  - ruby
+  - gcc
+  - ansible
+  - ansible-lint
 - **breaking-change** Installers migrated to lib-bash
   - homebrew
   - bashlib64
