@@ -76,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - gcc
   - ansible
   - ansible-lint
+  - pgadmin
 - **breaking-change** Installers migrated to lib-bash
   - homebrew
   - bashlib64
