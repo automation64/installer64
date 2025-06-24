@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-github-2.4.0
+# Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -17,11 +17,9 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
@@ -35,38 +33,36 @@ source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_RUFF_PLATFORM="${INST64_RUFF_PLATFORM:-}"
-declare INST64_RUFF_TARGET="${INST64_RUFF_TARGET:-}"
-declare INST64_RUFF_VERSION="${INST64_RUFF_VERSION:-latest}"
 # Installation method
 declare INST64_RUFF_METHOD="${INST64_RUFF_METHOD:-BINARY}"
+# Installation destination
+declare INST64_RUFF_TARGET="${INST64_RUFF_TARGET:-}"
+# Hardware architecture
+declare INST64_RUFF_PLATFORM="${INST64_RUFF_PLATFORM:-}"
+# Application version
+declare INST64_RUFF_VERSION="${INST64_RUFF_VERSION:-latest}"
 
-declare INST64_GH_REPO_NAME='ruff'
-declare INST64_GH_REPO_OWNER='astral-sh'
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='ruff'
-declare INST64_CLI_PATH=''
+INST64_APP_NAME='ruff'
+INST64_APP_ID='RUFF'
+INST64_APP_FULL_NAME='Ruff - Fast Python Linter and Formatter'
+INST64_CLI_NAME='ruff'
+
+INST64_GH_REPO_NAME='ruff'
+INST64_GH_REPO_OWNER='astral-sh'
+INST64_PKG_MAIN_PREFIX='ruff-'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='aarch64-apple-darwin'
+INST64_CPU_LINUX_AMD64_GNU='x86_64-unknown-linux-gnu'
+INST64_CPU_LINUX_AMD64_MUSL='x86_64-unknown-linux-musl'
 
 #
 # Functions
@@ -74,187 +70,109 @@ declare INST64_CLI_PATH=''
 
 function inst64_install_binary() {
   bl64_dbg_app_show_function
-  local work_path=''
-  local app_target_mode='0755'
-  local app_target_owner="$BL64_IAM_SYSTEM_USER"
-  local app_target_group="$BL64_IAM_SYSTEM_GROUP"
-  local app_cli_mode='0755'
-  local app_cli_source="${INST64_CLI_NAME}"
 
-  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    app_target_owner="$BL64_VAR_DEFAULT"
-    app_target_group="$BL64_VAR_DEFAULT"
-  fi
-
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_RUFF_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
+  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN%.tar.gz}/${INST64_CLI_NAME}"
+  inst64_lib_task_binary_download &&
+    bl64_rxtx_github_get_asset \
+      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_RUFF_VERSION" "$INST64_PKG_MAIN" \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" &&
+    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
     return $?
 
-  bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_RUFF_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_RUFF_TARGET" "${work_path}/${INST64_PKG_MAIN%.tar.gz}/${app_cli_source}" ||
+  inst64_lib_task_deploy
+  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_RUFF_TARGET" &&
+    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+      "$INST64_RUFF_TARGET" "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" ||
     return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_RUFF_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
-      return $?
-  fi
-
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
-  return 0
+  inst64_lib_task_binary_cleanup
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
-function inst64_select_platform() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
   if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
-      # shellcheck disable=SC2249
-      case "$BL64_OS_MACHINE" in
-      "$BL64_OS_MACHINE_ARM64") INST64_RUFF_PLATFORM='aarch64-apple-darwin' ;;
-      "$BL64_OS_MACHINE_AMD64")
-        if bl64_os_is_distro "${BL64_OS_ALP}" "${BL64_OS_DEB}" "${BL64_OS_SLES}"; then
-          INST64_RUFF_PLATFORM='x86_64-unknown-linux-musl'
-        elif bl64_os_is_distro "${BL64_OS_ALM}" "${BL64_OS_AMZ}" "${BL64_OS_CNT}" "${BL64_OS_FD}" "${BL64_OS_KL}" "${BL64_OS_OL}" "${BL64_OS_RCK}" "${BL64_OS_RHEL}" "${BL64_OS_UB}"; then
-          INST64_RUFF_PLATFORM='x86_64-unknown-linux-gnu'
-        fi
-        ;;
-      esac
+    inst64_lib_base_create_path
   fi
-  [[ -z "$INST64_RUFF_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
-  return 0
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
 function inst64_install() {
   bl64_dbg_app_show_function
-  inst64_select_platform &&
-    inst64_select_packages ||
-    return $?
+  inst64_lib_step_install || return 0
   if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
   fi
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
+    INST64_WORK_PATH_CLI="${INST64_RUFF_TARGET}/${INST64_CLI_NAME}"
+    inst64_lib_task_publish
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+  fi
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'BINARY' ||
+    return $?
+  if [[ "$INST64_RUFF_METHOD" == 'AUTO' ]]; then
+    INST64_RUFF_METHOD='BINARY'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_RUFF_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_RUFF_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        # shellcheck disable=SC2249
+        case "$BL64_OS_FLAVOR" in
+        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+          INST64_RUFF_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+          ;;
+        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+          INST64_RUFF_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+          ;;
+        esac
+      fi
+    fi
+    inst64_lib_platform_check_cpu
+  fi
+}
+
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_suffix=''
   if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_RUFF_VERSION" == 'latest' ]]; then
       INST64_RUFF_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='ruff-'
-    package_suffix='.tar.gz'
-    INST64_PKG_MAIN="${package_prefix}${INST64_RUFF_PLATFORM}${package_suffix}"
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
-    else
-      INST64_CLI_PATH="${INST64_RUFF_TARGET}/${INST64_CLI_NAME}"
-    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_RUFF_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
-    bl64_arc_setup
-  fi
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  INST64_RUFF_TARGET="${INST64_RUFF_TARGET:-${INST64_OPT_ROOT}/ruff}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_RUFF_METHOD' \
-    "$INST64_RUFF_METHOD" \
-    'BINARY' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_RUFF_METHOD" == 'BINARY' ]]; then
@@ -262,25 +180,24 @@ function inst64_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
+    bl64_arc_setup ||
+      return $?
   fi
+
   inst64_select_platform &&
-    inst64_select_packages ||
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
-  bl64_msg_show_setup 'Install application: Ruff' \
-    'INST64_SYSTEM_WIDE' 'INST64_RUFF_METHOD' \
-    'INST64_RUFF_PLATFORM' \
-    'INST64_GH_REPO_OWNER' \
-    'INST64_GH_REPO_NAME' \
-    'INST64_RUFF_TARGET' \
-    'INST64_RUFF_VERSION' \
-    'INST64_CLI_PATH'
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.2.1'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -288,5 +205,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

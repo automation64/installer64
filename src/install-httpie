@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-python-2.4.0
+# Template: install-bl64-python-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -17,230 +17,131 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-latest}"
 # Installation method
-declare INST64_HTTPIE_METHOD="${INST64_HTTPIE_METHOD:-PIP}"
+declare INST64_HTTPIE_METHOD="${INST64_HTTPIE_METHOD:-PIPX}"
+# Installation destination
+declare INST64_HTTPIE_TARGET="${INST64_HTTPIE_TARGET:-}"
+# Hardware architecture
+declare INST64_HTTPIE_PLATFORM=''
+# Application version
+declare INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-latest}"
 
-declare INST64_HTTPIE_PIPX_BIN="${INST64_HTTPIE_PIPX_BIN:-pipx}"
-declare INST64_PKG_MAIN=''
-declare INST64_PKG_PRE=''
-declare INST64_PKG_POST=''
-declare INST64_CLI_NAME='http'
-declare INST64_CLI_PATH=''
+# App information
+INST64_APP_NAME='httpie'
+INST64_APP_ID='HTTPIE'
+INST64_APP_FULL_NAME='HTTPPie - Command Line HTTP Client'
+# CLI information
+INST64_CLI_NAME='http'
+
+INST64_PKG_MAIN='httpie'
 
 #
 # Functions
 #
 
-function inst64_install_with_pip() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
-
-  bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_PKG_PRE" ]]; then
-    # shellcheck disable=SC2086
-    bl64_py_pip_usr_install $INST64_PKG_PRE ||
-      return $?
-  fi
-  # shellcheck disable=SC2086
-  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_py_pip_usr_deploy $INST64_PKG_MAIN ||
-    return $?
-  if [[ -n "$INST64_PKG_POST" ]]; then
-    # shellcheck disable=SC2086
-    bl64_py_pip_usr_install $INST64_PKG_POST ||
-      return $?
-  fi
-  return 0
+  inst64_lib_step_prepare || return 0
 }
 
-function inst64_install_with_pipx() {
-  bl64_dbg_app_show_function
-
-  bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_PKG_PRE" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_HTTPIE_PIPX_BIN" install --preinstall $INST64_PKG_PRE $INST64_PKG_MAIN ||
-      return $?
-  else
-    # shellcheck disable=SC2086
-    "$INST64_HTTPIE_PIPX_BIN" install $INST64_PKG_MAIN $INST64_PKG_PRE ||
-      return $?
-  fi
-  if [[ -n "$INST64_PKG_POST" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_HTTPIE_PIPX_BIN" inject $INST64_PKG_MAIN $INST64_PKG_POST ||
-      return $?
-  fi
-  return 0
-}
-
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
 function inst64_install() {
   bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
   if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' ]]; then
-    inst64_install_with_pipx
+    inst64_lib_python_install_pipx
   elif [[ "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
-    inst64_install_with_pip
+    inst64_lib_python_install_pip
   fi
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'PIP' 'PIPX' ||
+    return $?
+  if [[ "$INST64_HTTPIE_METHOD" == 'AUTO' ]]; then
+    INST64_HTTPIE_METHOD='PIPX'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  return 0
+}
+
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  local version_target=''
-
   if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' || "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
     if [[ "$INST64_HTTPIE_VERSION" == 'latest' ]]; then
       version_target=''
     else
       version_target="==${INST64_HTTPIE_VERSION}.*"
     fi
-    INST64_PKG_MAIN="httpie${version_target}"
-    INST64_PKG_PRE=''
-    INST64_PKG_POST=''
-    if [[ "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
-      INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}/${INST64_CLI_NAME}"
-    elif [[ "$INST64_HTTPIE_METHOD" == 'PIPX' ]]; then
-      INST64_CLI_PATH="${INST64_CLI_NAME}"
-    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_HTTPIE_METHOD' \
-    "$INST64_HTTPIE_METHOD" \
-    'PIP' 'PIPX' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' || "$INST64_HTTPIE_METHOD" == 'PIP' ]]; then
-    if [[ "$INST64_HTTPIE_METHOD" == 'PIPX' ]]; then
-      bl64_check_command_search_path "$INST64_HTTPIE_PIPX_BIN" ||
-        return $?
-    fi
     bl64_check_privilege_not_root &&
       bl64_py_setup ||
       return $?
   fi
-  inst64_select_packages ||
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
-  bl64_msg_show_setup 'Install application: HTTPie' \
-    'INST64_SYSTEM_WIDE' 'INST64_HTTPIE_METHOD' \
-    'INST64_HTTPIE_VERSION' \
-    'INST64_CLI_PATH'
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.1.1'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -248,5 +149,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
