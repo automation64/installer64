@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.0.9]
+## [6.0.10]
 
 ### Added
 
@@ -77,6 +77,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ansible
   - ansible-lint
   - pgadmin
+  - ansible
+  - httpie
+  - mkdocs
+  - pgcli
+  - ray
+  - semgrep
+  - yazi
+  - uv
+  - shfmt
+  - ruff
+  - trufflehog
+  - lazydocker
+  - hadolint
+  - kind
+  - grpcurl
+  - gitleaks
+  - ctop
+  - hugo
+  - minikube
+  - kubeseal
+  - kubelinter
+  - capa
+  - dagger
+  - exocli
+  - kubeconform
+  - kubent
+  - kubescape
+  - syft
+  - taskfile
 - **breaking-change** Installers migrated to lib-bash
   - homebrew
   - bashlib64
