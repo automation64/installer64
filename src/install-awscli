@@ -67,7 +67,7 @@ INST64_APP_INSTALLER='aws/install'
 
 function inst64_install_custom_linux() {
   bl64_dbg_app_show_function
-  bl64_arc_open_zip "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
+  inst64_lib_staging_open_zip ||
     return $?
 
   inst64_lib_task_deploy

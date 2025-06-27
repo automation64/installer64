@@ -72,16 +72,13 @@ function inst64_install_binary() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_binary_download &&
-    bl64_rxtx_github_get_asset \
-      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_X_APP_NAME_CAPS_X_VERSION" "$INST64_PKG_MAIN" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
   inst64_lib_target_create &&
-    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-      "$INST64_X_APP_NAME_CAPS_X_TARGET" "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" ||
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_binary_cleanup

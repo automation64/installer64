@@ -72,10 +72,8 @@ function inst64_install_binary() {
 
   INST64_WORK_PATH_SOURCE="${INST64_CLI_NAME}-${INST64_NEOVIM_PLATFORM}"
   inst64_lib_task_binary_download &&
-    bl64_rxtx_github_get_asset \
-      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_NEOVIM_VERSION" "$INST64_PKG_MAIN" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
