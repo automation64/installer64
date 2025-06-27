@@ -17,107 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - BZip2
   - XZ
 - Core
-  - Shared library lib-bl64
+  - Shared library lib-bl64  - homebrew
+  - bashlib64
+  - installer64
+
   - Shared library lib-bash
 
 ### Changed
 
-- All
-  - Normalized internal variable names
 - **breaking-change** Installers migrated to lib-bl64
-  - sysden64
-  - sysop64
-  - devbin64
-  - eksctl
-  - volta
-  - pipx
-  - python
-  - nodejs
-  - trivy
-  - awsshell
-  - pre-commit
-  - bat
-  - btop
-  - delta
-  - starship
-  - zellij
-  - lnav
-  - duf
-  - eza
-  - fd
-  - fzf
-  - gomplate
-  - hwatch
-  - rclone
-  - neovim
-  - ripgrep
-  - yq
-  - zoxide
-  - k9s
-  - localstack
-  - istioctl
-  - tfsec
-  - tflint
-  - argocdcli
-  - helix
-  - opentofu
-  - awscli
-  - gcloud
-  - azurecli
-  - helm-chart-tester
-  - yamllint
-  - act
-  - terraformer
-  - terragrunt
-  - terraform-docs
-  - perl
-  - podman
-  - ruby
-  - gcc
-  - ansible
-  - ansible-lint
-  - pgadmin
-  - ansible
-  - httpie
-  - mkdocs
-  - pgcli
-  - ray
-  - semgrep
-  - yazi
-  - uv
-  - shfmt
-  - ruff
-  - trufflehog
-  - lazydocker
-  - hadolint
-  - kind
-  - grpcurl
-  - gitleaks
-  - ctop
-  - hugo
-  - minikube
-  - kubeseal
-  - kubelinter
-  - capa
-  - dagger
-  - exocli
-  - kubeconform
-  - kubent
-  - kubescape
-  - syft
-  - taskfile
-  - lynis
-  - bashit
-  - sqlmap
-  - testssl
-  - nikto
+  - All bashlib64 based
 - **breaking-change** Installers migrated to lib-bash
-  - homebrew
-  - bashlib64
-  - installer64
-- Added MacOS support
-  - lnav
-  - duf
+  - All bash based
 
 ## [5.11.0]
 
