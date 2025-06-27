@@ -64,7 +64,8 @@
   declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
   declare INST64_TARGET_MODE='0755'
-  declare INST64_CLI_MODE='0755'
+  declare INST64_TARGET_MODE_DIR='0755'
+  declare INST64_TARGET_MODE_FILE='0644'
   declare INST64_TARGET_REQUESTED='NO'
 
   # Install progress status
@@ -98,6 +99,8 @@
   # CLI information
   declare INST64_CLI_NAME=''
   declare INST64_CLI_PATH=''
+  declare INST64_CLI_SUBPATH=''
+  declare INST64_CLI_MODE='0755'
 
   # GitHub repository information
   declare INST64_GH_REPO_OWNER=''
@@ -562,4 +565,36 @@ function inst64_lib_app_check_mode_system() {
     return $BL64_LIB_ERROR_PARAMETER_INVALID
   fi
   return 0
+}
+
+function inst64_lib_target_normalize() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_fs_path_permission_set \
+      "$INST64_TARGET_MODE_FILE" "$INST64_TARGET_MODE_DIR" \
+      "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+      "$BL64_VAR_ON" \
+      "${!target}"
+  fi
+}
+
+function inst64_lib_git_get_dir() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_rxtx_git_get_dir \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
+    '.' \
+    "${!target}" \
+    "$BL64_VAR_ON" \
+    "$INST64_GIT_BRANCH"
+}
+
+function inst64_lib_cli_normalize() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_fs_path_permission_set \
+    "$INST64_CLI_MODE" "$BL64_VAR_DEFAULT" \
+    "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_OFF" \
+    "${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"
 }

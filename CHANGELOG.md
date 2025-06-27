@@ -106,6 +106,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - kubescape
   - syft
   - taskfile
+  - lynis
+  - bashit
+  - sqlmap
+  - testssl
+  - nikto
 - **breaking-change** Installers migrated to lib-bash
   - homebrew
   - bashlib64

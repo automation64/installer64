@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-git-repo-1.1.0
+# Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -18,219 +17,151 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/drwetter}"
-declare INST64_GIT_REPO="${INST64_GIT_REPO:-testssl.sh.git}"
-declare INST64_TESTSSL_TARGET="${INST64_TESTSSL_TARGET:-}"
-declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-3.2}"
 # Installation method
-declare INST64_TESTSSL_METHOD="${INST64_TESTSSL_METHOD:-GIT}"
+declare INST64_TESTSSL_METHOD="${INST64_TESTSSL_METHOD:-CUSTOM}"
+# Installation destination
+declare INST64_TESTSSL_TARGET="${INST64_TESTSSL_TARGET:-}"
+# Hardware architecture
+declare INST64_TESTSSL_PLATFORM="${INST64_TESTSSL_PLATFORM:-}"
+# Application version
+declare INST64_TESTSSL_VERSION="${INST64_TESTSSL_VERSION:-3.2}"
 
-declare INST64_APP_INSTALLER=''
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='testssl.sh'
-declare INST64_CLI_PATH=''
+INST64_APP_NAME='testssl'
+INST64_APP_ID='TESTSSL'
+INST64_APP_FULL_NAME='TestSSL - SSL-TLS testing tool'
+INST64_CLI_NAME='testssl.sh'
+
+INST64_GIT_SERVER='https://github.com/drwetter'
+INST64_GIT_REPO='testssl.sh.git'
+INST64_GIT_BRANCH="$INST64_TESTSSL_VERSION"
 
 #
 # Functions
 #
 
-function inst64_install_git_repo() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
-  local app_target_mode='0755'
-  local app_target_owner='root'
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
-  else
-    INST64_CLI_PATH="${INST64_TESTSSL_TARGET}/${INST64_CLI_NAME}"
-    app_target_owner="$BL64_VAR_DEFAULT"
-  fi
-
-  bl64_msg_show_task 'download application'
-  bl64_rxtx_git_get_dir \
-    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
-    '.' \
-    "$INST64_TESTSSL_TARGET" \
-    "$BL64_VAR_ON" \
-    "$INST64_GIT_BRANCH" ||
+  inst64_lib_task_binary_download &&
+    inst64_lib_git_get_dir ||
     return $?
 
-  bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_APP_INSTALLER" ]]; then
-    "$INST64_APP_INSTALLER" ||
-      return $?
-  fi
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$app_target_owner" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
-      "$INST64_TESTSSL_TARGET" ||
-      return $?
-  fi
+  inst64_lib_task_deploy
+  inst64_lib_target_normalize &&
+    inst64_lib_cli_normalize ||
+    return $?
 
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_TESTSSL_TARGET}/${INST64_CLI_NAME}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
-      return $?
-  fi
-
-  return 0
+  inst64_lib_task_binary_cleanup
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_TESTSSL_METHOD" == 'GIT' ]]; then
-    inst64_install_git_repo
-  fi
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
-function inst64_select_packages() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_TESTSSL_METHOD" == 'GIT' ]]; then
-    INST64_PKG_MAIN='NONE'
-  fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
-}
-
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
 function inst64_prepare() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  inst64_select_packages || return $?
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_TESTSSL_METHOD" == 'CUSTOM' ]]; then
+    inst64_lib_base_create_path
+  fi
 }
 
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_TESTSSL_METHOD" == 'CUSTOM' ]]; then
+    inst64_install_binary
+  fi
+}
+
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_TESTSSL_METHOD" == 'CUSTOM' ]]; then
+    INST64_WORK_PATH_CLI="${INST64_TESTSSL_TARGET}/${INST64_CLI_NAME}"
+    inst64_lib_task_publish
+    # shellcheck disable=SC2086
+    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+  fi
+}
+
 function inst64_verify() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'CUSTOM' ||
+    return $?
+  if [[ "$INST64_TESTSSL_METHOD" == 'AUTO' ]]; then
+    INST64_TESTSSL_METHOD='CUSTOM'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  return 0
+}
+
+function inst64_select_packages() {
+  bl64_dbg_app_show_function
+  return 0
+}
+
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  INST64_TESTSSL_TARGET="${INST64_TESTSSL_TARGET:-${INST64_OPT_ROOT}/testssl}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_TESTSSL_METHOD' \
-    "$INST64_TESTSSL_METHOD" \
-    'GIT' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
     return $?
 
-  if [[ "$INST64_TESTSSL_METHOD" == 'GIT' ]]; then
+  if [[ "$INST64_TESTSSL_METHOD" == 'CUSTOM' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
-    bl64_os_check_compatibility \
-      "${BL64_OS_FD}" \
-      "${BL64_OS_KL}" \
-      "${BL64_OS_OL}" \
-      "${BL64_OS_UB}"
+    bl64_arc_setup ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: TestSSL' \
-    'INST64_TESTSSL_METHOD' 'INST64_SYSTEM_WIDE' 
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -238,5 +169,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
