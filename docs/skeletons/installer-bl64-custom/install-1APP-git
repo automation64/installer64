@@ -101,8 +101,7 @@ function inst64_setup() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     INST64_WORK_PATH_CLI="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}"
     inst64_lib_task_publish
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+    inst64_lib_cli_promote
   fi
 }
 

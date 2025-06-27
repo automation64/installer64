@@ -102,7 +102,7 @@ function inst64_install_custom() {
     return $?
 
   inst64_lib_task_deploy
-  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_NODEJS_TARGET" &&
+  inst64_lib_target_create &&
     bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_NODEJS_TARGET}" ||
     return $?
 

@@ -590,6 +590,13 @@ function inst64_lib_git_get_dir() {
     "$INST64_GIT_BRANCH"
 }
 
+function inst64_lib_cli_promote() {
+  bl64_dbg_app_show_function
+  bl64_fs_symlink_create \
+    "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+    "$BL64_VAR_ON"
+}
+
 function inst64_lib_cli_normalize() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
@@ -597,4 +604,12 @@ function inst64_lib_cli_normalize() {
     "$INST64_CLI_MODE" "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_OFF" \
     "${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"
+}
+
+function inst64_lib_target_create() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_fs_dir_create \
+    "$INST64_TARGET_MODE_DIR" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+    "${!target}"
 }
