@@ -17,10 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - BZip2
   - XZ
 - Core
-  - Shared library lib-bl64  - homebrew
-  - bashlib64
-  - installer64
-
+  - Shared library lib-bl64
   - Shared library lib-bash
 
 ### Changed
