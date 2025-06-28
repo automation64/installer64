@@ -64,7 +64,8 @@
   declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
   declare INST64_TARGET_MODE='0755'
-  declare INST64_CLI_MODE='0755'
+  declare INST64_TARGET_MODE_DIR='0755'
+  declare INST64_TARGET_MODE_FILE='0644'
   declare INST64_TARGET_REQUESTED='NO'
 
   # Install progress status
@@ -98,6 +99,8 @@
   # CLI information
   declare INST64_CLI_NAME=''
   declare INST64_CLI_PATH=''
+  declare INST64_CLI_SUBPATH=''
+  declare INST64_CLI_MODE='0755'
 
   # GitHub repository information
   declare INST64_GH_REPO_OWNER=''
@@ -280,6 +283,7 @@ function inst64_lib_app_check_installed() {
   bl64_dbg_app_show_function
   local app_target="INST64_${INST64_APP_ID}_TARGET"
   local app_version="INST64_${INST64_APP_ID}_VERSION"
+
   INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
   if [[ -f "$INST64_STATUS_PATH" ]]; then
     if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
@@ -290,6 +294,7 @@ function inst64_lib_app_check_installed() {
       fi
     fi
   fi
+
   bl64_dbg_app_show_comments 'use return-1 to inform that the application is not installed'
   return 1
 }
@@ -399,6 +404,7 @@ function inst64_lib_alert_incompatible_platform() {
 function inst64_lib_app_register_version() {
   bl64_dbg_app_show_function
   local version="INST64_${INST64_APP_ID}_VERSION"
+  bl64_check_parameter "$version" || return $?
   echo "${!version}" >"$INST64_STATUS_PATH"
 }
 
@@ -452,7 +458,7 @@ function inst64_lib_step_verify() {
 function inst64_lib_task_binary_download() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'download application'
-  INST64_WORK_PATH_STAGING="$(bl64_fs_create_tmpdir)"
+  inst64_lib_staging_create
 }
 
 function inst64_lib_task_deploy() {
@@ -470,8 +476,7 @@ function inst64_lib_task_publish() {
 function inst64_lib_task_binary_cleanup() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$INST64_WORK_PATH_STAGING"
-  return 0
+  inst64_lib_staging_remove
 }
 
 function inst64_lib_python_install_pip() {
@@ -562,4 +567,130 @@ function inst64_lib_app_check_mode_system() {
     return $BL64_LIB_ERROR_PARAMETER_INVALID
   fi
   return 0
+}
+
+function inst64_lib_target_normalize() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_check_parameter "$target" || return $?
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_fs_path_permission_set \
+      "$INST64_TARGET_MODE_FILE" "$INST64_TARGET_MODE_DIR" \
+      "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+      "$BL64_VAR_ON" \
+      "${!target}"
+  fi
+}
+
+function inst64_lib_git_get_dir() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_check_parameter 'INST64_GIT_SERVER' &&
+    bl64_check_parameter 'INST64_GIT_REPO' &&
+    bl64_check_parameter "$target" || return $?
+  bl64_rxtx_git_get_dir \
+    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
+    '.' \
+    "${!target}" \
+    "$BL64_VAR_ON" \
+    "$INST64_GIT_BRANCH"
+}
+
+function inst64_lib_cli_promote() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_CLI_PATH' &&
+    bl64_check_parameter 'INST64_CLI_NAME' || return $?
+  bl64_fs_symlink_create \
+    "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+    "$BL64_VAR_ON"
+}
+
+function inst64_lib_cli_normalize() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_check_parameter "$target" || return $?
+  bl64_fs_path_permission_set \
+    "$INST64_CLI_MODE" "$BL64_VAR_DEFAULT" \
+    "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_OFF" \
+    "${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"
+}
+
+function inst64_lib_target_create() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_check_parameter "$target" || return $?
+  bl64_fs_dir_create \
+    "$INST64_TARGET_MODE_DIR" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+    "${!target}"
+}
+
+function inst64_lib_gh_get_asset() {
+  bl64_dbg_app_show_function
+  local asset_version="INST64_${INST64_APP_ID}_VERSION"
+  bl64_check_parameter "$asset_version" || return $?
+  bl64_rxtx_github_get_asset \
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" \
+    "${!asset_version}" \
+    "$INST64_PKG_MAIN" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+}
+
+function inst64_lib_staging_open_tar() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+  bl64_arc_open_tar \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    "${INST64_WORK_PATH_STAGING}"
+}
+
+function inst64_lib_staging_open_zip() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+  bl64_arc_open_zip \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    "${INST64_WORK_PATH_STAGING}"
+}
+
+function inst64_lib_staging_create() {
+  bl64_dbg_app_show_function
+  INST64_WORK_PATH_STAGING="$(bl64_fs_create_tmpdir)"
+}
+
+function inst64_lib_staging_remove() {
+  bl64_dbg_app_show_function
+  bl64_fs_rm_tmpdir "$INST64_WORK_PATH_STAGING"
+  return 0
+}
+
+function inst64_lib_target_populate() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_check_parameter "$target" || return $?
+  bl64_fs_path_copy \
+    "$INST64_CLI_MODE" "$INST64_TARGET_MODE_DIR" \
+    "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+    "${!target}" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}"
+}
+
+function inst64_lib_target_open_tar() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+  bl64_arc_open_tar \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    "${INST64_OPT_ROOT}"
+}
+
+function inst64_lib_web_get_file() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WEB_REPO_URL' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+  bl64_rxtx_web_get_file \
+    "${INST64_WEB_REPO_URL}/${INST64_WEB_REPO_PATH}${INST64_WEB_REPO_PATH:+/}${INST64_PKG_MAIN}" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    'YES' \
+    "$INST64_CLI_MODE"
 }

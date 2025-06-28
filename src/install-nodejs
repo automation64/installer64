@@ -94,15 +94,11 @@ function inst64_select_packages_version() {
 function inst64_install_custom() {
   bl64_dbg_app_show_function
   inst64_lib_task_binary_download &&
-    bl64_rxtx_web_get_file \
-      "${INST64_WEB_REPO_URL}/${INST64_WEB_REPO_PATH}/${INST64_PKG_MAIN}" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
-      'YES' \
-      "$INST64_TARGET_MODE" ||
+    inst64_lib_web_get_file ||
     return $?
 
   inst64_lib_task_deploy
-  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_NODEJS_TARGET" &&
+  inst64_lib_target_create &&
     bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_NODEJS_TARGET}" ||
     return $?
 

@@ -55,8 +55,8 @@ declare INST64_AWSCLI_VERSION="${INST64_AWSCLI_VERSION:-latest}"
 INST64_APP_NAME='awscli'
 INST64_APP_ID='AWSCLI'
 INST64_APP_FULL_NAME='AWS CLI'
-# CLI information
 INST64_CLI_NAME='aws'
+
 INST64_CPU_LINUX_AMD64='linux-x86_64'
 INST64_WEB_REPO_URL='https://awscli.amazonaws.com'
 INST64_APP_INSTALLER='aws/install'
@@ -67,7 +67,7 @@ INST64_APP_INSTALLER='aws/install'
 
 function inst64_install_custom_linux() {
   bl64_dbg_app_show_function
-  bl64_arc_open_zip "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
+  inst64_lib_staging_open_zip ||
     return $?
 
   inst64_lib_task_deploy
@@ -89,9 +89,7 @@ function inst64_install_custom_macos() {
 function inst64_install_custom() {
   bl64_dbg_app_show_function
   inst64_lib_task_binary_download &&
-    bl64_rxtx_web_get_file \
-      "${INST64_WEB_REPO_URL}" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" ||
+    inst64_lib_web_get_file ||
     return $?
   if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
     inst64_install_custom_linux
@@ -120,8 +118,7 @@ function inst64_setup() {
   if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
     INST64_WORK_PATH_CLI="${INST64_AWSCLI_TARGET}/bin/${INST64_CLI_NAME}"
     inst64_lib_task_publish
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+    inst64_lib_cli_promote
   fi
 }
 
@@ -169,7 +166,6 @@ function inst64_select_packages() {
       INST64_PKG_MAIN_SUFFIX='.pkg'
       INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
     fi
-    INST64_WEB_REPO_URL+="/${INST64_PKG_MAIN}"
   fi
   inst64_lib_package_check_definition
 }

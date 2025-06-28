@@ -72,16 +72,13 @@ function inst64_install_binary() {
 
   INST64_WORK_PATH_SOURCE="${INST64_CLI_NAME}-${INST64_FD_VERSION}-${INST64_FD_PLATFORM}/${INST64_CLI_NAME}"
   inst64_lib_task_binary_download &&
-    bl64_rxtx_github_get_asset \
-      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_FD_VERSION" "$INST64_PKG_MAIN" \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_WORK_PATH_STAGING}" ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
-  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_FD_TARGET" &&
-    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-      "$INST64_FD_TARGET" "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" ||
+  inst64_lib_target_create &&
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_binary_cleanup
@@ -109,8 +106,7 @@ function inst64_setup() {
   if [[ "$INST64_FD_METHOD" == 'BINARY' ]]; then
     INST64_WORK_PATH_CLI="${INST64_FD_TARGET}/${INST64_CLI_NAME}"
     inst64_lib_task_publish
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON"
+    inst64_lib_cli_promote
   fi
 }
 

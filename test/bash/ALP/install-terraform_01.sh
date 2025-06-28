@@ -1,1 +1,0 @@
-../UB/install-terraform_01.sh

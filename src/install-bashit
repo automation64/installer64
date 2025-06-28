@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Snippet: install-git-repo-1.0.1
-# Template: 2.3.0
+# Template: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -18,199 +17,153 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/Bash-it}"
-declare INST64_GIT_REPO="${INST64_GIT_REPO:-bash-it.git}"
-declare INST64_BASHIT_TARGET="${INST64_BASHIT_TARGET:-}"
-declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 # Installation method
-declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-GIT}"
+declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-CUSTOM}"
+# Installation destination
+declare INST64_BASHIT_TARGET="${HOME}/.bashit"
+# Hardware architecture
+declare INST64_BASHIT_PLATFORM="${INST64_BASHIT_PLATFORM:-}"
+# Application version
+declare INST64_BASHIT_VERSION="${INST64_BASHIT_VERSION:-latest}"
 
-declare INST64_APP_INSTALLER=''
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='bash_it.sh'
-declare INST64_CLI_PATH=''
+INST64_APP_NAME='bashit'
+INST64_APP_ID='BASHIT'
+INST64_APP_FULL_NAME='BashIt - Bash Framework'
+INST64_CLI_NAME='install.sh'
+
+INST64_GIT_SERVER='https://github.com/Bash-it'
+INST64_GIT_REPO='bash-it.git'
+INST64_GIT_BRANCH='master'
+INST64_SYSTEM_WIDE='NO'
+INST64_APP_INSTALLER='install.sh'
 
 #
 # Functions
 #
 
-function inst64_install_git_repo() {
+function inst64_install_custom() {
   bl64_dbg_app_show_function
-  local app_target_mode='0755'
 
-  INST64_CLI_PATH="${INST64_BASHIT_TARGET}/${INST64_CLI_NAME}"
-  bl64_msg_show_task 'download application'
-  bl64_rxtx_git_get_dir \
-    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
-    '.' \
-    "$INST64_BASHIT_TARGET" \
-    "$BL64_VAR_ON" \
-    "$INST64_GIT_BRANCH" ||
+  inst64_lib_task_binary_download &&
+    inst64_lib_git_get_dir ||
     return $?
 
-  bl64_msg_show_task 'deploy application'
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_fs_path_permission_set "$app_target_mode" "$app_target_mode" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
-      "$INST64_BASHIT_TARGET" ||
+  inst64_lib_task_deploy
+  inst64_lib_target_normalize &&
+    inst64_lib_cli_normalize &&
+    "${INST64_BASHIT_TARGET}/${INST64_APP_INSTALLER}" \
+    --silent \
+    --overwrite-backup ||
+    return $?
+
+  inst64_lib_task_binary_cleanup
+}
+
+function inst64_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+    inst64_lib_base_create_path
+  fi
+}
+
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+    inst64_install_custom
+  fi
+}
+
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+    INST64_WORK_PATH_CLI="${INST64_BASHIT_TARGET}/${INST64_CLI_NAME}"
+    inst64_lib_task_publish
+    inst64_lib_cli_promote
+  fi
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  [[ "$INST64_BASHIT_TARGET" ]]
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'CUSTOM' ||
+    return $?
+  if [[ "$INST64_BASHIT_METHOD" == 'AUTO' ]]; then
+    INST64_BASHIT_METHOD='CUSTOM'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  return 0
+}
+
+function inst64_select_packages() {
+  bl64_dbg_app_show_function
+  return 0
+}
+
+function inst64_initialize() {
+  bl64_dbg_app_show_function
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
+    return $?
+
+  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+    inst64_lib_app_check_mode_user &&
+      bl64_check_privilege_not_root &&
+      bl64_arc_setup ||
       return $?
   fi
 
-  return 0
-}
-
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_BASHIT_METHOD" == 'GIT' ]]; then
-    inst64_install_git_repo
-  fi
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
-function inst64_select_packages() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_BASHIT_METHOD" == 'GIT' ]]; then
-    INST64_PKG_MAIN="$INST64_GIT_REPO"
-  fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
-}
-
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  inst64_select_packages || return $?
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --help
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
-function inst64_initialize() {
-  bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    INST64_SYSTEM_WIDE='NO'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  INST64_BASHIT_TARGET="${INST64_BASHIT_TARGET:-${HOME}/.bash_it}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_BASHIT_METHOD' \
-    "$INST64_BASHIT_METHOD" \
-    'GIT' ||
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
 
-  bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && bl64_msg_show_error 'system-wide installation not supported' &&
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
-
-  if [[ "$INST64_BASHIT_METHOD" == 'GIT' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-  fi
-  # shellcheck disable=SC2181
-  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Bash-it' \
-    'INST64_BASHIT_METHOD' 'INST64_SYSTEM_WIDE' 
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -218,5 +171,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

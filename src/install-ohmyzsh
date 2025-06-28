@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-custom-package-4.2.0
+# Template: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -18,209 +17,150 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_OHMYZSH_PLATFORM=''
-declare INST64_OHMYZSH_SOURCE="${INST64_OHMYZSH_SOURCE:-https://raw.github.com/ohmyzsh/ohmyzsh/master/tools}"
-declare INST64_OHMYZSH_TARGET="${INST64_OHMYZSH_TARGET:-}"
-declare INST64_OHMYZSH_VERSION=''
 # Installation method
 declare INST64_OHMYZSH_METHOD="${INST64_OHMYZSH_METHOD:-CUSTOM}"
+# Installation destination
+declare INST64_OHMYZSH_TARGET="${INST64_OHMYZSH_TARGET:-}"
+# Hardware architecture
+declare INST64_OHMYZSH_PLATFORM="${INST64_OHMYZSH_PLATFORM:-}"
+# Application version
+declare INST64_OHMYZSH_VERSION="${INST64_OHMYZSH_VERSION:-latest}"
 
-declare INST64_WEB_REPO_URL=''
-declare INST64_APP_INSTALLER='install.sh'
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='oh-my-zsh.sh'
-declare INST64_CLI_PATH=''
+INST64_APP_NAME='ohmyzsh'
+INST64_APP_ID='OHMYZSH'
+INST64_APP_FULL_NAME='Oh-My-ZSH - ZSH Framework'
+INST64_CLI_NAME='oh-my-zsh.sh'
+INST64_CLI_PATH="${HOME}/.oh-my-zsh"
+
+INST64_WEB_REPO_URL='https://raw.github.com'
+INST64_WEB_REPO_PATH='ohmyzsh/ohmyzsh/master/tools'
+INST64_APP_INSTALLER='install.sh'
 
 #
 # Functions
 #
 
-function inst64_install_custom_package() {
+function inst64_install_custom() {
   bl64_dbg_app_show_function
-  local work_path=''
-  local app_target_mode='0755'
 
-  INST64_CLI_PATH="${INST64_OHMYZSH_TARGET}/${INST64_CLI_NAME}"
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" &&
-    bl64_rxtx_web_get_file \
-      "${INST64_WEB_REPO_URL}/${INST64_PKG_MAIN}" \
-      "${work_path}/${INST64_PKG_MAIN}" \
-      'YES' \
-      "$app_target_mode" ||
+  inst64_lib_task_binary_download &&
+    inst64_lib_web_get_file ||
     return $?
 
-  bl64_msg_show_task 'deploy application'
-  "${work_path}/${INST64_APP_INSTALLER}" --unattended ||
+  inst64_lib_task_deploy
+  "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" \
+    --unattended ||
     return $?
 
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
-  return 0
+  inst64_lib_task_binary_cleanup
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_custom_package
-  fi
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
-function inst64_select_packages() {
-  bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_suffix=''
-  if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
-    package_prefix="$INST64_APP_INSTALLER"
-    package_suffix=''
-    INST64_PKG_MAIN="${package_prefix}${package_suffix}"
-    INST64_WEB_REPO_URL="${INST64_OHMYZSH_SOURCE}"
-    [[ -z "$INST64_WEB_REPO_URL" ]] && bl64_msg_show_error 'unable to determine package download URL' && return 1
-  fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
-}
-
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
 function inst64_prepare() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  inst64_select_packages ||
-    return $?
+  inst64_lib_step_prepare || return 0
   if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
-    bl64_arc_setup
+    inst64_lib_base_create_path
   fi
 }
 
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
+    inst64_install_custom
+  fi
+}
+
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  return 0
+}
+
 function inst64_verify() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  [[ -f "$INST64_CLI_PATH" ]]
+  inst64_lib_step_verify || return 0
+  [[ -d "${INST64_CLI_PATH}" ]] &&
+    [[ -f "${INST64_CLI_PATH}/${INST64_CLI_NAME}" ]]
 }
 
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
-function inst64_initialize() {
+function inst64_select_method() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    INST64_SYSTEM_WIDE='NO'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  INST64_OHMYZSH_TARGET="${INST64_OHMYZSH_TARGET:-${HOME}/.oh-my-zsh}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_OHMYZSH_METHOD' \
-    "$INST64_OHMYZSH_METHOD" \
+  inst64_lib_app_check_method \
+    'AUTO' \
     'CUSTOM' ||
     return $?
+  if [[ "$INST64_OHMYZSH_METHOD" == 'AUTO' ]]; then
+    INST64_OHMYZSH_METHOD='CUSTOM'
+  fi
+}
 
-  bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && bl64_msg_show_error 'system-wide installation not supported' &&
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  return 0
+}
+
+function inst64_select_packages() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
+    INST64_PKG_MAIN="$INST64_APP_INSTALLER"
+  fi
+  inst64_lib_package_check_definition
+}
+
+function inst64_initialize() {
+  bl64_dbg_app_show_function
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
+    return $?
 
   if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then
-    bl64_check_privilege_not_root &&
-      bl64_check_command_search_path 'zsh'
+    inst64_lib_app_check_mode_user &&
+      bl64_check_privilege_not_root &&
+      bl64_check_command_search_path 'zsh' &&
+      bl64_arc_setup ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Oh-My-ZSH' \
-    'INST64_OHMYZSH_METHOD' 'INST64_SYSTEM_WIDE' 
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.2.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -228,5 +168,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

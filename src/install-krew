@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-custom-package-4.2.0
-# Snippet: select-platform-1.0.0
-# Snippet: setup-environment-2.0.0
+# Template: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -20,277 +17,173 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_KREW_PLATFORM="${INST64_KREW_PLATFORM:-}"
-declare INST64_KREW_TARGET="${INST64_KREW_TARGET:-}"
-declare INST64_KREW_VERSION="${INST64_KREW_VERSION:-latest}"
 # Installation method
 declare INST64_KREW_METHOD="${INST64_KREW_METHOD:-CUSTOM}"
+# Installation destination
+declare INST64_KREW_TARGET="${HOME}/.krew/bin"
+# Hardware architecture
+declare INST64_KREW_PLATFORM="${INST64_KREW_PLATFORM:-}"
+# Application version
+declare INST64_KREW_VERSION="${INST64_KREW_VERSION:-latest}"
 
-declare INST64_KREW_ENV='kubectl-krew.env'
-declare INST64_GH_REPO_NAME='krew'
-declare INST64_GH_REPO_OWNER='kubernetes-sigs'
-declare INST64_APP_INSTALLER=''
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='kubectl-krew'
-declare INST64_CLI_PATH=''
+INST64_APP_NAME='krew'
+INST64_APP_ID='KREW'
+INST64_APP_FULL_NAME='Krew - Kubernetes CLI Plugin Manager'
+INST64_CLI_NAME='kubectl-krew'
+
+INST64_GH_REPO_NAME='krew'
+INST64_GH_REPO_OWNER='kubernetes-sigs'
+INST64_PKG_MAIN_PREFIX='krew-'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='darwin_arm64'
+INST64_CPU_LINUX_AMD64='linux_amd64'
 
 #
 # Functions
 #
 
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
+function inst64_install_custom() {
+  bl64_dbg_app_show_function
+
+  inst64_lib_task_binary_download &&
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
+    return $?
+
+  inst64_lib_task_deploy
+  "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" \
+    install krew ||
+    return $?
+
+  inst64_lib_task_binary_cleanup
+}
+
+function inst64_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+    inst64_lib_base_create_path
+  fi
+}
+
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+    inst64_install_custom
+  fi
+}
+
 function inst64_setup() {
   bl64_dbg_app_show_function
-  local mode='0644'
-
-  bl64_msg_show_task 'setup application environment'
-  INST64_KREW_ENV="${BL64_BSH_XDG_PATH_BIN}/${INST64_KREW_ENV}"
-  bl64_msg_show_subtask "create shell env file (${INST64_KREW_ENV})"
-  # shellcheck disable=SC2016
-  printf '#!/usr/bin/env sh
-#
-# Krew
-#
-# * Define application environment variables
-#
-
-KREW_ROOT="$HOME/.krew"
-export KREW_ROOT
-
-PATH="$PATH:$KREW_ROOT/bin"
-' >"$INST64_KREW_ENV" &&
-    bl64_fs_run_chmod "$mode" "$INST64_KREW_ENV" ||
-    return $?
-
-  if bl64_bsh_env_store_is_present; then
-    bl64_bsh_env_store_publish "$INST64_KREW_ENV" ||
-      return $?
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+    INST64_WORK_PATH_CLI="${INST64_KREW_TARGET}/${INST64_CLI_NAME}"
+    inst64_lib_task_publish
+    inst64_lib_cli_promote
   fi
-  return 0
 }
 
-function inst64_install_custom_package() {
+function inst64_verify() {
   bl64_dbg_app_show_function
-  local work_path=''
-
-  INST64_CLI_PATH="${HOME}/.krew/bin/${INST64_CLI_NAME}"
-
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_KREW_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
-    return $?
-
-  bl64_msg_show_task 'deploy application'
-  "${work_path}/${INST64_APP_INSTALLER}" install krew ||
-    return $?
-
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
-  return 0
+  inst64_lib_step_verify || return 0
+  KREW_ROOT="$HOME/.krew" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+    version || return $?
+  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+    inst64_lib_app_register_version
+  fi
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'CUSTOM' ||
+    return $?
+  if [[ "$INST64_KREW_METHOD" == 'AUTO' ]]; then
+    INST64_KREW_METHOD='CUSTOM'
+  fi
+}
+
 function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    [[ -z "$INST64_KREW_PLATFORM" ]] && INST64_KREW_PLATFORM='linux_amd64'
-  fi
-  [[ -z "$INST64_KREW_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
-  return 0
-}
-
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_custom_package
+    if [[ -z "$INST64_KREW_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_KREW_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_KREW_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      fi
+    fi
+    inst64_lib_platform_check_cpu
   fi
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_suffix=''
   if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
     if [[ "$INST64_KREW_VERSION" == 'latest' ]]; then
       INST64_KREW_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='krew-'
-    package_suffix='.tar.gz'
-    INST64_PKG_MAIN="${package_prefix}${INST64_KREW_PLATFORM}${package_suffix}"
-    INST64_APP_INSTALLER="${package_prefix}${INST64_KREW_PLATFORM}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KREW_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+    INST64_APP_INSTALLER="${INST64_PKG_MAIN_PREFIX}${INST64_KREW_PLATFORM}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  inst64_select_platform &&
-    inst64_select_packages ||
-    return $?
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    bl64_arc_setup
-  fi
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  # shellcheck disable=SC1090
-  source "$INST64_KREW_ENV" &&
-    "$INST64_CLI_PATH" version
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  INST64_KREW_TARGET="${INST64_KREW_TARGET:-${INST64_OPT_ROOT}/krew}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_KREW_METHOD' \
-    "$INST64_KREW_METHOD" \
-    'CUSTOM' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
-    bl64_check_privilege_not_root &&
+    inst64_lib_app_check_mode_user &&
+      bl64_check_privilege_not_root &&
       bl64_arc_setup ||
       return $?
   fi
-  # shellcheck disable=SC2181
-  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Krew' \
-    'INST64_KREW_METHOD' 'INST64_SYSTEM_WIDE' 
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '2.1.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

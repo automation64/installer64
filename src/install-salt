@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: 2.3.0
-# Snippet: install-os-package-3.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -18,13 +17,13 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
@@ -35,210 +34,159 @@ source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
 # Installation method
 declare INST64_SALT_METHOD="${INST64_SALT_METHOD:-NATIVE}"
+# Installation destination
+declare INST64_SALT_TARGET=''
+# Hardware architecture
+declare INST64_SALT_PLATFORM=''
+# Application version
+declare INST64_SALT_VERSION="${INST64_SALT_VERSION:-latest}"
 # Enable development packages?
-declare INST64_SALT_DEVELOPMENT="${INST64_SALT_DEVELOPMENT:-$BL64_VAR_OFF}"
-declare INST64_SALT_PLATFORM="${INST64_SALT_PLATFORM:-}"
+declare INST64_SALT_DEVELOPMENT="${INST64_SALT_DEVELOPMENT:-NO}"
 
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='salt'
-declare INST64_CLI_PATH=''
+# App information
+INST64_APP_NAME='salt'
+INST64_APP_ID='SALT'
+INST64_APP_FULL_NAME='Salt - Configuration Management and Orchestration Tool'
+INST64_CLI_NAME='salt'
+
+INST64_OS_REPO_NAME='salt-repo'
+INST64_OS_SOURCE_YUM='https://packages.broadcom.com/artifactory/saltproject-rpm'
+INST64_OS_SOURCE_APT='https://packages.broadcom.com/artifactory/saltproject-deb'
+INST64_OS_REPOSITORY_KEY_YUM='https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public'
+INST64_OS_REPOSITORY_KEY_APT='https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public'
 
 #
 # Functions
 #
 
-function inst64_install_os_packages() {
+function inst64_prepare_repository() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'deploy packages'
-  INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
+  local repository_url=''
+  local repository_key=''
+  local repository_apt_suite='stable'
+  local repository_apt_component='main'
+
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
+    repository_url="${INST64_OS_SOURCE_APT}"
+    repository_key="$INST64_OS_REPOSITORY_KEY_APT"
+  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}"
+    repository_key="$INST64_OS_REPOSITORY_KEY_YUM"
+  fi
+
+  bl64_msg_show_task 'Add external package repository'
+  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+    "$repository_url" "$repository_key" \
+    "$repository_apt_suite" "$repository_apt_component"
+}
+
+function inst64_install_native() {
+  bl64_dbg_app_show_function
   # shellcheck disable=SC2086
   bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
+function inst64_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
+    inst64_prepare_repository
+  fi
+}
+
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
+    inst64_install_native
+  fi
+}
+
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'NATIVE' ||
+    return $?
+  if [[ "$INST64_SALT_METHOD" == 'AUTO' ]]; then
+    INST64_SALT_METHOD='NATIVE'
+  fi
+}
+
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
-    [[ -z "$INST64_SALT_PLATFORM" ]] && INST64_SALT_PLATFORM='AUTO'
-  fi
-  [[ -z "$INST64_SALT_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
   return 0
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
-    inst64_install_os_packages
-  fi
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
-    if bl64_os_is_distro "${BL64_OS_FD}"; then
-      INST64_PKG_MAIN=''
-      INST64_PKG_MAIN+=' salt-api'
-      INST64_PKG_MAIN+=' salt-cloud'
-      INST64_PKG_MAIN+=' salt-master'
-      INST64_PKG_MAIN+=' salt-minion'
-      INST64_PKG_MAIN+=' salt-ssh'
-      INST64_PKG_MAIN+=' salt-syndic'
-      INST64_PKG_MAIN+=' salt'
-      bl64_lib_flag_is_enabled "$INST64_SALT_DEVELOPMENT" &&
-        INST64_PKG_MAIN="${INST64_PKG_MAIN}"
-    elif bl64_os_is_distro "${BL64_OS_UB}"; then
-      INST64_PKG_MAIN=''
-      INST64_PKG_MAIN+=' salt-api'
-      INST64_PKG_MAIN+=' salt-cloud'
-      INST64_PKG_MAIN+=' salt-master'
-      INST64_PKG_MAIN+=' salt-minion'
-      INST64_PKG_MAIN+=' salt-ssh'
-      INST64_PKG_MAIN+=' salt-syndic'
-      bl64_lib_flag_is_enabled "$INST64_SALT_DEVELOPMENT" &&
-        INST64_PKG_MAIN="${INST64_PKG_MAIN}"
-    fi
+    bl64_lib_flag_is_enabled "$INST64_SALT_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN+=' salt-api'
+    INST64_PKG_MAIN+=' salt-cloud'
+    INST64_PKG_MAIN+=' salt-master'
+    INST64_PKG_MAIN+=' salt-minion'
+    INST64_PKG_MAIN+=' salt-ssh'
+    INST64_PKG_MAIN+=' salt-syndic'
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
-    inst64_select_platform &&
-      inst64_select_packages &&
-      bl64_pkg_setup
-  fi
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_SALT_METHOD' \
-    "$INST64_SALT_METHOD" \
-    'NATIVE' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
     return $?
 
   if [[ "$INST64_SALT_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
-      bl64_os_check_compatibility \
-        "${BL64_OS_FD}" \
-        "${BL64_OS_UB}-22" \
-        "${BL64_OS_UB}-24"
+      bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_DEBIAN" \
+        "$BL64_OS_FLAVOR_FEDORA" \
+        "$BL64_OS_FLAVOR_REDHAT" &&
+      bl64_cryp_setup &&
+      bl64_pkg_setup ||
+      return $?
   fi
-  # shellcheck disable=SC2181
-  (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
-  bl64_msg_show_setup 'Install application: Salt - Master' \
-    'INST64_SALT_METHOD' 'INST64_SYSTEM_WIDE' 
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -246,5 +194,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

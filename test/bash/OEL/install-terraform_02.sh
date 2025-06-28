@@ -2,4 +2,5 @@
 
 source test/lib/check.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E src/install-awscli
+export INST64_TERRAFORM_METHOD='NATIVE'
+sudo -E src/install-terraform
