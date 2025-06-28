@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -64,7 +64,7 @@ INST64_GIT_BRANCH='master'
 # Functions
 #
 
-function inst64_install_binary() {
+function inst64_install_custom() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_binary_download &&
@@ -91,7 +91,7 @@ function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_LYNIS_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_binary
+    inst64_install_custom
   fi
 }
 

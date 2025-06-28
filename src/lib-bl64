@@ -652,8 +652,24 @@ function inst64_lib_target_populate() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
   bl64_fs_path_copy \
-    "$INST64_CLI_MODE" "$INST64_TARGET_MODE" \
+    "$INST64_CLI_MODE" "$INST64_TARGET_MODE_DIR" \
     "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
     "${!target}" \
     "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}"
+}
+
+function inst64_lib_target_open_tar() {
+  bl64_dbg_app_show_function
+  bl64_arc_open_tar \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    "${INST64_OPT_ROOT}"
+}
+
+function inst64_lib_web_get_file() {
+  bl64_dbg_app_show_function
+  bl64_rxtx_web_get_file \
+    "${INST64_WEB_REPO_URL}/${INST64_WEB_REPO_PATH}${INST64_WEB_REPO_PATH:+/}${INST64_PKG_MAIN}" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    'YES' \
+    "$INST64_CLI_MODE"
 }

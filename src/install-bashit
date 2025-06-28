@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -45,7 +45,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-CUSTOM}"
 # Installation destination
-declare INST64_BASHIT_TARGET="${INST64_BASHIT_TARGET:-}"
+declare INST64_BASHIT_TARGET="${HOME}/.bashit"
 # Hardware architecture
 declare INST64_BASHIT_PLATFORM="${INST64_BASHIT_PLATFORM:-}"
 # Application version
@@ -60,12 +60,13 @@ INST64_GIT_SERVER='https://github.com/Bash-it'
 INST64_GIT_REPO='bash-it.git'
 INST64_GIT_BRANCH='master'
 INST64_SYSTEM_WIDE='NO'
+INST64_APP_INSTALLER='install.sh'
 
 #
 # Functions
 #
 
-function inst64_install_binary() {
+function inst64_install_custom() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_binary_download &&
@@ -74,7 +75,10 @@ function inst64_install_binary() {
 
   inst64_lib_task_deploy
   inst64_lib_target_normalize &&
-    inst64_lib_cli_normalize ||
+    inst64_lib_cli_normalize &&
+    "${INST64_BASHIT_TARGET}/${INST64_APP_INSTALLER}" \
+    --silent \
+    --overwrite-backup ||
     return $?
 
   inst64_lib_task_binary_cleanup
@@ -92,7 +96,7 @@ function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_binary
+    inst64_install_custom
   fi
 }
 
@@ -109,8 +113,7 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  cd "$INST64_BASHIT_TARGET" &&
-    "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --help
+  [[ "$INST64_BASHIT_TARGET" ]]
 }
 
 function inst64_select_method() {
