@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Template: legacy
 # Template: 2.2.0
 # Snippet: install-custom-package-4.1.1
 #######################################
@@ -65,7 +66,7 @@ declare INST64_BATSCORE_TARGET_HELPERS=''
 declare INST64_WEB_REPO_URL=''
 declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_SUPPORT=''
 declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_ASSERT=''
-declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILEexport=''
+declare INST64_BATSCORE_PACKAGE_URL_PLUGIN_FILE=''
 declare INST64_PKG_MAIN=''
 declare INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT=''
 declare INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT=''
