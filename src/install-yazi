@@ -180,6 +180,10 @@ function inst64_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
+    bl64_os_check_not_version \
+      "${BL64_OS_ALM}-9" \
+      "${BL64_OS_RCK}-9" \
+      "${BL64_OS_OL}-9" &&
     bl64_arc_setup ||
       return $?
   fi
