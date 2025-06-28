@@ -6,5 +6,5 @@ export INST64_REPLACE_INSTALLED='YES'
 
 rm -rf $HOME/at64 2> /dev/null
 sudo rm -Rf /root/at64 2> /dev/null
-sudo -E src/install-installer64
+sudo -E src/install-installer64 &&
 sudo -E src/install-sysop64
