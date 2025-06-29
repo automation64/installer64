@@ -62,7 +62,8 @@ export SUDO_ASKPASS=''
 
 function inst64_install_custom() {
   local installer_path=''
-  inst64_lib_task_binary_download &&
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
     inst64_lib_github_asset_download "$INST64_APP_INSTALLER" ||
     return $?
 
@@ -79,7 +80,8 @@ function inst64_install_custom() {
     INST64_CLI_PATH="/home/linuxbrew/.linuxbrew/bin"
   fi
 
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {

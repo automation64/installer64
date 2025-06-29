@@ -66,13 +66,14 @@ function inst64_install_binary_deploy() {
 
 function inst64_install_binary() {
   local package_name=''
-  inst64_lib_task_binary_download || return $?
+  inst64_lib_task_download || return $?
   for package_name in $INST64_PKG_MAIN; do
     inst64_lib_github_release_download "$package_name" &&
       inst64_install_binary_deploy "$package_name" ||
       return $?
   done
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {
