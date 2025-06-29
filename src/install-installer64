@@ -553,7 +553,7 @@ function inst64_lib_step_verify() {
   return 0
 }
 
-function inst64_lib_task_binary_download() {
+function inst64_lib_task_download() {
   inst64_lib_message_show_task 'download application'
   INST64_WORK_PATH_STAGING="$("$INST64_CMD_MKTEMP" -d)" &&
     return 0
@@ -571,7 +571,7 @@ function inst64_lib_task_publish() {
   return 0
 }
 
-function inst64_lib_task_binary_cleanup() {
+function inst64_lib_task_cleanup() {
   inst64_lib_message_show_task 'cleanup temporary files'
   "$INST64_CMD_RM" -fr "$INST64_WORK_PATH_STAGING"
   return 0
@@ -605,6 +605,18 @@ function inst64_lib_platform_check_cpu() {
   [[ -n "${!platform}" ]] && return 0
   inst64_lib_message_show_error "unable to determine platform id (${platform})"
   return 1
+}
+
+function inst64_lib_staging_create() {
+  INST64_WORK_PATH_STAGING="$("$INST64_CMD_MKTEMP" -d)" &&
+    return 0
+  inst64_lib_message_show_error "unable to create temporary staging path (${INST64_WORK_PATH_STAGING})"
+  return 1
+}
+
+function inst64_lib_staging_remove() {
+  "$INST64_CMD_RM" -fr "$INST64_WORK_PATH_STAGING"
+  return 0
 }
 
 #
@@ -714,12 +726,14 @@ function inst64_open_binary_package() {
 function inst64_install_binary() {
   inst64_lib_task_deploy
 
-  inst64_lib_task_binary_download &&
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
     inst64_lib_github_release_download "$INST64_PKG_MAIN" &&
     inst64_open_binary_package "$INST64_PKG_MAIN" ||
     return $?
 
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {

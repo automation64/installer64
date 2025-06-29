@@ -58,12 +58,14 @@ INST64_GH_REPO_NAME='X_REPO_URL_X'
 function inst64_install_binary() {
   inst64_lib_task_deploy
 
-  inst64_lib_task_binary_download &&
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
     inst64_lib_github_release_download "$package_name" ||
     return $?
   # X_INSTALL_BINARY_PLACEHOLDER_X
 
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {

@@ -129,14 +129,6 @@
 
 #######################################
 # Sets the default value for INST64_SYSTEM_WIDE.
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_function
@@ -147,14 +139,6 @@ function inst64_lib_base_set_system_wide() {
 
 #######################################
 # Sets the base installation path (INST64_OPT_ROOT).
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
@@ -169,14 +153,6 @@ function inst64_lib_base_set_path() {
 
 #######################################
 # Sets the application-specific target installation path.
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_target_set_path() {
   bl64_dbg_app_show_function
@@ -197,14 +173,6 @@ function inst64_lib_target_set_path() {
 
 #######################################
 # Sets target ownership and permissions based on INST64_SYSTEM_WIDE.
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_target_set_owner() {
   bl64_dbg_app_show_function
@@ -219,14 +187,6 @@ function inst64_lib_target_set_owner() {
 
 #######################################
 # Sets the default path for CLI symlinks (INST64_CLI_PATH).
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function
@@ -250,14 +210,6 @@ function inst64_lib_cli_set_path() {
 
 #######################################
 # Validates the installation method for the current application.
-#
-# Arguments:
-#   $1..$n: List of valid installation methods.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_app_check_method() {
   bl64_dbg_app_show_function "$@"
@@ -270,14 +222,6 @@ function inst64_lib_app_check_method() {
 
 #######################################
 # Checks if the application is already installed at the current version.
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_app_check_installed() {
   bl64_dbg_app_show_function
@@ -301,14 +245,6 @@ function inst64_lib_app_check_installed() {
 
 #######################################
 # Displays key installation parameters for the current application.
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_message_show_parameters() {
   bl64_dbg_app_show_function
@@ -351,35 +287,21 @@ function inst64_lib_message_show_parameters() {
 #######################################
 # Creates base installation directories if not system-wide.
 #
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
+# * Must create local regardless of requested target to allow promotion to searchable path
 #######################################
 function inst64_lib_base_create_path() {
   bl64_dbg_app_show_function
-  if ! bl64_lib_flag_is_enabled "$INST64_TARGET_REQUESTED"; then
-    if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_bsh_xdg_create "$HOME" &&
-        bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
-          "$INST64_OPT_ROOT"
-    fi
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]] && return 0
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_bsh_xdg_create "$HOME" &&
+      bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
+        "$INST64_OPT_ROOT"
   fi
 }
 
 #######################################
 # Shows an error message for unsupported OS/Machine combinations.
-#
-# Arguments:
-#   None.
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_alert_incompatible_platform() {
   bl64_dbg_app_show_function
@@ -392,14 +314,6 @@ function inst64_lib_alert_incompatible_platform() {
 #
 # * Optional function used mainly by BINARY installation methods
 # * Used to register the current application version in the status file
-#
-# Arguments:
-#   $1: Application version
-# Outputs:
-#   Errors
-# Returns:
-#   0: success
-#   >0: error
 #######################################
 function inst64_lib_app_register_version() {
   bl64_dbg_app_show_function
@@ -455,10 +369,9 @@ function inst64_lib_step_verify() {
     bl64_check_parameter 'INST64_CLI_NAME'
 }
 
-function inst64_lib_task_binary_download() {
+function inst64_lib_task_download() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'download application'
-  inst64_lib_staging_create
 }
 
 function inst64_lib_task_deploy() {
@@ -473,10 +386,9 @@ function inst64_lib_task_publish() {
   return 0
 }
 
-function inst64_lib_task_binary_cleanup() {
+function inst64_lib_task_cleanup() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'cleanup temporary files'
-  inst64_lib_staging_remove
 }
 
 function inst64_lib_python_install_pip() {
@@ -540,7 +452,7 @@ function inst64_lib_command_run_pipx() {
 function inst64_lib_package_check_definition() {
   bl64_dbg_app_show_function
   [[ -n "$INST64_PKG_MAIN" ]] && return 0
-  bl64_msg_show_error 'unable to determine application package name'
+  bl64_msg_show_error 'unable to determine application package name (INST64_PKG_MAIN)'
   return $BL64_LIB_ERROR_PARAMETER_MISSING
 }
 
@@ -554,7 +466,7 @@ function inst64_lib_platform_check_cpu() {
 function inst64_lib_app_check_mode_user() {
   bl64_dbg_app_show_function
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_error 'system wide installation is not supported'
+    bl64_msg_show_error 'system wide installation is not supported (INST64_SYSTEM_WIDE)'
     return $BL64_LIB_ERROR_PARAMETER_INVALID
   fi
   return 0
@@ -563,7 +475,7 @@ function inst64_lib_app_check_mode_user() {
 function inst64_lib_app_check_mode_system() {
   bl64_dbg_app_show_function
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_error 'user wide installation is not supported'
+    bl64_msg_show_error 'user wide installation is not supported (INST64_SYSTEM_WIDE)'
     return $BL64_LIB_ERROR_PARAMETER_INVALID
   fi
   return 0
@@ -618,7 +530,8 @@ function inst64_lib_cli_normalize() {
 function inst64_lib_target_create() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
-  bl64_check_parameter "$target" || return $?
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]] && return 0
   bl64_fs_dir_create \
     "$INST64_TARGET_MODE_DIR" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
     "${!target}"

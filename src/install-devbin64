@@ -68,7 +68,8 @@ INST64_PKG_MAIN_SUFFIX='.tar.gz'
 function inst64_install_binary() {
   bl64_dbg_app_show_function
 
-  inst64_lib_task_binary_download &&
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
     bl64_rxtx_github_get_asset \
       "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_DEVBIN64_VERSION" "$INST64_PKG_MAIN" "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" ||
     return $?
@@ -81,7 +82,8 @@ function inst64_install_binary() {
       "$INST64_DEVBIN64_TARGET" ||
     return $?
 
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {

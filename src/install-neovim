@@ -71,7 +71,8 @@ function inst64_install_binary() {
   bl64_dbg_app_show_function
 
   INST64_WORK_PATH_SOURCE="${INST64_CLI_NAME}-${INST64_NEOVIM_PLATFORM}"
-  inst64_lib_task_binary_download &&
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
     inst64_lib_gh_get_asset &&
     inst64_lib_staging_open_tar ||
     return $?
@@ -86,7 +87,8 @@ function inst64_install_binary() {
       "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}/share" ||
     return $?
 
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {

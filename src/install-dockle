@@ -70,7 +70,8 @@ INST64_CPU_LINUX_AMD64='Linux-64bit'
 function inst64_install_binary() {
   bl64_dbg_app_show_function
 
-  inst64_lib_task_binary_download &&
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
     inst64_lib_gh_get_asset &&
     inst64_lib_staging_open_tar ||
     return $?
@@ -80,7 +81,8 @@ function inst64_install_binary() {
     inst64_lib_target_populate ||
     return $?
 
-  inst64_lib_task_binary_cleanup
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
 }
 
 function inst64_prepare() {
