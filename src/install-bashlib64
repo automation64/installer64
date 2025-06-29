@@ -54,8 +54,7 @@ INST64_TARGET_DEFAULT='bl64'
 function inst64_install_binary_deploy() {
   local package_name="$1"
   inst64_lib_task_deploy
-  inst64_lib_staging_create &&
-    [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]] &&
+  [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]] &&
     "$INST64_CMD_TAR" zx -C "$INST64_BASHLIB64_TARGET" -f "${INST64_WORK_PATH_STAGING}/${package_name}" &&
     "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
     return $?
@@ -67,7 +66,8 @@ function inst64_install_binary_deploy() {
 
 function inst64_install_binary() {
   local package_name=''
-  inst64_lib_task_download || return $?
+  inst64_lib_task_download
+  inst64_lib_staging_create || return $?
   for package_name in $INST64_PKG_MAIN; do
     inst64_lib_github_release_download "$package_name" &&
       inst64_install_binary_deploy "$package_name" ||

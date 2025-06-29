@@ -372,6 +372,7 @@ function inst64_lib_step_verify() {
 function inst64_lib_task_download() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'download application'
+  return 0
 }
 
 function inst64_lib_task_deploy() {
@@ -389,6 +390,7 @@ function inst64_lib_task_publish() {
 function inst64_lib_task_cleanup() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'cleanup temporary files'
+  return 0
 }
 
 function inst64_lib_python_install_pip() {
