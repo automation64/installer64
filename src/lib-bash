@@ -562,7 +562,7 @@ function inst64_lib_task_publish() {
   return 0
 }
 
-function inst64_lib_task_binary_cleanup() {
+function inst64_lib_task_cleanup() {
   inst64_lib_message_show_task 'cleanup temporary files'
 }
 
