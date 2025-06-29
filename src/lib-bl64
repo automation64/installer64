@@ -291,6 +291,8 @@ function inst64_lib_message_show_parameters() {
 #######################################
 function inst64_lib_base_create_path() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]] && return 0
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_bsh_xdg_create "$HOME" &&
       bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
@@ -528,7 +530,8 @@ function inst64_lib_cli_normalize() {
 function inst64_lib_target_create() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
-  bl64_check_parameter "$target" || return $?
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]] && return 0
   bl64_fs_dir_create \
     "$INST64_TARGET_MODE_DIR" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
     "${!target}"
