@@ -169,7 +169,12 @@ function inst64_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
-    bl64_arc_setup ||
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_MACOS" \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" &&
+      bl64_arc_setup ||
       return $?
   fi
 
