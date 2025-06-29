@@ -74,12 +74,15 @@ function inst64_prepare_repository() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
-  local repository_apt_suite='mongodb-org/8.0'
-  local repository_apt_component='multiverse'
+  local repository_apt_suite=''
+  local repository_apt_component=''
 
   if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
     repository_url="${INST64_OS_SOURCE_APT}/ubuntu"
     repository_key="$INST64_OS_REPOSITORY_KEY_APT"
+    # shellcheck disable=SC2154
+    repository_apt_suite="${VERSION_CODENAME}/mongodb-org/8.0"
+    repository_apt_component='multiverse'
   elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
     repository_url="${INST64_OS_SOURCE_YUM}/redhat/\$releasever/mongodb-org/6.0/\$basearch"
     repository_key="$INST64_OS_REPOSITORY_KEY_YUM"
@@ -88,7 +91,7 @@ function inst64_prepare_repository() {
   bl64_msg_show_task 'Add external package repository'
   bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
     "$repository_url" "$repository_key" \
-    "${VERSION_CODENAME}/${repository_apt_suite}" "$repository_apt_component"
+    "${repository_apt_suite}" "$repository_apt_component"
 }
 
 function inst64_install_native() {
@@ -143,9 +146,9 @@ function inst64_select_platform() {
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_MONGODBCLI_METHOD" == 'NATIVE' ]]; then
-      bl64_lib_flag_is_enabled "$INST64_MONGODBCLI_DEVELOPMENT" &&
-        INST64_PKG_DEV=''
-      INST64_PKG_MAIN='mongodb-org-tools mongodb-mongosh'
+    bl64_lib_flag_is_enabled "$INST64_MONGODBCLI_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN='mongodb-org-tools mongodb-mongosh'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
