@@ -115,7 +115,7 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  [[ "$INST64_BASHIT_TARGET" ]]
+  [[ -d "$INST64_BASHIT_TARGET" ]]
 }
 
 function inst64_select_method() {
