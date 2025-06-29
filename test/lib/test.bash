@@ -7,6 +7,14 @@
 #
 
 #
+# Globals
+#
+
+export BL64_LIB_CICD="YES"
+export INST64_BASHLIB64="${DEV_ENV_BASH_CONTAINER_PATH_ROOT}/lib/bl64"
+export INST64_LIB_PATH="$DEV_ENV_BASH_CONTAINER_PATH_SRC"
+
+#
 # Functions
 #
 
@@ -31,8 +39,6 @@ function _lib_test_home_remove_local() {
 # Main
 #
 
-export BL64_LIB_CICD="YES"
-
 if [[ "$(uname -s)" == 'Linux' ]]; then
   if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
     echo 'error: Test must be executed inside a container'
@@ -45,7 +51,6 @@ else
   fi
 fi
 
-export INST64_BASHLIB64="${DEV_ENV_BASH_CONTAINER_PATH_ROOT}/lib/bl64"
 [[ ! -d "$INST64_BASHLIB64" ]] && echo 'error: BASHLIB64 not found' && exit 1
 
 [[ ! -d "$DEV_ENV_BASH_CONTAINER_PATH_SRC" ]] && echo 'error: /source not found' && exit 1
