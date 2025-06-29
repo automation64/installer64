@@ -2,5 +2,5 @@
 
 export INST64_ANSIBLE_PIPX="OFF"
 
-source test/lib/check.bash
-src/install-ansible
+source test/lib/test.bash
+"${DEV_ENV_BASH_CONTAINER_PATH_SRC}/"install-ansible

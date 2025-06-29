@@ -1,0 +1,192 @@
+#!/usr/bin/env bash
+# Template: install-bl64-custom-1.1.0
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# BashLib64 location
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
+# shellcheck source-path=lib/bl64 disable=SC2015
+# X_IMPORTS_PLACEHOLDER_X
+# ===[TEST-ONLY-SECTION]===[START]===
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# ===[TEST-ONLY-SECTION]===[END]===
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+
+#
+# Globals
+#
+
+# Installation method
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
+# Installation destination
+declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
+# Hardware architecture
+declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+# Application version
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+
+# App information
+INST64_APP_NAME='X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+
+INST64_CLI_NAME='X_CLI_NAME_X'
+
+# X_GLOBALS_METHOD_PLACEHOLDER_X
+
+#
+# Functions
+#
+
+# X_STAND_ALONE_FUNCTIONS_X #
+
+function inst64_install_custom() {
+  bl64_dbg_app_show_function
+  : # X_INSTALL_CUSTOM_PLACEHOLDER_X
+  # ===[TEST-ONLY-SECTION]===[START]===
+  inst64_lib_target_create &&
+    echo "echo test" >"${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}" &&
+    chmod 755 "${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}"
+  # ===[TEST-ONLY-SECTION]===[END]===
+}
+
+function inst64_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    inst64_lib_base_create_path
+    # X_PREPARE_PLACEHOLDER_X
+  fi
+}
+
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    inst64_install_custom
+  fi
+}
+
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    : # X_SETUP_PLACEHOLDER_X
+    # ===[TEST-ONLY-SECTION]===[START]===
+    INST64_WORK_PATH_CLI="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}"
+    inst64_lib_task_publish
+    inst64_lib_cli_promote
+    # ===[TEST-ONLY-SECTION]===[END]===
+  fi
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  # X_VERIFY_PLACEHOLDER_X
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'CUSTOM' ||
+    return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+    # X_METHOD_AUTO_PLACEHOLDER_X
+    INST64_X_APP_NAME_CAPS_X_METHOD='CUSTOM'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
+      # X_PLATFORM_SELECTION_PLACEHOLDER_X
+      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
+    fi
+    inst64_lib_platform_check_cpu
+  fi
+  return 0
+}
+
+function inst64_select_packages() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    : # X_SELECT_PKG_PLACEHOLDER_X
+    # ===[TEST-ONLY-SECTION]===[START]===
+    INST64_PKG_MAIN='TEST'
+    # ===[TEST-ONLY-SECTION]===[END]===
+  fi
+  inst64_lib_package_check_definition
+}
+
+function inst64_initialize() {
+  bl64_dbg_app_show_function
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
+    return $?
+
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+    # X_PRE_REQ_PLACEHOLDER_X
+    # X_PRE_OS_PLACEHOLDER_X
+    # X_INIT_PLACEHOLDER_X
+    :
+    # ===[TEST-ONLY-SECTION-START]===
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    # ===[TEST-ONLY-SECTION-END]===
+  fi
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
+    return $?
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
+}
+
+#
+# Main
+#
+
+bl64_lib_script_version_set '1.0.0'
+bl64_msg_all_enable_verbose
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
+
+[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
+inst64_initialize &&
+  inst64_prepare &&
+  inst64_install &&
+  inst64_setup &&
+  inst64_verify
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

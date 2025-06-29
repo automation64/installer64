@@ -3,10 +3,10 @@
 PROJECT="$(pwd)"
 export INST64_ANSIBLELINT_PIPX="OFF"
 
-source test/lib/check.bash
+source test/lib/test.bash
 export INST64_SYSTEM_WIDE='YES'
-sudo -E src/install-nodejs ||
+sudo -E "${DEV_ENV_BASH_CONTAINER_PATH_SRC}/"install-nodejs ||
   return $?
 export INST64_SYSTEM_WIDE='NO'
 cd "$HOME" &&
-  "$PROJECT/src/install-devcontainer"
+  "$PROJECT/"${DEV_ENV_BASH_CONTAINER_PATH_SRC}/"install-devcontainer"

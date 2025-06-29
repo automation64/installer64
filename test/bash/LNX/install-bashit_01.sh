@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-source test/lib/check.bash
-src/install-bashit
+source test/lib/test.bash
+"${DEV_ENV_BASH_CONTAINER_PATH_SRC}/"install-bashit
