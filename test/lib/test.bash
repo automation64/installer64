@@ -51,6 +51,14 @@ else
   fi
 fi
 
-[[ ! -d "$INST64_BASHLIB64" ]] && echo 'error: BASHLIB64 not found' && exit 1
+if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" == 'ON' ]]; then
+  INST64_BASHLIB64="${DEV_ENV_BASH_CONTAINER_PATH_ROOT}/lib/bl64"
+  INST64_LIB_PATH="$DEV_ENV_BASH_CONTAINER_PATH_SRC"
+else
+  INST64_BASHLIB64='lib/bl64'
+  INST64_LIB_PATH='src'
+fi
 
-[[ ! -d "$DEV_ENV_BASH_CONTAINER_PATH_SRC" ]] && echo 'error: /source not found' && exit 1
+[[ ! -d "$INST64_BASHLIB64" ]] && echo "error: BASHLIB64 not found (${INST64_BASHLIB64})" && exit 1
+
+[[ ! -d "$DEV_ENV_BASH_CONTAINER_PATH_SRC" ]] && echo "error: source path not found (${DEV_ENV_BASH_CONTAINER_PATH_SRC})" && exit 1
