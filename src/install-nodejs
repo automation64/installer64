@@ -127,12 +127,12 @@ function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
-    INST64_WORK_PATH_CLI="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%.tar.gz}/bin"
+    INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%.tar.gz}/bin"
     inst64_lib_task_publish
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}/${INST64_CLI_NAME}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON" &&
-      bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}/${INST64_CLI_NAME_NPM}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPM}" "$BL64_VAR_ON" &&
-      bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}/${INST64_CLI_NAME_NPX}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPX}" "$BL64_VAR_ON"
+    bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON" &&
+      bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME_NPM}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPM}" "$BL64_VAR_ON" &&
+      bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME_NPX}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPX}" "$BL64_VAR_ON"
   fi
 }
 

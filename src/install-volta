@@ -110,8 +110,8 @@ function inst64_setup() {
   if [[ "$INST64_VOLTA_METHOD" == 'BINARY' ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote &&
-      bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}-migrate" "${INST64_CLI_PATH}-migrate" "$BL64_VAR_ON" &&
-      bl64_fs_symlink_create "${INST64_WORK_PATH_CLI}-shim" "${INST64_CLI_PATH}-shim" "$BL64_VAR_ON"
+      bl64_fs_symlink_create "${INST64_CLI_TARGET}-migrate" "${INST64_CLI_PATH}-migrate" "$BL64_VAR_ON" &&
+      bl64_fs_symlink_create "${INST64_CLI_TARGET}-shim" "${INST64_CLI_PATH}-shim" "$BL64_VAR_ON"
   fi
 }
 
