@@ -44,7 +44,7 @@ declare INST64_HTTPIE_METHOD="${INST64_HTTPIE_METHOD:-PIPX}"
 # Installation destination
 declare INST64_HTTPIE_TARGET="${INST64_HTTPIE_TARGET:-}"
 # Hardware architecture
-declare INST64_HTTPIE_PLATFORM=''
+declare INST64_HTTPIE_PLATFORM='ALL'
 # Application version
 declare INST64_HTTPIE_VERSION="${INST64_HTTPIE_VERSION:-latest}"
 

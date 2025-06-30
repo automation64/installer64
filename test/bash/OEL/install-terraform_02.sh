@@ -3,4 +3,4 @@
 source test/lib/test.bash
 export INST64_SYSTEM_WIDE='YES'
 export INST64_TERRAFORM_METHOD='NATIVE'
-sudo -E "${DEV_ENV_BASH_CONTAINER_PATH_SRC}/"install-terraform
+sudo -E src/install-terraform

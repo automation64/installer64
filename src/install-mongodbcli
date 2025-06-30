@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_MONGODBCLI_METHOD="${INST64_MONGODBCLI_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_MONGODBCLI_TARGET=''
+declare INST64_MONGODBCLI_TARGET='AUTO'
 # Hardware architecture
-declare INST64_MONGODBCLI_PLATFORM=''
+declare INST64_MONGODBCLI_PLATFORM='ALL'
 # Application version
 declare INST64_MONGODBCLI_VERSION="${INST64_MONGODBCLI_VERSION:-latest}"
 # Enable development packages?

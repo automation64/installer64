@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_GCC_METHOD="${INST64_GCC_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_GCC_TARGET=''
+declare INST64_GCC_TARGET='AUTO'
 # Hardware architecture
-declare INST64_GCC_PLATFORM=''
+declare INST64_GCC_PLATFORM='ALL'
 # Application version
 declare INST64_GCC_VERSION="${INST64_GCC_VERSION:-latest}"
 # Enable development packages?

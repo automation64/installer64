@@ -44,7 +44,7 @@ declare INST64_PGCLI_METHOD="${INST64_PGCLI_METHOD:-PIPX}"
 # Installation destination
 declare INST64_PGCLI_TARGET="${INST64_PGCLI_TARGET:-}"
 # Hardware architecture
-declare INST64_PGCLI_PLATFORM=''
+declare INST64_PGCLI_PLATFORM='ALL'
 # Application version
 declare INST64_PGCLI_VERSION="${INST64_PGCLI_VERSION:-latest}"
 

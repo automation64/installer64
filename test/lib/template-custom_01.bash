@@ -98,7 +98,6 @@ function inst64_setup() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SETUP_PLACEHOLDER_X
     # ===[TEST-ONLY-SECTION]===[START]===
-    INST64_WORK_PATH_CLI="${INST64_X_APP_NAME_CAPS_X_TARGET}/${INST64_CLI_NAME}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
     # ===[TEST-ONLY-SECTION]===[END]===

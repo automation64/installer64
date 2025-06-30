@@ -44,7 +44,7 @@ declare INST64_MKDOCS_METHOD="${INST64_MKDOCS_METHOD:-PIPX}"
 # Installation destination
 declare INST64_MKDOCS_TARGET="${INST64_MKDOCS_TARGET:-}"
 # Hardware architecture
-declare INST64_MKDOCS_PLATFORM=''
+declare INST64_MKDOCS_PLATFORM='ALL'
 # Application version
 declare INST64_MKDOCS_VERSION="${INST64_MKDOCS_VERSION:-latest}"
 

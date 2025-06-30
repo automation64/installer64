@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_PODMAN_METHOD="${INST64_PODMAN_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_PODMAN_TARGET=''
+declare INST64_PODMAN_TARGET='AUTO'
 # Hardware architecture
-declare INST64_PODMAN_PLATFORM=''
+declare INST64_PODMAN_PLATFORM='ALL'
 # Application version
 declare INST64_PODMAN_VERSION="${INST64_PODMAN_VERSION:-latest}"
 # Enable development packages?

@@ -47,9 +47,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_AZURECLI_METHOD="${INST64_AZURECLI_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_AZURECLI_TARGET=''
+declare INST64_AZURECLI_TARGET='AUTO'
 # Hardware architecture
-declare INST64_AZURECLI_PLATFORM=''
+declare INST64_AZURECLI_PLATFORM='ALL'
 # Application version
 declare INST64_AZURECLI_VERSION="${INST64_AZURECLI_VERSION:-latest}"
 # Enable development packages?

@@ -94,7 +94,7 @@ function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_SYSOP64_METHOD" == 'BINARY' ]]; then
-    INST64_WORK_PATH_CLI="${INST64_SYSOP64_TARGET}/sysop64/sysop64"
+    INST64_CLI_TARGET="${INST64_SYSOP64_TARGET}/sysop64/sysop64"
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi

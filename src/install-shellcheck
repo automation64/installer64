@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Template: legacy
 # Template: install-github-2.4.0
 # Template: install-native-2.4.0
 #######################################

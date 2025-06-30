@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_DOCKER_TARGET=''
+declare INST64_DOCKER_TARGET='AUTO'
 # Hardware architecture
-declare INST64_DOCKER_PLATFORM=''
+declare INST64_DOCKER_PLATFORM='ALL'
 # Application version
 declare INST64_DOCKER_VERSION="${INST64_DOCKER_VERSION:-latest}"
 # Enable development packages?

@@ -120,7 +120,6 @@ function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
-    INST64_WORK_PATH_CLI="${INST64_BTOP_TARGET}/${INST64_CLI_NAME}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -156,7 +155,7 @@ function inst64_select_platform() {
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_BTOP_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
       else
-        INST64_BTOP_PLATFORM=''
+        INST64_BTOP_PLATFORM='ALL'
       fi
     fi
     inst64_lib_platform_check_cpu

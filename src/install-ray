@@ -44,7 +44,7 @@ declare INST64_RAY_METHOD="${INST64_RAY_METHOD:-PIPX}"
 # Installation destination
 declare INST64_RAY_TARGET="${INST64_RAY_TARGET:-}"
 # Hardware architecture
-declare INST64_RAY_PLATFORM=''
+declare INST64_RAY_PLATFORM='ALL'
 # Application version
 declare INST64_RAY_VERSION="${INST64_RAY_VERSION:-latest}"
 

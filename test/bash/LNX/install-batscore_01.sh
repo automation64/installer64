@@ -13,4 +13,4 @@ if [[ -L "$bats_file" ]]; then
 fi
 
 export INST64_SYSTEM_WIDE='YES'
-sudo -E "${DEV_ENV_BASH_CONTAINER_PATH_SRC}/"install-batscore
+sudo -E src/install-batscore
