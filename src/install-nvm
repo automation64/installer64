@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Template: legacy
 # Template: install-git-2.4.0
 #   Skeleton: installer-base-2.4.0
 #######################################
