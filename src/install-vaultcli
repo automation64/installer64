@@ -80,7 +80,7 @@ function inst64_prepare_repository() {
   if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
     repository_url="${INST64_OS_SOURCE_APT}"
     repository_key="$INST64_OS_REPOSITORY_KEY_APT"
-    # shellcheck disable=SCSC2154
+    # shellcheck disable=SC2154
     repository_apt_suite="${VERSION_CODENAME:-NONE}"
     repository_apt_component='main'
   elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then

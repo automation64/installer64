@@ -12,6 +12,8 @@
 # limitations under the License.
 #######################################
 
+# shellcheck source-path=lib/bl64
+
 #
 # Globals
 #
