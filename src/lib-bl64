@@ -73,7 +73,6 @@
   declare INST64_STATUS_PATH=''
 
   # Work paths
-  declare INST64_WORK_PATH_CLI=''
   declare INST64_WORK_PATH_SOURCE=''
   declare INST64_WORK_PATH_STAGING=''
 
@@ -101,6 +100,7 @@
   declare INST64_CLI_PATH=''
   declare INST64_CLI_SUBPATH=''
   declare INST64_CLI_MODE='0755'
+  declare INST64_CLI_TARGET=''
 
   # GitHub repository information
   declare INST64_GH_REPO_OWNER=''
@@ -512,11 +512,27 @@ function inst64_lib_git_get_dir() {
 
 function inst64_lib_cli_promote() {
   bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  local needs_target_alias='NO'
+
   bl64_check_parameter 'INST64_CLI_PATH' &&
     bl64_check_parameter 'INST64_CLI_NAME' || return $?
+
+  bl64_dbg_app_show_comments 'create symlink for CLI'
+  if [[ -z "$INST64_CLI_TARGET" ]]; then
+    INST64_CLI_TARGET="${!target}/${INST64_CLI_NAME}"
+  fi
   bl64_fs_symlink_create \
-    "${INST64_WORK_PATH_CLI}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
-    "$BL64_VAR_ON"
+    "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+    "$BL64_VAR_ON" ||
+    return $?
+
+  bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
+  if [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
+    bl64_fs_symlink_create \
+      "$INST64_CLI_TARGET" "${!target}/${INST64_CLI_NAME}" \
+      "$BL64_VAR_ON"
+  fi
 }
 
 function inst64_lib_cli_normalize() {
