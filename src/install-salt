@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_SALT_METHOD="${INST64_SALT_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_SALT_TARGET=''
+declare INST64_SALT_TARGET='AUTO'
 # Hardware architecture
-declare INST64_SALT_PLATFORM=''
+declare INST64_SALT_PLATFORM='ALL'
 # Application version
 declare INST64_SALT_VERSION="${INST64_SALT_VERSION:-latest}"
 # Enable development packages?

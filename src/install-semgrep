@@ -44,7 +44,7 @@ declare INST64_SEMGREP_METHOD="${INST64_SEMGREP_METHOD:-PIPX}"
 # Installation destination
 declare INST64_SEMGREP_TARGET="${INST64_SEMGREP_TARGET:-}"
 # Hardware architecture
-declare INST64_SEMGREP_PLATFORM=''
+declare INST64_SEMGREP_PLATFORM='ALL'
 # Application version
 declare INST64_SEMGREP_VERSION="${INST64_SEMGREP_VERSION:-latest}"
 

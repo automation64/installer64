@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_XZ_METHOD="${INST64_XZ_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_XZ_TARGET=''
+declare INST64_XZ_TARGET='AUTO'
 # Hardware architecture
-declare INST64_XZ_PLATFORM=''
+declare INST64_XZ_PLATFORM='ALL'
 # Application version
 declare INST64_XZ_VERSION="${INST64_XZ_VERSION:-latest}"
 # Enable development packages?

@@ -58,7 +58,7 @@ declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
 
 declare INST64_GIT_SERVER="${INST64_GIT_SERVER:-https://github.com/nvm-sh}"
 declare INST64_GIT_REPO="${INST64_GIT_REPO:-nvm.git}"
-declare INST64_NVM_TARGET=''
+declare INST64_NVM_TARGET='AUTO'
 declare INST64_GIT_BRANCH="${INST64_GIT_BRANCH:-master}"
 # Installation method
 declare INST64_NVM_METHOD="${INST64_NVM_METHOD:-GIT}"

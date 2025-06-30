@@ -46,9 +46,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 # Installation method
 declare INST64_YAMLLINT_METHOD="${INST64_YAMLLINT_METHOD:-NATIVE}"
 # Installation destination
-declare INST64_YAMLLINT_TARGET=''
+declare INST64_YAMLLINT_TARGET='AUTO'
 # Hardware architecture
-declare INST64_YAMLLINT_PLATFORM=''
+declare INST64_YAMLLINT_PLATFORM='ALL'
 # Application version
 declare INST64_YAMLLINT_VERSION="${INST64_YAMLLINT_VERSION:-latest}"
 # Enable development packages?
