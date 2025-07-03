@@ -95,6 +95,7 @@ function inst64_select_method() {
     return $?
   if [[ "$INST64_ANSIBLE_METHOD" == 'AUTO' ]]; then
     INST64_ANSIBLE_METHOD='PIPX'
+    INST64_SYSTEM_WIDE='NO'
   fi
 }
 

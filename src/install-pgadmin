@@ -95,6 +95,7 @@ function inst64_select_method() {
     return $?
   if [[ "$INST64_PGADMIN_METHOD" == 'AUTO' ]]; then
     INST64_PGADMIN_METHOD='PIPX'
+    INST64_SYSTEM_WIDE='NO'
   fi
 }
 

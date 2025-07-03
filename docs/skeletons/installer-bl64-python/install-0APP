@@ -101,6 +101,7 @@ function inst64_select_method() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
     INST64_X_APP_NAME_CAPS_X_METHOD='PIPX'
+    INST64_SYSTEM_WIDE='NO'
   fi
 }
 

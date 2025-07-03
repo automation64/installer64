@@ -109,6 +109,7 @@ function inst64_select_method() {
       INST64_PIPX_METHOD='NATIVE'
     else
       INST64_PIPX_METHOD='PIP'
+      INST64_SYSTEM_WIDE='NO'
     fi
   fi
 }
