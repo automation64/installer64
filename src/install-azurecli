@@ -64,8 +64,8 @@ INST64_CLI_NAME='az'
 INST64_OS_REPO_NAME='microsoft'
 INST64_OS_SOURCE_YUM='https://packages.microsoft.com/yumrepos/azure-cli'
 INST64_OS_SOURCE_APT='https://packages.microsoft.com/repos/azure-cli'
-INST64_OS_REPOSITORY_KEY_YUM='https://packages.microsoft.com/keys/microsoft.asc'
-INST64_OS_REPOSITORY_KEY_APT='https://packages.microsoft.com/keys/microsoft.asc'
+INST64_OS_REPO_KEY_YUM='https://packages.microsoft.com/keys/microsoft.asc'
+INST64_OS_REPO_KEY_APT='https://packages.microsoft.com/keys/microsoft.asc'
 INST64_CPU_LINUX_AMD64='x86_64'
 
 #
@@ -81,13 +81,13 @@ function inst64_prepare_repository() {
 
   if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
     repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_APT"
+    repository_key="$INST64_OS_REPO_KEY_APT"
     # shellcheck disable=SC2154
     repository_apt_suite="$VERSION_CODENAME"
     repository_apt_component='main'
   elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
     repository_url="${INST64_OS_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_YUM"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
     bl64_pkg_run_rpm --import "$repository_key"
   fi
 
@@ -99,8 +99,7 @@ function inst64_prepare_repository() {
 
 function inst64_install_native() {
   bl64_dbg_app_show_function
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
 function inst64_prepare() {

@@ -120,8 +120,7 @@ function inst64_install_binary() {
 function inst64_install_os_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
 #######################################

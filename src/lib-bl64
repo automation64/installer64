@@ -41,6 +41,8 @@
   declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
   # Replace if already installed?
   declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
+  # Refresh package manager before installation and cleanup after?
+  declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-YES}"
 
   #
   # Global definitions
@@ -121,8 +123,8 @@
   declare INST64_OS_REPO_NAME=''
   declare INST64_OS_SOURCE_YUM=''
   declare INST64_OS_SOURCE_APT=''
-  declare INST64_OS_REPOSITORY_KEY_YUM=''
-  declare INST64_OS_REPOSITORY_KEY_APT=''
+  declare INST64_OS_REPO_KEY_YUM=''
+  declare INST64_OS_REPO_KEY_APT=''
 }
 
 #
@@ -259,17 +261,23 @@ function inst64_lib_message_show_parameters() {
   method_variable_suffix+=" ${INST64_APP_ID}_PLATFORM"
   method_variable_suffix+=" ${INST64_APP_ID}_TARGET"
   method_variable_suffix+=" ${INST64_APP_ID}_VERSION"
-  method_variable_suffix+=" SYSTEM_WIDE"
   method_variable_suffix+=" CLI_NAME"
   method_variable_suffix+=" CLI_PATH"
   method_variable_suffix+=" GH_REPO_NAME"
   method_variable_suffix+=" GH_REPO_OWNER"
-  method_variable_suffix+=" PKG_MAIN"
-  method_variable_suffix+=" PKG_DEV"
   method_variable_suffix+=" GIT_BRANCH"
   method_variable_suffix+=" GIT_REPO"
   method_variable_suffix+=" GIT_SERVER"
+  method_variable_suffix+=" PKG_DEV"
+  method_variable_suffix+=" PKG_MAIN"
   method_variable_suffix+=" OS_REPO_NAME"
+  method_variable_suffix+=" OS_REPO_KEY_YUM"
+  method_variable_suffix+=" OS_REPO_KEY_APT"
+  method_variable_suffix+=" OS_SOURCE_APT"
+  method_variable_suffix+=" OS_SOURCE_YUM"
+  method_variable_suffix+=" REPLACE_INSTALLED"
+  method_variable_suffix+=" REFRESH_PACKAGE_MANAGER"
+  method_variable_suffix+=" SYSTEM_WIDE"
   method_variable_suffix+=" WEB_REPO_PATH"
   method_variable_suffix+=" WEB_REPO_URL"
 
@@ -626,4 +634,14 @@ function inst64_lib_web_get_file() {
     "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
     'YES' \
     "$INST64_CLI_MODE"
+}
+
+function inst64_lib_pkg_install() {
+  bl64_dbg_app_show_function
+  # shellcheck disable=SC2086
+  if bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
+    bl64_pkg_deploy $INST64_PKG_MAIN
+  else
+    bl64_pkg_install $INST64_PKG_MAIN
+  fi
 }
