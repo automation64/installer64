@@ -91,8 +91,7 @@ function inst64_prepare_repository() {
     bl64_pkg_run_rpm --import "$repository_key"
   fi
 
-  bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+  inst64_lib_pkg_repo_add \
     "$repository_url" "$repository_key" \
     "$repository_apt_suite" "$repository_apt_component"
 }

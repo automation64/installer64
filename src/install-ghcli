@@ -150,7 +150,8 @@ function inst64_add_repository() {
 function inst64_install_external_packages() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'deploy packages'
-  inst64_lib_pkg_install
+  # shellcheck disable=SC2086
+  bl64_pkg_deploy $INST64_PKG_MAIN
 }
 
 #######################################

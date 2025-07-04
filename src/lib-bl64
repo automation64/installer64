@@ -645,3 +645,21 @@ function inst64_lib_pkg_install() {
     bl64_pkg_install $INST64_PKG_MAIN
   fi
 }
+
+function inst64_lib_pkg_repo_add() {
+  bl64_dbg_app_show_function
+  local repository_url="${1:-}"
+  local repository_key="${2:-}"
+  local repository_apt_suite="${3:-}"
+  local repository_apt_component="${4:-}"
+
+  bl64_msg_show_task 'Add external package repository'
+  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+    "$repository_url" "$repository_key" \
+    "$repository_apt_suite" "$repository_apt_component" ||
+    return $?
+
+  if ! bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
+    bl64_pkg_prepare
+  fi
+}
