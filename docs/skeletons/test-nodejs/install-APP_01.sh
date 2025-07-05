@@ -3,4 +3,4 @@
 source test/lib/test.bash
 sudo -E src/install-nodejs
 
-src/install-devcontainer
+src/install-APP
