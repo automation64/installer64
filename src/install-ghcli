@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Template: legacy
-# Template: install-github-2.4.0
-# Template: install-external-2.4.0
+# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -19,328 +18,234 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_GHCLI_PLATFORM="${INST64_GHCLI_PLATFORM:-}"
-declare INST64_GHCLI_TARGET="${INST64_GHCLI_TARGET:-}"
-declare INST64_GHCLI_VERSION="${INST64_GHCLI_VERSION:-latest}"
 # Installation method
-declare INST64_GHCLI_METHOD="${INST64_GHCLI_METHOD:-BINARY}"
+declare INST64_GHCLI_METHOD="${INST64_GHCLI_METHOD:-AUTO}"
+# Installation destination
+declare INST64_GHCLI_TARGET="${INST64_GHCLI_TARGET:-}"
+# Hardware architecture
+declare INST64_GHCLI_PLATFORM="${INST64_GHCLI_PLATFORM:-}"
+# Application version
+declare INST64_GHCLI_VERSION="${INST64_GHCLI_VERSION:-latest}"
 # Enable development packages?
-declare INST64_GHCLI_DEVELOPMENT="${INST64_GHCLI_DEVELOPMENT:-$BL64_VAR_OFF}"
+declare INST64_GHCLI_DEVELOPMENT="${INST64_GHCLI_DEVELOPMENT:-NO}"
 
-declare INST64_OS_REPO_NAME='gh-cli'
-declare INST64_OS_REPO_SOURCE_APT='https://cli.github.com/packages'
-declare INST64_OS_REPO_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
-declare INST64_OS_REPO_SOURCE_YUM='https://cli.github.com/packages/rpm'
-declare INST64_OS_REPO_KEY_YUM='https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059'
+INST64_APP_NAME='ghcli'
+INST64_APP_ID='GHCLI'
+INST64_APP_FULL_NAME='GitHub CLI'
+INST64_CLI_NAME='gh'
 
-declare INST64_GH_REPO_NAME='cli'
-declare INST64_GH_REPO_OWNER='cli'
+INST64_GH_REPO_NAME='cli'
+INST64_GH_REPO_OWNER='cli'
+INST64_PKG_MAIN_PREFIX='gh_'
+INST64_CPU_DARWIN_ARM64='macOS_amd64'
+INST64_CPU_LINUX_AMD64='linux_amd64'
 
-declare INST64_PKG_MAIN=''
-declare INST64_CLI_NAME='gh'
-declare INST64_CLI_PATH=''
+INST64_OS_REPO_NAME='gh-cli'
+INST64_OS_SOURCE_YUM='https://cli.github.com/packages/rpm'
+INST64_OS_SOURCE_APT='https://cli.github.com/packages'
+INST64_OS_REPO_KEY_YUM='https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059'
+INST64_OS_REPO_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyring.gpg'
 
 #
 # Functions
 #
 
-function inst64_install_binary() {
-  bl64_dbg_app_show_function
-  local work_path=''
-  local app_target_mode='0755'
-  local app_target_owner="$BL64_IAM_SYSTEM_USER"
-  local app_target_group="$BL64_IAM_SYSTEM_GROUP"
-  local app_cli_mode='0755'
-  local app_cli_source="${INST64_CLI_NAME}"
-  local app_work_path="gh_${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}/bin/${app_cli_source}"
-
-  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    app_target_owner="$BL64_VAR_DEFAULT"
-    app_target_group="$BL64_VAR_DEFAULT"
-  fi
-
-  bl64_msg_show_task 'download application'
-  work_path="$(bl64_fs_create_tmpdir)" || return $?
-  bl64_rxtx_github_get_asset \
-    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_GHCLI_VERSION" "$INST64_PKG_MAIN" "${work_path}/${INST64_PKG_MAIN}" &&
-    bl64_arc_open_tar "${work_path}/${INST64_PKG_MAIN}" "${work_path}" ||
-    return $?
-
-  bl64_msg_show_task 'deploy application'
-  bl64_fs_dir_create "$app_target_mode" "$app_target_owner" "$app_target_group" "$INST64_GHCLI_TARGET" &&
-    bl64_fs_path_copy "$app_cli_mode" "$BL64_VAR_DEFAULT" "$app_target_owner" "$app_target_group" "$INST64_GHCLI_TARGET" "${work_path}/${app_work_path}" ||
-    return $?
-
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_GHCLI_TARGET}/${app_cli_source}" "$INST64_CLI_PATH" "$BL64_VAR_ON" ||
-      return $?
-  fi
-
-  bl64_msg_show_task 'cleanup temporary files'
-  bl64_fs_rm_tmpdir "$work_path"
-  return 0
-}
-
-function inst64_add_repository() {
+function inst64_prepare_repository() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
-  local repository_extra_1=''
-  local repository_extra_2=''
+  local repository_apt_suite=''
+  local repository_apt_component=''
 
-  if bl64_os_is_distro "${BL64_OS_OL}"; then
-    repository_url="${INST64_OS_REPO_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  elif bl64_os_is_distro "${BL64_OS_UB}"; then
-    repository_url="${INST64_OS_REPO_SOURCE_APT}"
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
+    repository_url="${INST64_OS_SOURCE_APT}"
     repository_key="$INST64_OS_REPO_KEY_APT"
-    repository_extra_1='stable'
-    repository_extra_2='main'
+    repository_apt_suite='stable'
+    repository_apt_component='main'
+  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
-  bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+  inst64_lib_pkg_repo_add \
     "$repository_url" "$repository_key" \
-    "$repository_extra_1" "$repository_extra_2"
+    "$repository_apt_suite" "$repository_apt_component"
 }
 
-function inst64_install_external_packages() {
+function inst64_install_native() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'deploy packages'
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
-#######################################
-# Selects platform ID
-#
-# * Platform ID format is defined by the package provider
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Platform ID
-# Returns:
-#   0: selection completed ok
-#   >0: unable to selection
-#######################################
-function inst64_select_platform() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
-    [[ -z "$INST64_GHCLI_PLATFORM" ]] && INST64_GHCLI_PLATFORM='AUTO'
-    INST64_CLI_PATH="/usr/bin/${INST64_CLI_NAME}"
-  elif [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_GHCLI_PLATFORM" ]]; then
-      # shellcheck disable=SC2249
-      case "$BL64_OS_MACHINE" in
-        "$BL64_OS_MACHINE_ARM64" ) INST64_GHCLI_PLATFORM='macOS_amd64';;
-        "$BL64_OS_MACHINE_AMD64" ) INST64_GHCLI_PLATFORM='linux_amd64';;
-      esac
-    fi
+
+  INST64_WORK_PATH_SOURCE="gh_${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}/bin/${INST64_CLI_NAME}"
+  inst64_lib_task_download
+  inst64_lib_staging_create &&
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
+    return $?
+
+  inst64_lib_task_deploy
+  inst64_lib_target_create &&
+    inst64_lib_target_populate ||
+    return $?
+
+  inst64_lib_task_cleanup
+  inst64_lib_staging_remove
+}
+
+function inst64_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+    inst64_lib_base_create_path
+  elif [[ "$INST64_GHCLI_METHOD" == 'NATIVE' ]]; then
+    inst64_prepare_repository
   fi
-  [[ -z "$INST64_GHCLI_PLATFORM" ]] && bl64_msg_show_error 'unable to determine platform id' && return 1
-  return 0
 }
 
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
 function inst64_install() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
-    inst64_install_external_packages
-  elif [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
+  elif [[ "$INST64_GHCLI_METHOD" == 'NATIVE' ]]; then
+    inst64_install_native
   fi
 }
 
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+    inst64_lib_task_publish
+    inst64_lib_cli_promote
+  fi
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'NATIVE' \
+    'BINARY' ||
+    return $?
+  if [[ "$INST64_GHCLI_METHOD" == 'AUTO' ]]; then
+    INST64_GHCLI_METHOD='BINARY'
+  fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_GHCLI_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_GHCLI_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_GHCLI_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      fi
+    fi
+    inst64_lib_platform_check_cpu
+  fi
+}
+
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  local package_prefix=''
-  local package_suffix=''
-  if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
-    if bl64_os_is_distro "$BL64_OS_OL" "$BL64_OS_UB"; then
-      INST64_PKG_MAIN='gh'
-      bl64_lib_flag_is_enabled "$INST64_GHCLI_DEVELOPMENT" &&
-        INST64_PKG_MAIN="${INST64_PKG_MAIN}"
-    fi
-  elif [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
     if [[ "$INST64_GHCLI_VERSION" == 'latest' ]]; then
       INST64_GHCLI_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    package_prefix='gh_'
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
-      package_suffix='.zip'
+      INST64_PKG_MAIN_SUFFIX='.zip'
     else
-      package_suffix='.tar.gz'
+      INST64_PKG_MAIN_SUFFIX='.tar.gz'
     fi
-    INST64_PKG_MAIN="${package_prefix}${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}${package_suffix}"
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_CLI_PATH="${INST64_LOCAL_BIN}/${INST64_CLI_NAME}"
-    else
-      INST64_CLI_PATH="${INST64_GHCLI_TARGET}/${INST64_CLI_NAME}"
-    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+  elif [[ "$INST64_GHCLI_METHOD" == 'NATIVE' ]]; then
+    bl64_lib_flag_is_enabled "$INST64_GHCLI_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN='gh'
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
-    inst64_add_repository &&
-      bl64_pkg_setup
-  elif [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
-    bl64_arc_setup
-  fi
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
-}
-
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  INST64_GHCLI_TARGET="${INST64_GHCLI_TARGET:-${INST64_OPT_ROOT}/ghcli}"
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_GHCLI_METHOD' \
-    "$INST64_GHCLI_METHOD" \
-    'EXTERNAL' 'BINARY' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method ||
     return $?
 
-  if [[ "$INST64_GHCLI_METHOD" == 'EXTERNAL' ]]; then
-    bl64_check_privilege_root &&
-      bl64_os_check_compatibility \
-        "${BL64_OS_OL}-9" \
-        "${BL64_OS_UB}-22" "${BL64_OS_UB}-23" "${BL64_OS_UB}-24"
-  elif [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_GHCLI_METHOD" == 'BINARY' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
+    bl64_arc_setup ||
+      return $?
+  elif [[ "$INST64_GHCLI_METHOD" == 'NATIVE' ]]; then
+    bl64_check_privilege_root &&
+      bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_DEBIAN" \
+        "$BL64_OS_FLAVOR_REDHAT" &&
+      bl64_cryp_setup &&
+      bl64_pkg_setup ||
+      return $?
   fi
+
   inst64_select_platform &&
-    inst64_select_packages ||
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
-  bl64_msg_show_setup 'Install application: GitHub' \
-    'INST64_GHCLI_METHOD' 'INST64_SYSTEM_WIDE' \
-    'INST64_GHCLI_PLATFORM' \
-    'INST64_GH_REPO_OWNER' \
-    'INST64_GH_REPO_NAME' \
-    'INST64_GHCLI_TARGET' \
-    'INST64_GHCLI_VERSION' \
-    'INST64_CLI_PATH'
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '3.1.1'
+bl64_lib_script_version_set '4.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
@@ -348,5 +253,6 @@ bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&
+  inst64_setup &&
   inst64_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"
