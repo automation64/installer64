@@ -417,9 +417,11 @@ function inst64_lib_method_initialize() {
       return $?
 
     INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
-    [[ -z "$INST64_COMMAND_PIPX" ]] &&
+    if [[ -z "$INST64_COMMAND_PIPX" ]]; then
       bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
       return 1
+    fi
+    return 0
     ;;
   esac
 }
