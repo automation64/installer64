@@ -48,12 +48,6 @@
   # Global definitions
   #
 
-  # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.0.0'
-
-  # User wide home path
-  declare INST64_HOME="${HOME}/at64"
-
   # App information
   declare INST64_APP_NAME=''
   declare INST64_APP_ID=''
@@ -63,18 +57,19 @@
   # Method definitions
   #
 
+  # Base target configuration
+  declare INST64_OPT_ROOT_DEFAULT_SYSTEM=''
+  declare INST64_OPT_ROOT_DEFAULT_USER=''
+
   # Target configuration
   declare INST64_TARGET_DEFAULT=''
+  declare INST64_TARGET_DEFAULT_SYSTEM=''
+  declare INST64_TARGET_DEFAULT_USER=''
   declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
   declare INST64_TARGET_MODE='0755'
   declare INST64_TARGET_MODE_DIR='0755'
   declare INST64_TARGET_MODE_FILE='0644'
-  declare INST64_TARGET_REQUESTED='NO'
-
-  # Install progress status
-  declare INST64_STATUS_FLAG='CONTINUE'
-  declare INST64_STATUS_PATH=''
 
   # Work paths
   declare INST64_WORK_PATH_SOURCE=''
@@ -125,6 +120,24 @@
   declare INST64_OS_SOURCE_APT=''
   declare INST64_OS_REPO_KEY_YUM=''
   declare INST64_OS_REPO_KEY_APT=''
+
+  #
+  # Internal variables
+  #
+
+  # Inst64 Library version
+  declare INST64_LIB_VERSION_BL64='1.0.0'
+
+  # User wide home path
+  declare INST64_HOME="${HOME}/at64"
+
+  # Install progress status
+  declare INST64_STATUS_FLAG='CONTINUE'
+  declare INST64_STATUS_PATH=''
+
+  # Target management
+  declare INST64_TARGET_REQUESTED='NO'
+
 }
 
 #
@@ -148,9 +161,17 @@ function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_OPT_ROOT='/opt'
+      if [[ -n "$INST64_OPT_ROOT_DEFAULT_SYSTEM" ]]; then
+        INST64_OPT_ROOT="$INST64_OPT_ROOT_DEFAULT_SYSTEM"
+      else
+        INST64_OPT_ROOT='/opt'
+      fi
     else
-      INST64_OPT_ROOT="$INST64_HOME"
+      if [[ -n "$INST64_OPT_ROOT_DEFAULT_USER" ]]; then
+        INST64_OPT_ROOT="$INST64_OPT_ROOT_DEFAULT_USER"
+      else
+        INST64_OPT_ROOT="$INST64_HOME"
+      fi
     fi
   fi
 }
@@ -164,7 +185,16 @@ function inst64_lib_target_set_path() {
   local target_basename="$INST64_APP_NAME"
 
   if [[ -z "${!target}" ]]; then
-    [[ -n "$INST64_TARGET_DEFAULT" ]] && target_basename="$INST64_TARGET_DEFAULT"
+    if [[ -n "$INST64_TARGET_DEFAULT" ]]; then
+      target_basename="$INST64_TARGET_DEFAULT"
+    else
+      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+        [[ -n "$INST64_TARGET_DEFAULT_SYSTEM" ]] && target_basename="$INST64_TARGET_DEFAULT_SYSTEM"
+      else
+        [[ -n "$INST64_TARGET_DEFAULT_USER" ]] && target_basename="$INST64_TARGET_DEFAULT_USER"
+      fi
+    fi
+
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s/%s' \
@@ -338,7 +368,7 @@ function inst64_lib_base_initialize() {
 
   bl64_dbg_app_show_comments 'Set default value for INST64_CLI_NAME'
   INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
-  # shellcheck disable=SC2015
+
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
