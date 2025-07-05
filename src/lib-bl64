@@ -140,6 +140,7 @@
 
   # External commands
   declare INST64_COMMAND_PIPX=''
+  declare INST64_COMMAND_NPM=''
 }
 
 #
@@ -153,13 +154,24 @@ function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    if [[ "${!method}" =~ ('PIP'|'PIPX') ]]; then
+    case "${!method}" in
+    'PIP' | 'PIPX')
       INST64_SYSTEM_WIDE='NO'
-    elif [[ "${!method}" =~ ('NATIVE') ]]; then
+      ;;
+    'NPM')
+      INST64_SYSTEM_WIDE='NO'
+      ;;
+    'NATIVE')
       INST64_SYSTEM_WIDE='YES'
-    else
-      [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
-    fi
+      ;;
+    *)
+      if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
+        INST64_SYSTEM_WIDE='YES'
+      else
+        INST64_SYSTEM_WIDE='NO'
+      fi
+      ;;
+    esac
   fi
 }
 
@@ -236,19 +248,28 @@ function inst64_lib_cli_set_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   [[ -n "$INST64_CLI_PATH" ]] && return 0
-  if [[ "${!method}" == 'PIPX' ]]; then
+  # shellcheck disable=SC2249
+  case "${!method}" in
+  'NPM')
+    INST64_CLI_PATH="${HOME}/node_modules/.bin"
+    ;;
+  'PIPX')
     INST64_CLI_PATH="${HOME}/.local/bin"
-  elif [[ "${!method}" == 'PIP' ]]; then
+    ;;
+  'PIP')
     INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}"
-  elif [[ "${!method}" == 'NATIVE' ]]; then
+    ;;
+  'NATIVE')
     INST64_CLI_PATH='/usr/bin'
-  elif [[ "${!method}" == 'BINARY' || "${!method}" == 'CUSTOM' ]]; then
+    ;;
+  'BINARY' | 'CUSTOM')
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}"
     else
       INST64_CLI_PATH="${INST64_USER_BIN}"
     fi
-  fi
+    ;;
+  esac
 }
 
 #######################################
@@ -418,7 +439,18 @@ function inst64_lib_method_initialize() {
 
     INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
     if [[ -z "$INST64_COMMAND_PIPX" ]]; then
-      bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
+      bl64_msg_show_error 'pipx command not found. Please install pipx and try again'
+      return 1
+    fi
+    return 0
+    ;;
+  'NPM')
+    bl64_check_privilege_not_root ||
+      return $?
+
+    INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
+    if [[ -z "$INST64_COMMAND_NPM" ]]; then
+      bl64_msg_show_error 'npm command not found. Please install npm and try again'
       return 1
     fi
     return 0
@@ -527,6 +559,15 @@ function inst64_lib_command_run_pipx() {
   bl64_dbg_app_trace_start
   # shellcheck disable=SC2086
   "$INST64_COMMAND_PIPX" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
+function inst64_lib_command_run_npm() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_NPM" \
     "$@"
   bl64_dbg_app_trace_stop
 }
@@ -732,4 +773,26 @@ function inst64_lib_pkg_repo_add() {
   if ! bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
     bl64_pkg_prepare
   fi
+}
+
+function inst64_lib_python_install_npm() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  cd "$HOME" || return $?
+  if [[ -n "$INST64_PKG_PRE" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_npm install $INST64_PKG_PRE $INST64_PKG_MAIN ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_npm install $INST64_PKG_MAIN ||
+      return $?
+  fi
+  if [[ -n "$INST64_PKG_POST" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_npm inject $INST64_PKG_POST ||
+      return $?
+  fi
+  return 0
 }

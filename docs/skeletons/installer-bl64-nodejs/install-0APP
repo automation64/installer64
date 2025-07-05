@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-nodejs-3.0.0
-#   Skeleton: installer-base-3.0.0
+# Template: install-bl64-nodejs-1.0.0
+#   Skeleton: install-bl64-npm-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -18,208 +18,126 @@
 # Imports
 #
 
-# Home root
-declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
-declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck source-path=lib/bl64 disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+# X_IMPORTS_PLACEHOLDER_X
+source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
-  { echo 'Error: BashLib64 not found. Please run the install-bashlib64 script and retry.' && exit 1; }
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+# shellcheck source-path=src disable=SC2015
+source "${BL64_SCRIPT_PATH}/lib-bl64" ||
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
-# Base path for local applications
-declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
-# Local applications binaries location
-declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"
-# User applications binaries location
-declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"
-# Location for temporary files
-declare INST64_TMP="${INST64_TMP:-/tmp}"
-# Base path for 3rd party applications
-declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"
-# Install system wide? Requires root privilege
-declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
-
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NPM}"
+# Installation destination
+declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
+# Hardware architecture
+declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+# Application version
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 
-declare INST64_X_APP_NAME_CAPS_X_NPM_BIN="${INST64_X_APP_NAME_CAPS_X_NPM_BIN:-npm}"
-declare INST64_PKG_MAIN=''
-declare INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE=''
-declare INST64_X_APP_NAME_CAPS_X_PACKAGES_POST=''
-declare INST64_CLI_NAME='X_CLI_NAME_X'
-declare INST64_CLI_PATH=''
+# App information
+INST64_APP_NAME='X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+
+INST64_CLI_NAME='X_CLI_NAME_X'
+
+INST64_PKG_MAIN=''
+INST64_PKG_PRE=''
+INST64_PKG_POST=''
 
 #
 # Functions
 #
 
-function inst64_install_with_npm() {
+function inst64_prepare() {
   bl64_dbg_app_show_function
+  inst64_lib_step_prepare || return 0
+}
 
-  bl64_msg_show_task 'deploy application'
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_NPM_BIN" install $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE $INST64_PKG_MAIN ||
-      return $?
-  else
-    # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_NPM_BIN" install $INST64_PKG_MAIN $INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE ||
-      return $?
+function inst64_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_install || return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
+    inst64_lib_python_install_npm
   fi
-  if [[ -n "$INST64_X_APP_NAME_CAPS_X_PACKAGES_POST" ]]; then
-    # shellcheck disable=SC2086
-    "$INST64_X_APP_NAME_CAPS_X_NPM_BIN" install $INST64_PKG_MAIN $INST64_X_APP_NAME_CAPS_X_PACKAGES_POST ||
-      return $?
+}
+
+function inst64_setup() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_setup || return 0
+}
+
+function inst64_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_step_verify || return 0
+  # X_VERIFY_PLACEHOLDER_X
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+}
+
+function inst64_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_method \
+    'AUTO' \
+    'NPM' ||
+    return $?
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+    # X_METHOD_AUTO_PLACEHOLDER_X
+    INST64_X_APP_NAME_CAPS_X_METHOD='NPM'
   fi
+}
+
+function inst64_select_platform() {
+  bl64_dbg_app_show_function
   return 0
 }
 
-#######################################
-# Prepare installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Preparation progress and errors
-# Returns:
-#   0: preparation ok
-#   >0: preparation failed
-#######################################
-function inst64_prepare() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'prepare deployment'
-}
-
-#######################################
-# Install application packages
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package installer progress and errors
-# Returns:
-#   0: package installed ok
-#   >0: unable to install package
-#######################################
-function inst64_install() {
-  bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    inst64_install_with_npm
-  fi
-}
-
-#######################################
-# Perform post installation setup
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Setup progress
-# Returns:
-#   0: setup completed ok
-#   >0: unable to setup
-#######################################
-function inst64_setup() {
-  bl64_dbg_app_show_function
-}
-
-#######################################
-# Verify installation
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Verification progress and errors
-# Returns:
-#   0: verification ok
-#   >0: verification failed
-#######################################
-function inst64_verify() {
-  bl64_dbg_app_show_function
-  bl64_msg_show_task 'verify deployment'
-  "$INST64_CLI_PATH" --version
-}
-
-#######################################
-# Select installation packages and related information
-#
-# Arguments:
-#   None. Parameters are imported from Globals
-# Outputs:
-#   Package name list
-# Returns:
-#   0: selection ok
-#   >0: selection failed
-#######################################
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   local version_target=''
-
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       version_target=''
     else
       version_target="@${INST64_X_APP_NAME_CAPS_X_VERSION}"
     fi
-    INST64_PKG_MAIN="X_NODE_MODULE_X${version_target}"
-    INST64_X_APP_NAME_CAPS_X_PACKAGES_PRE='X_PACKAGES_PRE_X'
-    INST64_X_APP_NAME_CAPS_X_PACKAGES_POST='X_PACKAGES_POST_X'
-    INST64_CLI_PATH="${INST64_CLI_NAME}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi
-  [[ -z "$INST64_PKG_MAIN" ]] && bl64_msg_show_error 'unable to determine package name' && return 1
-  return 0
+  inst64_lib_package_check_definition
 }
 
-#######################################
-# Initialize environment
-#
-# Arguments:
-#   None
-# Outputs:
-#   Initializacion progress messages
-# Returns:
-#   0: initialization ok
-#   >: initialization failed
-#######################################
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
-  fi
-  if [[ -z "$INST64_OPT_ROOT" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && INST64_OPT_ROOT='/opt' || INST64_OPT_ROOT="$INST64_HOME"
-  fi
-  bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_X_APP_NAME_CAPS_X_METHOD' \
-    "$INST64_X_APP_NAME_CAPS_X_METHOD" \
-    'NPM' ||
+  inst64_lib_base_initialize &&
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE" && bl64_msg_show_error 'system-wide installation not supported' &&
-      return $BL64_LIB_ERROR_PARAMETER_INVALID
-    bl64_check_command_search_path "$INST64_X_APP_NAME_CAPS_X_NPM_BIN" &&
-      bl64_check_privilege_not_root ||
-      return $?
-  fi
-  inst64_select_packages ||
+  # X_PRE_REQ_PLACEHOLDER_X
+  # X_PRE_OS_PLACEHOLDER_X
+  # X_INIT_PLACEHOLDER_X
+
+  inst64_select_platform &&
+    inst64_select_packages &&
+    inst64_lib_cli_set_path ||
     return $?
-  bl64_msg_show_setup 'Install application: X_APP_FULL_NAME_X' \
-    'INST64_SYSTEM_WIDE' 'INST64_X_APP_NAME_CAPS_X_METHOD' \
-    'INST64_X_APP_NAME_CAPS_X_VERSION' \
-    'INST64_CLI_PATH'
+
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 #
