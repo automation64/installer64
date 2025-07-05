@@ -177,8 +177,6 @@ function inst64_initialize() {
       bl64_check_privilege_root ||
         return $?
     fi
-    bl64_arc_setup ||
-      return $?
   fi
 
   inst64_select_platform &&
