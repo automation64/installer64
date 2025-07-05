@@ -296,6 +296,8 @@ function inst64_lib_message_show_parameters() {
   local var_suffix=''
   local var_name=''
 
+  parameter_list+=' BL64_OS_DISTRO'
+
   method_variable_suffix+=" ${INST64_APP_ID}_METHOD"
   method_variable_suffix+=" ${INST64_APP_ID}_PLATFORM"
   method_variable_suffix+=" ${INST64_APP_ID}_TARGET"
