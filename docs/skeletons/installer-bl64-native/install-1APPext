@@ -63,8 +63,8 @@ INST64_CLI_NAME='X_CLI_NAME_X'
 INST64_OS_REPO_NAME=''
 INST64_OS_SOURCE_YUM='X_REPO_URL_X'
 INST64_OS_SOURCE_APT='X_REPO_URL_X'
-INST64_OS_REPOSITORY_KEY_YUM='X_KEY_URL_X'
-INST64_OS_REPOSITORY_KEY_APT='X_KEY_URL_X'
+INST64_OS_REPO_KEY_YUM='X_KEY_URL_X'
+INST64_OS_REPO_KEY_APT='X_KEY_URL_X'
 
 #
 # Functions
@@ -79,22 +79,20 @@ function inst64_prepare_repository() {
 
   if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
     repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_APT"
+    repository_key="$INST64_OS_REPO_KEY_APT"
   elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
     repository_url="${INST64_OS_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_YUM"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
-  bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+  inst64_lib_pkg_repo_add \
     "$repository_url" "$repository_key" \
     "$repository_apt_suite" "$repository_apt_component"
 }
 
 function inst64_install_native() {
   bl64_dbg_app_show_function
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
 function inst64_prepare() {
@@ -166,17 +164,15 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_select_method ||
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
-      bl64_os_check_flavor \
+    bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" &&
-      bl64_cryp_setup &&
-      bl64_pkg_setup ||
+        "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 

@@ -81,6 +81,7 @@ function inst64_select_packages_version() {
     echo "${package_version#go}"
   else
     bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
+    # shellcheck disable=SC2086
     return $BL64_LIB_ERROR_TASK_FAILED
   fi
 }
@@ -176,17 +177,9 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_select_method ||
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
-
-  if [[ "$INST64_GO_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-    bl64_arc_setup ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&

@@ -41,16 +41,12 @@
   declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
   # Replace if already installed?
   declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
+  # Refresh package manager before installation and cleanup after?
+  declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-YES}"
 
   #
   # Global definitions
   #
-
-  # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.0.0'
-
-  # User wide home path
-  declare INST64_HOME="${HOME}/at64"
 
   # App information
   declare INST64_APP_NAME=''
@@ -61,18 +57,19 @@
   # Method definitions
   #
 
+  # Base target configuration
+  declare INST64_ROOT_PATH_DEFAULT_SYSTEM=''
+  declare INST64_ROOT_PATH_DEFAULT_USER=''
+
   # Target configuration
-  declare INST64_TARGET_DEFAULT=''
+  declare INST64_TARGET_PATH_DEFAULT=''
+  declare INST64_TARGET_PATH_DEFAULT_SYSTEM=''
+  declare INST64_TARGET_PATH_DEFAULT_USER=''
   declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
   declare INST64_TARGET_MODE='0755'
   declare INST64_TARGET_MODE_DIR='0755'
   declare INST64_TARGET_MODE_FILE='0644'
-  declare INST64_TARGET_REQUESTED='NO'
-
-  # Install progress status
-  declare INST64_STATUS_FLAG='CONTINUE'
-  declare INST64_STATUS_PATH=''
 
   # Work paths
   declare INST64_WORK_PATH_SOURCE=''
@@ -119,10 +116,31 @@
 
   # OS package manager information
   declare INST64_OS_REPO_NAME=''
-  declare INST64_OS_SOURCE_YUM='X_REPO_URL_X'
-  declare INST64_OS_SOURCE_APT='X_REPO_URL_X'
-  declare INST64_OS_REPOSITORY_KEY_YUM='X_KEY_URL_X'
-  declare INST64_OS_REPOSITORY_KEY_APT='X_KEY_URL_X'
+  declare INST64_OS_SOURCE_YUM=''
+  declare INST64_OS_SOURCE_APT=''
+  declare INST64_OS_REPO_KEY_YUM=''
+  declare INST64_OS_REPO_KEY_APT=''
+
+  #
+  # Internal variables
+  #
+
+  # Inst64 Library version
+  declare INST64_LIB_VERSION_BL64='1.0.0'
+
+  # User wide home path
+  declare INST64_HOME="${HOME}/at64"
+
+  # Install progress status
+  declare INST64_STATUS_FLAG='CONTINUE'
+  declare INST64_STATUS_PATH=''
+
+  # Target management
+  declare INST64_TARGET_REQUESTED='NO'
+
+  # External commands
+  declare INST64_COMMAND_PIPX=''
+  declare INST64_COMMAND_NPM=''
 }
 
 #
@@ -134,8 +152,26 @@
 #######################################
 function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+    case "${!method}" in
+    'PIP' | 'PIPX')
+      INST64_SYSTEM_WIDE='NO'
+      ;;
+    'NPM')
+      INST64_SYSTEM_WIDE='NO'
+      ;;
+    'NATIVE')
+      INST64_SYSTEM_WIDE='YES'
+      ;;
+    *)
+      if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
+        INST64_SYSTEM_WIDE='YES'
+      else
+        INST64_SYSTEM_WIDE='NO'
+      fi
+      ;;
+    esac
   fi
 }
 
@@ -146,9 +182,17 @@ function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_OPT_ROOT='/opt'
+      if [[ -n "$INST64_ROOT_PATH_DEFAULT_SYSTEM" ]]; then
+        INST64_OPT_ROOT="$INST64_ROOT_PATH_DEFAULT_SYSTEM"
+      else
+        INST64_OPT_ROOT='/opt'
+      fi
     else
-      INST64_OPT_ROOT="$INST64_HOME"
+      if [[ -n "$INST64_ROOT_PATH_DEFAULT_USER" ]]; then
+        INST64_OPT_ROOT="$INST64_ROOT_PATH_DEFAULT_USER"
+      else
+        INST64_OPT_ROOT="$INST64_HOME"
+      fi
     fi
   fi
 }
@@ -162,7 +206,16 @@ function inst64_lib_target_set_path() {
   local target_basename="$INST64_APP_NAME"
 
   if [[ -z "${!target}" ]]; then
-    [[ -n "$INST64_TARGET_DEFAULT" ]] && target_basename="$INST64_TARGET_DEFAULT"
+    if [[ -n "$INST64_TARGET_PATH_DEFAULT" ]]; then
+      target_basename="$INST64_TARGET_PATH_DEFAULT"
+    else
+      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+        [[ -n "$INST64_TARGET_PATH_DEFAULT_SYSTEM" ]] && target_basename="$INST64_TARGET_PATH_DEFAULT_SYSTEM"
+      else
+        [[ -n "$INST64_TARGET_PATH_DEFAULT_USER" ]] && target_basename="$INST64_TARGET_PATH_DEFAULT_USER"
+      fi
+    fi
+
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s/%s' \
@@ -195,19 +248,28 @@ function inst64_lib_cli_set_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   [[ -n "$INST64_CLI_PATH" ]] && return 0
-  if [[ "${!method}" == 'PIPX' ]]; then
+  # shellcheck disable=SC2249
+  case "${!method}" in
+  'NPM')
+    INST64_CLI_PATH="${HOME}/node_modules/.bin"
+    ;;
+  'PIPX')
     INST64_CLI_PATH="${HOME}/.local/bin"
-  elif [[ "${!method}" == 'PIP' ]]; then
+    ;;
+  'PIP')
     INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}"
-  elif [[ "${!method}" == 'NATIVE' ]]; then
+    ;;
+  'NATIVE')
     INST64_CLI_PATH='/usr/bin'
-  elif [[ "${!method}" == 'BINARY' || "${!method}" == 'CUSTOM' ]]; then
+    ;;
+  'BINARY' | 'CUSTOM')
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       INST64_CLI_PATH="${INST64_LOCAL_BIN}"
     else
       INST64_CLI_PATH="${INST64_USER_BIN}"
     fi
-  fi
+    ;;
+  esac
 }
 
 #######################################
@@ -255,21 +317,29 @@ function inst64_lib_message_show_parameters() {
   local var_suffix=''
   local var_name=''
 
+  parameter_list+=' BL64_OS_DISTRO'
+
   method_variable_suffix+=" ${INST64_APP_ID}_METHOD"
   method_variable_suffix+=" ${INST64_APP_ID}_PLATFORM"
   method_variable_suffix+=" ${INST64_APP_ID}_TARGET"
   method_variable_suffix+=" ${INST64_APP_ID}_VERSION"
-  method_variable_suffix+=" SYSTEM_WIDE"
   method_variable_suffix+=" CLI_NAME"
   method_variable_suffix+=" CLI_PATH"
   method_variable_suffix+=" GH_REPO_NAME"
   method_variable_suffix+=" GH_REPO_OWNER"
-  method_variable_suffix+=" PKG_MAIN"
-  method_variable_suffix+=" PKG_DEV"
   method_variable_suffix+=" GIT_BRANCH"
   method_variable_suffix+=" GIT_REPO"
   method_variable_suffix+=" GIT_SERVER"
+  method_variable_suffix+=" PKG_DEV"
+  method_variable_suffix+=" PKG_MAIN"
   method_variable_suffix+=" OS_REPO_NAME"
+  method_variable_suffix+=" OS_REPO_KEY_YUM"
+  method_variable_suffix+=" OS_REPO_KEY_APT"
+  method_variable_suffix+=" OS_SOURCE_APT"
+  method_variable_suffix+=" OS_SOURCE_YUM"
+  method_variable_suffix+=" REPLACE_INSTALLED"
+  method_variable_suffix+=" REFRESH_PACKAGE_MANAGER"
+  method_variable_suffix+=" SYSTEM_WIDE"
   method_variable_suffix+=" WEB_REPO_PATH"
   method_variable_suffix+=" WEB_REPO_URL"
 
@@ -330,7 +400,7 @@ function inst64_lib_base_initialize() {
 
   bl64_dbg_app_show_comments 'Set default value for INST64_CLI_NAME'
   INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
-  # shellcheck disable=SC2015
+
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
@@ -339,6 +409,53 @@ function inst64_lib_base_initialize() {
 
   inst64_lib_message_show_error 'installer initialization failed'
   return $BL64_LIB_ERROR_TASK_FAILED
+}
+
+function inst64_lib_method_initialize() {
+  bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  # shellcheck disable=SC2249
+  case "${!method}" in
+  'PIP')
+    bl64_check_privilege_not_root &&
+      bl64_py_setup
+    ;;
+  'NATIVE')
+    bl64_check_privilege_root &&
+      bl64_cryp_setup &&
+      bl64_pkg_setup
+    ;;
+  'BINARY')
+    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+      bl64_check_privilege_root ||
+        return $?
+    fi
+    bl64_arc_setup
+    ;;
+  'PIPX')
+    bl64_check_privilege_not_root &&
+      bl64_py_setup ||
+      return $?
+
+    INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
+    if [[ -z "$INST64_COMMAND_PIPX" ]]; then
+      bl64_msg_show_error 'pipx command not found. Please install pipx and try again'
+      return 1
+    fi
+    return 0
+    ;;
+  'NPM')
+    bl64_check_privilege_not_root ||
+      return $?
+
+    INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
+    if [[ -z "$INST64_COMMAND_NPM" ]]; then
+      bl64_msg_show_error 'npm command not found. Please install npm and try again'
+      return 1
+    fi
+    return 0
+    ;;
+  esac
 }
 
 function inst64_lib_step_prepare() {
@@ -439,16 +556,18 @@ function inst64_lib_python_install_pipx() {
 
 function inst64_lib_command_run_pipx() {
   bl64_dbg_app_show_function "$@"
-  local command_pipx=''
-
-  command_pipx="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
-  [[ -z "$command_pipx" ]] &&
-    bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
-    return 1
-
   bl64_dbg_app_trace_start
   # shellcheck disable=SC2086
-  "$command_pipx" \
+  "$INST64_COMMAND_PIPX" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
+function inst64_lib_command_run_npm() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_NPM" \
     "$@"
   bl64_dbg_app_trace_stop
 }
@@ -626,4 +745,54 @@ function inst64_lib_web_get_file() {
     "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
     'YES' \
     "$INST64_CLI_MODE"
+}
+
+function inst64_lib_pkg_install() {
+  bl64_dbg_app_show_function
+  # shellcheck disable=SC2086
+  if bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
+    bl64_pkg_deploy $INST64_PKG_MAIN
+  else
+    bl64_pkg_install $INST64_PKG_MAIN
+  fi
+}
+
+function inst64_lib_pkg_repo_add() {
+  bl64_dbg_app_show_function
+  local repository_url="${1:-}"
+  local repository_key="${2:-}"
+  local repository_apt_suite="${3:-}"
+  local repository_apt_component="${4:-}"
+
+  bl64_msg_show_task 'Add external package repository'
+  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+    "$repository_url" "$repository_key" \
+    "$repository_apt_suite" "$repository_apt_component" ||
+    return $?
+
+  if ! bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
+    bl64_pkg_prepare
+  fi
+}
+
+function inst64_lib_python_install_npm() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  cd "$HOME" || return $?
+  if [[ -n "$INST64_PKG_PRE" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_npm install $INST64_PKG_PRE $INST64_PKG_MAIN ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_npm install $INST64_PKG_MAIN ||
+      return $?
+  fi
+  if [[ -n "$INST64_PKG_POST" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_npm inject $INST64_PKG_POST ||
+      return $?
+  fi
+  return 0
 }

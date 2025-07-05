@@ -67,8 +67,7 @@ INST64_CLI_NAME='pipx'
 
 function inst64_install_native() {
   bl64_dbg_app_show_function
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
 function inst64_prepare() {
@@ -109,6 +108,7 @@ function inst64_select_method() {
       INST64_PIPX_METHOD='NATIVE'
     else
       INST64_PIPX_METHOD='PIP'
+      INST64_SYSTEM_WIDE='NO'
     fi
   fi
 }
@@ -141,16 +141,12 @@ function inst64_initialize() {
   bl64_dbg_app_show_function
   bl64_py_setup &&
     inst64_lib_base_initialize &&
-    inst64_select_method ||
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
 
-  if [[ "$INST64_PIPX_METHOD" == 'PIP' ]]; then
-    bl64_check_privilege_not_root ||
-      return $?
-  elif [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
-      bl64_os_check_not_version "${BL64_OS_ALM}-10" &&
-      bl64_pkg_setup ||
+  if [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
+    bl64_os_check_not_version "${BL64_OS_ALM}-10" ||
       return $?
   fi
 

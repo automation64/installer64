@@ -64,8 +64,8 @@ INST64_CLI_NAME='gcloud'
 INST64_OS_REPO_NAME='google-cloud-sdk'
 INST64_OS_SOURCE_YUM='https://packages.cloud.google.com/yum/repos'
 INST64_OS_SOURCE_APT='https://packages.cloud.google.com/apt'
-INST64_OS_REPOSITORY_KEY_YUM='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
-INST64_OS_REPOSITORY_KEY_APT='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
+INST64_OS_REPO_KEY_YUM='https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
+INST64_OS_REPO_KEY_APT='https://packages.cloud.google.com/apt/doc/apt-key.gpg'
 INST64_CPU_LINUX_AMD64='x86_64'
 
 #
@@ -81,24 +81,22 @@ function inst64_prepare_repository() {
 
   if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
     repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_APT"
+    repository_key="$INST64_OS_REPO_KEY_APT"
     repository_apt_suite='cloud-sdk'
     repository_apt_component='main'
   elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
     repository_url="${INST64_OS_SOURCE_YUM}/cloud-sdk-el9-${INST64_GCLOUD_PLATFORM}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_YUM"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
-  bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+  inst64_lib_pkg_repo_add \
     "$repository_url" "$repository_key" \
     "$repository_apt_suite" "$repository_apt_component"
 }
 
 function inst64_install_native() {
   bl64_dbg_app_show_function
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
 function inst64_prepare() {
@@ -167,17 +165,15 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_select_method ||
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
 
   if [[ "$INST64_GCLOUD_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
-      bl64_os_check_flavor \
+    bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" &&
-      bl64_cryp_setup &&
-      bl64_pkg_setup ||
+        "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 

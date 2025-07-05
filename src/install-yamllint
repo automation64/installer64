@@ -67,8 +67,7 @@ INST64_CLI_NAME='yamllint'
 
 function inst64_install_native() {
   bl64_dbg_app_show_function
-  # shellcheck disable=SC2086
-  bl64_pkg_deploy $INST64_PKG_MAIN
+  inst64_lib_pkg_install
 }
 
 function inst64_prepare() {
@@ -126,17 +125,16 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_select_method ||
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
 
   if [[ "$INST64_YAMLLINT_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
-      bl64_os_check_flavor \
+    bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_ALPINE" \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" &&
-      bl64_pkg_setup ||
+        "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 

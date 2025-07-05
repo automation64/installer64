@@ -53,9 +53,8 @@ declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-la
 INST64_APP_NAME='X_APP_NAME_X'
 INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-# CLI information
+
 INST64_CLI_NAME='X_CLI_NAME_X'
-INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 
 INST64_PKG_MAIN=''
 INST64_PKG_PRE=''
@@ -125,14 +124,9 @@ function inst64_select_packages() {
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_lib_base_initialize &&
-    inst64_select_method ||
+    inst64_select_method &&
+    inst64_lib_method_initialize ||
     return $?
-
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
-    bl64_check_privilege_not_root &&
-      bl64_py_setup ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&

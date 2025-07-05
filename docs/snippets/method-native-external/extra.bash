@@ -7,14 +7,13 @@ function inst64_prepare_repository() {
 
   if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
     repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_APT"
+    repository_key="$INST64_OS_REPO_KEY_APT"
   elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
     repository_url="${INST64_OS_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPOSITORY_KEY_YUM"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
-  bl64_msg_show_task 'Add external package repository'
-  bl64_pkg_repository_add "$INST64_OS_REPO_NAME" \
+  inst64_lib_pkg_repo_add \
     "$repository_url" "$repository_key" \
     "$repository_apt_suite" "$repository_apt_component"
 }
