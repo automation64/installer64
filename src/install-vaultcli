@@ -122,7 +122,7 @@ function inst64_setup() {
   if [[ "$INST64_VAULTCLI_METHOD" == 'NATIVE' ]]; then
     if [[ -n "$("$getcap_bin" "${INST64_CLI_PATH}/${INST64_CLI_NAME}")" ]]; then
       bl64_dbg_app_show_comments 'rationale: https://developer.hashicorp.com/vault/docs/configuration#disable_mlock'
-      "$setcap_bin" -qr "${INST64_CLI_PATH}/${INST64_CLI_NAME}"
+      "$setcap_bin" -r "${INST64_CLI_PATH}/${INST64_CLI_NAME}"
     fi
   fi
 }
