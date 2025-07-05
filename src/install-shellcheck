@@ -182,12 +182,7 @@ function inst64_initialize() {
     inst64_lib_method_initialize ||
     return $?
 
-  if [[ "$INST64_SHELLCHECK_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-  elif [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_SHELLCHECK_METHOD" == 'NATIVE' ]]; then
     bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_ALPINE" \
         "$BL64_OS_FLAVOR_DEBIAN" \

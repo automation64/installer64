@@ -178,10 +178,7 @@ function inst64_initialize() {
     return $?
 
   if [[ "$INST64_YAZI_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
+
     bl64_os_check_not_version \
       "${BL64_OS_ALM}-9" \
       "${BL64_OS_RCK}-9" \
