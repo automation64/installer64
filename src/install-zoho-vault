@@ -168,8 +168,7 @@ function inst64_initialize() {
     fi
     bl64_os_check_not_version \
       "${BL64_OS_UB}-24" \
-      "${BL64_OS_UB}-25" &&
-      bl64_arc_setup ||
+      "${BL64_OS_UB}-25" ||
       return $?
   fi
 

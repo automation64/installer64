@@ -150,8 +150,7 @@ function inst64_initialize() {
       return $?
   elif [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
     bl64_check_privilege_root &&
-      bl64_os_check_not_version "${BL64_OS_ALM}-10" &&
-      bl64_pkg_setup ||
+      bl64_os_check_not_version "${BL64_OS_ALM}-10" ||
       return $?
   fi
 

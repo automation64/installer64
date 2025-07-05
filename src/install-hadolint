@@ -170,8 +170,7 @@ function inst64_initialize() {
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" \
-      "$BL64_OS_FLAVOR_SUSE" &&
-      bl64_arc_setup ||
+      "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   fi
 

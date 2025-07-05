@@ -179,8 +179,6 @@ function inst64_initialize() {
       "$BL64_OS_FLAVOR_REDHAT" \
       "$BL64_OS_FLAVOR_SUSE" ||
       return $?
-    bl64_arc_setup ||
-      return $?
   fi
 
   inst64_select_platform &&

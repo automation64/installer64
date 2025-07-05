@@ -185,8 +185,7 @@ function inst64_initialize() {
     bl64_os_check_not_version \
       "${BL64_OS_ALM}-9" \
       "${BL64_OS_RCK}-9" \
-      "${BL64_OS_OL}-9" &&
-    bl64_arc_setup ||
+      "${BL64_OS_OL}-9" ||
       return $?
   fi
 

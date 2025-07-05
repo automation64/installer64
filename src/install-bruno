@@ -171,8 +171,6 @@ function inst64_initialize() {
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
-    bl64_arc_setup ||
-      return $?
   fi
 
   inst64_select_platform &&

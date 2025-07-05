@@ -386,6 +386,10 @@ function inst64_lib_method_initialize() {
   local method="INST64_${INST64_APP_ID}_METHOD"
   # shellcheck disable=SC2249
   case "${!method}" in
+  'NATIVE')
+    bl64_cryp_setup &&
+      bl64_pkg_setup
+    ;;
   'BINARY')
     bl64_arc_setup
     ;;

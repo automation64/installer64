@@ -194,8 +194,7 @@ function inst64_initialize() {
         "$BL64_OS_FLAVOR_FEDORA" \
         "$BL64_OS_FLAVOR_MACOS" \
         "$BL64_OS_FLAVOR_REDHAT" \
-        "$BL64_OS_FLAVOR_SUSE" &&
-      bl64_pkg_setup ||
+        "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   elif [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -207,8 +206,7 @@ function inst64_initialize() {
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" \
-      "$BL64_OS_FLAVOR_SUSE" &&
-      bl64_arc_setup ||
+      "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   fi
 
