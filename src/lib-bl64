@@ -151,8 +151,15 @@
 #######################################
 function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+    if [[ "${!method}" =~ ('PIP'|'PIPX') ]]; then
+      INST64_SYSTEM_WIDE='NO'
+    elif [[ "${!method}" =~ ('NATIVE') ]]; then
+      INST64_SYSTEM_WIDE='YES'
+    else
+      [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+    fi
   fi
 }
 
