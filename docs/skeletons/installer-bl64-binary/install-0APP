@@ -169,8 +169,6 @@ function inst64_initialize() {
         return $?
     fi
     # X_PRE_OS_PLACEHOLDER_X
-    bl64_arc_setup ||
-      return $?
   fi
 
   inst64_select_platform &&
