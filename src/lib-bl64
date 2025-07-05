@@ -138,6 +138,8 @@
   # Target management
   declare INST64_TARGET_REQUESTED='NO'
 
+  # External commands
+  declare INST64_COMMAND_PIPX=''
 }
 
 #
@@ -379,6 +381,20 @@ function inst64_lib_base_initialize() {
   return $BL64_LIB_ERROR_TASK_FAILED
 }
 
+function inst64_lib_method_initialize() {
+  bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  # shellcheck disable=SC2249
+  case "${!method}" in
+  'PIPX')
+    INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
+    [[ -z "$INST64_COMMAND_PIPX" ]] &&
+      bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
+      return 1
+    ;;
+  esac
+}
+
 function inst64_lib_step_prepare() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
@@ -477,16 +493,9 @@ function inst64_lib_python_install_pipx() {
 
 function inst64_lib_command_run_pipx() {
   bl64_dbg_app_show_function "$@"
-  local command_pipx=''
-
-  command_pipx="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
-  [[ -z "$command_pipx" ]] &&
-    bl64_msg_show_error 'pipx command not found. Please install pipx and try again' &&
-    return 1
-
   bl64_dbg_app_trace_start
   # shellcheck disable=SC2086
-  "$command_pipx" \
+  "$INST64_COMMAND_PIPX" \
     "$@"
   bl64_dbg_app_trace_stop
 }
