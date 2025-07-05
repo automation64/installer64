@@ -386,6 +386,9 @@ function inst64_lib_method_initialize() {
   local method="INST64_${INST64_APP_ID}_METHOD"
   # shellcheck disable=SC2249
   case "${!method}" in
+  'BINARY')
+    bl64_arc_setup
+    ;;
   'PIPX')
     INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
     [[ -z "$INST64_COMMAND_PIPX" ]] &&
