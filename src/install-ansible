@@ -123,12 +123,6 @@ function inst64_initialize() {
     inst64_lib_method_initialize ||
     return $?
 
-  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' || "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
-    bl64_check_privilege_not_root &&
-      bl64_py_setup ||
-      return $?
-  fi
-
   inst64_select_platform &&
     inst64_select_packages &&
     inst64_lib_cli_set_path ||
