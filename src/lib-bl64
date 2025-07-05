@@ -58,13 +58,13 @@
   #
 
   # Base target configuration
-  declare INST64_OPT_ROOT_DEFAULT_SYSTEM=''
-  declare INST64_OPT_ROOT_DEFAULT_USER=''
+  declare INST64_ROOT_PATH_DEFAULT_SYSTEM=''
+  declare INST64_ROOT_PATH_DEFAULT_USER=''
 
   # Target configuration
-  declare INST64_TARGET_DEFAULT=''
-  declare INST64_TARGET_DEFAULT_SYSTEM=''
-  declare INST64_TARGET_DEFAULT_USER=''
+  declare INST64_TARGET_PATH_DEFAULT=''
+  declare INST64_TARGET_PATH_DEFAULT_SYSTEM=''
+  declare INST64_TARGET_PATH_DEFAULT_USER=''
   declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
   declare INST64_TARGET_MODE='0755'
@@ -161,14 +161,14 @@ function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      if [[ -n "$INST64_OPT_ROOT_DEFAULT_SYSTEM" ]]; then
-        INST64_OPT_ROOT="$INST64_OPT_ROOT_DEFAULT_SYSTEM"
+      if [[ -n "$INST64_ROOT_PATH_DEFAULT_SYSTEM" ]]; then
+        INST64_OPT_ROOT="$INST64_ROOT_PATH_DEFAULT_SYSTEM"
       else
         INST64_OPT_ROOT='/opt'
       fi
     else
-      if [[ -n "$INST64_OPT_ROOT_DEFAULT_USER" ]]; then
-        INST64_OPT_ROOT="$INST64_OPT_ROOT_DEFAULT_USER"
+      if [[ -n "$INST64_ROOT_PATH_DEFAULT_USER" ]]; then
+        INST64_OPT_ROOT="$INST64_ROOT_PATH_DEFAULT_USER"
       else
         INST64_OPT_ROOT="$INST64_HOME"
       fi
@@ -185,13 +185,13 @@ function inst64_lib_target_set_path() {
   local target_basename="$INST64_APP_NAME"
 
   if [[ -z "${!target}" ]]; then
-    if [[ -n "$INST64_TARGET_DEFAULT" ]]; then
-      target_basename="$INST64_TARGET_DEFAULT"
+    if [[ -n "$INST64_TARGET_PATH_DEFAULT" ]]; then
+      target_basename="$INST64_TARGET_PATH_DEFAULT"
     else
       if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-        [[ -n "$INST64_TARGET_DEFAULT_SYSTEM" ]] && target_basename="$INST64_TARGET_DEFAULT_SYSTEM"
+        [[ -n "$INST64_TARGET_PATH_DEFAULT_SYSTEM" ]] && target_basename="$INST64_TARGET_PATH_DEFAULT_SYSTEM"
       else
-        [[ -n "$INST64_TARGET_DEFAULT_USER" ]] && target_basename="$INST64_TARGET_DEFAULT_USER"
+        [[ -n "$INST64_TARGET_PATH_DEFAULT_USER" ]] && target_basename="$INST64_TARGET_PATH_DEFAULT_USER"
       fi
     fi
 

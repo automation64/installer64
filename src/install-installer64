@@ -83,7 +83,7 @@
   #
 
   # Target configuration
-  declare INST64_TARGET_DEFAULT=''
+  declare INST64_TARGET_PATH_DEFAULT=''
   declare INST64_TARGET_OWNER=''
   declare INST64_TARGET_GROUP=''
   declare INST64_TARGET_MODE_DIR='0755'
@@ -435,7 +435,7 @@ function inst64_lib_target_set_path() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local target_basename="$INST64_APP_NAME"
 
-  [[ -n "$INST64_TARGET_DEFAULT" ]] && target_basename="$INST64_TARGET_DEFAULT"
+  [[ -n "$INST64_TARGET_PATH_DEFAULT" ]] && target_basename="$INST64_TARGET_PATH_DEFAULT"
   if [[ -z "${!target}" ]]; then
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
@@ -700,7 +700,7 @@ INST64_SCRIPT_VERSION='2.0.0'
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'
 INST64_PKG_MAIN='installer64-scripts.tgz'
-INST64_TARGET_DEFAULT='inst64'
+INST64_TARGET_PATH_DEFAULT='inst64'
 INST64_TARGET_MODE_FILE='0755'
 
 #
