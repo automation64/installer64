@@ -149,8 +149,7 @@ function inst64_initialize() {
     return $?
 
   if [[ "$INST64_GCC_METHOD" == 'NATIVE' ]]; then
-    bl64_check_privilege_root &&
-      bl64_os_check_flavor \
+    bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_ALPINE" \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \

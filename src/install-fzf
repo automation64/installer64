@@ -163,13 +163,6 @@ function inst64_initialize() {
     inst64_lib_method_initialize ||
     return $?
 
-  if [[ "$INST64_FZF_METHOD" == 'BINARY' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-  fi
-
   inst64_select_platform &&
     inst64_select_packages &&
     inst64_lib_cli_set_path ||
