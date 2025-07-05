@@ -158,12 +158,6 @@ function inst64_initialize() {
     # X_PRE_OS_PLACEHOLDER_X
     # X_INIT_PLACEHOLDER_X
     :
-    # ===[TEST-ONLY-SECTION-START]===
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-    # ===[TEST-ONLY-SECTION-END]===
   fi
 
   inst64_select_platform &&
