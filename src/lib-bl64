@@ -126,7 +126,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.0.0'
+  declare INST64_LIB_VERSION_BL64='1.1.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -153,6 +153,7 @@
 function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
+  local app_wide="INST64_${INST64_APP_ID}_SYSTEM_WIDE"
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     case "${!method}" in
     'PIP' | 'PIPX')
@@ -165,6 +166,10 @@ function inst64_lib_base_set_system_wide() {
       INST64_SYSTEM_WIDE='YES'
       ;;
     *)
+      if [[ -v "$app_wide" && -n "${!app_wide}" ]]; then
+        INST64_SYSTEM_WIDE="${!app_wide}"
+        return 0
+      fi
       if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
         INST64_SYSTEM_WIDE='YES'
       else
