@@ -44,10 +44,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 
 # Installation method
 declare INST64_GCLOUD_METHOD="${INST64_GCLOUD_METHOD:-NATIVE}"
-# Installation destination
-declare INST64_GCLOUD_TARGET='AUTO'
-# Hardware architecture
-declare INST64_GCLOUD_PLATFORM='ALL'
 # Application version
 declare INST64_GCLOUD_VERSION=''
 # Enable development packages?
@@ -189,7 +185,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
