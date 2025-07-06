@@ -44,10 +44,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
-# Installation destination
-declare INST64_X_APP_NAME_CAPS_X_TARGET='AUTO'
-# Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM='ALL'
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Enable development packages?

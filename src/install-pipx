@@ -46,10 +46,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 
 # Installation method
 declare INST64_PIPX_METHOD="${INST64_PIPX_METHOD:-AUTO}"
-# Installation destination
-declare INST64_PIPX_TARGET="${INST64_PIPX_TARGET:-}"
-# Hardware architecture
-declare INST64_PIPX_PLATFORM="${INST64_PIPX_PLATFORM:-}"
 # Application version
 declare INST64_PIPX_VERSION="${INST64_PIPX_VERSION:-latest}"
 
@@ -162,7 +158,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.0'
+bl64_lib_script_version_set '2.1.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
