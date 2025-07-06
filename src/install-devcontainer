@@ -40,10 +40,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 
 # Installation method
 declare INST64_DEVCONTAINER_METHOD="${INST64_DEVCONTAINER_METHOD:-NPM}"
-# Installation destination
-declare INST64_DEVCONTAINER_TARGET="${INST64_DEVCONTAINER_TARGET:-}"
-# Hardware architecture
-declare INST64_DEVCONTAINER_PLATFORM="${INST64_DEVCONTAINER_PLATFORM:-}"
 # Application version
 declare INST64_DEVCONTAINER_VERSION="${INST64_DEVCONTAINER_VERSION:-latest}"
 
