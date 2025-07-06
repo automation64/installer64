@@ -42,22 +42,24 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_EZA_METHOD="${INST64_EZA_METHOD:-BINARY}"
+declare INST64_CODEX_METHOD="${INST64_CODEX_METHOD:-BINARY}"
 # Installation destination
-declare INST64_EZA_TARGET="${INST64_EZA_TARGET:-}"
+declare INST64_CODEX_TARGET="${INST64_CODEX_TARGET:-}"
 # Hardware architecture
-declare INST64_EZA_PLATFORM="${INST64_EZA_PLATFORM:-}"
+declare INST64_CODEX_PLATFORM="${INST64_CODEX_PLATFORM:-}"
 # Application version
-declare INST64_EZA_VERSION="${INST64_EZA_VERSION:-latest}"
+declare INST64_CODEX_VERSION="${INST64_CODEX_VERSION:-latest}"
 
-INST64_APP_NAME='eza'
-INST64_APP_ID='EZA'
-INST64_APP_FULL_NAME='EZA - A modern alternative to ls'
-INST64_CLI_NAME='eza'
-INST64_GH_REPO_NAME='eza'
-INST64_GH_REPO_OWNER='eza-community'
-INST64_PKG_MAIN_PREFIX='eza_'
+INST64_APP_NAME='codex'
+INST64_APP_ID='CODEX'
+INST64_APP_FULL_NAME='OpenAI Codex - AI Programming Assistant'
+INST64_CLI_NAME='codex'
+
+INST64_GH_REPO_NAME='codex'
+INST64_GH_REPO_OWNER='openai'
+INST64_PKG_MAIN_PREFIX='codex-'
 INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='aarch64-apple-darwin'
 INST64_CPU_LINUX_AMD64_GNU='x86_64-unknown-linux-gnu'
 INST64_CPU_LINUX_AMD64_MUSL='x86_64-unknown-linux-musl'
 
@@ -68,6 +70,7 @@ INST64_CPU_LINUX_AMD64_MUSL='x86_64-unknown-linux-musl'
 function inst64_install_binary() {
   bl64_dbg_app_show_function
 
+  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}"
   inst64_lib_task_download
   inst64_lib_staging_create &&
     inst64_lib_gh_get_asset &&
@@ -86,7 +89,7 @@ function inst64_install_binary() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -94,7 +97,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
   fi
 }
@@ -102,7 +105,8 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+    INST64_CLI_TARGET="${INST64_CODEX_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -112,7 +116,7 @@ function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -123,24 +127,28 @@ function inst64_select_method() {
     'AUTO' \
     'BINARY' ||
     return $?
-  if [[ "$INST64_EZA_METHOD" == 'AUTO' ]]; then
-    INST64_EZA_METHOD='BINARY'
+  if [[ "$INST64_CODEX_METHOD" == 'AUTO' ]]; then
+    INST64_CODEX_METHOD='BINARY'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_EZA_PLATFORM" ]]; then
-      # shellcheck disable=SC2249
-      case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
-        INST64_EZA_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
-        ;;
-      "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-        INST64_EZA_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
-        ;;
-      esac
+  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_CODEX_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_CODEX_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        # shellcheck disable=SC2249
+        case "$BL64_OS_FLAVOR" in
+        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+          INST64_CODEX_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+          ;;
+        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+          INST64_CODEX_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+          ;;
+        esac
+      fi
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -148,12 +156,12 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
-    if [[ "$INST64_EZA_VERSION" == 'latest' ]]; then
-      INST64_EZA_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_CODEX_VERSION" == 'latest' ]]; then
+      INST64_CODEX_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_EZA_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
@@ -163,17 +171,6 @@ function inst64_initialize() {
   inst64_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_EZA_METHOD" == 'BINARY' ]]; then
-
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ALPINE" \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" \
-      "$BL64_OS_FLAVOR_SUSE" ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&
@@ -188,7 +185,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

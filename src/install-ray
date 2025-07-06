@@ -20,7 +20,7 @@
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
-# shellcheck source-path=lib/bl64 disable=SC2015
+# shellcheck disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
@@ -31,7 +31,6 @@ source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
-# shellcheck source-path=src disable=SC2015
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
   { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
@@ -41,10 +40,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 
 # Installation method
 declare INST64_RAY_METHOD="${INST64_RAY_METHOD:-PIPX}"
-# Installation destination
-declare INST64_RAY_TARGET="${INST64_RAY_TARGET:-}"
-# Hardware architecture
-declare INST64_RAY_PLATFORM='ALL'
 # Application version
 declare INST64_RAY_VERSION="${INST64_RAY_VERSION:-latest}"
 
@@ -118,9 +113,8 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  inst64_lib_base_initialize &&
-    inst64_select_method &&
-    inst64_lib_method_initialize ||
+  inst64_select_method &&
+    inst64_lib_base_initialize ||
     return $?
 
   inst64_select_platform &&
@@ -136,7 +130,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

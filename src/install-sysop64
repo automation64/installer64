@@ -16,7 +16,7 @@
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
-# shellcheck source-path=lib/bl64 disable=SC2015
+# shellcheck disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
@@ -30,7 +30,6 @@ source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
-# shellcheck source-path=src disable=SC2015
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
   { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
@@ -140,9 +139,8 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  inst64_lib_base_initialize &&
-    inst64_select_method &&
-    inst64_lib_method_initialize ||
+  inst64_select_method &&
+    inst64_lib_base_initialize ||
     return $?
 
   inst64_select_platform &&

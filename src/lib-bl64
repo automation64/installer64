@@ -40,9 +40,9 @@
   # Install system wide? Requires root privilege
   declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"
   # Replace if already installed?
-  declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-NO}"
+  declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-}"
   # Refresh package manager before installation and cleanup after?
-  declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-YES}"
+  declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-}"
 
   #
   # Global definitions
@@ -126,7 +126,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.0.0'
+  declare INST64_LIB_VERSION_BL64='1.1.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -153,6 +153,7 @@
 function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
+  local app_wide="INST64_${INST64_APP_ID}_SYSTEM_WIDE"
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     case "${!method}" in
     'PIP' | 'PIPX')
@@ -165,6 +166,10 @@ function inst64_lib_base_set_system_wide() {
       INST64_SYSTEM_WIDE='YES'
       ;;
     *)
+      if [[ -v "$app_wide" && -n "${!app_wide}" ]]; then
+        INST64_SYSTEM_WIDE="${!app_wide}"
+        return 0
+      fi
       if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
         INST64_SYSTEM_WIDE='YES'
       else
@@ -202,8 +207,17 @@ function inst64_lib_base_set_path() {
 #######################################
 function inst64_lib_target_set_path() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
   local target="INST64_${INST64_APP_ID}_TARGET"
   local target_basename="$INST64_APP_NAME"
+
+  if [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]]; then
+    printf \
+      -v "INST64_${INST64_APP_ID}_TARGET" \
+      '%s' \
+      ''
+    return 0
+  fi
 
   if [[ -z "${!target}" ]]; then
     if [[ -n "$INST64_TARGET_PATH_DEFAULT" ]]; then
@@ -345,7 +359,7 @@ function inst64_lib_message_show_parameters() {
 
   for var_suffix in $method_variable_suffix; do
     var_name="INST64_${var_suffix}"
-    if [[ -n "${!var_name}" ]]; then
+    if [[ -v "$var_name" && -n "${!var_name}" ]]; then
       parameter_list+=" ${var_name}"
     fi
   done
@@ -398,16 +412,14 @@ function inst64_lib_base_initialize() {
   bl64_dbg_app_show_function
   bl64_msg_show_phase 'initialize installer'
 
-  bl64_dbg_app_show_comments 'Set default value for INST64_CLI_NAME'
-  INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
-
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
+    inst64_lib_method_initialize &&
     return 0
 
-  inst64_lib_message_show_error 'installer initialization failed'
+  bl64_msg_show_error 'installer initialization failed'
   return $BL64_LIB_ERROR_TASK_FAILED
 }
 
@@ -416,16 +428,21 @@ function inst64_lib_method_initialize() {
   local method="INST64_${INST64_APP_ID}_METHOD"
   # shellcheck disable=SC2249
   case "${!method}" in
+  'CUSTOM')
+    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED="$BL64_VAR_OFF"
+    ;;
   'PIP')
     bl64_check_privilege_not_root &&
       bl64_py_setup
     ;;
   'NATIVE')
+    [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
     bl64_check_privilege_root &&
       bl64_cryp_setup &&
       bl64_pkg_setup
     ;;
   'BINARY')
+    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED="$BL64_VAR_OFF"
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
@@ -574,15 +591,13 @@ function inst64_lib_command_run_npm() {
 
 function inst64_lib_package_check_definition() {
   bl64_dbg_app_show_function
-  [[ -n "$INST64_PKG_MAIN" ]] && return 0
-  bl64_msg_show_error 'unable to determine application package name (INST64_PKG_MAIN)'
-  return $BL64_LIB_ERROR_PARAMETER_MISSING
+  bl64_check_parameter 'INST64_PKG_MAIN'
 }
 
 function inst64_lib_platform_check_cpu() {
   bl64_dbg_app_show_function
   local platform="INST64_${INST64_APP_ID}_PLATFORM"
-  [[ -n "${!platform}" ]] && return 0
+  [[ -v "$platform" && -n "${!platform}" ]] && return 0
   inst64_lib_alert_incompatible_platform
 }
 
@@ -607,7 +622,6 @@ function inst64_lib_app_check_mode_system() {
 function inst64_lib_target_normalize() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
-  bl64_check_parameter "$target" || return $?
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_fs_path_permission_set \
       "$INST64_TARGET_MODE_FILE" "$INST64_TARGET_MODE_DIR" \
@@ -620,9 +634,11 @@ function inst64_lib_target_normalize() {
 function inst64_lib_git_get_dir() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
+
   bl64_check_parameter 'INST64_GIT_SERVER' &&
-    bl64_check_parameter 'INST64_GIT_REPO' &&
-    bl64_check_parameter "$target" || return $?
+    bl64_check_parameter 'INST64_GIT_REPO' ||
+    return $?
+
   bl64_rxtx_git_get_dir \
     "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
     '.' \
@@ -639,10 +655,11 @@ function inst64_lib_cli_promote() {
   bl64_check_parameter 'INST64_CLI_PATH' &&
     bl64_check_parameter 'INST64_CLI_NAME' || return $?
 
-  bl64_dbg_app_show_comments 'create symlink for CLI'
   if [[ -z "$INST64_CLI_TARGET" ]]; then
     INST64_CLI_TARGET="${!target}/${INST64_CLI_NAME}"
   fi
+
+  bl64_dbg_app_show_comments 'create symlink for CLI'
   bl64_fs_symlink_create \
     "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
     "$BL64_VAR_ON" ||
@@ -719,7 +736,9 @@ function inst64_lib_staging_remove() {
 function inst64_lib_target_populate() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
-  bl64_check_parameter "$target" || return $?
+
+  [[ -z "$INST64_WORK_PATH_SOURCE" ]] && INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
+
   bl64_fs_path_copy \
     "$INST64_CLI_MODE" "$INST64_TARGET_MODE_DIR" \
     "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
@@ -775,7 +794,7 @@ function inst64_lib_pkg_repo_add() {
   fi
 }
 
-function inst64_lib_python_install_npm() {
+function inst64_lib_nodejs_install_npm() {
   bl64_dbg_app_show_function
 
   bl64_msg_show_task 'deploy application'
