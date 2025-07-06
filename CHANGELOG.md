@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers
   - GeminiCLI
+- LibBL64
+  - Allow application level system wide setting: INST64_<APP>_SYSTEM_WIDE
 
 ## [6.0.14]
 
