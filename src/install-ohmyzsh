@@ -136,9 +136,8 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  inst64_lib_base_initialize &&
-    inst64_select_method &&
-    inst64_lib_method_initialize ||
+  inst64_select_method &&
+    inst64_lib_base_initialize ||
     return $?
 
   if [[ "$INST64_OHMYZSH_METHOD" == 'CUSTOM' ]]; then

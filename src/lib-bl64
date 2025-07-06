@@ -416,9 +416,10 @@ function inst64_lib_base_initialize() {
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
+    inst64_lib_method_initialize &&
     return 0
 
-  inst64_lib_message_show_error 'installer initialization failed'
+  bl64_msg_show_error 'installer initialization failed'
   return $BL64_LIB_ERROR_TASK_FAILED
 }
 
