@@ -70,7 +70,7 @@ function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_DEVCONTAINER_METHOD" == 'NPM' ]]; then
-    inst64_lib_python_install_npm
+    inst64_lib_nodejs_install_npm
   fi
 }
 
