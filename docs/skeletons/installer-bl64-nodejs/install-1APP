@@ -44,7 +44,7 @@ declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NPM}
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_PLATFORM='ALL'
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 
@@ -72,7 +72,7 @@ function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    inst64_lib_python_install_npm
+    inst64_lib_nodejs_install_npm
   fi
 }
 
