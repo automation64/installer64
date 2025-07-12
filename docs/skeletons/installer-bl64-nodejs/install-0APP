@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-nodejs-1.0.0
-#   Skeleton: install-bl64-npm-1.1.0
+#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
