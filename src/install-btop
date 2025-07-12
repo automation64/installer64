@@ -73,8 +73,8 @@ INST64_CPU_LINUX_AMD64_MUSL='x86_64-linux-musl'
 
 function inst64_install_binary() {
   bl64_dbg_app_show_function
-  local app_work_path="btop/bin/${INST64_CLI_NAME}"
 
+  INST64_WORK_PATH_SOURCE="btop/bin/${INST64_CLI_NAME}"
   inst64_lib_task_download
   inst64_lib_staging_create &&
     inst64_lib_gh_get_asset &&
@@ -83,8 +83,7 @@ function inst64_install_binary() {
 
   inst64_lib_task_deploy
   inst64_lib_target_create &&
-    bl64_fs_path_copy "$INST64_CLI_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-      "$INST64_BTOP_TARGET" "${INST64_WORK_PATH_STAGING}/${app_work_path}" ||
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -140,7 +139,7 @@ function inst64_select_method() {
     'NATIVE' ||
     return $?
   if [[ "$INST64_BTOP_METHOD" == 'AUTO' ]]; then
-    INST64_BTOP_METHOD='NATIVE'
+    INST64_BTOP_METHOD='BINARY'
   fi
 }
 
@@ -186,12 +185,12 @@ function inst64_initialize() {
 
   if [[ "$INST64_BTOP_METHOD" == 'NATIVE' ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_ALPINE" \
-        "$BL64_OS_FLAVOR_DEBIAN" \
-        "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_MACOS" \
-        "$BL64_OS_FLAVOR_REDHAT" \
-        "$BL64_OS_FLAVOR_SUSE" ||
+      "$BL64_OS_FLAVOR_ALPINE" \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_MACOS" \
+      "$BL64_OS_FLAVOR_REDHAT" \
+      "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   elif [[ "$INST64_BTOP_METHOD" == 'BINARY' ]]; then
 
@@ -217,7 +216,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

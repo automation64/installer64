@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-nodejs-1.0.0
+# Template: install-bl64-brew-1.0.0
 #   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
@@ -22,13 +22,18 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
@@ -39,24 +44,29 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NPM}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BREW}"
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+# Enable development packages?
+declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
 
 # App information
 INST64_APP_NAME='X_APP_NAME_X'
 INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-
+# CLI information
 INST64_CLI_NAME='X_CLI_NAME_X'
 
-INST64_PKG_MAIN=''
-INST64_PKG_PRE=''
-INST64_PKG_POST=''
+INST64_PKG_MAIN='X_PACKAGE_NAME_X'
 
 #
 # Functions
 #
+
+function inst64_install_brew() {
+  bl64_dbg_app_show_function
+  inst64_lib_brew_install
+}
 
 function inst64_prepare() {
   bl64_dbg_app_show_function
@@ -66,8 +76,8 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    inst64_lib_nodejs_install_npm
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BREW' ]]; then
+    inst64_install_brew
   fi
 }
 
@@ -79,6 +89,7 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
+  # X_VERIFY_PLACEHOLDER_X
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
@@ -86,10 +97,11 @@ function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'NPM' ||
+    'BREW' ||
     return $?
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
-    INST64_X_APP_NAME_CAPS_X_METHOD='NPM'
+    # X_METHOD_AUTO_PLACEHOLDER_X
+    INST64_X_APP_NAME_CAPS_X_METHOD='BREW'
   fi
 }
 
@@ -100,16 +112,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  local version_target=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      version_target=''
-    else
-      version_target="@${INST64_X_APP_NAME_CAPS_X_VERSION}"
-    fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
-  fi
-  inst64_lib_package_check_definition
+  return 0
 }
 
 function inst64_initialize() {

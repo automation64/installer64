@@ -126,7 +126,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.1.0'
+  declare INST64_LIB_VERSION_BL64='1.2.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -141,6 +141,7 @@
   # External commands
   declare INST64_COMMAND_PIPX=''
   declare INST64_COMMAND_NPM=''
+  declare INST64_COMMAND_GUNZIP=''
 }
 
 #
@@ -157,6 +158,12 @@ function inst64_lib_base_set_system_wide() {
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     case "${!method}" in
     'PIP' | 'PIPX')
+      INST64_SYSTEM_WIDE='NO'
+      ;;
+    'KREW')
+      INST64_SYSTEM_WIDE='NO'
+      ;;
+    'BREW')
       INST64_SYSTEM_WIDE='NO'
       ;;
     'NPM')
@@ -185,6 +192,10 @@ function inst64_lib_base_set_system_wide() {
 #######################################
 function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
+
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       if [[ -n "$INST64_ROOT_PATH_DEFAULT_SYSTEM" ]]; then
@@ -211,7 +222,7 @@ function inst64_lib_target_set_path() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local target_basename="$INST64_APP_NAME"
 
-  if [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]]; then
+  if [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]]; then
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s' \
@@ -245,6 +256,10 @@ function inst64_lib_target_set_path() {
 #######################################
 function inst64_lib_target_set_owner() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
+
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
     INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
@@ -264,6 +279,12 @@ function inst64_lib_cli_set_path() {
   [[ -n "$INST64_CLI_PATH" ]] && return 0
   # shellcheck disable=SC2249
   case "${!method}" in
+  'KREW')
+    INST64_CLI_PATH="${HOME}/.krew/bin"
+    ;;
+  'BREW')
+    INST64_CLI_PATH="${BL64_PKG_PATH_BREW_HOME}/bin"
+    ;;
   'NPM')
     INST64_CLI_PATH="${HOME}/node_modules/.bin"
     ;;
@@ -378,7 +399,7 @@ function inst64_lib_message_show_parameters() {
 function inst64_lib_base_create_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
-  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]] && return 0
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_bsh_xdg_create "$HOME" &&
       bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
@@ -426,10 +447,13 @@ function inst64_lib_base_initialize() {
 function inst64_lib_method_initialize() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
+  local command_path=''
+
   # shellcheck disable=SC2249
   case "${!method}" in
   'CUSTOM')
     [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED="$BL64_VAR_OFF"
+    return 0
     ;;
   'PIP')
     bl64_check_privilege_not_root &&
@@ -456,21 +480,35 @@ function inst64_lib_method_initialize() {
 
     INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
     if [[ -z "$INST64_COMMAND_PIPX" ]]; then
-      bl64_msg_show_error 'pipx command not found. Please install pipx and try again'
+      bl64_msg_show_error 'pipx command not found. Please install it and try again'
       return 1
     fi
     return 0
     ;;
+  'BREW')
+    [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
+    bl64_check_privilege_root &&
+      bl64_cryp_setup &&
+      bl64_pkg_setup
+      ;;
   'NPM')
     bl64_check_privilege_not_root ||
       return $?
 
     INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
     if [[ -z "$INST64_COMMAND_NPM" ]]; then
-      bl64_msg_show_error 'npm command not found. Please install npm and try again'
+      bl64_msg_show_error 'npm command not found. Please install it and try again'
       return 1
     fi
     return 0
+    ;;
+  'KREW')
+    bl64_check_privilege_not_root &&
+      bl64_k8s_setup &&
+      bl64_check_command \
+        "${HOME}/.krew/bin/kubectl-krew" \
+        'Command not found. Please install it and try again' \
+        'krew'
     ;;
   esac
 }
@@ -589,6 +627,15 @@ function inst64_lib_command_run_npm() {
   bl64_dbg_app_trace_stop
 }
 
+function inst64_lib_command_run_gunzip() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_GUNZIP" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
 function inst64_lib_package_check_definition() {
   bl64_dbg_app_show_function
   bl64_check_parameter 'INST64_PKG_MAIN'
@@ -687,7 +734,7 @@ function inst64_lib_target_create() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
   local method="INST64_${INST64_APP_ID}_METHOD"
-  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM') ]] && return 0
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
   bl64_fs_dir_create \
     "$INST64_TARGET_MODE_DIR" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
     "${!target}"
@@ -720,6 +767,21 @@ function inst64_lib_staging_open_zip() {
   bl64_arc_open_zip \
     "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
     "${INST64_WORK_PATH_STAGING}"
+}
+
+function inst64_lib_staging_open_gz() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+
+  INST64_COMMAND_GUNZIP="$(bl64_bsh_command_locate 'gunzip')"
+  if [[ -z "$INST64_COMMAND_GUNZIP" ]]; then
+    bl64_msg_show_error 'pipx command not found. Please install pipx and try again'
+    return 1
+  fi
+
+  "$INST64_COMMAND_GUNZIP" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
 }
 
 function inst64_lib_staging_create() {
@@ -814,4 +876,25 @@ function inst64_lib_nodejs_install_npm() {
       return $?
   fi
   return 0
+}
+
+function inst64_lib_k8s_install_krew() {
+  bl64_dbg_app_show_function
+
+  bl64_msg_show_task 'deploy application'
+  # shellcheck disable=SC2086
+  bl64_k8s_run_kubectl_plugin \
+    "$BL64_VAR_DEFAULT" \
+    krew install \
+    $INST64_PKG_MAIN
+}
+
+function inst64_lib_brew_install() {
+  bl64_dbg_app_show_function
+  # shellcheck disable=SC2086
+  if bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
+    bl64_pkg_brew_deploy $INST64_PKG_MAIN
+  else
+    bl64_pkg_brew_install $INST64_PKG_MAIN
+  fi
 }
