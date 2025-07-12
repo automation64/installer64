@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers
   - Overmind
 
+### Fixed
+
+- Installers
+  - volta
+
 ## [6.1.0]
 
 ### Added
