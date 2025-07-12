@@ -141,6 +141,7 @@
   # External commands
   declare INST64_COMMAND_PIPX=''
   declare INST64_COMMAND_NPM=''
+  declare INST64_COMMAND_GUNZIP=''
 }
 
 #
@@ -589,6 +590,15 @@ function inst64_lib_command_run_npm() {
   bl64_dbg_app_trace_stop
 }
 
+function inst64_lib_command_run_gunzip() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_GUNZIP" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
 function inst64_lib_package_check_definition() {
   bl64_dbg_app_show_function
   bl64_check_parameter 'INST64_PKG_MAIN'
@@ -720,6 +730,21 @@ function inst64_lib_staging_open_zip() {
   bl64_arc_open_zip \
     "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
     "${INST64_WORK_PATH_STAGING}"
+}
+
+function inst64_lib_staging_open_gz() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+
+  INST64_COMMAND_GUNZIP="$(bl64_bsh_command_locate 'gunzip')"
+  if [[ -z "$INST64_COMMAND_GUNZIP" ]]; then
+    bl64_msg_show_error 'pipx command not found. Please install pipx and try again'
+    return 1
+  fi
+
+  "$INST64_COMMAND_GUNZIP" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
 }
 
 function inst64_lib_staging_create() {
