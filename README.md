@@ -38,6 +38,9 @@ _Installer64_ scripts can be customized using the following parameters as shell 
 - `INST64_LOCAL_BIN`: Searchable path for local executables. Default: `/usr/local/bin`
 - `INST64_LOCAL_ROOT`: Linux well-known base path for local content. Default: `/usr/local`
 - `INST64_OPT_ROOT`: Linux well-known base path for non-os packaged content. Default: `/opt`
+- `INST64_REPLACE_INSTALLED`: Replace if already installed?. Default: `NO`
+- `INST64_REFRESH_PACKAGE_MANAGER`: Refresh package manager before installation and cleanup after?. Default: `YES`
+- `INST64_SYSTEM_WIDE`: Install system wide?. Default: `YES` if running as root, `NO` otherwise.
 
 ### Installer specific parameters
 
@@ -49,7 +52,6 @@ Common parameters:
 
 - `INST64_<INSTALLER_NAME>_METHOD`: installation method. See `Installation methods` section for further details
 - `INST64_<INSTALLER_NAME>_PLATFORM`: hardware platform (e.g.: linux_amd64, etc.)
-- `INST64_<INSTALLER_NAME>_SOURCE`: package source URL (e.g.: GitHub repository, Distro repository, etc.)
 - `INST64_<INSTALLER_NAME>_TARGET`: full path to the installation destination.
 - `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format (x.y.z).
 
@@ -60,10 +62,10 @@ The selection criteria is based on the following priority list:
 
 1. `BINARY`: application is distributed as a single pre-compiled binary. For example, GO based tools.
 1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
-1. `EXTERNAL`: application is distributed using OS standard packages, stored in external package repository.
 1. `GEM`: applications is distributed as Ruby module. Installation is done user-wide.
 1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package.
 1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
+1. `NPM`: applications is distributed as NodeJS module. Installation is done user-wide.
 1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
 1. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
 
