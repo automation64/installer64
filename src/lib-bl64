@@ -126,7 +126,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.2.0'
+  declare INST64_LIB_VERSION_BL64='1.2.1'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -142,6 +142,10 @@
   declare INST64_COMMAND_PIPX=''
   declare INST64_COMMAND_NPM=''
   declare INST64_COMMAND_GUNZIP=''
+
+  # BashLib64 overrides
+  declare BL64_API_CALL_SET_MAX_RETRIES='3'
+  declare BL64_API_CALL_SET_WAIT='10'
 }
 
 #
@@ -401,9 +405,11 @@ function inst64_lib_base_create_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
   [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_bsh_xdg_create "$HOME" &&
+    bl64_bsh_xdg_create "$HOME" || return $?
+    if ! bl64_lib_flag_is_enabled "$INST64_TARGET_REQUESTED"; then
       bl64_fs_dir_create "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
         "$INST64_OPT_ROOT"
+    fi
   fi
 }
 
@@ -490,7 +496,7 @@ function inst64_lib_method_initialize() {
     bl64_check_privilege_root &&
       bl64_cryp_setup &&
       bl64_pkg_setup
-      ;;
+    ;;
   'NPM')
     bl64_check_privilege_not_root ||
       return $?

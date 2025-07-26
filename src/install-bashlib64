@@ -41,7 +41,7 @@ INST64_APP_NAME='bashlib64'
 INST64_APP_ID='BASHLIB64'
 INST64_APP_FULL_NAME='BashLib64 - Automation Library'
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.0.0'
+INST64_SCRIPT_VERSION='2.0.1'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='bashlib64'
@@ -66,13 +66,16 @@ function inst64_install_binary_deploy() {
 
 function inst64_install_binary() {
   local package_name=''
+
   inst64_lib_task_download
   inst64_lib_staging_create || return $?
+
   for package_name in $INST64_PKG_MAIN; do
     inst64_lib_github_release_download "$package_name" &&
       inst64_install_binary_deploy "$package_name" ||
       return $?
   done
+
   inst64_lib_task_cleanup
   inst64_lib_staging_remove
 }
@@ -110,12 +113,7 @@ function inst64_verify() {
 }
 
 function inst64_select_platform() {
-  if [[ "$INST64_BASHLIB64_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_BASHLIB64_PLATFORM" ]]; then
-      INST64_BASHLIB64_PLATFORM="$INST64_CPU_ALL_ALL"
-    fi
-    inst64_lib_platform_check_cpu
-  fi
+  :
 }
 
 function inst64_select_packages() {
