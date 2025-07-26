@@ -45,7 +45,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.0.0'
+  declare INST64_LIB_VERSION_BASH='1.0.1'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -189,7 +189,7 @@ function inst64_lib_app_register_version() {
 
 function inst64_lib_base_create_path() {
   if ! inst64_lib_base_is_system_wide; then
-    if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" ]]; then
+    if [[ -n "$INST64_OPT_ROOT" && ! -d "$INST64_OPT_ROOT" && "$INST64_TARGET_REQUESTED" == 'NO' ]]; then
       "$INST64_CMD_MKDIR" "$INST64_OPT_ROOT" &&
         "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_DIR" "$INST64_OPT_ROOT" ||
         return $?
@@ -364,8 +364,8 @@ function inst64_lib_github_release_download() {
 }
 
 function inst64_lib_github_release_get_version() {
-  local max_retries=5
-  local wait_time=5
+  local max_retries=3
+  local wait_time=10
   local version=''
   version="$(inst64_lib_task_retry "$max_retries" "$wait_time" _inst64_lib_github_release_get_version)" &&
     version="${version##*:??}" &&
