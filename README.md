@@ -62,8 +62,9 @@ The selection criteria is based on the following priority list:
 
 1. `BINARY`: application is distributed as a single pre-compiled binary. For example, GO based tools.
 1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
+1. `FPAK`: applications is distributed as FlatPak package. Installation is done system-wide.
 1. `GEM`: applications is distributed as Ruby module. Installation is done user-wide.
-1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package.
+1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package. Installation is done user-wide.
 1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
 1. `NPM`: applications is distributed as NodeJS module. Installation is done user-wide.
 1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.

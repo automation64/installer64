@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers
   - APlatform64
+- Lib
+  - bl64: flatpak method
 
 ## [6.2.1]
 
