@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installers
   - APlatform64
+  - Zoom
+  - Atuin
 - Lib
-  - bl64: flatpak method
+  - bl64: flatpak method, native file package method
 
 ## [6.2.1]
 
