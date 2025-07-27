@@ -42,23 +42,19 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_NIKTO_METHOD="${INST64_NIKTO_METHOD:-CUSTOM}"
+declare INST64_APLATFORM64_METHOD="${INST64_APLATFORM64_METHOD:-CUSTOM}"
 # Installation destination
-declare INST64_NIKTO_TARGET="${INST64_NIKTO_TARGET:-}"
-# Hardware architecture
-declare INST64_NIKTO_PLATFORM="${INST64_NIKTO_PLATFORM:-}"
-# Application version
-declare INST64_NIKTO_VERSION="${INST64_NIKTO_VERSION:-latest}"
+declare INST64_APLATFORM64_TARGET="${INST64_APLATFORM64_TARGET:-/opt/ap64}"
 
-INST64_APP_NAME='nikto'
-INST64_APP_ID='NIKTO'
-INST64_APP_FULL_NAME='Nikto - Web Server Vulnerability Scanner'
-INST64_CLI_NAME='nikto.pl'
-INST64_CLI_SUBPATH='program'
+INST64_APP_NAME='aplatform64'
+INST64_APP_ID='APLATFORM64'
+INST64_APP_FULL_NAME='A:Platform64 - Ansible management platform'
+INST64_CLI_NAME='ap64'
 
-INST64_GIT_SERVER='https://github.com/sullo'
-INST64_GIT_REPO='nikto.git'
-INST64_GIT_BRANCH='master'
+INST64_WEB_REPO_URL='https://raw.githubusercontent.com'
+INST64_WEB_REPO_PATH='aplatform64/aplatform64/main'
+INST64_PKG_MAIN='ap64'
+INST64_APP_INSTALLER='ap64'
 
 #
 # Functions
@@ -69,12 +65,12 @@ function inst64_install_custom() {
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_git_get_dir ||
+    inst64_lib_web_get_file ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_target_normalize &&
-    inst64_lib_cli_normalize ||
+  inst64_lib_installer_run \
+    -i ||
     return $?
 
   inst64_lib_task_cleanup
@@ -84,7 +80,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_APLATFORM64_METHOD" == 'CUSTOM' ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -92,7 +88,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_APLATFORM64_METHOD" == 'CUSTOM' ]]; then
     inst64_install_custom
   fi
 }
@@ -100,7 +96,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_APLATFORM64_METHOD" == 'CUSTOM' ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -109,7 +105,7 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" -Version
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" -h
 }
 
 function inst64_select_method() {
@@ -118,19 +114,17 @@ function inst64_select_method() {
     'AUTO' \
     'CUSTOM' ||
     return $?
-  if [[ "$INST64_NIKTO_METHOD" == 'AUTO' ]]; then
-    INST64_NIKTO_METHOD='CUSTOM'
+  if [[ "$INST64_APLATFORM64_METHOD" == 'AUTO' ]]; then
+    INST64_APLATFORM64_METHOD='CUSTOM'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  return 0
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  return 0
 }
 
 function inst64_initialize() {
@@ -139,13 +133,12 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_APLATFORM64_METHOD" == 'CUSTOM' ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
-    bl64_check_command_search_path 'perl' &&
-      bl64_arc_setup ||
+    bl64_arc_setup ||
       return $?
   fi
 
@@ -162,7 +155,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

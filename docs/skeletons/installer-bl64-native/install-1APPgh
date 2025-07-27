@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,60 +21,59 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
 # Installation method
-declare INST64_NIKTO_METHOD="${INST64_NIKTO_METHOD:-CUSTOM}"
-# Installation destination
-declare INST64_NIKTO_TARGET="${INST64_NIKTO_TARGET:-}"
-# Hardware architecture
-declare INST64_NIKTO_PLATFORM="${INST64_NIKTO_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
 # Application version
-declare INST64_NIKTO_VERSION="${INST64_NIKTO_VERSION:-latest}"
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+# Enable development packages?
+declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
 
-INST64_APP_NAME='nikto'
-INST64_APP_ID='NIKTO'
-INST64_APP_FULL_NAME='Nikto - Web Server Vulnerability Scanner'
-INST64_CLI_NAME='nikto.pl'
-INST64_CLI_SUBPATH='program'
+# App information
+INST64_APP_NAME='X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+INST64_CLI_NAME='X_CLI_NAME_X'
 
-INST64_GIT_SERVER='https://github.com/sullo'
-INST64_GIT_REPO='nikto.git'
-INST64_GIT_BRANCH='master'
+INST64_GH_REPO_NAME='X_REPO_NAME_X'
+INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
+INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
+INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
 
 #
 # Functions
 #
 
-function inst64_install_custom() {
+function inst64_install_native() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_git_get_dir ||
+    inst64_lib_gh_get_asset ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_target_normalize &&
-    inst64_lib_cli_normalize ||
+  inst64_lib_pkg_install_file ||
     return $?
 
   inst64_lib_task_cleanup
@@ -84,53 +83,59 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
-    inst64_lib_base_create_path
-  fi
 }
 
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_custom
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    inst64_install_native
   fi
 }
 
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
-    inst64_lib_task_publish
-    inst64_lib_cli_promote
-  fi
 }
 
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" -Version
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'CUSTOM' ||
+    'NATIVE' ||
     return $?
-  if [[ "$INST64_NIKTO_METHOD" == 'AUTO' ]]; then
-    INST64_NIKTO_METHOD='CUSTOM'
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+    INST64_X_APP_NAME_CAPS_X_METHOD='NATIVE'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_LINUX_AMD64"
+    fi
+    inst64_lib_platform_check_cpu
+  fi
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
+      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
+    fi
+    inst64_lib_pkg_suffix_set || return $?
+    INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
+  fi
+  inst64_lib_package_check_definition
 }
 
 function inst64_initialize() {
@@ -139,13 +144,10 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-    bl64_check_command_search_path 'perl' &&
-      bl64_arc_setup ||
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+    bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_FEDORA" \
+        "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 
@@ -162,7 +164,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

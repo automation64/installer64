@@ -76,14 +76,14 @@
   declare INST64_WORK_PATH_STAGING=''
 
   # Application packages
-  declare INST64_PKG_MAIN=''
-  declare INST64_PKG_MAIN_PREFIX=''
-  declare INST64_PKG_MAIN_SUFFIX=''
-  declare INST64_PKG_PRE=''
-  declare INST64_PKG_POST=''
-  declare INST64_PKG_DEV=''
+  declare INST64_PKG_MAIN=''        # Main package name
+  declare INST64_PKG_MAIN_PREFIX='' # Main package name prefix
+  declare INST64_PKG_MAIN_SUFFIX='' # Main package name suffix
+  declare INST64_PKG_PRE=''         # Pre-installation package
+  declare INST64_PKG_POST=''        # Post-installation package
+  declare INST64_PKG_DEV=''         # Development package
 
-  # CPU Architecture definitions
+  # CPU Architecture names
   declare INST64_CPU_DARWIN_ARM64=''
   declare INST64_CPU_LINUX_AMD64=''
   declare INST64_CPU_LINUX_AMD64_GNU=''
@@ -95,11 +95,11 @@
   declare INST64_APP_INSTALLER=''
 
   # CLI information
-  declare INST64_CLI_NAME=''
-  declare INST64_CLI_PATH=''
-  declare INST64_CLI_SUBPATH=''
+  declare INST64_CLI_NAME=''    # CLI command
+  declare INST64_CLI_PATH=''    # Promotion CLI path
+  declare INST64_CLI_SUBPATH='' # CLI target subpath
+  declare INST64_CLI_TARGET=''  # CLI target path
   declare INST64_CLI_MODE='0755'
-  declare INST64_CLI_TARGET=''
 
   # GitHub repository information
   declare INST64_GH_REPO_OWNER=''
@@ -115,18 +115,21 @@
   declare INST64_WEB_REPO_PATH=''
 
   # OS package manager information
-  declare INST64_OS_REPO_NAME=''
-  declare INST64_OS_SOURCE_YUM=''
-  declare INST64_OS_SOURCE_APT=''
-  declare INST64_OS_REPO_KEY_YUM=''
-  declare INST64_OS_REPO_KEY_APT=''
+  declare INST64_OS_REPO_NAME=''    # OS repository name
+  declare INST64_OS_SOURCE_YUM=''   # URL for YUM repository
+  declare INST64_OS_SOURCE_APT=''   # URL for APT repository
+  declare INST64_OS_REPO_KEY_YUM='' # URL for YUM repository key
+  declare INST64_OS_REPO_KEY_APT='' # URL for APT repository key
+
+  # Flatpak package manager information
+  declare INST64_FPAK_REPO_NAME=''
 
   #
   # Internal variables
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.2.1'
+  declare INST64_LIB_VERSION_BL64='1.3.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -142,6 +145,7 @@
   declare INST64_COMMAND_PIPX=''
   declare INST64_COMMAND_NPM=''
   declare INST64_COMMAND_GUNZIP=''
+  declare INST64_COMMAND_FLATPAK=''
 
   # BashLib64 overrides
   declare BL64_API_CALL_SET_MAX_RETRIES='3'
@@ -198,7 +202,7 @@ function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
 
-  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'FPAK'|'KREW'|'BREW') ]] && return 0
 
   if [[ -z "$INST64_OPT_ROOT" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -226,7 +230,7 @@ function inst64_lib_target_set_path() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local target_basename="$INST64_APP_NAME"
 
-  if [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]]; then
+  if [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'FPAK'|'KREW'|'BREW') ]]; then
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s' \
@@ -256,13 +260,13 @@ function inst64_lib_target_set_path() {
 }
 
 #######################################
-# Sets target ownership and permissions based on INST64_SYSTEM_WIDE.
+# Sets target ownership and permissions
 #######################################
 function inst64_lib_target_set_owner() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
 
-  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'FPAK'|'KREW'|'BREW') ]] && return 0
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
@@ -274,7 +278,7 @@ function inst64_lib_target_set_owner() {
 }
 
 #######################################
-# Sets the default path for CLI symlinks (INST64_CLI_PATH).
+# Sets the default path for CLI promotion
 #######################################
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function
@@ -291,6 +295,9 @@ function inst64_lib_cli_set_path() {
     ;;
   'NPM')
     INST64_CLI_PATH="${HOME}/node_modules/.bin"
+    ;;
+  'FPAK')
+    INST64_CLI_PATH='/var/lib/flatpak/exports/bin'
     ;;
   'PIPX')
     INST64_CLI_PATH="${HOME}/.local/bin"
@@ -403,7 +410,7 @@ function inst64_lib_message_show_parameters() {
 function inst64_lib_base_create_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
-  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'FPAK'|'KREW'|'BREW') ]] && return 0
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_bsh_xdg_create "$HOME" || return $?
     if ! bl64_lib_flag_is_enabled "$INST64_TARGET_REQUESTED"; then
@@ -507,6 +514,16 @@ function inst64_lib_method_initialize() {
       return 1
     fi
     return 0
+    ;;
+  'FPAK')
+    bl64_check_privilege_root ||
+      return $?
+
+    INST64_COMMAND_FLATPAK='/usr/bin/flatpak'
+    bl64_check_command \
+      "$INST64_COMMAND_FLATPAK" \
+      'Command not found. Please install it and try again' \
+      'flatpak'
     ;;
   'KREW')
     bl64_check_privilege_not_root &&
@@ -633,6 +650,15 @@ function inst64_lib_command_run_npm() {
   bl64_dbg_app_trace_stop
 }
 
+function inst64_lib_command_run_flatpak() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_FLATPAK" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
 function inst64_lib_command_run_gunzip() {
   bl64_dbg_app_show_function "$@"
   bl64_dbg_app_trace_start
@@ -709,7 +735,7 @@ function inst64_lib_cli_promote() {
     bl64_check_parameter 'INST64_CLI_NAME' || return $?
 
   if [[ -z "$INST64_CLI_TARGET" ]]; then
-    INST64_CLI_TARGET="${!target}/${INST64_CLI_NAME}"
+    INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"
   fi
 
   bl64_dbg_app_show_comments 'create symlink for CLI'
@@ -740,7 +766,7 @@ function inst64_lib_target_create() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
   local method="INST64_${INST64_APP_ID}_METHOD"
-  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'KREW'|'BREW') ]] && return 0
+  [[ "${!method}" =~ ('NATIVE'|'PIP'|'PIPX'|'NPM'|'FPAK'|'KREW'|'BREW') ]] && return 0
   bl64_fs_dir_create \
     "$INST64_TARGET_MODE_DIR" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
     "${!target}"
@@ -823,6 +849,13 @@ function inst64_lib_target_open_tar() {
     "${INST64_OPT_ROOT}"
 }
 
+function inst64_lib_installer_run() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_APP_INSTALLER' || return $?
+  "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" "$@"
+}
+
 function inst64_lib_web_get_file() {
   bl64_dbg_app_show_function
   bl64_check_parameter 'INST64_WEB_REPO_URL' &&
@@ -834,7 +867,36 @@ function inst64_lib_web_get_file() {
     "$INST64_CLI_MODE"
 }
 
+function inst64_lib_pkg_suffix_set() {
+  bl64_dbg_app_show_function
+  case "$BL64_OS_FLAVOR" in
+  "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT") INST64_PKG_MAIN_SUFFIX='.rpm' ;;
+  "$BL64_OS_FLAVOR_DEBIAN") INST64_PKG_MAIN_SUFFIX='.deb' ;;
+  "$BL64_OS_FLAVOR_MACOS") INST64_PKG_MAIN_SUFFIX='.pkg' ;;
+  *)
+    inst64_lib_alert_incompatible_platform
+    return $?
+    ;;
+  esac
+}
+
 function inst64_lib_pkg_install() {
+  bl64_dbg_app_show_function
+  # shellcheck disable=SC2249
+  case "$BL64_OS_TYPE" in
+  "${BL64_OS_TYPE_LINUX}") inst64_lib_pkg_install_linux ;;
+  "${BL64_OS_TYPE_MACOS}") inst64_lib_pkg_install_macos ;;
+  esac
+}
+
+function inst64_lib_pkg_install_macos() {
+  bl64_dbg_app_show_function
+  bl64_pkg_run_installer \
+    -target '/' \
+    -pkg "$INST64_PKG_MAIN"
+}
+
+function inst64_lib_pkg_install_linux() {
   bl64_dbg_app_show_function
   # shellcheck disable=SC2086
   if bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
@@ -842,6 +904,12 @@ function inst64_lib_pkg_install() {
   else
     bl64_pkg_install $INST64_PKG_MAIN
   fi
+}
+
+function inst64_lib_pkg_install_file() {
+  bl64_dbg_app_show_function
+  INST64_PKG_MAIN="${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+  inst64_lib_pkg_install
 }
 
 function inst64_lib_pkg_repo_add() {
@@ -865,6 +933,9 @@ function inst64_lib_pkg_repo_add() {
 function inst64_lib_nodejs_install_npm() {
   bl64_dbg_app_show_function
 
+  bl64_check_parameter 'INST64_PKG_MAIN' ||
+    return $?
+
   bl64_msg_show_task 'deploy application'
   cd "$HOME" || return $?
   if [[ -n "$INST64_PKG_PRE" ]]; then
@@ -884,8 +955,24 @@ function inst64_lib_nodejs_install_npm() {
   return 0
 }
 
+function inst64_lib_flatpak_install() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_PKG_MAIN' &&
+    bl64_check_parameter 'INST64_FPAK_REPO_NAME' ||
+    return $?
+
+  bl64_msg_show_task 'deploy application'
+  inst64_lib_command_run_flatpak \
+    install \
+    "$INST64_FPAK_REPO_NAME" \
+    "$INST64_PKG_MAIN"
+}
+
 function inst64_lib_k8s_install_krew() {
   bl64_dbg_app_show_function
+
+  bl64_check_parameter 'INST64_PKG_MAIN' ||
+    return $?
 
   bl64_msg_show_task 'deploy application'
   # shellcheck disable=SC2086

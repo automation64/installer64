@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
+# Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,39 +42,44 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_NIKTO_METHOD="${INST64_NIKTO_METHOD:-CUSTOM}"
+declare INST64_ATUIN_METHOD="${INST64_ATUIN_METHOD:-BINARY}"
 # Installation destination
-declare INST64_NIKTO_TARGET="${INST64_NIKTO_TARGET:-}"
+declare INST64_ATUIN_TARGET="${INST64_ATUIN_TARGET:-}"
 # Hardware architecture
-declare INST64_NIKTO_PLATFORM="${INST64_NIKTO_PLATFORM:-}"
+declare INST64_ATUIN_PLATFORM="${INST64_ATUIN_PLATFORM:-}"
 # Application version
-declare INST64_NIKTO_VERSION="${INST64_NIKTO_VERSION:-latest}"
+declare INST64_ATUIN_VERSION="${INST64_ATUIN_VERSION:-latest}"
 
-INST64_APP_NAME='nikto'
-INST64_APP_ID='NIKTO'
-INST64_APP_FULL_NAME='Nikto - Web Server Vulnerability Scanner'
-INST64_CLI_NAME='nikto.pl'
-INST64_CLI_SUBPATH='program'
+INST64_APP_NAME='atuin'
+INST64_APP_ID='ATUIN'
+INST64_APP_FULL_NAME='ATuin - Command Line History Manager'
+INST64_CLI_NAME='atuin'
 
-INST64_GIT_SERVER='https://github.com/sullo'
-INST64_GIT_REPO='nikto.git'
-INST64_GIT_BRANCH='master'
+INST64_GH_REPO_NAME='atuin'
+INST64_GH_REPO_OWNER='atuinsh'
+INST64_PKG_MAIN_PREFIX='atuin-'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='aarch64-apple-darwin'
+INST64_CPU_LINUX_AMD64_GNU='x86_64-unknown-linux-gnu'
+INST64_CPU_LINUX_AMD64_MUSL='x86_64-unknown-linux-musl'
 
 #
 # Functions
 #
 
-function inst64_install_custom() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
 
+  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_ATUIN_PLATFORM}/${INST64_CLI_NAME}"
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_git_get_dir ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_target_normalize &&
-    inst64_lib_cli_normalize ||
+  inst64_lib_target_create &&
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -84,7 +89,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_ATUIN_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -92,15 +97,15 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_custom
+  if [[ "$INST64_ATUIN_METHOD" == 'BINARY' ]]; then
+    inst64_install_binary
   fi
 }
 
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_ATUIN_METHOD" == 'BINARY' ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -109,28 +114,55 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" -Version
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_ATUIN_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'CUSTOM' ||
+    'BINARY' ||
     return $?
-  if [[ "$INST64_NIKTO_METHOD" == 'AUTO' ]]; then
-    INST64_NIKTO_METHOD='CUSTOM'
+  if [[ "$INST64_ATUIN_METHOD" == 'AUTO' ]]; then
+    INST64_ATUIN_METHOD='BINARY'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  return 0
+  if [[ "$INST64_ATUIN_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_ATUIN_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_ATUIN_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        # shellcheck disable=SC2249
+        case "$BL64_OS_FLAVOR" in
+        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+          INST64_ATUIN_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+          ;;
+        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+          INST64_ATUIN_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+          ;;
+        esac
+      fi
+    fi
+    inst64_lib_platform_check_cpu
+  fi
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  return 0
+  if [[ "$INST64_ATUIN_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_ATUIN_VERSION" == 'latest' ]]; then
+      INST64_ATUIN_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ATUIN_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+  fi
+  inst64_lib_package_check_definition
 }
 
 function inst64_initialize() {
@@ -138,16 +170,6 @@ function inst64_initialize() {
   inst64_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_NIKTO_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
-    bl64_check_command_search_path 'perl' &&
-      bl64_arc_setup ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&
@@ -162,7 +184,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
