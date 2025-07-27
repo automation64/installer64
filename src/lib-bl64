@@ -76,14 +76,14 @@
   declare INST64_WORK_PATH_STAGING=''
 
   # Application packages
-  declare INST64_PKG_MAIN=''
-  declare INST64_PKG_MAIN_PREFIX=''
-  declare INST64_PKG_MAIN_SUFFIX=''
-  declare INST64_PKG_PRE=''
-  declare INST64_PKG_POST=''
-  declare INST64_PKG_DEV=''
+  declare INST64_PKG_MAIN=''        # Main package name
+  declare INST64_PKG_MAIN_PREFIX='' # Main package name prefix
+  declare INST64_PKG_MAIN_SUFFIX='' # Main package name suffix
+  declare INST64_PKG_PRE=''         # Pre-installation package
+  declare INST64_PKG_POST=''        # Post-installation package
+  declare INST64_PKG_DEV=''         # Development package
 
-  # CPU Architecture definitions
+  # CPU Architecture names
   declare INST64_CPU_DARWIN_ARM64=''
   declare INST64_CPU_LINUX_AMD64=''
   declare INST64_CPU_LINUX_AMD64_GNU=''
@@ -115,11 +115,11 @@
   declare INST64_WEB_REPO_PATH=''
 
   # OS package manager information
-  declare INST64_OS_REPO_NAME=''
-  declare INST64_OS_SOURCE_YUM=''
-  declare INST64_OS_SOURCE_APT=''
-  declare INST64_OS_REPO_KEY_YUM=''
-  declare INST64_OS_REPO_KEY_APT=''
+  declare INST64_OS_REPO_NAME=''    # OS repository name
+  declare INST64_OS_SOURCE_YUM=''   # URL for YUM repository
+  declare INST64_OS_SOURCE_APT=''   # URL for APT repository
+  declare INST64_OS_REPO_KEY_YUM='' # URL for YUM repository key
+  declare INST64_OS_REPO_KEY_APT='' # URL for APT repository key
 
   # Flatpak package manager information
   declare INST64_FPAK_REPO_NAME=''
@@ -867,7 +867,36 @@ function inst64_lib_web_get_file() {
     "$INST64_CLI_MODE"
 }
 
+function inst64_lib_pkg_suffix_set() {
+  bl64_dbg_app_show_function
+  case "$BL64_OS_FLAVOR" in
+  "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT") INST64_PKG_MAIN_SUFFIX='.rpm' ;;
+  "$BL64_OS_FLAVOR_DEBIAN") INST64_PKG_MAIN_SUFFIX='.deb' ;;
+  "$BL64_OS_FLAVOR_MACOS") INST64_PKG_MAIN_SUFFIX='.pkg' ;;
+  *)
+    inst64_lib_alert_incompatible_platform
+    return $?
+    ;;
+  esac
+}
+
 function inst64_lib_pkg_install() {
+  bl64_dbg_app_show_function
+  # shellcheck disable=SC2249
+  case "$BL64_OS_TYPE" in
+  "${BL64_OS_TYPE_LINUX}") inst64_lib_pkg_install_linux ;;
+  "${BL64_OS_TYPE_MACOS}") inst64_lib_pkg_install_macos ;;
+  esac
+}
+
+function inst64_lib_pkg_install_macos() {
+  bl64_dbg_app_show_function
+  bl64_pkg_run_installer \
+    -target '/' \
+    -pkg "$INST64_PKG_MAIN"
+}
+
+function inst64_lib_pkg_install_linux() {
   bl64_dbg_app_show_function
   # shellcheck disable=SC2086
   if bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
@@ -875,6 +904,12 @@ function inst64_lib_pkg_install() {
   else
     bl64_pkg_install $INST64_PKG_MAIN
   fi
+}
+
+function inst64_lib_pkg_install_file() {
+  bl64_dbg_app_show_function
+  INST64_PKG_MAIN="${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+  inst64_lib_pkg_install
 }
 
 function inst64_lib_pkg_repo_add() {
