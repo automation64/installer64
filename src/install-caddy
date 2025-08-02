@@ -42,25 +42,25 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_ZOHOVAULT_METHOD="${INST64_ZOHOVAULT_METHOD:-BINARY}"
+declare INST64_CADDY_METHOD="${INST64_CADDY_METHOD:-BINARY}"
 # Installation destination
-declare INST64_ZOHOVAULT_TARGET="${INST64_ZOHOVAULT_TARGET:-}"
+declare INST64_CADDY_TARGET="${INST64_CADDY_TARGET:-}"
 # Hardware architecture
-declare INST64_ZOHOVAULT_PLATFORM="${INST64_ZOHOVAULT_PLATFORM:-}"
+declare INST64_CADDY_PLATFORM="${INST64_CADDY_PLATFORM:-}"
 # Application version
-declare INST64_ZOHOVAULT_VERSION="${INST64_ZOHOVAULT_VERSION:-latest}"
+declare INST64_CADDY_VERSION="${INST64_CADDY_VERSION:-latest}"
 
-INST64_APP_NAME='zohovault'
-INST64_APP_ID='ZOHOVAULT'
-INST64_APP_FULL_NAME='ZohoVault - Zoho Vault CLI'
-INST64_CLI_NAME='zv'
+INST64_APP_NAME='caddy'
+INST64_APP_ID='CADDY'
+INST64_APP_FULL_NAME='Caddy - The Ultimate HTTP/2 Web Server'
+INST64_CLI_NAME='caddy'
 
-INST64_WEB_REPO_URL='https://downloads.zohocdn.com'
-INST64_WEB_REPO_PATH='vault-cli-desktop'
-INST64_PKG_MAIN_PREFIX='zv_cli'
-INST64_PKG_MAIN_SUFFIX='.zip'
-INST64_CPU_DARWIN_ARM64='macos'
-INST64_CPU_LINUX_AMD64='linux'
+INST64_GH_REPO_NAME='caddy'
+INST64_GH_REPO_OWNER='caddyserver'
+INST64_PKG_MAIN_PREFIX='caddy_'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='mac_arm64'
+INST64_CPU_LINUX_AMD64='linux_amd64'
 
 #
 # Functions
@@ -71,8 +71,8 @@ function inst64_install_binary() {
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file &&
-    inst64_lib_staging_open_zip ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
@@ -87,7 +87,7 @@ function inst64_install_binary() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CADDY_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -95,7 +95,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CADDY_METHOD" == 'BINARY' ]]; then
     inst64_install_binary
   fi
 }
@@ -103,7 +103,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CADDY_METHOD" == 'BINARY' ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -112,9 +112,8 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  cd "$HOME" &&
-    "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_CADDY_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -125,19 +124,19 @@ function inst64_select_method() {
     'AUTO' \
     'BINARY' ||
     return $?
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'AUTO' ]]; then
-    INST64_ZOHOVAULT_METHOD='BINARY'
+  if [[ "$INST64_CADDY_METHOD" == 'AUTO' ]]; then
+    INST64_CADDY_METHOD='BINARY'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
-    if [[ -z "$INST64_ZOHOVAULT_PLATFORM" ]]; then
+  if [[ "$INST64_CADDY_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_CADDY_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_ZOHOVAULT_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+        INST64_CADDY_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_ZOHOVAULT_PLATFORM="$INST64_CPU_LINUX_AMD64"
+        INST64_CADDY_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
     fi
     inst64_lib_platform_check_cpu
@@ -146,26 +145,21 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
-    INST64_WEB_REPO_PATH+="/${INST64_ZOHOVAULT_PLATFORM}"
+  if [[ "$INST64_CADDY_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_CADDY_VERSION" == 'latest' ]]; then
+      INST64_CADDY_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_CADDY_VERSION#v}_${INST64_CADDY_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
-
+2.10.0_linux_amd64
 function inst64_initialize() {
   bl64_dbg_app_show_function
   inst64_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
-
-    bl64_os_check_not_version \
-      "${BL64_OS_UB}-24" \
-      "${BL64_OS_UB}-25" ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&
@@ -180,7 +174,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
