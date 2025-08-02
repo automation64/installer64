@@ -129,7 +129,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.3.0'
+  declare INST64_LIB_VERSION_BL64='1.4.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -465,7 +465,7 @@ function inst64_lib_method_initialize() {
   # shellcheck disable=SC2249
   case "${!method}" in
   'CUSTOM')
-    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED="$BL64_VAR_OFF"
+    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
     return 0
     ;;
   'PIP')
@@ -479,7 +479,7 @@ function inst64_lib_method_initialize() {
       bl64_pkg_setup
     ;;
   'BINARY')
-    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED="$BL64_VAR_OFF"
+    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
@@ -683,8 +683,8 @@ function inst64_lib_platform_check_cpu() {
 function inst64_lib_app_check_mode_user() {
   bl64_dbg_app_show_function
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_msg_show_error 'system wide installation is not supported (INST64_SYSTEM_WIDE)'
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
+    bl64_msg_show_warning 'app can only be installed user-wide. Adjusting INST64_SYSTEM_WIDE to "NO"'
+    INST64_SYSTEM_WIDE='NO'
   fi
   return 0
 }
