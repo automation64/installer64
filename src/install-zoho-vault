@@ -112,7 +112,7 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  cd $HOME &&
+  cd "$HOME" &&
     "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
   if [[ "$INST64_ZOHOVAULT_METHOD" == 'BINARY' ]]; then
     inst64_lib_app_register_version
