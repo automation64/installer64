@@ -72,8 +72,8 @@
   declare INST64_TARGET_MODE_FILE='0644'
 
   # Work paths
-  declare INST64_WORK_PATH_SOURCE=''
-  declare INST64_WORK_PATH_STAGING=''
+  declare INST64_WORK_PATH_SOURCE=''  # Optional. Temporary file name. Default: INST64_CLI_NAME
+  declare INST64_WORK_PATH_STAGING='' # Staging area for temporal files before installation
 
   # Application packages
   declare INST64_PKG_MAIN=''        # Main package name
@@ -95,10 +95,11 @@
   declare INST64_APP_INSTALLER=''
 
   # CLI information
-  declare INST64_CLI_NAME=''    # CLI command
-  declare INST64_CLI_PATH=''    # Promotion CLI path
-  declare INST64_CLI_SUBPATH='' # CLI target subpath
-  declare INST64_CLI_TARGET=''  # CLI target path
+  declare INST64_CLI_NAME=''    # CLI command to publish
+  declare INST64_CLI_SOURCE=''  # Optional. Source CLI name, before published
+  declare INST64_CLI_PATH=''    # Optional. Promotion CLI path
+  declare INST64_CLI_SUBPATH='' # Optional. CLI target subpath
+  declare INST64_CLI_TARGET=''  # Optional. CLI target path
   declare INST64_CLI_MODE='0755'
 
   # GitHub repository information
@@ -111,8 +112,10 @@
   declare INST64_GIT_BRANCH=''
 
   # Generic Web repository information
-  declare INST64_WEB_REPO_URL=''
-  declare INST64_WEB_REPO_PATH=''
+  declare INST64_WEB_REPO_URL=''    # URL from where to download the file from
+  declare INST64_WEB_REPO_PATH=''   # Optional. path to the file (w/o file name)
+  declare INST64_WEB_FILE_SOURCE='' # Custom source ile name. Default: uses INST64_PKG_MAIN
+  declare INST64_WEB_FILE_TARGET='' # Custom target file name. Default: uses INST64_PKG_MAIN
 
   # OS package manager information
   declare INST64_OS_REPO_NAME=''    # OS repository name
@@ -129,7 +132,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.4.0'
+  declare INST64_LIB_VERSION_BL64='1.5.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -735,7 +738,7 @@ function inst64_lib_cli_promote() {
     bl64_check_parameter 'INST64_CLI_NAME' || return $?
 
   if [[ -z "$INST64_CLI_TARGET" ]]; then
-    INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"
+    INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_SOURCE:-$INST64_CLI_NAME}"
   fi
 
   bl64_dbg_app_show_comments 'create symlink for CLI'
@@ -861,8 +864,8 @@ function inst64_lib_web_get_file() {
   bl64_check_parameter 'INST64_WEB_REPO_URL' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
   bl64_rxtx_web_get_file \
-    "${INST64_WEB_REPO_URL}/${INST64_WEB_REPO_PATH}${INST64_WEB_REPO_PATH:+/}${INST64_PKG_MAIN}" \
-    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+    "${INST64_WEB_REPO_URL}/${INST64_WEB_REPO_PATH}${INST64_WEB_REPO_PATH:+/}${INST64_WEB_FILE_SOURCE:-$INST64_PKG_MAIN}" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_WEB_FILE_TARGET:-$INST64_PKG_MAIN}" \
     'YES' \
     "$INST64_CLI_MODE"
 }
