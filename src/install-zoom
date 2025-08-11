@@ -55,7 +55,6 @@ INST64_CLI_NAME='zoom'
 
 INST64_WEB_REPO_URL='https://zoom.us'
 INST64_WEB_REPO_PATH='client'
-INST64_CPU_LINUX_AMD64='x86_64'
 INST64_PKG_MAIN_PREFIX='zoom_'
 
 #
@@ -98,7 +97,6 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
 function inst64_select_method() {
@@ -116,7 +114,14 @@ function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      INST64_ZOOM_PLATFORM="$INST64_CPU_LINUX_AMD64"
+        case "$BL64_OS_FLAVOR" in
+        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+          INST64_ZOOM_PLATFORM='amd64'
+          ;;
+        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+          INST64_ZOOM_PLATFORM='x86_64'
+          ;;
+        esac
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -140,6 +145,7 @@ function inst64_initialize() {
 
   if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
     bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
@@ -158,7 +164,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
