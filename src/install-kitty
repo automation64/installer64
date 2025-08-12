@@ -57,9 +57,10 @@ INST64_CLI_NAME='kitty'
 
 INST64_GH_REPO_NAME='kitty'
 INST64_GH_REPO_OWNER='kovidgoyal'
-INST64_PKG_MAIN_PREFIX='kitten-'
-INST64_CPU_DARWIN_ARM64='darwin-arm64'
-INST64_CPU_LINUX_AMD64='linux-amd64'
+INST64_PKG_MAIN_PREFIX='kitty-'
+INST64_PKG_MAIN_SUFFIX='.txz'
+INST64_CPU_LINUX_AMD64='x86_64'
+INST64_CLI_SUBPATH='bin'
 
 #
 # Functions
@@ -68,15 +69,17 @@ INST64_CPU_LINUX_AMD64='linux-amd64'
 function inst64_install_binary() {
   bl64_dbg_app_show_function
 
-  INST64_WORK_PATH_SOURCE="$INST64_PKG_MAIN"
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_gh_get_asset ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
   inst64_lib_target_create &&
-    inst64_lib_target_populate ||
+    INST64_WORK_PATH_SOURCE='bin' inst64_lib_target_populate &&
+    INST64_WORK_PATH_SOURCE='lib' inst64_lib_target_populate &&
+    INST64_WORK_PATH_SOURCE='share' inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -132,9 +135,7 @@ function inst64_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KITTY_METHOD" == 'BINARY' ]]; then
     if [[ -z "$INST64_KITTY_PLATFORM" ]]; then
-      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_KITTY_PLATFORM="$INST64_CPU_DARWIN_ARM64"
-      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_KITTY_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
     fi
@@ -149,8 +150,7 @@ function inst64_select_packages() {
       INST64_KITTY_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KITTY_PLATFORM}"
-    INST64_CLI_SOURCE="$INST64_PKG_MAIN"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KITTY_VERSION#v}-${INST64_KITTY_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
