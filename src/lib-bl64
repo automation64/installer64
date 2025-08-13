@@ -168,32 +168,32 @@ function inst64_lib_base_set_system_wide() {
   local app_wide="INST64_${INST64_APP_ID}_SYSTEM_WIDE"
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     case "${!method}" in
-    'PIP' | 'PIPX')
-      INST64_SYSTEM_WIDE='NO'
-      ;;
-    'KREW')
-      INST64_SYSTEM_WIDE='NO'
-      ;;
-    'BREW')
-      INST64_SYSTEM_WIDE='NO'
-      ;;
-    'NPM')
-      INST64_SYSTEM_WIDE='NO'
-      ;;
-    'NATIVE')
-      INST64_SYSTEM_WIDE='YES'
-      ;;
-    *)
-      if [[ -v "$app_wide" && -n "${!app_wide}" ]]; then
-        INST64_SYSTEM_WIDE="${!app_wide}"
-        return 0
-      fi
-      if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
-        INST64_SYSTEM_WIDE='YES'
-      else
+      'PIP' | 'PIPX')
         INST64_SYSTEM_WIDE='NO'
-      fi
-      ;;
+        ;;
+      'KREW')
+        INST64_SYSTEM_WIDE='NO'
+        ;;
+      'BREW')
+        INST64_SYSTEM_WIDE='NO'
+        ;;
+      'NPM')
+        INST64_SYSTEM_WIDE='NO'
+        ;;
+      'NATIVE')
+        INST64_SYSTEM_WIDE='YES'
+        ;;
+      *)
+        if [[ -v "$app_wide" && -n "${!app_wide}" ]]; then
+          INST64_SYSTEM_WIDE="${!app_wide}"
+          return 0
+        fi
+        if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
+          INST64_SYSTEM_WIDE='YES'
+        else
+          INST64_SYSTEM_WIDE='NO'
+        fi
+        ;;
     esac
   fi
 }
@@ -290,34 +290,34 @@ function inst64_lib_cli_set_path() {
   [[ -n "$INST64_CLI_PATH" ]] && return 0
   # shellcheck disable=SC2249
   case "${!method}" in
-  'KREW')
-    INST64_CLI_PATH="${HOME}/.krew/bin"
-    ;;
-  'BREW')
-    INST64_CLI_PATH="${BL64_PKG_PATH_BREW_HOME}/bin"
-    ;;
-  'NPM')
-    INST64_CLI_PATH="${HOME}/node_modules/.bin"
-    ;;
-  'FPAK')
-    INST64_CLI_PATH='/var/lib/flatpak/exports/bin'
-    ;;
-  'PIPX')
-    INST64_CLI_PATH="${HOME}/.local/bin"
-    ;;
-  'PIP')
-    INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}"
-    ;;
-  'NATIVE')
-    INST64_CLI_PATH='/usr/bin'
-    ;;
-  'BINARY' | 'CUSTOM')
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      INST64_CLI_PATH="${INST64_LOCAL_BIN}"
-    else
-      INST64_CLI_PATH="${INST64_USER_BIN}"
-    fi
-    ;;
+    'KREW')
+      INST64_CLI_PATH="${HOME}/.krew/bin"
+      ;;
+    'BREW')
+      INST64_CLI_PATH="${BL64_PKG_PATH_BREW_HOME}/bin"
+      ;;
+    'NPM')
+      INST64_CLI_PATH="${HOME}/node_modules/.bin"
+      ;;
+    'FPAK')
+      INST64_CLI_PATH='/var/lib/flatpak/exports/bin'
+      ;;
+    'PIPX')
+      INST64_CLI_PATH="${HOME}/.local/bin"
+      ;;
+    'PIP')
+      INST64_CLI_PATH="${BL64_PY_PATH_PIP_USR_BIN}"
+      ;;
+    'NATIVE')
+      INST64_CLI_PATH='/usr/bin'
+      ;;
+    'BINARY' | 'CUSTOM')
+      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+        INST64_CLI_PATH="${INST64_LOCAL_BIN}"
+      else
+        INST64_CLI_PATH="${INST64_USER_BIN}"
+      fi
+      ;;
   esac
 }
 
@@ -467,75 +467,75 @@ function inst64_lib_method_initialize() {
 
   # shellcheck disable=SC2249
   case "${!method}" in
-  'CUSTOM')
-    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
-    return 0
-    ;;
-  'PIP')
-    bl64_check_privilege_not_root &&
-      bl64_py_setup
-    ;;
-  'NATIVE')
-    [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
-    bl64_check_privilege_root &&
-      bl64_cryp_setup &&
-      bl64_pkg_setup
-    ;;
-  'BINARY')
-    [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    'CUSTOM')
+      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      return 0
+      ;;
+    'PIP')
+      bl64_check_privilege_not_root &&
+        bl64_py_setup
+      ;;
+    'NATIVE')
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
+      bl64_check_privilege_root &&
+        bl64_cryp_setup &&
+        bl64_pkg_setup
+      ;;
+    'BINARY')
+      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+        bl64_check_privilege_root ||
+          return $?
+      fi
+      bl64_arc_setup
+      ;;
+    'PIPX')
+      bl64_check_privilege_not_root &&
+        bl64_py_setup ||
+        return $?
+
+      INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
+      if [[ -z "$INST64_COMMAND_PIPX" ]]; then
+        bl64_msg_show_error 'pipx command not found. Please install it and try again'
+        return 1
+      fi
+      return 0
+      ;;
+    'BREW')
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
+      bl64_check_privilege_root &&
+        bl64_cryp_setup &&
+        bl64_pkg_setup
+      ;;
+    'NPM')
+      bl64_check_privilege_not_root ||
+        return $?
+
+      INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
+      if [[ -z "$INST64_COMMAND_NPM" ]]; then
+        bl64_msg_show_error 'npm command not found. Please install it and try again'
+        return 1
+      fi
+      return 0
+      ;;
+    'FPAK')
       bl64_check_privilege_root ||
         return $?
-    fi
-    bl64_arc_setup
-    ;;
-  'PIPX')
-    bl64_check_privilege_not_root &&
-      bl64_py_setup ||
-      return $?
 
-    INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
-    if [[ -z "$INST64_COMMAND_PIPX" ]]; then
-      bl64_msg_show_error 'pipx command not found. Please install it and try again'
-      return 1
-    fi
-    return 0
-    ;;
-  'BREW')
-    [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
-    bl64_check_privilege_root &&
-      bl64_cryp_setup &&
-      bl64_pkg_setup
-    ;;
-  'NPM')
-    bl64_check_privilege_not_root ||
-      return $?
-
-    INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
-    if [[ -z "$INST64_COMMAND_NPM" ]]; then
-      bl64_msg_show_error 'npm command not found. Please install it and try again'
-      return 1
-    fi
-    return 0
-    ;;
-  'FPAK')
-    bl64_check_privilege_root ||
-      return $?
-
-    INST64_COMMAND_FLATPAK='/usr/bin/flatpak'
-    bl64_check_command \
-      "$INST64_COMMAND_FLATPAK" \
-      'Command not found. Please install it and try again' \
-      'flatpak'
-    ;;
-  'KREW')
-    bl64_check_privilege_not_root &&
-      bl64_k8s_setup &&
+      INST64_COMMAND_FLATPAK='/usr/bin/flatpak'
       bl64_check_command \
-        "${HOME}/.krew/bin/kubectl-krew" \
+        "$INST64_COMMAND_FLATPAK" \
         'Command not found. Please install it and try again' \
-        'krew'
-    ;;
+        'flatpak'
+      ;;
+    'KREW')
+      bl64_check_privilege_not_root &&
+        bl64_k8s_setup &&
+        bl64_check_command \
+          "${HOME}/.krew/bin/kubectl-krew" \
+          'Command not found. Please install it and try again' \
+          'krew'
+      ;;
   esac
 }
 
@@ -873,13 +873,13 @@ function inst64_lib_web_get_file() {
 function inst64_lib_pkg_suffix_set() {
   bl64_dbg_app_show_function
   case "$BL64_OS_FLAVOR" in
-  "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT") INST64_PKG_MAIN_SUFFIX='.rpm' ;;
-  "$BL64_OS_FLAVOR_DEBIAN") INST64_PKG_MAIN_SUFFIX='.deb' ;;
-  "$BL64_OS_FLAVOR_MACOS") INST64_PKG_MAIN_SUFFIX='.pkg' ;;
-  *)
-    inst64_lib_alert_incompatible_platform
-    return $?
-    ;;
+    "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT") INST64_PKG_MAIN_SUFFIX='.rpm' ;;
+    "$BL64_OS_FLAVOR_DEBIAN") INST64_PKG_MAIN_SUFFIX='.deb' ;;
+    "$BL64_OS_FLAVOR_MACOS") INST64_PKG_MAIN_SUFFIX='.pkg' ;;
+    *)
+      inst64_lib_alert_incompatible_platform
+      return $?
+      ;;
   esac
 }
 
@@ -887,8 +887,8 @@ function inst64_lib_pkg_install() {
   bl64_dbg_app_show_function
   # shellcheck disable=SC2249
   case "$BL64_OS_TYPE" in
-  "${BL64_OS_TYPE_LINUX}") inst64_lib_pkg_install_linux ;;
-  "${BL64_OS_TYPE_MACOS}") inst64_lib_pkg_install_macos ;;
+    "${BL64_OS_TYPE_LINUX}") inst64_lib_pkg_install_linux ;;
+    "${BL64_OS_TYPE_MACOS}") inst64_lib_pkg_install_macos ;;
   esac
 }
 
