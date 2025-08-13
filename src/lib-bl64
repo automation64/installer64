@@ -73,7 +73,6 @@
 
   # Work paths
   declare INST64_WORK_PATH_SOURCE=''  # Optional. Temporary file name. Default: INST64_CLI_NAME
-  declare INST64_WORK_PATH_STAGING='' # Staging area for temporal files before installation
 
   # Application packages
   declare INST64_PKG_MAIN=''        # Main package name
@@ -143,6 +142,9 @@
 
   # Target management
   declare INST64_TARGET_REQUESTED='NO'
+
+  # Staging area for temporal files before installation
+  declare INST64_WORK_PATH_STAGING=''
 
   # External commands
   declare INST64_COMMAND_PIPX=''
