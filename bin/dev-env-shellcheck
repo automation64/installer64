@@ -21,22 +21,22 @@
 
 # shellcheck disable=SC2154
 {
-    # Env / ShellCheck / Container Registry for tools
-    export DEV_ENV_SHELLCHECK_REGISTRY="${DEV_ENV_SHELLCHECK_REGISTRY:-ghcr.io/automation64}"
-    # Env / ShellCheck / Container path for project mounts
-    export DEV_ENV_SHELLCHECK_CONTAINER_PATH_ROOT='/project'
-    # Lib / ShellCheck / Installer
-    export DEV_LIB_SHELLCHECK_INSTALLER="${DEV_LIB_INSTALLER64_TARGET}/install-shellcheck"
-    # Lib / ShellCheck / Target
-    export DEV_LIB_SHELLCHECK_TARGET="${DEV_LIB_SHELLCHECK_TARGET:-${DEV_PATH_LIB}/shellcheck}"
-    # Lib / ShellCheck / Configuration
-    export DEV_LIB_SHELLCHECK_CFG='.shellcheckrc'
-    # Lint / ShellCheck / Target
-    export DEV_LINT_SHELLCHECK_TARGET="${DEV_LINT_SHELLCHECK_TARGET:-${DEV_BASE_SRC}}"
-    # Lint / ShellCheck / Container with linting tool
-    export DEV_LINT_SHELLCHECK_CONTAINER="${DEV_LINT_SHELLCHECK_CONTAINER:-shell-lint/alpine-3-shell-lint}"
-    # Lint / ShellCheck / Container entrypoint
-    export DEV_LINT_SHELLCHECK_CONTAINER_ENTRYPOINT="${DEV_LINT_SHELLCHECK_CONTAINER_ENTRYPOINT:-/usr/local/bin/shellcheck}"
+  # Env / ShellCheck / Container Registry for tools
+  export DEV_ENV_SHELLCHECK_REGISTRY="${DEV_ENV_SHELLCHECK_REGISTRY:-ghcr.io/automation64}"
+  # Env / ShellCheck / Container path for project mounts
+  export DEV_ENV_SHELLCHECK_CONTAINER_PATH_ROOT='/project'
+  # Lib / ShellCheck / Installer
+  export DEV_LIB_SHELLCHECK_INSTALLER="${DEV_LIB_INSTALLER64_TARGET}/install-shellcheck"
+  # Lib / ShellCheck / Target
+  export DEV_LIB_SHELLCHECK_TARGET="${DEV_LIB_SHELLCHECK_TARGET:-${DEV_PATH_LIB}/shellcheck}"
+  # Lib / ShellCheck / Configuration
+  export DEV_LIB_SHELLCHECK_CFG='.shellcheckrc'
+  # Lint / ShellCheck / Target
+  export DEV_LINT_SHELLCHECK_TARGET="${DEV_LINT_SHELLCHECK_TARGET:-${DEV_BASE_SRC}}"
+  # Lint / ShellCheck / Container with linting tool
+  export DEV_LINT_SHELLCHECK_CONTAINER="${DEV_LINT_SHELLCHECK_CONTAINER:-shell-lint/alpine-3-shell-lint}"
+  # Lint / ShellCheck / Container entrypoint
+  export DEV_LINT_SHELLCHECK_CONTAINER_ENTRYPOINT="${DEV_LINT_SHELLCHECK_CONTAINER_ENTRYPOINT:-/usr/local/bin/shellcheck}"
 }
 
 #
@@ -47,8 +47,8 @@
 
 # shellcheck disable=SC2154
 {
-    # Lib / ShellCheck / Command
-    export DEV_LIB_SHELLCHECK_BIN="${DEV_LIB_SHELLCHECK_BIN:-${DEV_LIB_SHELLCHECK_TARGET}/shellcheck}"
+  # Lib / ShellCheck / Command
+  export DEV_LIB_SHELLCHECK_BIN="${DEV_LIB_SHELLCHECK_BIN:-${DEV_LIB_SHELLCHECK_TARGET}/shellcheck}"
 }
 
 #
