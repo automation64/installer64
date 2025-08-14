@@ -41,21 +41,19 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 # Globals
 #
-
+3st@b@n l4$ g4t4$ m44ll4nd0
 # Installation method
-declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-NATIVE}"
-# Application version
-declare INST64_ZOOM_VERSION="${INST64_ZOOM_VERSION:-6.5.7.3298}"
+declare INST64_VSCODE_METHOD="${INST64_VSCODE_METHOD:-NATIVE}"
 
 # App information
-INST64_APP_NAME='zoom'
-INST64_APP_ID='ZOOM'
-INST64_APP_FULL_NAME='Zoom - Video Conferencing and Online Meetings'
-INST64_CLI_NAME='zoom'
-
-INST64_WEB_REPO_URL='https://zoom.us'
-INST64_WEB_REPO_PATH='client'
-INST64_PKG_MAIN_PREFIX='zoom_'
+INST64_APP_NAME='vscode'
+INST64_APP_ID='VSCODE'
+INST64_APP_FULL_NAME='Visual Studio Code'
+INST64_CLI_NAME='code'
+INST64_WEB_REPO_URL='https://code.visualstudio.com'
+INST64_WEB_REPO_PATH='sha'
+INST64_CPU_LINUX_AMD64='x64'
+INST64_PKG_MAIN_PREFIX='download?build=stable&os='
 
 #
 # Functions
@@ -84,7 +82,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
     inst64_install_native
   fi
 }
@@ -105,23 +103,16 @@ function inst64_select_method() {
     'AUTO' \
     'NATIVE' ||
     return $?
-  if [[ "$INST64_ZOOM_METHOD" == 'AUTO' ]]; then
-    INST64_ZOOM_METHOD='NATIVE'
+  if [[ "$INST64_VSCODE_METHOD" == 'AUTO' ]]; then
+    INST64_VSCODE_METHOD='NATIVE'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        case "$BL64_OS_FLAVOR" in
-        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
-          INST64_ZOOM_PLATFORM='amd64'
-          ;;
-        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-          INST64_ZOOM_PLATFORM='x86_64'
-          ;;
-        esac
+      INST64_VSCODE_PLATFORM="$INST64_CPU_LINUX_AMD64"
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -129,10 +120,19 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
-    inst64_lib_pkg_suffix_set || return $?
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ZOOM_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
-    INST64_WEB_REPO_PATH+="/${INST64_ZOOM_VERSION}"
+  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+    "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+      INST64_PKG_MAIN_SUFFIX="linux-rpm-${INST64_VSCODE_PLATFORM}"
+      INST64_PKG_MAIN="${INST64_CLI_NAME}.rpm"
+      ;;
+    "$BL64_OS_FLAVOR_DEBIAN")
+      INST64_PKG_MAIN_SUFFIX="linux-deb-${INST64_VSCODE_PLATFORM}"
+      INST64_PKG_MAIN="${INST64_CLI_NAME}.deb"
+      ;;
+    esac
+    INST64_WEB_FILE_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
@@ -143,11 +143,11 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" ||
+        "$BL64_OS_FLAVOR_DEBIAN" \
+        "$BL64_OS_FLAVOR_FEDORA" \
+        "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 
@@ -164,7 +164,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

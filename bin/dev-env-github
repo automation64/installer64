@@ -21,12 +21,12 @@
 
 # shellcheck disable=SC2154
 {
-    # Release / GitHub / Repository Owner
-    export DEV_RELEASE_GITHUB_REPO_OWNER="${DEV_RELEASE_GITHUB_REPO_OWNER:-}"
-    # Release / GitHub / Repository Name
-    export DEV_RELEASE_GITHUB_REPO_NAME="${DEV_RELEASE_GITHUB_REPO_NAME:-}"
-    # Release / GitHub / Artifact path
-    export DEV_RELEASE_GITHUB_ARTIFACT="${DEV_RELEASE_GITHUB_ARTIFACT:-}"
+  # Release / GitHub / Repository Owner
+  export DEV_RELEASE_GITHUB_REPO_OWNER="${DEV_RELEASE_GITHUB_REPO_OWNER:-}"
+  # Release / GitHub / Repository Name
+  export DEV_RELEASE_GITHUB_REPO_NAME="${DEV_RELEASE_GITHUB_REPO_NAME:-}"
+  # Release / GitHub / Artifact path
+  export DEV_RELEASE_GITHUB_ARTIFACT="${DEV_RELEASE_GITHUB_ARTIFACT:-}"
 }
 
 #
@@ -37,8 +37,8 @@
 
 # shellcheck disable=SC2154
 {
-    # Lib / GitHub / Command
-    export DEV_LIB_GITHUB_BIN="${DEV_LIB_GITHUB_BIN:-/usr/bin/gh}"
+  # Lib / GitHub / Command
+  export DEV_LIB_GITHUB_BIN="${DEV_LIB_GITHUB_BIN:-/usr/bin/gh}"
 }
 
 #

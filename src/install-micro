@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,55 +21,63 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 #
 # Globals
 #
 
 # Installation method
-declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-NATIVE}"
+declare INST64_MICRO_METHOD="${INST64_MICRO_METHOD:-BINARY}"
+# Installation destination
+declare INST64_MICRO_TARGET="${INST64_MICRO_TARGET:-}"
+# Hardware architecture
+declare INST64_MICRO_PLATFORM="${INST64_MICRO_PLATFORM:-}"
 # Application version
-declare INST64_ZOOM_VERSION="${INST64_ZOOM_VERSION:-6.5.7.3298}"
+declare INST64_MICRO_VERSION="${INST64_MICRO_VERSION:-latest}"
 
-# App information
-INST64_APP_NAME='zoom'
-INST64_APP_ID='ZOOM'
-INST64_APP_FULL_NAME='Zoom - Video Conferencing and Online Meetings'
-INST64_CLI_NAME='zoom'
+INST64_APP_NAME='micro'
+INST64_APP_ID='MICRO'
+INST64_APP_FULL_NAME='Micro - A modern and intuitive terminal-based text editor'
+INST64_CLI_NAME='micro'
 
-INST64_WEB_REPO_URL='https://zoom.us'
-INST64_WEB_REPO_PATH='client'
-INST64_PKG_MAIN_PREFIX='zoom_'
+INST64_GH_REPO_NAME='micro'
+INST64_GH_REPO_OWNER='zyedidia'
+INST64_PKG_MAIN_PREFIX='micro-'
+INST64_PKG_MAIN_SUFFIX='.tgz'
+INST64_CPU_DARWIN_ARM64='macos-arm64'
+INST64_CPU_LINUX_AMD64='linux64'
 
 #
 # Functions
 #
 
-function inst64_install_native() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
+
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_pkg_install_file ||
+  inst64_lib_target_create &&
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -79,49 +87,57 @@ function inst64_install_native() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
+  if [[ "$INST64_MICRO_METHOD" == 'BINARY' ]]; then
+    inst64_lib_base_create_path
+  fi
 }
 
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
-    inst64_install_native
+  if [[ "$INST64_MICRO_METHOD" == 'BINARY' ]]; then
+    inst64_install_binary
   fi
 }
 
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
+  if [[ "$INST64_MICRO_METHOD" == 'BINARY' ]]; then
+    inst64_lib_task_publish
+    inst64_lib_cli_promote
+  fi
 }
 
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_MICRO_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'NATIVE' ||
+    'BINARY' ||
     return $?
-  if [[ "$INST64_ZOOM_METHOD" == 'AUTO' ]]; then
-    INST64_ZOOM_METHOD='NATIVE'
+  if [[ "$INST64_MICRO_METHOD" == 'AUTO' ]]; then
+    INST64_MICRO_METHOD='BINARY'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        case "$BL64_OS_FLAVOR" in
-        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
-          INST64_ZOOM_PLATFORM='amd64'
-          ;;
-        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-          INST64_ZOOM_PLATFORM='x86_64'
-          ;;
-        esac
+  if [[ "$INST64_MICRO_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_MICRO_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_MICRO_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_MICRO_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      fi
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -129,10 +145,13 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
-    inst64_lib_pkg_suffix_set || return $?
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ZOOM_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
-    INST64_WEB_REPO_PATH+="/${INST64_ZOOM_VERSION}"
+  if [[ "$INST64_MICRO_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_MICRO_VERSION" == 'latest' ]]; then
+      INST64_MICRO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_MICRO_VERSION#v}-${INST64_MICRO_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+    INST64_WORK_PATH_SOURCE="${INST64_CLI_NAME}-${INST64_MICRO_VERSION#v}/${INST64_CLI_NAME}"
   fi
   inst64_lib_package_check_definition
 }
@@ -142,14 +161,6 @@ function inst64_initialize() {
   inst64_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&
@@ -164,7 +175,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
