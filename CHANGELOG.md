@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Kitty
   - OSV-Scanner
   - InfraCost
+  - ProtonVPN
 - Zoom
   - Ubuntu support
 
