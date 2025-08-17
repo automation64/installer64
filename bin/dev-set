@@ -96,6 +96,21 @@ function db64_msg_show_task() {
 # Internal Functions
 #
 
+function _dev_set_load_profile_none() {
+  if ! db64_profile_is_set; then
+    db64_msg_show_task 'no profile set. Adjust profile variables to use global values'
+    DEV_PATH_PROF_BUILD="${DEV_PATH_BUILD}"
+    DEV_PATH_PROF_BUILD_PREPARE="${DEV_PATH_BUILD_PREPARE}"
+    DEV_PATH_PROF_BUILD_STAGING="${DEV_PATH_BUILD_STAGING}"
+    DEV_PATH_PROF_BUILD_PACK="${DEV_PATH_BUILD_PACK}"
+    DEV_PATH_PROF_ETC="${DEV_PATH_ETC}"
+    DEV_PATH_PROF_LOGS="${DEV_PATH_LOGS}"
+    DEV_PATH_PROF_TMP="${DEV_PATH_TMP}"
+    DEV_PATH_PROF_VAR="${DEV_PATH_VAR}"
+    DEV_PATH_PROF_VAULT="${DEV_PATH_VAULT}"
+  fi
+}
+
 function _dev_set_load_workstation() {
   db64_msg_show_task 'set project root (DEV_PATH_ROOT)'
   DEV_PATH_ROOT="${DEV_PATH_ROOT:-$(pwd)}"
@@ -213,6 +228,7 @@ function _dev_set_cleanup() {
     unset _dev_set_initialize &&
     unset _dev_set_load_local &&
     unset _dev_set_load_env &&
+    unset _dev_set_load_profile_none &&
     unset _dev_set_load_modules &&
     unset _dev_set_load_local_post
 }
@@ -225,6 +241,7 @@ function _dev_set_cleanup() {
 _dev_set_initialize &&
   _dev_set_load_local &&
   _dev_set_load_env &&
+  _dev_set_load_profile_none &&
   _dev_set_load_modules &&
   _dev_set_load_local_post &&
   _dev_set_cleanup ||
