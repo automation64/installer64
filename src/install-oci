@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-custom-1.1.0
+# Template: install-bl64-python-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,7 +22,8 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
@@ -42,7 +44,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_OCI_METHOD="${INST64_OCI_METHOD:-CUSTOM}"
+declare INST64_OCI_METHOD="${INST64_OCI_METHOD:-AUTO}"
 # Installation destination
 declare INST64_OCI_TARGET="${INST64_OCI_TARGET:-}"
 # Hardware architecture
@@ -57,11 +59,9 @@ INST64_CLI_NAME='oci'
 
 INST64_WEB_REPO_URL='https://raw.githubusercontent.com'
 INST64_WEB_REPO_PATH='oracle/oci-cli/master/scripts/install'
-INST64_PKG_MAIN='install.sh'
 INST64_APP_INSTALLER='install.sh'
 INST64_TARGET_PATH_DEFAULT_SYSTEM='oci'
 INST64_TARGET_PATH_DEFAULT_USER='oci'
-INST64_CLI_SUBPATH='bin'
 
 #
 # Functions
@@ -105,6 +105,10 @@ function inst64_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
     inst64_install_custom
+  elif [[ "$INST64_OCI_METHOD" == 'PIPX' ]]; then
+    inst64_lib_python_install_pipx
+  elif [[ "$INST64_OCI_METHOD" == 'PIP' ]]; then
+    inst64_lib_python_install_pip
   fi
 }
 
@@ -127,10 +131,11 @@ function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'CUSTOM' ||
+    'CUSTOM' \
+    'PIP' 'PIPX' ||
     return $?
   if [[ "$INST64_OCI_METHOD" == 'AUTO' ]]; then
-    INST64_OCI_METHOD='CUSTOM'
+    INST64_OCI_METHOD='PIPX'
   fi
 }
 
@@ -140,6 +145,18 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
+  if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
+    INST64_PKG_MAIN='install.sh'
+    INST64_CLI_SUBPATH='bin'
+  elif [[ "$INST64_OCI_METHOD" == 'PIPX' || "$INST64_OCI_METHOD" == 'PIP' ]]; then
+    if [[ "$INST64_OCI_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="==${INST64_OCI_VERSION}.*"
+    fi
+    INST64_PKG_MAIN="oci-cli${version_target}"
+  fi
+  inst64_lib_package_check_definition
 }
 
 function inst64_initialize() {
@@ -173,7 +190,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
