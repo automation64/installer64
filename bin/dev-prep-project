@@ -45,6 +45,7 @@ function dev_prep_normalize() {
   bl64_msg_show_task 'Normalize repository permissions'
   bl64_fs_path_permission_set '0755' '0755' "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_ON" \
     "$DEV_PATH_BIN" \
+    "$DEV_PATH_LIB" \
     "$DEV_PATH_SRC" \
     "$DEV_PATH_TEST" \
     "$DEV_BASE_ENV" \

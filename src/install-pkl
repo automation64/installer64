@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
-# Template: install-bl64-python-1.1.0
+# Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,8 +21,7 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
@@ -44,48 +42,41 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_OCI_METHOD="${INST64_OCI_METHOD:-AUTO}"
+declare INST64_PKL_METHOD="${INST64_PKL_METHOD:-BINARY}"
 # Installation destination
-declare INST64_OCI_TARGET="${INST64_OCI_TARGET:-}"
+declare INST64_PKL_TARGET="${INST64_PKL_TARGET:-}"
 # Hardware architecture
-declare INST64_OCI_PLATFORM="${INST64_OCI_PLATFORM:-}"
+declare INST64_PKL_PLATFORM="${INST64_PKL_PLATFORM:-}"
 # Application version
-declare INST64_OCI_VERSION="${INST64_OCI_VERSION:-latest}"
+declare INST64_PKL_VERSION="${INST64_PKL_VERSION:-latest}"
 
-INST64_APP_NAME='oci'
-INST64_APP_ID='OCI'
-INST64_APP_FULL_NAME='OCI - Oracle Cloud CLI'
-INST64_CLI_NAME='oci'
+INST64_APP_NAME='pkl'
+INST64_APP_ID='PKL'
+INST64_APP_FULL_NAME='PKL - A configuration as code language with rich validation and tooling'
+INST64_CLI_NAME='pkl'
 
-INST64_WEB_REPO_URL='https://raw.githubusercontent.com'
-INST64_WEB_REPO_PATH='oracle/oci-cli/master/scripts/install'
-INST64_APP_INSTALLER='install.sh'
-INST64_TARGET_PATH_DEFAULT_SYSTEM='oci'
-INST64_TARGET_PATH_DEFAULT_USER='oci'
+INST64_GH_REPO_NAME='pkl'
+INST64_GH_REPO_OWNER='apple'
+INST64_PKG_MAIN_PREFIX='pkl-'
+INST64_CPU_DARWIN_ARM64='macos-aarch64'
+INST64_CPU_LINUX_AMD64_GNU='linux-amd64'
+INST64_CPU_LINUX_AMD64_MUSL='alpine-linux-amd64'
 
 #
 # Functions
 #
 
-function inst64_install_custom() {
+function inst64_install_binary() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
+    inst64_lib_gh_get_asset ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_installer_run \
-    --no-tty \
-    --accept-all-defaults \
-    --optional-features 'db' \
-    --rc-file-path "${INST64_OCI_TARGET}/.bashrc" \
-    --exec-dir "${INST64_OCI_TARGET}/bin" \
-    --install-dir "${INST64_OCI_TARGET}/lib/oracle-cli" \
-    --script-dir "${INST64_OCI_TARGET}/bin/oci-cli-scripts" &&
-    inst64_lib_target_normalize &&
-    inst64_lib_cli_normalize ||
+  inst64_lib_target_create &&
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -95,7 +86,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_PKL_METHOD" == 'BINARY' ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -103,19 +94,15 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
-    inst64_install_custom
-  elif [[ "$INST64_OCI_METHOD" == 'PIPX' ]]; then
-    inst64_lib_python_install_pipx
-  elif [[ "$INST64_OCI_METHOD" == 'PIP' ]]; then
-    inst64_lib_python_install_pip
+  if [[ "$INST64_PKL_METHOD" == 'BINARY' ]]; then
+    inst64_install_binary
   fi
 }
 
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_PKL_METHOD" == 'BINARY' ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -124,37 +111,55 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_PKL_METHOD" == 'BINARY' ]]; then
+    inst64_lib_app_register_version
+  fi
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     'AUTO' \
-    'CUSTOM' \
-    'PIP' 'PIPX' ||
+    'BINARY' ||
     return $?
-  if [[ "$INST64_OCI_METHOD" == 'AUTO' ]]; then
-    INST64_OCI_METHOD='PIPX'
+  if [[ "$INST64_PKL_METHOD" == 'AUTO' ]]; then
+    INST64_PKL_METHOD='BINARY'
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
+  if [[ "$INST64_PKL_METHOD" == 'BINARY' ]]; then
+    if [[ -z "$INST64_PKL_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_PKL_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        # shellcheck disable=SC2249
+        case "$BL64_OS_FLAVOR" in
+        "$BL64_OS_FLAVOR_ALPINE" )
+          INST64_PKL_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+          ;;
+        *)
+          INST64_PKL_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+          ;;
+        esac
+      fi
+    fi
+    inst64_lib_platform_check_cpu
+  fi
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
-    INST64_PKG_MAIN='install.sh'
-    INST64_CLI_SUBPATH='bin'
-  elif [[ "$INST64_OCI_METHOD" == 'PIPX' || "$INST64_OCI_METHOD" == 'PIP' ]]; then
-    if [[ "$INST64_OCI_VERSION" == 'latest' ]]; then
-      version_target=''
-    else
-      version_target="==${INST64_OCI_VERSION}.*"
+  if [[ "$INST64_PKL_METHOD" == 'BINARY' ]]; then
+    if [[ "$INST64_PKL_VERSION" == 'latest' ]]; then
+      INST64_PKL_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
     fi
-    INST64_PKG_MAIN="oci-cli${version_target}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKL_PLATFORM}"
+    INST64_WORK_PATH_SOURCE="$INST64_PKG_MAIN"
+    INST64_CLI_SOURCE="$INST64_PKG_MAIN"
   fi
   inst64_lib_package_check_definition
 }
@@ -164,18 +169,6 @@ function inst64_initialize() {
   inst64_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_OCI_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_REDHAT" \
-        "$BL64_OS_FLAVOR_DEBIAN" &&
-        bl64_check_privilege_root ||
-        return $?
-    fi
-    bl64_arc_setup ||
-      return $?
-  fi
 
   inst64_select_platform &&
     inst64_select_packages &&
@@ -190,7 +183,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.0.0'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 

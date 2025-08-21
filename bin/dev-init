@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: 1.0.1
-# Version: 1.1.0
+# Version: 1.1.1
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -14,38 +14,25 @@
 # limitations under the License.
 #######################################
 
-export DEV_PROFILE="${DEV_PROFILE:-none}"
-# Set the requested profile before sourcing devbin64
-declare MY_PROFILE="${1:-${DEV_PROFILE}}"
-DEV_PROFILE="${MY_PROFILE}"
+export DEV_PROFILE
+declare MY_PROFILE="${1:-}"
 
-# shellcheck source=bin/dev-set
-source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2>&1 && return 1; }
-
-function dev_create() {
-  [[ "${DEV_PROFILE}" == 'none' ]] && return 0
+function dev_init_profile() {
+  db64_profile_is_set || return 0
   [[ -d "${DEV_PATH_ETC}/${DEV_BASE_PROFILE}/${DEV_PROFILE}" ]] && return 0
   ./bin/dev-profile-create
 }
 
-function dev_show() {
-  echo "Development environment initialized:
-  DEV_PROFILE: ${DEV_PROFILE}
-  DEV_PATH_ROOT: ${DEV_PATH_ROOT}
-  DEV_PATH_SRC: ${DEV_PATH_SRC}
-  DEV_PATH_BUILD: ${DEV_PATH_BUILD}
-  DEV_PATH_BIN: ${DEV_PATH_BIN}"
-}
-
-function dev_initialize() {
-  :
+function dev_init_initialize() {
+  [[ -n "$MY_PROFILE" ]] && DEV_PROFILE="$MY_PROFILE"
+  # shellcheck source=bin/dev-set
+  source ./bin/dev-set ||
+    { echo 'dev-set:Error: unable to load dev environment' 2>&1 && return 1; }
 }
 
 [[ -n "$DEV_CICD_DEBUG" ]] && set -x
 
-dev_initialize &&
-  dev_create &&
-  dev_show &&
-  unset dev_initialize &&
-  unset dev_create &&
-  unset dev_show
+dev_init_initialize &&
+  dev_init_profile &&
+  unset dev_init_initialize &&
+  unset dev_init_profile
