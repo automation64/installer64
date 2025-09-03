@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.7.0]
 
+### Added
+
+- Modules
+  - Java
+
 ### Fixed
 
 - Installer64
