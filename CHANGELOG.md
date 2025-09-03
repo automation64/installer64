@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.0]
+
+### Fixed
+
+- Installer64
+  - lib-bl64: Detection of PIPX on Mac
+
 ## [6.6.0]
 
 ### Added
