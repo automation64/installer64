@@ -57,6 +57,7 @@ INST64_APP_FULL_NAME='AWS CLI'
 INST64_CLI_NAME='aws'
 
 INST64_CPU_LINUX_AMD64='linux-x86_64'
+INST64_CPU_DARWIN_ARM64='all'
 INST64_WEB_REPO_URL='https://awscli.amazonaws.com'
 INST64_APP_INSTALLER='aws/install'
 
@@ -145,6 +146,7 @@ function inst64_select_platform() {
   if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
     if [[ -z "$INST64_AWSCLI_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        bl64_dbg_app_show_comments 'setting placeholder value as the installer for mac is universal'
         INST64_AWSCLI_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_AWSCLI_PLATFORM="$INST64_CPU_LINUX_AMD64"
@@ -201,7 +203,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
