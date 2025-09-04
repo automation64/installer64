@@ -61,7 +61,7 @@ INST64_PKG_MAIN_PREFIX='jdk-'
 INST64_PKG_MAIN_SUFFIX='_bin.tar.gz'
 INST64_CPU_DARWIN_ARM64='macos-aarch64'
 INST64_CPU_LINUX_AMD64='linux-x64'
-
+Library/Java/JavaVirtualMachines
 #
 # Functions
 #
@@ -107,9 +107,15 @@ function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
-    inst64_lib_task_publish
-    INST64_CLI_TARGET="$(bl64_bsh_pattern_match_file "${INST64_JAVA_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}".*)/bin/${INST64_CLI_NAME}"
-    inst64_lib_cli_promote
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
+      inst64_lib_task_publish
+      bl64_dbg_app_show_comments 'add the java version to the CLI to allow multiple versions on the same base target path'
+      INST64_CLI_TARGET="$(bl64_bsh_pattern_match_file "${INST64_JAVA_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}".*)/bin/${INST64_CLI_NAME}"
+      INST64_CLI_NAME+="${INST64_JAVA_VERSION}"
+      inst64_lib_cli_promote
+    else
+      bl64_dbg_app_show_comments 'do not promote on MacOS to avoid conflicts with native java_home'
+    fi
   fi
 }
 
@@ -139,6 +145,9 @@ function inst64_select_platform() {
     if [[ -z "$INST64_JAVA_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
         INST64_JAVA_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+        bl64_dbg_app_show_comments 'Prefer java_home compatible paths for the tool to properly detect the jvm'
+        INST64_TARGET_PATH_DEFAULT_SYSTEM='/Library/Java/JavaVirtualMachines'
+        INST64_TARGET_PATH_DEFAULT_USER="${HOME}/Library/Java/JavaVirtualMachines"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_JAVA_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
@@ -180,7 +189,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
