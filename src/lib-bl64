@@ -58,8 +58,8 @@
   #
 
   # Base target configuration
-  declare INST64_ROOT_PATH_DEFAULT_SYSTEM=''
-  declare INST64_ROOT_PATH_DEFAULT_USER=''
+  declare INST64_ROOT_PATH_DEFAULT_SYSTEM='' # Default app install root for system-wide
+  declare INST64_ROOT_PATH_DEFAULT_USER=''   # Default app install root for user-wide
 
   # Target configuration
   declare INST64_TARGET_PATH_DEFAULT=''        # Custom app install target
@@ -72,7 +72,7 @@
   declare INST64_TARGET_MODE_FILE='0644'
 
   # Work paths
-  declare INST64_WORK_PATH_SOURCE=''  # Optional. Temporary file name. Default: INST64_CLI_NAME
+  declare INST64_WORK_PATH_SOURCE='' # Optional. Temporary file name. Default: INST64_CLI_NAME
 
   # Application packages
   declare INST64_PKG_MAIN=''        # Main package name
@@ -849,9 +849,9 @@ function inst64_lib_staging_open_7z() {
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
   cd "${INST64_WORK_PATH_STAGING}" &&
-  inst64_lib_command_run_7zz \
-    x \
-    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+    inst64_lib_command_run_7zz \
+      x \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
 }
 
 function inst64_lib_staging_create() {
@@ -876,6 +876,17 @@ function inst64_lib_target_populate() {
     "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
     "${!target}" \
     "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}"
+}
+
+function inst64_lib_target_merge() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+
+  [[ -z "$INST64_WORK_PATH_SOURCE" ]] && INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
+
+  bl64_fs_path_merge \
+    "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" \
+    "${!target}"
 }
 
 function inst64_lib_target_open_tar() {

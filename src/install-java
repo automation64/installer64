@@ -54,6 +54,7 @@ INST64_APP_NAME='java'
 INST64_APP_ID='JAVA'
 INST64_APP_FULL_NAME='Java - Java runtime environment'
 INST64_CLI_NAME='java'
+INST64_CLI_SOURCE="$INST64_CLI_NAME"
 
 INST64_WEB_REPO_URL='https://download.oracle.com'
 INST64_WEB_REPO_PATH='java'
@@ -61,14 +62,13 @@ INST64_PKG_MAIN_PREFIX='jdk-'
 INST64_PKG_MAIN_SUFFIX='_bin.tar.gz'
 INST64_CPU_DARWIN_ARM64='macos-aarch64'
 INST64_CPU_LINUX_AMD64='linux-x64'
-Library/Java/JavaVirtualMachines
+
 #
 # Functions
 #
 
 function inst64_install_binary() {
   bl64_dbg_app_show_function
-  local old=''
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
@@ -78,11 +78,19 @@ function inst64_install_binary() {
     return $?
 
   inst64_lib_task_deploy
-  old="$(bl64_bsh_pattern_match_file "${INST64_JAVA_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}".*)"
-  [[ -n "$old" ]] && bl64_fs_path_remove "$old"
+  INST64_WORK_PATH_SOURCE="$(
+    cd "$INST64_WORK_PATH_STAGING" &&
+      bl64_bsh_pattern_match_file "${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}".*
+  )"
+  if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
+    bl64_dbg_app_show_comments 'Ajust target path for macOS java_home compatibility'
+    INST64_JAVA_TARGET="$(bl64_fmt_path_get_dirname "$INST64_JAVA_TARGET")/${INST64_WORK_PATH_SOURCE}"
+    INST64_CLI_PATH="${INST64_JAVA_TARGET}/${INST64_CLI_SUBPATH}"
+  fi
   inst64_lib_target_create &&
-    bl64_fs_run_mv "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}".* "$INST64_JAVA_TARGET" ||
+    inst64_lib_target_merge ||
     return $?
+
   inst64_lib_task_cleanup
   inst64_lib_staging_remove
 }
@@ -109,9 +117,6 @@ function inst64_setup() {
   if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
       inst64_lib_task_publish
-      bl64_dbg_app_show_comments 'add the java version to the CLI to allow multiple versions on the same base target path'
-      INST64_CLI_TARGET="$(bl64_bsh_pattern_match_file "${INST64_JAVA_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}".*)/bin/${INST64_CLI_NAME}"
-      INST64_CLI_NAME+="${INST64_JAVA_VERSION}"
       inst64_lib_cli_promote
     else
       bl64_dbg_app_show_comments 'do not promote on MacOS to avoid conflicts with native java_home'
@@ -124,7 +129,9 @@ function inst64_verify() {
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
   if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
-    inst64_lib_app_register_version
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
+      inst64_lib_app_register_version
+    fi
   fi
 }
 
@@ -145,9 +152,6 @@ function inst64_select_platform() {
     if [[ -z "$INST64_JAVA_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
         INST64_JAVA_PLATFORM="$INST64_CPU_DARWIN_ARM64"
-        bl64_dbg_app_show_comments 'Prefer java_home compatible paths for the tool to properly detect the jvm'
-        INST64_TARGET_PATH_DEFAULT_SYSTEM='/Library/Java/JavaVirtualMachines'
-        INST64_TARGET_PATH_DEFAULT_USER="${HOME}/Library/Java/JavaVirtualMachines"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_JAVA_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
@@ -167,8 +171,24 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   bl64_dbg_app_show_function
-  inst64_select_method &&
-    inst64_lib_base_initialize ||
+
+  inst64_select_method ||
+    return $?
+
+  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
+      bl64_dbg_app_show_comments 'Prefer java_home compatible paths for the tool to properly detect the jvm'
+      INST64_ROOT_PATH_DEFAULT_SYSTEM='/Library/Java/JavaVirtualMachines'
+      INST64_ROOT_PATH_DEFAULT_USER="${HOME}/Library/Java/JavaVirtualMachines"
+      INST64_CLI_SUBPATH='Contents/Home/bin'
+    elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
+      INST64_TARGET_PATH_DEFAULT="java-v${INST64_JAVA_VERSION}"
+      INST64_CLI_NAME+="${INST64_JAVA_VERSION}"
+      INST64_CLI_SUBPATH='bin'
+    fi
+  fi
+
+  inst64_lib_base_initialize ||
     return $?
 
   if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
@@ -180,6 +200,13 @@ function inst64_initialize() {
     inst64_select_packages &&
     inst64_lib_cli_set_path ||
     return $?
+
+  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
+      bl64_dbg_app_show_comments 'CLI path is unknown at this point, leave it empty'
+      INST64_CLI_PATH="$INST64_JAVA_TARGET"
+    fi
+  fi
 
   inst64_lib_app_check_installed && return 0
   inst64_lib_message_show_parameters
