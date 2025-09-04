@@ -131,7 +131,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.5.0'
+  declare INST64_LIB_VERSION_BL64='1.6.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -466,7 +466,6 @@ function inst64_lib_base_initialize() {
 function inst64_lib_method_initialize() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
-  local command_path=''
 
   # shellcheck disable=SC2249
   case "${!method}" in
@@ -497,7 +496,7 @@ function inst64_lib_method_initialize() {
         bl64_py_setup ||
         return $?
 
-      INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin")"
+      INST64_COMMAND_PIPX="$(bl64_bsh_command_locate 'pipx' "$HOME/.local/bin" "$BL64_PY_PATH_PIP_USR_BIN")"
       if [[ -z "$INST64_COMMAND_PIPX" ]]; then
         bl64_msg_show_error 'pipx command not found. Please install it and try again'
         return 1
