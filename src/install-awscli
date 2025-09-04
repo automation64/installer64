@@ -57,7 +57,7 @@ INST64_APP_FULL_NAME='AWS CLI'
 INST64_CLI_NAME='aws'
 
 INST64_CPU_LINUX_AMD64='linux-x86_64'
-INST64_CPU_DARWIN_ARM64='all'
+INST64_CPU_DARWIN_ARM64="$INST64_CPU_ALL_ALL"
 INST64_WEB_REPO_URL='https://awscli.amazonaws.com'
 INST64_APP_INSTALLER='aws/install'
 
@@ -118,8 +118,12 @@ function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_AWSCLI_METHOD" == 'CUSTOM' ]]; then
-    INST64_CLI_TARGET="${INST64_AWSCLI_TARGET}/bin/${INST64_CLI_NAME}"
-    inst64_lib_task_publish
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
+      INST64_CLI_TARGET="${INST64_AWSCLI_TARGET}/bin/${INST64_CLI_NAME}"
+      inst64_lib_task_publish
+    else
+      bl64_dbg_app_show_comments 'no symlink needed for macOS as the installer already places the binary in /usr/local/bin'
+    fi
     inst64_lib_cli_promote
   fi
 }
@@ -203,7 +207,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '2.0.2'
 bl64_msg_all_enable_verbose
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 
