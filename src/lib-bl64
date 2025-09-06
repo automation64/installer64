@@ -43,6 +43,8 @@
   declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-}"
   # Refresh package manager before installation and cleanup after?
   declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-}"
+  # Promote CLI to searchable path?
+  declare INST64_CLI_PROMOTE="${INST64_CLI_PROMOTE:-}"
 
   #
   # Global definitions
@@ -131,7 +133,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.6.0'
+  declare INST64_LIB_VERSION_BL64='1.7.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -377,6 +379,7 @@ function inst64_lib_message_show_parameters() {
   method_variable_suffix+=" ${INST64_APP_ID}_VERSION"
   method_variable_suffix+=" CLI_NAME"
   method_variable_suffix+=" CLI_PATH"
+  method_variable_suffix+=" CLI_PROMOTE"
   method_variable_suffix+=" GH_REPO_NAME"
   method_variable_suffix+=" GH_REPO_OWNER"
   method_variable_suffix+=" GIT_BRANCH"
@@ -469,7 +472,17 @@ function inst64_lib_method_initialize() {
 
   # shellcheck disable=SC2249
   case "${!method}" in
+    'BINARY')
+      [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
+      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+        bl64_check_privilege_root ||
+          return $?
+      fi
+      bl64_arc_setup
+      ;;
     'CUSTOM')
+      [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
       [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
       return 0
       ;;
@@ -482,14 +495,6 @@ function inst64_lib_method_initialize() {
       bl64_check_privilege_root &&
         bl64_cryp_setup &&
         bl64_pkg_setup
-      ;;
-    'BINARY')
-      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
-      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-        bl64_check_privilege_root ||
-          return $?
-      fi
-      bl64_arc_setup
       ;;
     'PIPX')
       bl64_check_privilege_not_root &&
@@ -758,6 +763,7 @@ function inst64_lib_cli_promote() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local needs_target_alias='NO'
 
+  bl64_lib_flag_is_enabled "$INST64_CLI_PROMOTE" || return 0
   bl64_check_parameter 'INST64_CLI_PATH' &&
     bl64_check_parameter 'INST64_CLI_NAME' || return $?
 

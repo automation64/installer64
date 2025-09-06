@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modules
   - ClamAV
+  - Auth0CLI
+- Installer64
+  - lib-bl64: make CLI promotion optional
 
 ## [6.7.3]
 
