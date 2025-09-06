@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-bl64-native-1.0.0
-#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -44,17 +43,17 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
+declare INST64_CLAMAV_METHOD="${INST64_CLAMAV_METHOD:-NATIVE}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_CLAMAV_VERSION="${INST64_CLAMAV_VERSION:-latest}"
 # Enable development packages?
-declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
+declare INST64_CLAMAV_DEVELOPMENT="${INST64_CLAMAV_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
+INST64_APP_NAME='clamav'
+INST64_APP_ID='CLAMAV'
+INST64_APP_FULL_NAME='ClamAV - Open Source Antivirus'
+INST64_CLI_NAME='clamscan'
 
 #
 # Functions
@@ -73,7 +72,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == 'NATIVE' ]]; then
     inst64_install_native
   fi
 }
@@ -96,9 +95,9 @@ function inst64_select_method() {
     'AUTO' \
     'NATIVE' ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == 'AUTO' ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD='NATIVE'
+    INST64_CLAMAV_METHOD='NATIVE'
   fi
 }
 
@@ -109,14 +108,25 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == 'NATIVE' ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-    "$BL64_OS_FLAVOR_X_FLAVOR_X")
-      bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
-        INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
-      INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
-      ;;
+      "$BL64_OS_FLAVOR_FEDORA")
+        INST64_PKG_MAIN+=' clamd'
+        INST64_PKG_MAIN+=' clamav'
+        INST64_PKG_MAIN+=' clamav-filesystem'
+        INST64_PKG_MAIN+=' clamav-data'
+        INST64_PKG_MAIN+=' clamav-lib'
+        INST64_PKG_MAIN+=' clamav-freshclam'
+        ;;
+      "$BL64_OS_FLAVOR_DEBIAN")
+        INST64_PKG_MAIN+=' clamav'
+        INST64_PKG_MAIN+=' clamav-freshclam'
+        INST64_PKG_MAIN+=' clamav-daemon'
+        INST64_PKG_MAIN+=' clamav-base'
+        INST64_PKG_MAIN+=' clamfs'
+        INST64_PKG_MAIN+=' clamdscan'
+        ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
@@ -129,9 +139,10 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == 'NATIVE' ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_ALPINE" ||
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_DEBIAN" ||
       return $?
   fi
 
