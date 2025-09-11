@@ -763,7 +763,6 @@ function inst64_lib_cli_promote() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local needs_target_alias='NO'
 
-  bl64_lib_flag_is_enabled "$INST64_CLI_PROMOTE" || return 0
   bl64_check_parameter 'INST64_CLI_PATH' &&
     bl64_check_parameter 'INST64_CLI_NAME' || return $?
 
@@ -771,17 +770,22 @@ function inst64_lib_cli_promote() {
     INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_SOURCE:-$INST64_CLI_NAME}"
   fi
 
-  bl64_dbg_app_show_comments 'create symlink for CLI'
-  bl64_fs_symlink_create \
-    "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
-    "$BL64_VAR_ON" ||
-    return $?
-
   bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
   if [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
     bl64_fs_symlink_create \
       "$INST64_CLI_TARGET" "${!target}/${INST64_CLI_NAME}" \
       "$BL64_VAR_ON"
+  fi
+
+  if bl64_lib_flag_is_enabled "$INST64_CLI_PROMOTE"; then
+    bl64_dbg_app_show_comments 'create symlink for CLI'
+    bl64_fs_symlink_create \
+      "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+      "$BL64_VAR_ON" ||
+      return $?
+  else
+    bl64_dbg_app_show_comments 'alter the CLI path to point to the target directly'
+    INST64_CLI_PATH="${!target}"
   fi
 }
 
