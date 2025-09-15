@@ -38,20 +38,18 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NPM}"
+declare INST64_A0DEPLOY_METHOD="${INST64_A0DEPLOY_METHOD:-NPM}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_A0DEPLOY_VERSION="${INST64_A0DEPLOY_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+INST64_APP_NAME='a0deploy'
+INST64_APP_ID='A0DEPLOY'
+INST64_APP_FULL_NAME='Auth0 Deploy CLI - Manage Auth0 tenant configuration'
 
-INST64_CLI_NAME='X_CLI_NAME_X'
+INST64_CLI_NAME='a0deploy'
 
-INST64_PKG_MAIN=''
-INST64_PKG_PRE=''
-INST64_PKG_POST=''
+INST64_PKG_MAIN='auth0-deploy-cli'
 
 #
 # Functions
@@ -65,7 +63,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
+  if [[ "$INST64_A0DEPLOY_METHOD" == 'NPM' ]]; then
     inst64_lib_nodejs_install_npm
   fi
 }
@@ -87,8 +85,8 @@ function inst64_select_method() {
     'AUTO' \
     'NPM' ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
-    INST64_X_APP_NAME_CAPS_X_METHOD='NPM'
+  if [[ "$INST64_A0DEPLOY_METHOD" == 'AUTO' ]]; then
+    INST64_A0DEPLOY_METHOD='NPM'
   fi
 }
 
@@ -100,11 +98,11 @@ function inst64_select_platform() {
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   local version_target=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NPM' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
+  if [[ "$INST64_A0DEPLOY_METHOD" == 'NPM' ]]; then
+    if [[ "$INST64_A0DEPLOY_VERSION" == 'latest' ]]; then
       version_target=''
     else
-      version_target="@${INST64_X_APP_NAME_CAPS_X_VERSION}"
+      version_target="@${INST64_A0DEPLOY_VERSION}"
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi

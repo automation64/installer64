@@ -5,7 +5,7 @@
 # * Loads DevBin64 environment variables
 # * To be used by DevBin64 scripts
 # * Warning: Bash is the only supported shell. Other shells may work as long as they are compatible with Bash syntax
-# * Version: 8.5.0
+# * Version: 9.0.0
 #
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
@@ -108,7 +108,6 @@ function db64_msg_show_task() {
 #
 
 function _dev_set_load_profile() {
-  local source_name=''
   local source_file=''
   if ! db64_profile_is_set; then
     db64_msg_show_task 'no profile set. Adjust profile variables to use global values'
@@ -122,15 +121,27 @@ function _dev_set_load_profile() {
     DEV_PATH_PROF_VAR="${DEV_PATH_VAR}"
     DEV_PATH_PROF_VAULT="${DEV_PATH_VAULT}"
   else
-    for source_name in "$DEV_BASE_LOCAL" "$DEV_BASE_SECRETS" "$DEV_BASE_ENV"; do
-      source_file="${DEV_PATH_PROF_ETC}/${source_name}"
-      if [[ -r "$source_file" ]]; then
-        db64_msg_show_task "load profile environment variables (${source_file})"
-        # shellcheck disable=SC1090
-        source "$source_file" ||
-          { db64_msg_show_error "unable to profile source file (${source_file})" && return 1; }
-      fi
-    done
+    source_file="${DEV_PATH_PROF_VAR}/${DEV_BASE_LOCAL}"
+    if [[ -r "$source_file" ]]; then
+      db64_msg_show_task "load profile environment variables (${source_file})"
+      # shellcheck disable=SC1090
+      source "$source_file" ||
+        { db64_msg_show_error "unable to profile source file (${source_file})" && return 1; }
+    fi
+    source_file="${DEV_PATH_PROF_VAULT}/${DEV_BASE_SECRETS}"
+    if [[ -r "$source_file" ]]; then
+      db64_msg_show_task "load profile environment variables (${source_file})"
+      # shellcheck disable=SC1090
+      source "$source_file" ||
+        { db64_msg_show_error "unable to profile source file (${source_file})" && return 1; }
+    fi
+    source_file="${DEV_PATH_PROF_ETC}/${DEV_BASE_ENV}"
+    if [[ -r "$source_file" ]]; then
+      db64_msg_show_task "load profile environment variables (${source_file})"
+      # shellcheck disable=SC1090
+      source "$source_file" ||
+        { db64_msg_show_error "unable to profile source file (${source_file})" && return 1; }
+    fi
   fi
 }
 
