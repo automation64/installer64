@@ -590,7 +590,7 @@ function inst64_lib_task_deploy() {
 
 function inst64_lib_task_publish() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task "publish application to searchable path (${INST64_CLI_PATH})"
+  bl64_msg_show_task 'publish application'
   return 0
 }
 
