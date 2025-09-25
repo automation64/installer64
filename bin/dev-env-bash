@@ -22,7 +22,7 @@
 # shellcheck disable=SC2154
 {
   # Env / Bash / Module environment definition version
-  export DEV_ENV_BASH_VERSION='1.8.0'
+  export DEV_ENV_BASH_VERSION='1.9.0'
   # Env / Bash / Registry for lab and testing containers
   export DEV_ENV_BASH_REGISTRY="${DEV_ENV_BASH_REGISTRY:-ghcr.io/automation64}"
   # Env / Bash / Container path for project mounts
@@ -42,6 +42,8 @@
   # Lab / Bash / Default image
   export DEV_LAB_BASH_CONTAINER="${DEV_LAB_BASH_CONTAINER:-bash-test/alpine-3-bash-test}"
 
+  # Test / Bash / Cooldown between tests in seconds
+  export DEV_TEST_BASH_COOLDOWN='2'
   # Test / Bash / Path to test cases. Relative to DEV_PATH_ROOT
   export DEV_TEST_BASH_CASES="${DEV_BASE_TEST}/bash"
   # Test / Bash / Flag for marking container environment
