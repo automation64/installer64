@@ -16,7 +16,7 @@
 #
 # Globals
 #
-# * Use .env file to override values
+# * Use .dev.env file to override values
 #
 
 # shellcheck disable=SC2154
@@ -41,17 +41,6 @@
 {
   # Lib / GitLeaks / Command
   export DEV_LIB_GITLEAKS_BIN="${DEV_LIB_GITLEAKS_BIN:-${DEV_LIB_GITLEAKS_TARGET}/gitleaks}"
-}
-
-#
-# Secrets
-#
-# * Use .secrets.env file or CICD secrets to override values
-#
-
-# shellcheck disable=SC2154
-{
-  :
 }
 
 #

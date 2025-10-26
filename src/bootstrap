@@ -1,0 +1,44 @@
+#!/bin/sh
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+MODE="${1:-SYSTEM}"
+
+prepare() {
+  TARGET_RELEASE=''
+  TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
+    [ -n "$TARGET_RELEASE" ] &&
+    curl -LO "https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/install-installer64" &&
+    chmod 755 install-installer64
+}
+
+install() {
+  if [ "$MODE" = 'SYSTEM' ]; then
+    INST64_SYSTEM_WIDE='YES'
+    export INST64_SYSTEM_WIDE
+    if [ "$EID" = "0" ]; then
+      ./install-installer64
+    else
+      sudo ./install-installer64
+    fi
+  else
+    INST64_SYSTEM_WIDE='NO'
+    export INST64_SYSTEM_WIDE
+    ./install-installer64
+  fi || return $?
+  rm -f install-installer64
+  return 0
+}
+
+prepare &&
+  install
