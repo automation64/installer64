@@ -4,17 +4,53 @@
 ![GitHub stars](https://img.shields.io/github/stars/automation64/installer64?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/automation64/installer64?style=social)
 
-🚀 **Streamlined Application Installation for Ephemeral Environments**
+🚀 **One-Line installers for Tools and Applications**
 
 ---
 
 ## 📌 Overview
 
-**Installer64** is a collection of command-line scripts designed to quickly install applications in temporary environments like Docker containers, CI/CD runners (GitHub Actions, GitLab CI, etc.), and other short-lived systems.
+**Installer64** is a collection of one-line installers designed to quickly deploy tools and applications in ephemeral environments (containers, CI/CD runners, etc.), and regular operating systems.
 
-It aims to provide the simplest and most efficient way to get specific tools ready within these contexts.
+**⚠️ Important Note:** **Installer64** is **not** a package manager. It aims to provided a single step, non-interactive automated deployment experience regardless of the tool's installation method.
 
-**⚠️ Important Note:** **Installer64** is **not** a package manager. It focuses solely on executing the most appropriate installation steps for an application in a fresh environment (e.g., downloading a binary, using a native package manager minimally, running official install scripts).
+## 📦 Installation
+
+### Minimum Requirements
+
+- Bash V4: used by installer scripts.
+- Sudo: most installers will require privileged execution. Used if not already running as root.
+- Curl or Wget, Tar and GZip: used to download and unpack _Installer64_ and _BashLib64_
+
+### Installation
+
+Install directly from the repository:
+
+```shell
+curl -sL https://raw.githubusercontent.com/automation64/installer64/main/src/bootstrap | sh
+```
+
+---
+
+## 🚀 Usage
+
+- Select a tool installer from: `/opt/installer64`
+- (Optional) Customize installation parameters.
+- Run the system-wide installer:
+
+```shell
+sudo -E /opt/installer64/install-APPLICATION_NAME
+```
+
+- Or the user-wide installer:
+
+```shell
+/opt/installer64/install-APPLICATION_NAME
+```
+
+---
+
+## 🏗️ Architecture
 
 ### Standard directory structure
 
@@ -33,96 +69,49 @@ _Installer64_ is configured by default to use the following standard directory s
 
 _Installer64_ scripts can be customized using the following parameters as shell environment variables:
 
-- `INST64_BASHLIB64`: Bashlib64 location. Default: `/opt/bl64/bashlib64.bash`
+- `INST64_BASHLIB64`: Bashlib64 location. Default: `/opt/bl64`
+- `INST64_CLI_PROMOTE`: Create symlink to searchable path?. Default: `YES`
 - `INST64_DEBUG`: Enable script debugging?. Default: `NO`
-- `INST64_LOCAL_BIN`: Searchable path for local executables. Default: `/usr/local/bin`
+- `INST64_LOCAL_BIN`: Searchable path for system-wide executables. Default: `/usr/local/bin`
 - `INST64_LOCAL_ROOT`: Linux well-known base path for local content. Default: `/usr/local`
 - `INST64_OPT_ROOT`: Linux well-known base path for non-os packaged content. Default: `/opt`
-- `INST64_REPLACE_INSTALLED`: Replace if already installed?. Default: `NO`
 - `INST64_REFRESH_PACKAGE_MANAGER`: Refresh package manager before installation and cleanup after?. Default: `YES`
+- `INST64_REPLACE_INSTALLED`: Replace if already installed?. Default: `NO`
 - `INST64_SYSTEM_WIDE`: Install system wide?. Default: `YES` if running as root, `NO` otherwise.
+- `INST64_USER_BIN`: Searchable path for user-wide executables. Default: `${HOME}/.local/bin`
 
 ### Installer specific parameters
 
-Additional parameters may be available and required by each application installer.
+Additional parameters are available depending on the installation method.
 
 Parameter name format: `INST64_<INSTALLER_NAME>_<PARAMETER_NAME>`
 
 Common parameters:
 
-- `INST64_<INSTALLER_NAME>_METHOD`: installation method. See `Installation methods` section for further details
-- `INST64_<INSTALLER_NAME>_PLATFORM`: hardware platform (e.g.: linux_amd64, etc.)
-- `INST64_<INSTALLER_NAME>_TARGET`: full path to the installation destination.
-- `INST64_<INSTALLER_NAME>_VERSION`: target application version in semver format (x.y.z).
+- `INST64_<INSTALLER_NAME>_METHOD`: Installation method.
+- `INST64_<INSTALLER_NAME>_PLATFORM`: Hardware platform (e.g., linux_amd64).
+- `INST64_<INSTALLER_NAME>_TARGET`: Full path to installation destination.
+- `INST64_<INSTALLER_NAME>_VERSION`: Target application version in semver format (x.y.z).
 
-### Installation methods
+### Installation Methods
 
-_Installer64_ will implement the best available installation method for each application.
-The selection criteria is based on the following priority list:
+_Installer64_ implements the optimal installation method for each application:
 
-1. `BINARY`: application is distributed as a single pre-compiled binary. For example, GO based tools.
-1. `CUSTOM`: last resort when no other option is available. Application is distributed as a single pre-compiled binary.
-1. `FPAK`: applications is distributed as FlatPak package. Installation is done system-wide.
-1. `GEM`: applications is distributed as Ruby module. Installation is done user-wide.
-1. `KREW`: application is distributed as a Krew (KubeCTL plugin) package. Installation is done user-wide.
-1. `NATIVE`: application is distributed using OS standard packages. For example, RPM for RHEL, DEB for Debian/Ubuntu, etc.
-1. `NPM`: applications is distributed as NodeJS module. Installation is done user-wide.
-1. `PIP`: applications is distributed as Python module. Used when `PIPX` is not available. Installation is done user-wide.
-1. `PIPX`: applications is distributed as Python module. Installation is done user-wide.
+1. `BINARY`: Pre-compiled binary download
+2. `BREW`: HomeBrew package
+3. `FPAK`: FlatPak package (system-wide installation)
+4. `KREW`: Krew (KubeCTL plugin) package (user-wide installation)
+5. `NATIVE`: OS standard packages (RPM for RHEL, DEB for Debian/Ubuntu)
+6. `NPM`: NodeJS module (user-wide installation)
+7. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation)
+8. `PIPX`: Python module (user-wide installation)
 
 ---
-
-## 📦 Installation
-
-### Minimum Requirements
-
-- Bash V4: used by installer scripts.
-- Sudo: most installers will require privileged execution. Used if not already running as root.
-- Curl or Wget, Tar and GZip: used to download and unpack _Installer64_ and _BashLib64_
-
-### Installation
-
-- Download _Installer64_ package:
-  - Select target releases: [https://github.com/automation64/installer64/releases](https://github.com/automation64/installer64/releases)
-  - Download asset: `install-installer64`
-
-```shell
-export TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
-test -n "$TARGET_RELEASE" &&
-curl -LO https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/install-installer64 &&
-chmod 755 install-installer64 &&
-echo "Installer ready: ./install-installer64" ||
-echo 'Error: unable to download installer'
-```
-
-- Deploy _Installer64_ :
-
-```shell
-# Install on user's home (user-wide)
-./install-installer64
-
-# or, install on /opt (system-wide)
-export INST64_SYSTEM_WIDE='YES'
-sudo -E ./install-installer64
-```
-
----
-
-## 🚀 Usage
-
-- Select application installer from `/opt/installer64`
-- Check for required installer parameters and set as environment variables
-- Run installer
-
-```shell
-INST64_PARAMETERX='VALUEY' sudo -E /opt/installer64/install-APPLICATION_NAME
-```
 
 ## 🛠 Contributing
 
 Contributions are welcome! Help us improve by submitting issues, feature requests, or pull requests.
 
-- [Contribution Guidelines](https://github.com/automation64/installer64/blob/main/CONTRIBUTING.md)
 - [Code of Conduct](https://github.com/automation64/installer64/blob/main/CODE_OF_CONDUCT.md)
 
 ---

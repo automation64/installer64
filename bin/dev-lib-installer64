@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# * Version: 4.0.1
+# * Version: 4.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -25,6 +25,8 @@ source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2
 #
 
 [[ -n "$DEV_CICD_DEBUG" ]] && set -x
+
+[[ "$DEV_LIB_INSTALLER64_SKIP" == 'YES' ]] && exit 0
 
 echo 'dev-lib-installer64: Task: remove Installer64 older versions'
 [[ -d "$DEV_LIB_INSTALLER64_TARGET" ]] && rm -Rf "$DEV_LIB_INSTALLER64_TARGET"

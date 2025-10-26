@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# * Version: 5.0.1
+# * Version: 5.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -25,6 +25,8 @@ source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2
 #
 
 [[ -n "$DEV_CICD_DEBUG" ]] && set -x
+[[ "$DEV_LIB_BASHLIB64_SKIP" == 'YES' ]] && exit 0
+
 [[ ! -d "$DEV_LIB_INSTALLER64_TARGET" ]] &&
     echo 'dev-lib-installer64: Error: Installer64 not found, please run ./bin/dev-lib-installer64 and try again' &&
     exit 1
