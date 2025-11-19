@@ -203,7 +203,7 @@ function _inst64_lib_platform_get_flavor_from_release() {
     return 1
   fi
   case "${ID^^}" in
-  'ARC') INST64_OS_FLAVOR='ARCHLINUX' ;;
+  'ARCH') INST64_OS_FLAVOR='ARCHLINUX' ;;
   'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
   'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
   'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
