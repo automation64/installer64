@@ -24,7 +24,7 @@
   #
 
   # Enable debugging? Set to YES to enable
-  declare INST64_DEBUG="${INST64_DEBUG:-}"
+  declare INST64_DEBUG="${INST64_DEBUG:-NONE}"
   # Base path for local applications
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
   # Local applications binaries location
@@ -45,7 +45,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.0.1'
+  declare INST64_LIB_VERSION_BASH='1.1.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -203,6 +203,7 @@ function _inst64_lib_platform_get_flavor_from_release() {
     return 1
   fi
   case "${ID^^}" in
+  'ARC') INST64_OS_FLAVOR='ARCHLINUX' ;;
   'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
   'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
   'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
@@ -217,7 +218,7 @@ function _inst64_lib_platform_get_flavor_from_release() {
   'SLES') INST64_OS_FLAVOR='SUSE' ;;
   'UBUNTU') INST64_OS_FLAVOR='DEBIAN' ;;
   *)
-    inst64_lib_message_show_error "unknown OS flavor (${ID})"
+    inst64_lib_message_show_error "unsupported OS flavor (${ID})"
     return 1
     ;;
   esac
@@ -252,7 +253,7 @@ function inst64_lib_platform_get_flavor() {
   fi
   # If no OS flavor was detected
   if [[ -z "$INST64_OS_FLAVOR" ]]; then
-    inst64_lib_message_show_error "unable to detect OS flavor"
+    inst64_lib_message_show_error "unable to detect OS flavor ($(uname -a))"
     return 1
   fi
 
@@ -568,7 +569,7 @@ function inst64_lib_task_cleanup() {
 
 function inst64_lib_task_process_start() {
   inst64_lib_message_show_process "started"
-  [[ -n "$INST64_DEBUG" ]] && set -x
+  [[ "$INST64_DEBUG" != 'NONE' ]] && set -x
   return 0
 }
 
@@ -665,5 +666,5 @@ builtin unset MAILPATH
     'lib-bash can not be used along with lib-bl64. Use lib-bash for pure bash scripts, and lib-bl64 for bash scripts usingBashLib64.' &&
   exit 1
 
-[[ -n "$INST64_DEBUG" ]] && set -x
+[[ "$INST64_DEBUG" != 'NONE' ]] && set -x
 :

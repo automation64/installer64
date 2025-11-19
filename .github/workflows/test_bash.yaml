@@ -1,5 +1,5 @@
 ---
-# Template: 2.2.1
+# template: 2.3.0
 name: "Test / Bash"
 
 concurrency:
@@ -7,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DEV_CICD_DEBUG: "${{ secrets.DEV_CICD_DEBUG || '' }}"
+  DEV_CICD_DEBUG: "NONE"
   BL64_LIB_CICD: "YES"
   DEV_TEST_BASH_RUNNER_ENVIRONMENT: "ON"
 
@@ -47,6 +47,14 @@ jobs:
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
+      - name: "Cache local tools"
+        uses: "actions/cache@v4"
+        with:
+          path: ./lib
+          key: ${{ runner.os }}-lib-cache
+          restore-keys: |
+            ${{ runner.os }}-lib-cache
+
       - name: "Prepare environment"
         run: |
           ./bin/dev-lib-base &&
@@ -75,6 +83,14 @@ jobs:
     steps:
       - name: "Check out repository code"
         uses: "actions/checkout@main"
+
+      - name: "Cache local tools"
+        uses: "actions/cache@v4"
+        with:
+          path: ./lib
+          key: ${{ runner.os }}-lib-cache
+          restore-keys: |
+            ${{ runner.os }}-lib-cache
 
       - name: "Upgrade Bash version"
         run: |

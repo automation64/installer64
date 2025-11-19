@@ -116,6 +116,12 @@ Contributions are welcome! Help us improve by submitting issues, feature request
 
 ---
 
+## ⚠️ Disclaimer
+
+This repository is provided "as is" without any warranties. The author is not responsible for any damages or issues arising from its use. Additionally, this project is not affiliated with or endorsed by any organization or entity. Use at your own risk.
+
+---
+
 ## 📜 License
 
 Installer64 is licensed under the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0.txt).

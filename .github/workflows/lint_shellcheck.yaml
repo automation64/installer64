@@ -1,13 +1,9 @@
 ---
-# Template: 1.1.1
+# template-gh-lint: 1.2.0
 name: "Lint / ShellCheck"
 
-concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
-
 env:
-  DEV_CICD_DEBUG: "${{ secrets.DEV_CICD_DEBUG || '' }}"
+  DEV_CICD_DEBUG: "NONE"
   BL64_LIB_CICD: "YES"
 
 on:
@@ -27,6 +23,14 @@ jobs:
 
       - name: "Check out repository code"
         uses: "actions/checkout@main"
+
+      - name: "Cache local tools"
+        uses: "actions/cache@v4"
+        with:
+          path: ./lib
+          key: ${{ runner.os }}-lib-cache
+          restore-keys: |
+            ${{ runner.os }}-lib-cache
 
       - name: "Prepare environment"
         run: "./bin/dev-lib-base"

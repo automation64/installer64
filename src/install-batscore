@@ -23,7 +23,7 @@
 declare INST64_HOME="${HOME}/at64"
 # BashLib64 location
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-}"
-[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}" 
+[[ -d "$INST64_HOME" ]] && INST64_BASHLIB64="${INST64_BASHLIB64:-${INST64_HOME}/bl64}" || INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
@@ -41,8 +41,10 @@ source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
 # Globals
 #
 
-# Enable debugging? Set to YES to enable
-declare INST64_DEBUG="${INST64_DEBUG:-}"
+# Enable debugging? Options: NONE, ALL, APP, LIB
+declare INST64_DEBUG="${INST64_DEBUG:-NONE}"
+# Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
+declare INST64_VERBOSE="${INST64_VERBOSE:-FULL}"
 # Base path for local applications
 declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
 # Local applications binaries location
@@ -189,9 +191,9 @@ function inst64_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT}" &&
-  bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}" &&
-  bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}" &&
-  "$INST64_CLI_PATH" --version
+    bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT}" &&
+    bl64_check_directory "${INST64_BATSCORE_TARGET_HELPERS}/${INST64_BATSCORE_PACKAGES_PLUGIN_FILE}" &&
+    "$INST64_CLI_PATH" --version
 }
 
 #######################################
@@ -229,7 +231,7 @@ function inst64_initialize() {
   # shellcheck disable=SC2181
   (($? != 0)) && return $BL64_LIB_ERROR_TASK_FAILED
   bl64_msg_show_setup 'Install application: Batscore' \
-    'INST64_BATSCORE_METHOD' 'INST64_SYSTEM_WIDE' 
+    'INST64_BATSCORE_METHOD' 'INST64_SYSTEM_WIDE'
 }
 
 #
@@ -237,10 +239,8 @@ function inst64_initialize() {
 #
 
 bl64_lib_script_version_set '2.3.1'
-bl64_msg_all_enable_verbose
+bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
-
-[[ -n "$INST64_DEBUG" ]] && bl64_dbg_all_enable
 inst64_initialize &&
   inst64_prepare &&
   inst64_install &&

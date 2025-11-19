@@ -5,13 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.0]
+
+### Added
+
+- Installer64
+  - ArchLinux support
+  - Set verbosity format (INST64_VERBOSE with BL64 values)
+
+### Changed
+
+- Installer64
+  - INST64_DEBUG: now uses BL64 values (NONE, ALL, LIB, APP)
+
 ## [6.10.0]
 
 ### Added
 
 - Installer64
   - Bootstrap script for first time install
-- Modules
+- Installers
   - RedHat Code Ready Containers
   - RedHat OpenShift CLI
   - IBM Cloud CLI
@@ -20,13 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Modules
+- Installers
   - JWT-CLI
   - Auth0 Deploy CLI
 
 ### Added
 
-- Modules
+- Installers
   - ClamAV
   - Auth0CLI
 - Installer64
@@ -50,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Modules
+- Installers
   - Squid
   - Pkl
 - OCI

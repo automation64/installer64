@@ -25,8 +25,10 @@
   # Global parameters
   #
 
-  # Enable debugging? Set to YES to enable
-  declare INST64_DEBUG="${INST64_DEBUG:-}"
+  # Enable debugging? Options: NONE, ALL, APP, LIB
+  declare INST64_DEBUG="${INST64_DEBUG:-NONE}"
+  # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
+  declare INST64_VERBOSE="${INST64_VERBOSE:-FULL}"
   # Base path for local applications
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
   # Local applications binaries location
@@ -133,7 +135,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.7.0'
+  declare INST64_LIB_VERSION_BL64='1.8.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
