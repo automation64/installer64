@@ -18,6 +18,12 @@ export INST64_LIB_PATH=''
 # Functions
 #
 
+function _lib_test_sys_remove_so64() {
+  if [[ -d "/opt/sysop64" ]]; then
+    sudo rm -rf /opt/sysop64 2> /dev/null
+  fi
+}
+
 function _lib_test_home_remove_at64() {
   if [[ -d "$HOME/at64" ]]; then
     rm -rf "$HOME/at64" 2> /dev/null
