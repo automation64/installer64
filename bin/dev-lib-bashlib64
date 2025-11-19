@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# * Version: 5.1.0
+# * Version: 5.1.1
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -24,14 +24,17 @@ source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2
 # Main
 #
 
-[[ -n "$DEV_CICD_DEBUG" ]] && set -x
-[[ "$DEV_LIB_BASHLIB64_SKIP" == 'YES' ]] && exit 0
+[[ -n "$DEV_BASH_DEBUG" ]] && set -x
+if [[ "$DEV_LIB_BASHLIB64_SKIP" == 'YES' ]]; then
+  echo 'dev-lib-bashlib64: Warning: tool already installed. No further action taken'
+  exit 0
+fi
 
 [[ ! -d "$DEV_LIB_INSTALLER64_TARGET" ]] &&
-    echo 'dev-lib-installer64: Error: Installer64 not found, please run ./bin/dev-lib-installer64 and try again' &&
-    exit 1
+  echo 'dev-lib-bashlib64: Error: Installer64 not found, please run ./bin/dev-lib-installer64 and try again' &&
+  exit 1
 
-echo 'dev-lib-bashlib64: Task: remove BashLib64 older versions'
+echo 'dev-lib-bashlib64: Task: remove older BashLib64 versions'
 [[ -d "$DEV_LIB_BASHLIB64_TARGET" ]] && rm -Rf "$DEV_LIB_BASHLIB64_TARGET"
 
 echo 'dev-lib-bashlib64: Task: download BashLib64'

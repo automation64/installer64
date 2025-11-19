@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# * Version: 4.1.0
+# * Version: 4.1.1
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -24,11 +24,14 @@ source ./bin/dev-set || { echo 'dev-set:Error: unable to load dev environment' 2
 # Main
 #
 
-[[ -n "$DEV_CICD_DEBUG" ]] && set -x
+[[ -n "$DEV_BASH_DEBUG" ]] && set -x
 
-[[ "$DEV_LIB_INSTALLER64_SKIP" == 'YES' ]] && exit 0
+if [[ "$DEV_LIB_INSTALLER64_SKIP" == 'YES' ]]; then
+  echo 'dev-lib-installer64: Warning: tool already installed. No further action taken'
+  exit 0
+fi
 
-echo 'dev-lib-installer64: Task: remove Installer64 older versions'
+echo 'dev-lib-installer64: Task: remove older Installer64 versions'
 [[ -d "$DEV_LIB_INSTALLER64_TARGET" ]] && rm -Rf "$DEV_LIB_INSTALLER64_TARGET"
 
 echo 'dev-lib-installer64: Task: download Installer64'
