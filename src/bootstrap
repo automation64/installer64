@@ -15,7 +15,6 @@
 MODE="${1:-SYSTEM}"
 
 prepare() {
-  TARGET_RELEASE=''
   TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
     [ -n "$TARGET_RELEASE" ] &&
     curl -LO "https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/install-installer64" &&
@@ -26,10 +25,10 @@ install() {
   if [ "$MODE" = 'SYSTEM' ]; then
     INST64_SYSTEM_WIDE='YES'
     export INST64_SYSTEM_WIDE
-    if [ "$EID" = "0" ]; then
+    if [ "$(id -u)" = "0" ]; then
       ./install-installer64
     else
-      sudo ./install-installer64
+      sudo -E ./install-installer64
     fi
   else
     INST64_SYSTEM_WIDE='NO'
