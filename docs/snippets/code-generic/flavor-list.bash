@@ -1,4 +1,5 @@
 # X_CASE_X
+      "$BL64_OS_FLAVOR_ARCH" \
       "$BL64_OS_FLAVOR_ALPINE" \
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \

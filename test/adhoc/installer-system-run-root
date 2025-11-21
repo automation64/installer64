@@ -6,6 +6,6 @@ declare installer="/project/src/install-${1}"
 [[ ! -f "$installer" ]] && echo "Fatal: Installer not found (${installer})" && exit 1
 sudo cp -f /project/src/* /opt/inst64
 
-export INST64_BASHLIB64='/project/lib/bl64'
+#export INST64_BASHLIB64='/project/lib/bl64'
 export INST64_SYSTEM_WIDE='YES'
 sudo -E "$installer"
