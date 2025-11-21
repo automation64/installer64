@@ -45,7 +45,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.1.0'
+  declare INST64_LIB_VERSION_BASH='1.2.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -203,44 +203,45 @@ function _inst64_lib_platform_get_flavor_from_release() {
     return 1
   fi
   case "${ID^^}" in
-  'ARCH') INST64_OS_FLAVOR='ARCHLINUX' ;;
-  'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
-  'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
-  'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
-  'CENTOS') INST64_OS_FLAVOR='REDHAT' ;;
-  'DEBIAN') INST64_OS_FLAVOR='DEBIAN' ;;
-  'FEDORA') INST64_OS_FLAVOR='FEDORA' ;;
-  'DARWIN') INST64_OS_FLAVOR='MACOS' ;;
-  'KALI') INST64_OS_FLAVOR='DEBIAN' ;;
-  'OL') INST64_OS_FLAVOR='REDHAT' ;;
-  'ROCKY') INST64_OS_FLAVOR='REDHAT' ;;
-  'RHEL') INST64_OS_FLAVOR='REDHAT' ;;
-  'SLES') INST64_OS_FLAVOR='SUSE' ;;
-  'UBUNTU') INST64_OS_FLAVOR='DEBIAN' ;;
-  *)
-    inst64_lib_message_show_error "unsupported OS flavor (${ID})"
-    return 1
-    ;;
+    'ARCH') INST64_OS_FLAVOR='ARCHLINUX' ;;
+    'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
+    'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
+    'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
+    'CACHYOS') INST64_OS_FLAVOR='ARCHLINUX' ;;
+    'CENTOS') INST64_OS_FLAVOR='REDHAT' ;;
+    'DEBIAN') INST64_OS_FLAVOR='DEBIAN' ;;
+    'FEDORA') INST64_OS_FLAVOR='FEDORA' ;;
+    'DARWIN') INST64_OS_FLAVOR='MACOS' ;;
+    'KALI') INST64_OS_FLAVOR='DEBIAN' ;;
+    'OL') INST64_OS_FLAVOR='REDHAT' ;;
+    'ROCKY') INST64_OS_FLAVOR='REDHAT' ;;
+    'RHEL') INST64_OS_FLAVOR='REDHAT' ;;
+    'SLES') INST64_OS_FLAVOR='SUSE' ;;
+    'UBUNTU') INST64_OS_FLAVOR='DEBIAN' ;;
+    *)
+      inst64_lib_message_show_error "unsupported OS flavor (${ID})"
+      return 1
+      ;;
   esac
 }
 
 function _inst64_lib_platform_get_flavor_from_uname() {
   # shellcheck disable=SC2249
   case "$INST64_OS_TYPE" in
-  'MACOS') INST64_OS_FLAVOR='MACOS' ;;
+    'MACOS') INST64_OS_FLAVOR='MACOS' ;;
   esac
 }
 
 function inst64_lib_platform_get_type() {
   type="$(${INST64_CMD_UNAME} -o)"
   case "$type" in
-  'Darwin') INST64_OS_TYPE='MACOS' ;;
-  'GNU/Linux' | 'Linux') INST64_OS_TYPE='LINUX' ;;
-  *)
-    inst64_lib_message_show_error \
-      "Installer64 was unable to identify the current OS type (${type})"
-    return 1
-    ;;
+    'Darwin') INST64_OS_TYPE='MACOS' ;;
+    'GNU/Linux' | 'Linux') INST64_OS_TYPE='LINUX' ;;
+    *)
+      inst64_lib_message_show_error \
+        "Installer64 was unable to identify the current OS type (${type})"
+      return 1
+      ;;
   esac
 }
 
@@ -291,20 +292,20 @@ function _inst64_lib_github_release_get_version() {
 
   # shellcheck disable=SC2249
   case "$INST64_CMD_GET" in
-  'curl')
-    "$INST64_CMD_GET" \
-      -L \
-      -f \
-      -s \
-      "$github_api" |
-      "$INST64_CMD_GREP" '"tag_name":'
-    ;;
-  'wget')
-    "$INST64_CMD_GET" \
-      -q -O- \
-      "$github_api" |
-      "$INST64_CMD_GREP" '"tag_name":'
-    ;;
+    'curl')
+      "$INST64_CMD_GET" \
+        -L \
+        -f \
+        -s \
+        "$github_api" |
+        "$INST64_CMD_GREP" '"tag_name":'
+      ;;
+    'wget')
+      "$INST64_CMD_GET" \
+        -q -O- \
+        "$github_api" |
+        "$INST64_CMD_GREP" '"tag_name":'
+      ;;
   esac
 }
 
@@ -316,22 +317,22 @@ function inst64_lib_github_asset_download() {
   inst64_lib_message_show_task "download application (${asset_url} -> ${INST64_WORK_PATH_STAGING})"
   # shellcheck disable=SC2249
   case "$INST64_CMD_GET" in
-  'curl')
-    "$INST64_CMD_GET" \
-      -s \
-      -f \
-      -L \
-      -o "${INST64_WORK_PATH_STAGING}/${asset}" \
-      "$asset_url" ||
-      return $?
-    ;;
-  'wget')
-    "$INST64_CMD_GET" \
-      -q \
-      -O "${INST64_WORK_PATH_STAGING}/${asset}" \
-      "$asset_url" ||
-      return $?
-    ;;
+    'curl')
+      "$INST64_CMD_GET" \
+        -s \
+        -f \
+        -L \
+        -o "${INST64_WORK_PATH_STAGING}/${asset}" \
+        "$asset_url" ||
+        return $?
+      ;;
+    'wget')
+      "$INST64_CMD_GET" \
+        -q \
+        -O "${INST64_WORK_PATH_STAGING}/${asset}" \
+        "$asset_url" ||
+        return $?
+      ;;
   esac
   [[ -f "${INST64_WORK_PATH_STAGING}/${asset}" ]]
 }
@@ -344,22 +345,22 @@ function inst64_lib_github_release_download() {
   package_url="https://github.com/${INST64_GH_REPO_OWNER}/${INST64_GH_REPO_NAME}/releases/download/${!package_version}/${package_name}"
   # shellcheck disable=SC2249
   case "$INST64_CMD_GET" in
-  'curl')
-    "$INST64_CMD_GET" \
-      -s \
-      -L \
-      -f \
-      -o "${INST64_WORK_PATH_STAGING}/${package_name}" \
-      "$package_url" ||
-      return $?
-    ;;
-  'wget')
-    "$INST64_CMD_GET" \
-      -q \
-      -O "${INST64_WORK_PATH_STAGING}/${package_name}" \
-      "$package_url" ||
-      return $?
-    ;;
+    'curl')
+      "$INST64_CMD_GET" \
+        -s \
+        -L \
+        -f \
+        -o "${INST64_WORK_PATH_STAGING}/${package_name}" \
+        "$package_url" ||
+        return $?
+      ;;
+    'wget')
+      "$INST64_CMD_GET" \
+        -q \
+        -O "${INST64_WORK_PATH_STAGING}/${package_name}" \
+        "$package_url" ||
+        return $?
+      ;;
   esac
   [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]]
 }
