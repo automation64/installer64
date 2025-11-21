@@ -98,11 +98,12 @@
   declare INST64_APP_INSTALLER=''
 
   # CLI information
-  declare INST64_CLI_NAME=''    # CLI command to publish
-  declare INST64_CLI_SOURCE=''  # Optional. Source CLI name, before published
-  declare INST64_CLI_PATH=''    # Optional. Promotion CLI path
-  declare INST64_CLI_SUBPATH='' # Optional. CLI target subpath
-  declare INST64_CLI_TARGET=''  # Optional. CLI target path
+  declare INST64_CLI_NAME=''          # CLI command to publish
+  declare INST64_CLI_SOURCE=''        # Optional. Source CLI name, before published
+  declare INST64_CLI_PATH=''          # Optional. Promotion CLI path
+  declare INST64_CLI_SUBPATH=''       # Optional. CLI target subpath
+  declare INST64_CLI_TARGET=''        # Optional. CLI target path
+  declare INST64_CLI_NORMALIZE='YES'  # Optional. Normalize CLI name and path if not standard
   declare INST64_CLI_MODE='0755'
 
   # GitHub repository information
@@ -135,7 +136,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.8.0'
+  declare INST64_LIB_VERSION_BL64='1.9.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -773,7 +774,7 @@ function inst64_lib_cli_promote() {
   fi
 
   bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
-  if [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
+  if bl64_lib_flag_is_enabled "$INST64_CLI_NORMALIZE" && [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
     bl64_fs_symlink_create \
       "$INST64_CLI_TARGET" "${!target}/${INST64_CLI_NAME}" \
       "$BL64_VAR_ON"
@@ -896,6 +897,7 @@ function inst64_lib_target_merge() {
 
   [[ -z "$INST64_WORK_PATH_SOURCE" ]] && INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
 
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
   bl64_fs_path_merge \
     "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" \
     "${!target}"
