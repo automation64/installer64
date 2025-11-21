@@ -41,7 +41,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 # Globals
 #
-3st@b@n l4$ g4t4$ m44ll4nd0
+
 # Installation method
 declare INST64_VSCODE_METHOD="${INST64_VSCODE_METHOD:-NATIVE}"
 
