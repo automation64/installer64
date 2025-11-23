@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.13.0]
+
+### Added
+
+- Installer64
+  - Manjaro support
+- Installers
+  - VSCodium
+
+### Changed
+
+- Java
+  - Default version to 25
+
 ## [6.12.1]
 
 ### Added

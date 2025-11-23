@@ -98,12 +98,12 @@
   declare INST64_APP_INSTALLER=''
 
   # CLI information
-  declare INST64_CLI_NAME=''          # CLI command to publish
-  declare INST64_CLI_SOURCE=''        # Optional. Source CLI name, before published
-  declare INST64_CLI_PATH=''          # Optional. Promotion CLI path
-  declare INST64_CLI_SUBPATH=''       # Optional. CLI target subpath
-  declare INST64_CLI_TARGET=''        # Optional. CLI target path
-  declare INST64_CLI_NORMALIZE='YES'  # Optional. Normalize CLI name and path if not standard
+  declare INST64_CLI_NAME=''         # CLI command to publish
+  declare INST64_CLI_SOURCE=''       # Optional. Source CLI name, before published
+  declare INST64_CLI_PATH=''         # Optional. Promotion CLI path
+  declare INST64_CLI_SUBPATH=''      # Optional. CLI target subpath
+  declare INST64_CLI_TARGET=''       # Optional. CLI target path
+  declare INST64_CLI_NORMALIZE='YES' # Optional. Normalize CLI name and path if not standard
   declare INST64_CLI_MODE='0755'
 
   # GitHub repository information
@@ -136,7 +136,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.9.0'
+  declare INST64_LIB_VERSION_BL64='1.10.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -894,13 +894,18 @@ function inst64_lib_target_populate() {
 function inst64_lib_target_merge() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
+  local source=''
 
-  [[ -z "$INST64_WORK_PATH_SOURCE" ]] && INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
+  if [[ -z "$INST64_WORK_PATH_SOURCE" ]]; then
+    source="$INST64_WORK_PATH_STAGING"
+  else
+    source="${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}"
+  fi
 
   bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-  bl64_fs_path_merge \
-    "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}" \
-    "${!target}"
+    bl64_fs_path_merge \
+      "${source}" \
+      "${!target}"
 }
 
 function inst64_lib_target_open_tar() {
