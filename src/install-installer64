@@ -50,7 +50,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.2.0'
+  declare INST64_LIB_VERSION_BASH='1.3.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -203,12 +203,14 @@ function inst64_lib_base_create_path() {
 }
 
 function _inst64_lib_platform_get_flavor_from_release() {
-  if ! source '/etc/os-release' || [[ -z "$ID" || -z "$VERSION_ID" ]]; then
+  local os_id=''
+  if ! source '/etc/os-release'; then
     inst64_lib_message_show_error 'failed to load OS information from /etc/os-release file'
     return 1
   fi
-  case "${ID^^}" in
-    'ARCH' ) INST64_OS_FLAVOR='ARCHLINUX' ;;
+  os_id="${ID:-}"
+  case "${os_id^^}" in
+    'ARCH' | 'CACHYOS' | 'MANJARO') INST64_OS_FLAVOR='ARCHLINUX' ;;
     'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
     'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
     'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
@@ -224,7 +226,7 @@ function _inst64_lib_platform_get_flavor_from_release() {
     'SLES') INST64_OS_FLAVOR='SUSE' ;;
     'UBUNTU') INST64_OS_FLAVOR='DEBIAN' ;;
     *)
-      inst64_lib_message_show_error "unsupported OS flavor (${ID})"
+      inst64_lib_message_show_error "unsupported OS flavor (${os_id})"
       return 1
       ;;
   esac
@@ -698,7 +700,7 @@ INST64_APP_ID='INSTALLER64'
 INST64_APP_FULL_NAME='Installer64 - Automated application installers'
 
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.1.0'
+INST64_SCRIPT_VERSION='2.2.0'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'

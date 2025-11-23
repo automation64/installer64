@@ -62,7 +62,7 @@ if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" == 'ON' ]]; then
   INST64_LIB_PATH="$DEV_ENV_BASH_CONTAINER_PATH_SRC"
   [[ ! -d "$DEV_ENV_BASH_CONTAINER_PATH_SRC" ]] && echo "error: source path not found (${DEV_ENV_BASH_CONTAINER_PATH_SRC})" && exit 1
 else
-  INST64_BASHLIB64='lib/bl64'
+  INST64_BASHLIB64='/opt/bl64'
   INST64_LIB_PATH='src'
 fi
 [[ ! -d "$INST64_BASHLIB64" ]] && echo "error: BASHLIB64 not found (${INST64_BASHLIB64})" && exit 1
