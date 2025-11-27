@@ -66,7 +66,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'FPAK' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_FPAK" ]]; then
     inst64_lib_flatpak_install
   fi
 }
@@ -85,12 +85,12 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'FPAK' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_FPAK" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD='FPAK'
+    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_FPAK"
   fi
 }
 
@@ -102,7 +102,7 @@ function inst64_select_platform() {
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   local version_target=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'FPAK' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_FPAK" ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       version_target=''
     else

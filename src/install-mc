@@ -43,47 +43,21 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
+declare INST64_MC_METHOD="${INST64_MC_METHOD:-NATIVE}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_MC_VERSION="${INST64_MC_VERSION:-latest}"
 # Enable development packages?
-declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
+declare INST64_MC_DEVELOPMENT="${INST64_MC_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
-
-INST64_OS_REPO_NAME=''
-INST64_OS_SOURCE_YUM='X_REPO_URL_X'
-INST64_OS_SOURCE_APT='X_REPO_URL_X'
-INST64_OS_REPO_KEY_YUM='X_KEY_URL_X'
-INST64_OS_REPO_KEY_APT='X_KEY_URL_X'
+INST64_APP_NAME='mc'
+INST64_APP_ID='MC'
+INST64_APP_FULL_NAME='MC - Midnight Commander File Manager'
+INST64_CLI_NAME='mc'
 
 #
 # Functions
 #
-
-function inst64_prepare_repository() {
-  bl64_dbg_app_show_function
-  local repository_url=''
-  local repository_key=''
-  local repository_apt_suite=''
-  local repository_apt_component=''
-
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-    repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPO_KEY_APT"
-  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  fi
-
-  inst64_lib_pkg_repo_add \
-    "$repository_url" "$repository_key" \
-    "$repository_apt_suite" "$repository_apt_component"
-}
 
 function inst64_install_native() {
   bl64_dbg_app_show_function
@@ -93,15 +67,12 @@ function inst64_install_native() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    inst64_prepare_repository
-  fi
 }
 
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_MC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_install_native
   fi
 }
@@ -120,37 +91,25 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
-    INST64_X_APP_NAME_CAPS_X_METHOD='NATIVE'
+  if [[ "$INST64_MC_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_MC_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_LINUX_AMD64"
-    else
-      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
-    fi
-    inst64_lib_platform_check_cpu
-  fi
+  return 0
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-    "$BL64_OS_FLAVOR_X_FLAVOR_X")
-      bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
-        INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
-      INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
-      ;;
-    esac
+  if [[ "$INST64_MC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_MC_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN='mc'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
@@ -162,11 +121,9 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_MC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_DEBIAN" \
-        "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" ||
+        "$BL64_OS_FLAVOR_ARCH" ||
       return $?
   fi
 

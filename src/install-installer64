@@ -743,7 +743,7 @@ function inst64_install_binary() {
 
 function inst64_prepare() {
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
     if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
       "$INST64_CMD_MKDIR" -p "$INST64_INSTALLER64_TARGET" &&
@@ -754,7 +754,7 @@ function inst64_prepare() {
 
 function inst64_install() {
   inst64_lib_step_install || return 0
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
@@ -770,7 +770,7 @@ function inst64_verify() {
     [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
     [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] ||
     return $?
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -780,7 +780,7 @@ function inst64_select_platform() {
 }
 
 function inst64_select_packages() {
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
       INST64_INSTALLER64_VERSION="$(inst64_lib_github_release_get_version)" ||
         return $?
@@ -791,10 +791,10 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method 'BINARY' ||
+    inst64_lib_app_check_method "$INST64_METHOD_BINARY" ||
     return $?
 
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if inst64_lib_base_is_system_wide; then
       inst64_lib_check_privilege_root ||
         return $?

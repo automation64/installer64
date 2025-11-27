@@ -88,7 +88,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BASHIT_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -96,7 +96,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BASHIT_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom
   fi
 }
@@ -104,7 +104,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BASHIT_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -119,11 +119,11 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'CUSTOM' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_CUSTOM" ||
     return $?
-  if [[ "$INST64_BASHIT_METHOD" == 'AUTO' ]]; then
-    INST64_BASHIT_METHOD='CUSTOM'
+  if [[ "$INST64_BASHIT_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_BASHIT_METHOD="$INST64_METHOD_CUSTOM"
   fi
 }
 
@@ -143,7 +143,7 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_BASHIT_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BASHIT_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_app_check_mode_user &&
       bl64_check_privilege_not_root &&
       bl64_arc_setup ||

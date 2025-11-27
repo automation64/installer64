@@ -126,7 +126,7 @@ function inst64_install_custom_package() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_select_packages || return $?
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BATSCORE_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom_package
   fi
 }
@@ -144,7 +144,7 @@ function inst64_install() {
 #######################################
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BATSCORE_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     INST64_PKG_MAIN='bats-core'
     INST64_BATSCORE_PACKAGES_PLUGIN_SUPPORT='bats-support'
     INST64_BATSCORE_PACKAGES_PLUGIN_ASSERT='bats-assert'
@@ -171,7 +171,7 @@ function inst64_select_packages() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BATSCORE_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     bl64_arc_setup
   fi
 }
@@ -219,10 +219,10 @@ function inst64_initialize() {
   INST64_BATSCORE_TARGET_HELPERS="${INST64_BATSCORE_TARGET}/test_helper"
   bl64_fmt_list_check_membership 'invalid installation method for the parameter INST64_BATSCORE_METHOD' \
     "$INST64_BATSCORE_METHOD" \
-    'CUSTOM' ||
+    "$INST64_METHOD_CUSTOM" ||
     return $?
 
-  if [[ "$INST64_BATSCORE_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_BATSCORE_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?

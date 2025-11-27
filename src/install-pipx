@@ -51,7 +51,7 @@ declare INST64_PIPX_VERSION="${INST64_PIPX_VERSION:-latest}"
 
 # App information
 INST64_APP_NAME='pipx'
-INST64_APP_ID='PIPX'
+INST64_APP_ID="$INST64_METHOD_PIPX"
 INST64_APP_FULL_NAME='pipX'
 # CLI information
 INST64_CLI_NAME='pipx'
@@ -73,9 +73,9 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_PIPX_METHOD" == 'PIP' ]]; then
+  if [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_PIP" ]]; then
     inst64_lib_python_install_pip
-  elif [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
+  elif [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_install_native
   fi
 }
@@ -94,15 +94,15 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'PIP' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_PIP" \
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_PIPX_METHOD" == 'AUTO' ]]; then
+  if [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     if [[ "$BL64_PY_VERSION_PYTHON3" == '3.12' ]]; then
-      INST64_PIPX_METHOD='NATIVE'
+      INST64_PIPX_METHOD="$INST64_METHOD_NATIVE"
     else
-      INST64_PIPX_METHOD='PIP'
+      INST64_PIPX_METHOD="$INST64_METHOD_PIP"
       INST64_SYSTEM_WIDE='NO'
     fi
   fi
@@ -110,7 +110,7 @@ function inst64_select_method() {
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     INST64_CLI_PATH='/usr/bin'
   fi
   return 0
@@ -118,7 +118,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PIPX_METHOD" == 'PIP' ]]; then
+  if [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_PIP" ]]; then
     INST64_PKG_MAIN='pipx'
     if [[ "$INST64_PIPX_VERSION" == 'latest' ]]; then
       version_target=''
@@ -126,8 +126,25 @@ function inst64_select_packages() {
       version_target="==${INST64_PIPX_VERSION}.*"
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
-  elif [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
-    INST64_PKG_MAIN="pipx"
+  elif [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_ARCH")
+        INST64_PKG_MAIN='python-pipx'
+        ;;
+      "$BL64_OS_FLAVOR_ALPINE")
+        INST64_PKG_MAIN='pipx'
+        ;;
+      "$BL64_OS_FLAVOR_DEBIAN")
+        INST64_PKG_MAIN='pipx'
+        ;;
+      "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_FEDORA")
+        INST64_PKG_MAIN='pipx'
+        ;;
+      "$BL64_OS_FLAVOR_SUSE")
+        INST64_PKG_MAIN='pipx'
+        ;;
+    esac
   fi
   inst64_lib_package_check_definition
 }
@@ -139,8 +156,15 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_PIPX_METHOD" == 'NATIVE' ]]; then
-    bl64_os_check_not_version "${BL64_OS_ALM}-10" ||
+  if [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_os_check_not_version "${BL64_OS_ALM}-10" &&
+      bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_ARCH" \
+        "$BL64_OS_FLAVOR_ALPINE" \
+        "$BL64_OS_FLAVOR_DEBIAN" \
+        "$BL64_OS_FLAVOR_FEDORA" \
+        "$BL64_OS_FLAVOR_REDHAT" \
+        "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   fi
 
@@ -157,8 +181,8 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.1'
-bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
+bl64_lib_script_version_set '2.2.0'
+bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&

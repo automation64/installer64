@@ -51,7 +51,7 @@ declare INST64_KREW_PLATFORM="${INST64_KREW_PLATFORM:-}"
 declare INST64_KREW_VERSION="${INST64_KREW_VERSION:-latest}"
 
 INST64_APP_NAME='krew'
-INST64_APP_ID='KREW'
+INST64_APP_ID="$INST64_METHOD_KREW"
 INST64_APP_FULL_NAME='Krew - Kubernetes CLI Plugin Manager'
 INST64_CLI_NAME='kubectl-krew'
 
@@ -87,7 +87,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -95,7 +95,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom
   fi
 }
@@ -103,7 +103,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -114,7 +114,7 @@ function inst64_verify() {
   inst64_lib_step_verify || return 0
   KREW_ROOT="$HOME/.krew" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
     version || return $?
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -122,17 +122,17 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'CUSTOM' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_CUSTOM" ||
     return $?
-  if [[ "$INST64_KREW_METHOD" == 'AUTO' ]]; then
-    INST64_KREW_METHOD='CUSTOM'
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_KREW_METHOD="$INST64_METHOD_CUSTOM"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if [[ -z "$INST64_KREW_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
         INST64_KREW_PLATFORM="$INST64_CPU_DARWIN_ARM64"
@@ -146,7 +146,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if [[ "$INST64_KREW_VERSION" == 'latest' ]]; then
       INST64_KREW_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
@@ -163,7 +163,7 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_KREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_app_check_mode_user &&
       bl64_check_privilege_not_root &&
       bl64_arc_setup ||

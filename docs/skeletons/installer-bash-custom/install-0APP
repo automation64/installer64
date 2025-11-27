@@ -51,21 +51,21 @@ INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 
 function inst64_prepare() {
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_PREPARE_PLACEHOLDER_X
   fi
 }
 
 function inst64_install() {
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
 }
 
 function inst64_setup() {
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
 }
@@ -76,13 +76,13 @@ function inst64_verify() {
 }
 
 function inst64_select_platform() {
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_PLATFORM_SELECTION_PLACEHOLDER_X
   fi
 }
 
 function inst64_select_packages() {
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
   inst64_lib_package_check_definition
@@ -90,7 +90,7 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method 'CUSTOM' ||
+    inst64_lib_app_check_method "$INST64_METHOD_CUSTOM" ||
     return $?
 
   # X_INIT_PLACEHOLDER_X

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-external-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -44,7 +44,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_AZURECLI_METHOD="${INST64_AZURECLI_METHOD:-NATIVE}"
+declare INST64_AZURECLI_METHOD="${INST64_AZURECLI_METHOD:-EXTERNAL}"
 # Application version
 declare INST64_AZURECLI_VERSION="${INST64_AZURECLI_VERSION:-latest}"
 # Enable development packages?
@@ -91,7 +91,7 @@ function inst64_prepare_repository() {
     "$repository_apt_suite" "$repository_apt_component"
 }
 
-function inst64_install_native() {
+function inst64_install_external() {
   bl64_dbg_app_show_function
   inst64_lib_pkg_install
 }
@@ -99,7 +99,7 @@ function inst64_install_native() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_AZURECLI_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     inst64_prepare_repository
   fi
 }
@@ -107,8 +107,8 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_AZURECLI_METHOD" == 'NATIVE' ]]; then
-    inst64_install_native
+  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    inst64_install_external
   fi
 }
 
@@ -126,17 +126,17 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_EXTERNAL" ||
     return $?
-  if [[ "$INST64_AZURECLI_METHOD" == 'AUTO' ]]; then
-    INST64_AZURECLI_METHOD='NATIVE'
+  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_AZURECLI_METHOD="$INST64_METHOD_EXTERNAL"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_AZURECLI_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
       if bl64_os_is_distro "${BL64_OS_OL}-9"; then
         INST64_AZURECLI_PLATFORM="$INST64_CPU_LINUX_AMD64"
@@ -150,7 +150,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_AZURECLI_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_lib_flag_is_enabled "$INST64_AZURECLI_DEVELOPMENT" &&
       INST64_PKG_DEV=''
     INST64_PKG_MAIN='azure-cli'
@@ -165,7 +165,7 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_AZURECLI_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \
@@ -186,7 +186,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '3.0.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&

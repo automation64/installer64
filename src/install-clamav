@@ -72,7 +72,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_CLAMAV_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_install_native
   fi
 }
@@ -85,19 +85,17 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  # X_VERIFY_PLACEHOLDER_X
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_CLAMAV_METHOD" == 'AUTO' ]]; then
-    # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_CLAMAV_METHOD='NATIVE'
+  if [[ "$INST64_CLAMAV_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_CLAMAV_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -108,7 +106,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_CLAMAV_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
       "$BL64_OS_FLAVOR_FEDORA")
@@ -139,7 +137,7 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_CLAMAV_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_CLAMAV_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_DEBIAN" ||

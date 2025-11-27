@@ -64,7 +64,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_CLAUDCODE_METHOD" == 'NPM' ]]; then
+  if [[ "$INST64_CLAUDCODE_METHOD" == "$INST64_METHOD_NPM" ]]; then
     inst64_lib_nodejs_install_npm
   fi
 }
@@ -83,11 +83,11 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NPM' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_NPM" ||
     return $?
-  if [[ "$INST64_CLAUDCODE_METHOD" == 'AUTO' ]]; then
-    INST64_CLAUDCODE_METHOD='NPM'
+  if [[ "$INST64_CLAUDCODE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_CLAUDCODE_METHOD="$INST64_METHOD_NPM"
   fi
 }
 
@@ -99,7 +99,7 @@ function inst64_select_platform() {
 function inst64_select_packages() {
   bl64_dbg_app_show_function
   local version_target=''
-  if [[ "$INST64_CLAUDCODE_METHOD" == 'NPM' ]]; then
+  if [[ "$INST64_CLAUDCODE_METHOD" == "$INST64_METHOD_NPM" ]]; then
     if [[ "$INST64_CLAUDCODE_VERSION" == 'latest' ]]; then
       version_target=''
     else

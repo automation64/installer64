@@ -110,7 +110,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -118,7 +118,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom
   fi
 }
@@ -126,7 +126,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%.tar.gz}/bin"
     inst64_lib_task_publish
     # shellcheck disable=SC2086
@@ -146,17 +146,17 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'CUSTOM' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_CUSTOM" ||
     return $?
-  if [[ "$INST64_NODEJS_METHOD" == 'AUTO' ]]; then
-    INST64_NODEJS_METHOD='CUSTOM'
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_NODEJS_METHOD="$INST64_METHOD_CUSTOM"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if [[ -z "$INST64_NODEJS_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
         INST64_NODEJS_PLATFORM='darwin-arm64'
@@ -171,7 +171,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if [[ "$INST64_NODEJS_VERSION" == 'latest' ]]; then
       INST64_NODEJS_VERSION="$(inst64_select_packages_version)" ||
         return $?
@@ -188,12 +188,13 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_NODEJS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
       bl64_check_privilege_root ||
         return $?
     fi
     bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH" \
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_MACOS" \
@@ -215,7 +216,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.1.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&

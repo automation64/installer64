@@ -75,7 +75,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'BREW' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BREW" ]]; then
     inst64_install_brew
   fi
 }
@@ -95,12 +95,12 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'BREW' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_BREW" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD='BREW'
+    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_BREW"
   fi
 }
 

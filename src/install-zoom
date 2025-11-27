@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-package-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,7 +43,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-NATIVE}"
+declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-PACKAGE}"
 # Application version
 declare INST64_ZOOM_VERSION="${INST64_ZOOM_VERSION:-6.5.7.3298}"
 
@@ -61,7 +61,7 @@ INST64_PKG_MAIN_PREFIX='zoom_'
 # Functions
 #
 
-function inst64_install_native() {
+function inst64_install_package() {
   bl64_dbg_app_show_function
   inst64_lib_task_download
   inst64_lib_staging_create &&
@@ -84,8 +84,8 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
-    inst64_install_native
+  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    inst64_install_package
   fi
 }
 
@@ -102,17 +102,17 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_PACKAGE" ||
     return $?
-  if [[ "$INST64_ZOOM_METHOD" == 'AUTO' ]]; then
-    INST64_ZOOM_METHOD='NATIVE'
+  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_ZOOM_METHOD="$INST64_METHOD_PACKAGE"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         case "$BL64_OS_FLAVOR" in
         "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
@@ -129,7 +129,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     inst64_lib_pkg_suffix_set || return $?
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ZOOM_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
     INST64_WEB_REPO_PATH+="/${INST64_ZOOM_VERSION}"
@@ -143,7 +143,7 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_ZOOM_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
@@ -164,7 +164,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
