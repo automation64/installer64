@@ -220,6 +220,7 @@ function inst64_lib_base_set_system_wide() {
         ;;
     esac
   fi
+  bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
 }
 
 #######################################
@@ -248,6 +249,7 @@ function inst64_lib_base_set_path() {
       fi
     fi
   fi
+  bl64_dbg_app_show_vars 'INST64_OPT_ROOT'
 }
 
 #######################################
@@ -261,6 +263,7 @@ function inst64_lib_target_set_path() {
 
   bl64_check_parameter "$method" || return $?
   if [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]]; then
+    bl64_dbg_app_show_comments 'TARGET is not used for this installation method. Reset it'
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
       '%s' \
@@ -268,7 +271,8 @@ function inst64_lib_target_set_path() {
     return 0
   fi
 
-  if [[ ! -v "${!target}" || -z "${!target}" ]]; then
+  if [[ ! -v "$target" || -z "${!target}" ]]; then
+    bl64_dbg_app_show_comments 'No target specified, set default'
     if [[ -n "$INST64_TARGET_PATH_DEFAULT" ]]; then
       target_basename="$INST64_TARGET_PATH_DEFAULT"
     else
@@ -285,8 +289,10 @@ function inst64_lib_target_set_path() {
       "${INST64_OPT_ROOT}" \
       "${target_basename}"
   else
+    bl64_dbg_app_show_comments 'Using requested target'
     INST64_TARGET_REQUESTED='YES'
   fi
+  bl64_dbg_app_show_vars "$target" 'INST64_TARGET_REQUESTED'
 }
 
 #######################################
@@ -307,6 +313,7 @@ function inst64_lib_target_set_owner() {
     INST64_TARGET_OWNER="$BL64_VAR_DEFAULT"
     INST64_TARGET_GROUP="$BL64_VAR_DEFAULT"
   fi
+  bl64_dbg_app_show_vars 'INST64_TARGET_OWNER' 'INST64_TARGET_GROUP'
 }
 
 #######################################
