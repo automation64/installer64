@@ -98,7 +98,7 @@ function inst64_install_binary() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -106,7 +106,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
@@ -114,7 +114,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
       inst64_lib_task_publish
       inst64_lib_cli_promote
@@ -128,7 +128,7 @@ function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" ]]; then
       inst64_lib_app_register_version
     fi
@@ -138,17 +138,17 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'BINARY' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_JAVA_METHOD" == 'AUTO' ]]; then
-    INST64_JAVA_METHOD='BINARY'
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_JAVA_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_JAVA_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
         INST64_JAVA_PLATFORM="$INST64_CPU_DARWIN_ARM64"
@@ -162,7 +162,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_JAVA_VERSION}_${INST64_JAVA_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
     INST64_WEB_REPO_PATH+="/${INST64_JAVA_VERSION}/latest"
   fi
@@ -175,7 +175,7 @@ function inst64_initialize() {
   inst64_select_method ||
     return $?
 
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
       bl64_dbg_app_show_comments 'Prefer java_home compatible paths for the tool to properly detect the jvm'
       INST64_ROOT_PATH_DEFAULT_SYSTEM='/Library/Java/JavaVirtualMachines'
@@ -191,7 +191,7 @@ function inst64_initialize() {
   inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     bl64_os_check_not_version "${BL64_OS_ALP}" ||
       return $?
   fi
@@ -201,7 +201,7 @@ function inst64_initialize() {
     inst64_lib_cli_set_path ||
     return $?
 
-  if [[ "$INST64_JAVA_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
       bl64_dbg_app_show_comments 'CLI path is unknown at this point, leave it empty'
       INST64_CLI_PATH="$INST64_JAVA_TARGET"

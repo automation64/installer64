@@ -67,9 +67,9 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PIPX" ]]; then
     inst64_lib_python_install_pipx
-  elif [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
+  elif [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PIP" ]]; then
     inst64_lib_python_install_pip
   fi
 }
@@ -89,12 +89,12 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'PIP' 'PIPX' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD='PIPX'
+    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_PIPX"
   fi
 }
 
@@ -105,7 +105,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIPX' || "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'PIP' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PIPX" || "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PIP" ]]; then
     if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
       version_target=''
     else

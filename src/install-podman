@@ -73,7 +73,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_PODMAN_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_PODMAN_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_install_native
   fi
 }
@@ -92,11 +92,11 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_PODMAN_METHOD" == 'AUTO' ]]; then
-    INST64_PODMAN_METHOD='NATIVE'
+  if [[ "$INST64_PODMAN_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_PODMAN_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -107,7 +107,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PODMAN_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_PODMAN_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     bl64_lib_flag_is_enabled "$INST64_PODMAN_DEVELOPMENT" &&
       INST64_PKG_DEV=''
@@ -123,13 +123,14 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_PODMAN_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_PODMAN_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_ALPINE" \
-        "$BL64_OS_FLAVOR_DEBIAN" \
-        "$BL64_OS_FLAVOR_SUSE" \
-        "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" ||
+      "$BL64_OS_FLAVOR_ARCH" \
+      "$BL64_OS_FLAVOR_ALPINE" \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_SUSE" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 
@@ -146,8 +147,8 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
-bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
+bl64_lib_script_version_set '2.1.0'
+bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&

@@ -50,7 +50,21 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.3.0'
+  declare INST64_LIB_VERSION_BASH='1.4.0'
+
+  # Installation methods
+  declare INST64_METHOD_AUTO='AUTO'
+  declare INST64_METHOD_BINARY='BINARY'
+  declare INST64_METHOD_BREW='BREW'
+  declare INST64_METHOD_CUSTOM='CUSTOM'
+  declare INST64_METHOD_FPAK='FPAK'
+  declare INST64_METHOD_KREW='KREW'
+  declare INST64_METHOD_EXTERNAL='EXTERNAL'
+  declare INST64_METHOD_NATIVE='NATIVE'
+  declare INST64_METHOD_NPM='NPM'
+  declare INST64_METHOD_PACKAGE='PACKAGE'
+  declare INST64_METHOD_PIP='PIP'
+  declare INST64_METHOD_PIPX='PIPX'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -700,7 +714,7 @@ INST64_APP_ID='INSTALLER64'
 INST64_APP_FULL_NAME='Installer64 - Automated application installers'
 
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.2.0'
+INST64_SCRIPT_VERSION='2.3.0'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'
@@ -743,7 +757,7 @@ function inst64_install_binary() {
 
 function inst64_prepare() {
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
     if [[ ! -d "$INST64_INSTALLER64_TARGET" ]]; then
       "$INST64_CMD_MKDIR" -p "$INST64_INSTALLER64_TARGET" &&
@@ -754,7 +768,7 @@ function inst64_prepare() {
 
 function inst64_install() {
   inst64_lib_step_install || return 0
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
@@ -770,7 +784,7 @@ function inst64_verify() {
     [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
     [[ -x "${INST64_INSTALLER64_TARGET}/install-bashlib64" ]] ||
     return $?
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -780,7 +794,7 @@ function inst64_select_platform() {
 }
 
 function inst64_select_packages() {
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
       INST64_INSTALLER64_VERSION="$(inst64_lib_github_release_get_version)" ||
         return $?
@@ -791,10 +805,10 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method 'BINARY' ||
+    inst64_lib_app_check_method "$INST64_METHOD_BINARY" ||
     return $?
 
-  if [[ "$INST64_INSTALLER64_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if inst64_lib_base_is_system_wide; then
       inst64_lib_check_privilege_root ||
         return $?

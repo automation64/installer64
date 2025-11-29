@@ -64,9 +64,9 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' ]]; then
+  if [[ "$INST64_ANSIBLE_METHOD" == "$INST64_METHOD_PIPX" ]]; then
     inst64_lib_python_install_pipx
-  elif [[ "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
+  elif [[ "$INST64_ANSIBLE_METHOD" == "$INST64_METHOD_PIP" ]]; then
     inst64_lib_python_install_pip
   fi
 }
@@ -85,11 +85,11 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'PIP' 'PIPX' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" ||
     return $?
-  if [[ "$INST64_ANSIBLE_METHOD" == 'AUTO' ]]; then
-    INST64_ANSIBLE_METHOD='PIPX'
+  if [[ "$INST64_ANSIBLE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_ANSIBLE_METHOD="$INST64_METHOD_PIPX"
   fi
 }
 
@@ -100,7 +100,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ANSIBLE_METHOD" == 'PIPX' || "$INST64_ANSIBLE_METHOD" == 'PIP' ]]; then
+  if [[ "$INST64_ANSIBLE_METHOD" == "$INST64_METHOD_PIPX" || "$INST64_ANSIBLE_METHOD" == "$INST64_METHOD_PIP" ]]; then
     if [[ "$INST64_ANSIBLE_VERSION" == 'latest' ]]; then
       version_target=''
     else

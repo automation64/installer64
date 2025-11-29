@@ -83,7 +83,7 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_LYNIS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_LYNIS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -91,7 +91,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_LYNIS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_LYNIS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom
   fi
 }
@@ -99,7 +99,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_LYNIS_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_LYNIS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -115,11 +115,11 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'CUSTOM' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_CUSTOM" ||
     return $?
-  if [[ "$INST64_LYNIS_METHOD" == 'AUTO' ]]; then
-    INST64_LYNIS_METHOD='CUSTOM'
+  if [[ "$INST64_LYNIS_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_LYNIS_METHOD="$INST64_METHOD_CUSTOM"
   fi
 }
 
@@ -139,11 +139,7 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_LYNIS_METHOD" == 'CUSTOM' ]]; then
-    if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-      bl64_check_privilege_root ||
-        return $?
-    fi
+  if [[ "$INST64_LYNIS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     bl64_arc_setup ||
       return $?
   fi
@@ -161,8 +157,8 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
-bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
+bl64_lib_script_version_set '2.0.1'
+bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&

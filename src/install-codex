@@ -89,7 +89,7 @@ function inst64_install_binary() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -97,7 +97,7 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
@@ -105,7 +105,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     INST64_CLI_TARGET="${INST64_CODEX_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
@@ -116,7 +116,7 @@ function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
-  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -124,17 +124,17 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'BINARY' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_CODEX_METHOD" == 'AUTO' ]]; then
-    INST64_CODEX_METHOD='BINARY'
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_CODEX_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_CODEX_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
         INST64_CODEX_PLATFORM="$INST64_CPU_DARWIN_ARM64"
@@ -144,7 +144,7 @@ function inst64_select_platform() {
         "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
           INST64_CODEX_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
           ;;
-        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_ARCH")
           INST64_CODEX_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
           ;;
         esac
@@ -156,7 +156,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_CODEX_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_CODEX_VERSION" == 'latest' ]]; then
       INST64_CODEX_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
@@ -185,7 +185,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&

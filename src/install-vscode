@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-package-1.0.0
 # Template: install-bl64-binary-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
@@ -69,7 +69,7 @@ INST64_CPU_LINUX_ARM64='arm64'
 # Functions
 #
 
-function inst64_install_native() {
+function inst64_install_package() {
   bl64_dbg_app_show_function
   inst64_lib_task_download
   inst64_lib_staging_create &&
@@ -106,7 +106,7 @@ function inst64_install_binary() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_VSCODE_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -114,9 +114,9 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
-    inst64_install_native
-  elif [[ "$INST64_VSCODE_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    inst64_install_package
+  elif [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
@@ -124,7 +124,7 @@ function inst64_install() {
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_VSCODE_METHOD" == 'BINARY' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     INST64_CLI_NORMALIZE='NO'
     bl64_dbg_app_show_comments 'required for portable mode on linux'
     bl64_fs_run_chown root "$INST64_VSCODE_TARGET"/chrome-sandbox &&
@@ -143,18 +143,18 @@ function inst64_verify() {
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'BINARY' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_BINARY" \
+    "$INST64_METHOD_PACKAGE" ||
     return $?
-  if [[ "$INST64_VSCODE_METHOD" == 'AUTO' ]]; then
-    INST64_VSCODE_METHOD='NATIVE'
+  if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_VSCODE_METHOD="$INST64_METHOD_PACKAGE"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_VSCODE_METHOD" =~ 'NATIVE'|'BINARY' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" =~ "$INST64_METHOD_PACKAGE"|"$INST64_METHOD_BINARY" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
       INST64_VSCODE_PLATFORM="$INST64_CPU_LINUX_AMD64"
     elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
@@ -166,7 +166,7 @@ function inst64_select_platform() {
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
       "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
@@ -178,7 +178,7 @@ function inst64_select_packages() {
         INST64_PKG_MAIN="${INST64_CLI_NAME}.deb"
         ;;
     esac
-  elif [[ "$INST64_VSCODE_METHOD" == 'BINARY' ]]; then
+  elif [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     INST64_PKG_MAIN_SUFFIX="linux-${INST64_VSCODE_PLATFORM}"
     INST64_PKG_MAIN="${INST64_CLI_NAME}-stable"
   fi
@@ -192,13 +192,13 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_VSCODE_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
-  elif [[ "$INST64_VSCODE_METHOD" == 'BINARY' ]]; then
+  elif [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_ARCH" \
       "$BL64_OS_FLAVOR_DEBIAN" \
@@ -220,7 +220,7 @@ function inst64_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '2.0.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&

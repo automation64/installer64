@@ -86,14 +86,14 @@ function inst64_install_custom() {
 
 function inst64_prepare() {
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_HOMEBREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     :
   fi
 }
 
 function inst64_install() {
   inst64_lib_step_install || return 0
-  if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_HOMEBREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom
   fi
 }
@@ -117,10 +117,10 @@ function inst64_select_packages() {
 
 function inst64_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method 'CUSTOM' ||
+    inst64_lib_app_check_method "$INST64_METHOD_CUSTOM" ||
     return $?
 
-  if [[ "$INST64_HOMEBREW_METHOD" == 'CUSTOM' ]]; then
+  if [[ "$INST64_HOMEBREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_check_privilege_not_root &&
       inst64_lib_check_os_incompatibility 'ALPINE' ||
       return $?

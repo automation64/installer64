@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
+# Template: install-bl64-package-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,59 +21,58 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
-# Installation destination
-declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
-# Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PACKAGE}"
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+# Enable development packages?
+declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
 
+# App information
 INST64_APP_NAME='X_APP_NAME_X'
 INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
 INST64_CLI_NAME='X_CLI_NAME_X'
 
-INST64_GIT_SERVER='X_GIT_SERVER_X'
-INST64_GIT_REPO='X_GIT_REPO_X'
-INST64_GIT_BRANCH='X_GIT_BRANCH_X'
+INST64_WEB_REPO_URL='X_WEB_REPO_URL_X'
+INST64_WEB_REPO_PATH='X_WEB_REPO_PATH_X'
+INST64_CPU_LINUX_AMD64='X_CPU_LINUX_AMD64_X'
+INST64_PKG_MAIN_PREFIX='X_PKG_MAIN_PREFIX_X'
 
 #
 # Functions
 #
 
-function inst64_install_custom() {
+function inst64_install_package() {
   bl64_dbg_app_show_function
-
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_git_get_dir ||
+    inst64_lib_web_get_file ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_target_normalize &&
-    inst64_lib_cli_normalize ||
+  inst64_lib_pkg_install_file ||
     return $?
 
   inst64_lib_task_cleanup
@@ -83,26 +82,19 @@ function inst64_install_custom() {
 function inst64_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_base_create_path
-  fi
 }
 
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_install_custom
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    inst64_install_package
   fi
 }
 
 function inst64_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_task_publish
-    inst64_lib_cli_promote
-  fi
 }
 
 function inst64_verify() {
@@ -115,21 +107,35 @@ function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_CUSTOM" ||
+    "$INST64_METHOD_PACKAGE" ||
     return $?
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_CUSTOM"
+    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_PACKAGE"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_LINUX_AMD64"
+    fi
+    inst64_lib_platform_check_cpu
+  fi
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN_SUFFIX='.rpm'
+        ;;
+    esac
+    INST64_PKG_MAIN="X_PKG_MAIN_X"
+  fi
+  inst64_lib_package_check_definition
 }
 
 function inst64_initialize() {
@@ -138,8 +144,10 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    bl64_arc_setup ||
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 
@@ -157,7 +165,7 @@ function inst64_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.0'
-bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
+bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&

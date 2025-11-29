@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-package-1.0.0
+#   Skeleton: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,7 +44,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-NATIVE}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PACKAGE}"
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Enable development packages?
@@ -55,29 +56,13 @@ INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
 INST64_CLI_NAME='X_CLI_NAME_X'
 
-INST64_GH_REPO_NAME='X_REPO_NAME_X'
-INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
-INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
-INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
-
 #
 # Functions
 #
 
-function inst64_install_native() {
+function inst64_install_package() {
   bl64_dbg_app_show_function
-
-  inst64_lib_task_download
-  inst64_lib_staging_create &&
-    inst64_lib_gh_get_asset ||
-    return $?
-
-  inst64_lib_task_deploy
-  inst64_lib_pkg_install_file ||
-    return $?
-
-  inst64_lib_task_cleanup
-  inst64_lib_staging_remove
+  inst64_lib_pkg_install
 }
 
 function inst64_prepare() {
@@ -88,8 +73,8 @@ function inst64_prepare() {
 function inst64_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    inst64_install_native
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    inst64_install_package
   fi
 }
 
@@ -101,39 +86,39 @@ function inst64_setup() {
 function inst64_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
+  # X_VERIFY_PLACEHOLDER_X
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
 }
 
 function inst64_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
-    'AUTO' \
-    'NATIVE' ||
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_PACKAGE" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'AUTO' ]]; then
-    INST64_X_APP_NAME_CAPS_X_METHOD='NATIVE'
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    # X_METHOD_AUTO_PLACEHOLDER_X
+    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_PACKAGE"
   fi
 }
 
 function inst64_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_LINUX_AMD64"
-    fi
-    inst64_lib_platform_check_cpu
-  fi
+  return 0
 }
 
 function inst64_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
-        return $?
-    fi
-    inst64_lib_pkg_suffix_set || return $?
-    INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_X_FLAVOR_X")
+        bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
+          INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
+        INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
+        ;;
+    esac
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
 }
@@ -144,10 +129,9 @@ function inst64_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'NATIVE' ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" ||
+      "$BL64_OS_FLAVOR_ALPINE" ||
       return $?
   fi
 
@@ -165,7 +149,7 @@ function inst64_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.0'
-bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
+bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 inst64_initialize &&
   inst64_prepare &&
