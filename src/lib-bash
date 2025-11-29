@@ -45,7 +45,21 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.3.0'
+  declare INST64_LIB_VERSION_BASH='1.4.0'
+
+  # Installation methods
+  declare INST64_METHOD_AUTO='AUTO'
+  declare INST64_METHOD_BINARY='BINARY'
+  declare INST64_METHOD_BREW='BREW'
+  declare INST64_METHOD_CUSTOM='CUSTOM'
+  declare INST64_METHOD_FPAK='FPAK'
+  declare INST64_METHOD_KREW='KREW'
+  declare INST64_METHOD_EXTERNAL='EXTERNAL'
+  declare INST64_METHOD_NATIVE='NATIVE'
+  declare INST64_METHOD_NPM='NPM'
+  declare INST64_METHOD_PACKAGE='PACKAGE'
+  declare INST64_METHOD_PIP='PIP'
+  declare INST64_METHOD_PIPX='PIPX'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
