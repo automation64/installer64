@@ -523,6 +523,10 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_CUSTOM")
       [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
       [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+        bl64_check_privilege_root ||
+          return $?
+      fi
       return 0
       ;;
     "$INST64_METHOD_PIP")
