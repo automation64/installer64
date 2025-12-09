@@ -755,7 +755,7 @@ function inst64_install_binary() {
   inst64_lib_staging_remove
 }
 
-function inst64_prepare() {
+function my_prepare() {
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
@@ -766,19 +766,19 @@ function inst64_prepare() {
   fi
 }
 
-function inst64_install() {
+function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
 
-function inst64_setup() {
+function my_setup() {
   inst64_lib_step_setup || return 0
   "${INST64_INSTALLER64_TARGET}/install-bashlib64"
 }
 
-function inst64_verify() {
+function my_verify() {
   inst64_lib_step_verify || return 0
   [[ -d "${INST64_INSTALLER64_TARGET}" ]] &&
     [[ -x "${INST64_INSTALLER64_TARGET}/install-installer64" ]] &&
@@ -789,11 +789,11 @@ function inst64_verify() {
   fi
 }
 
-function inst64_select_platform() {
+function my_select_platform() {
   :
 }
 
-function inst64_select_packages() {
+function my_select_packages() {
   if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_INSTALLER64_VERSION" == 'latest' ]]; then
       INST64_INSTALLER64_VERSION="$(inst64_lib_github_release_get_version)" ||
@@ -803,7 +803,7 @@ function inst64_select_packages() {
   inst64_lib_package_check_definition
 }
 
-function inst64_initialize() {
+function my_initialize() {
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method "$INST64_METHOD_BINARY" ||
     return $?
@@ -815,8 +815,8 @@ function inst64_initialize() {
     fi
   fi
 
-  inst64_select_platform &&
-    inst64_select_packages ||
+  my_select_platform &&
+    my_select_packages ||
     return $?
 
   inst64_lib_app_check_installed && return 0
@@ -828,9 +828,9 @@ function inst64_initialize() {
 #
 
 inst64_lib_task_process_start &&
-  inst64_initialize &&
-  inst64_prepare &&
-  inst64_install &&
-  inst64_setup &&
-  inst64_verify
+  my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_setup &&
+  my_verify
 inst64_lib_task_process_finish $?

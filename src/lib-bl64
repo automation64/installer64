@@ -12,8 +12,6 @@
 # limitations under the License.
 #######################################
 
-# shellcheck source-path=lib/bl64
-
 #
 # Globals
 #
@@ -25,10 +23,10 @@
   # Global parameters
   #
 
-  # Enable debugging? Options: NONE, ALL, APP, LIB
-  declare INST64_DEBUG="${INST64_DEBUG:-NONE}"
+  # Enable debugging? Options: BL64_DBG_TARGET_*
+  declare INST64_DEBUG="${INST64_DEBUG:-$BL64_DBG_TARGET_NONE}"
   # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
-  declare INST64_VERBOSE="${INST64_VERBOSE:-FULL}"
+  declare INST64_VERBOSE="${INST64_VERBOSE:-$BL64_MSG_FORMAT_FULL}"
   # Base path for local applications
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
   # Local applications binaries location
@@ -150,7 +148,10 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.10.0'
+  declare INST64_LIB_VERSION_BL64='1.11.0'
+
+  # BashLib64 version required
+  declare INST64_LIB_VERSION_REQUIRED='22.9.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -158,6 +159,7 @@
   # Install progress status
   declare INST64_STATUS_FLAG='CONTINUE'
   declare INST64_STATUS_PATH=''
+  declare INST64_STATUS_MODE='0644'
 
   # Target management
   declare INST64_TARGET_REQUESTED='NO'
@@ -379,8 +381,11 @@ function inst64_lib_app_check_installed() {
   local app_target="INST64_${INST64_APP_ID}_TARGET"
   local app_version="INST64_${INST64_APP_ID}_VERSION"
 
-  bl64_check_parameter "$app_target" &&
-    bl64_check_parameter "$app_version" || return $?
+  if [[ ! -v "$app_target" || ! -v "$app_version" ]]; then
+    bl64_dbg_app_show_comments 'check is not performed for methods that do not use TARGET or VERSION'
+    return 0
+  fi
+
   INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
   if [[ -f "$INST64_STATUS_PATH" ]]; then
     if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
@@ -489,13 +494,22 @@ function inst64_lib_alert_incompatible_platform() {
 function inst64_lib_app_register_version() {
   bl64_dbg_app_show_function
   local version="INST64_${INST64_APP_ID}_VERSION"
-  bl64_check_parameter "$version" || return $?
-  echo "${!version}" >"$INST64_STATUS_PATH"
+  bl64_check_parameter "$version" &&
+    bl64_fs_file_remove "$INST64_STATUS_PATH" &&
+    bl64_fs_file_create "$INST64_STATUS_PATH" "$INST64_STATUS_MODE" &&
+    echo "${!version}" >"$INST64_STATUS_PATH"
 }
 
 function inst64_lib_base_initialize() {
   bl64_dbg_app_show_function
   bl64_msg_show_phase 'initialize installer'
+
+  if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
+    bl64_lib_script_minver_check "$INST64_LIB_VERSION_REQUIRED" ||
+      return $?
+  else
+    bl64_msg_show_warning "BashLib64 library must be upgraded to ensure compatibility (current: ${BL64_VERSION} / required: ${INST64_LIB_VERSION_REQUIRED})"
+  fi
 
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
