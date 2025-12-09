@@ -12,32 +12,32 @@
 # limitations under the License.
 #######################################
 
-MODE="${1:-SYSTEM}"
+MY_MODE="${1:-SYSTEM}"
 
-prepare() {
-  TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
+my_prepare() {
+  TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/my_installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
     [ -n "$TARGET_RELEASE" ] &&
-    curl -LO "https://github.com/automation64/installer64/releases/download/${TARGET_RELEASE}/install-installer64" &&
-    chmod 755 install-installer64
+    curl -LO "https://github.com/automation64/my_installer64/releases/download/${TARGET_RELEASE}/my_install-my_installer64" &&
+    chmod 755 my_install-my_installer64
 }
 
-install() {
-  if [ "$MODE" = 'SYSTEM' ]; then
+my_install() {
+  if [ "$MY_MODE" = 'SYSTEM' ]; then
     INST64_SYSTEM_WIDE='YES'
     export INST64_SYSTEM_WIDE
     if [ "$(id -u)" = "0" ]; then
-      ./install-installer64
+      ./my_install-my_installer64
     else
-      sudo -E ./install-installer64
+      sudo -E ./my_install-my_installer64
     fi
   else
     INST64_SYSTEM_WIDE='NO'
     export INST64_SYSTEM_WIDE
-    ./install-installer64
+    ./my_install-my_installer64
   fi || return $?
-  rm -f install-installer64
+  rm -f my_install-my_installer64
   return 0
 }
 
-prepare &&
-  install
+my_prepare &&
+  my_install

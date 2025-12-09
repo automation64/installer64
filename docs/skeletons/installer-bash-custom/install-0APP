@@ -49,46 +49,46 @@ INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 # Functions
 #
 
-function inst64_prepare() {
+function my_prepare() {
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_PREPARE_PLACEHOLDER_X
   fi
 }
 
-function inst64_install() {
+function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
 }
 
-function inst64_setup() {
+function my_setup() {
   inst64_lib_step_setup || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
 }
 
-function inst64_verify() {
+function my_verify() {
   inst64_lib_step_verify || return 0
   # X_VERIFY_PLACEHOLDER_X
 }
 
-function inst64_select_platform() {
+function my_select_platform() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_PLATFORM_SELECTION_PLACEHOLDER_X
   fi
 }
 
-function inst64_select_packages() {
+function my_select_packages() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
   inst64_lib_package_check_definition
 }
 
-function inst64_initialize() {
+function my_initialize() {
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method "$INST64_METHOD_CUSTOM" ||
     return $?
@@ -96,8 +96,8 @@ function inst64_initialize() {
   # X_INIT_PLACEHOLDER_X
   # X_PRE_REQ_PLACEHOLDER_X
 
-  inst64_select_platform &&
-    inst64_select_packages ||
+  my_select_platform &&
+    my_select_packages ||
     return $?
 
   inst64_lib_app_check_installed && return 0
@@ -109,9 +109,9 @@ function inst64_initialize() {
 #
 
 inst64_lib_task_process_start &&
-  inst64_initialize &&
-  inst64_prepare &&
-  inst64_install &&
-  inst64_setup &&
-  inst64_verify
+  my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_setup &&
+  my_verify
 inst64_lib_task_process_finish $?

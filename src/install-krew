@@ -84,7 +84,7 @@ function inst64_install_custom() {
   inst64_lib_staging_remove
 }
 
-function inst64_prepare() {
+function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
@@ -92,7 +92,7 @@ function inst64_prepare() {
   fi
 }
 
-function inst64_install() {
+function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
@@ -100,7 +100,7 @@ function inst64_install() {
   fi
 }
 
-function inst64_setup() {
+function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
@@ -109,7 +109,7 @@ function inst64_setup() {
   fi
 }
 
-function inst64_verify() {
+function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   KREW_ROOT="$HOME/.krew" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
@@ -119,7 +119,7 @@ function inst64_verify() {
   fi
 }
 
-function inst64_select_method() {
+function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     "$INST64_METHOD_AUTO" \
@@ -130,7 +130,7 @@ function inst64_select_method() {
   fi
 }
 
-function inst64_select_platform() {
+function my_select_platform() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if [[ -z "$INST64_KREW_PLATFORM" ]]; then
@@ -144,7 +144,7 @@ function inst64_select_platform() {
   fi
 }
 
-function inst64_select_packages() {
+function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KREW_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     if [[ "$INST64_KREW_VERSION" == 'latest' ]]; then
@@ -157,9 +157,9 @@ function inst64_select_packages() {
   inst64_lib_package_check_definition
 }
 
-function inst64_initialize() {
+function my_initialize() {
   bl64_dbg_app_show_function
-  inst64_select_method &&
+  my_select_method &&
     inst64_lib_base_initialize ||
     return $?
 
@@ -170,8 +170,8 @@ function inst64_initialize() {
       return $?
   fi
 
-  inst64_select_platform &&
-    inst64_select_packages &&
+  my_select_platform &&
+    my_select_packages &&
     inst64_lib_cli_set_path ||
     return $?
 
@@ -186,9 +186,9 @@ function inst64_initialize() {
 bl64_lib_script_version_set '2.0.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG" 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
-inst64_initialize &&
-  inst64_prepare &&
-  inst64_install &&
-  inst64_setup &&
-  inst64_verify
+my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_setup &&
+  my_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

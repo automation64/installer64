@@ -83,9 +83,9 @@ function inst64_install_with_gem() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-function inst64_install() {
+function my_install() {
   bl64_dbg_app_show_function
-  inst64_select_packages || return $?
+  my_select_packages || return $?
   bl64_msg_show_task 'deploy application'
   if [[ "$INST64_JEKYLL_METHOD" == 'GEM' ]]; then
     inst64_install_with_gem
@@ -103,7 +103,7 @@ function inst64_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-function inst64_select_packages() {
+function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_JEKYLL_METHOD" == 'GEM' ]]; then
     INST64_PKG_MAIN="jekyll bundler"
@@ -123,7 +123,7 @@ function inst64_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-function inst64_prepare() {
+function my_prepare() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'prepare deployment'
 }
@@ -139,7 +139,7 @@ function inst64_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-function inst64_verify() {
+function my_verify() {
   bl64_dbg_app_show_function
   bl64_msg_show_task 'verify deployment'
   if [[ "$INST64_JEKYLL_METHOD" == 'GEM' ]]; then
@@ -159,7 +159,7 @@ function inst64_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-function inst64_initialize() {
+function my_initialize() {
   bl64_dbg_app_show_function
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     [[ -d "$INST64_HOME" ]] && INST64_SYSTEM_WIDE='NO' || INST64_SYSTEM_WIDE='YES'
@@ -194,8 +194,8 @@ function inst64_initialize() {
 bl64_lib_script_version_set '1.1.0'
 bl64_msg_set_format "$INST64_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$INST64_DEBUG"
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
-inst64_initialize &&
-  inst64_prepare &&
-  inst64_install &&
-  inst64_verify
+my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_verify
 bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

@@ -89,7 +89,7 @@ inst64_check_root() {
 #   0: selection completed ok
 #   >0: unable to selection
 #######################################
-inst64_select_platform() {
+my_select_platform() {
   INST64_X_APP_NAME_CAPS_X_PLATFORM="$(uname -s)"
   [ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ] && echo 'Error: unable to determine platform id' && return 1
   if [ "$INST64_X_APP_NAME_CAPS_X_PLATFORM" != 'Darwin' ] && [ "$INST64_X_APP_NAME_CAPS_X_PLATFORM" != 'Linux' ]; then
@@ -109,7 +109,7 @@ inst64_select_platform() {
 #   0: package installed ok
 #   >0: unable to install package
 #######################################
-inst64_install() {
+my_install() {
   # X_INSTALL_PLACEHOLDER_X
   return 0
 }
@@ -125,7 +125,7 @@ inst64_install() {
 #   0: selection ok
 #   >0: selection failed
 #######################################
-inst64_select_packages() {
+my_select_packages() {
   # X_SELECT_PKG_PLACEHOLDER_X
   if [ -z "$INST64_PKG_MAIN" ]; then
     inst64_msg_show_error 'unable to determine package name'
@@ -145,7 +145,7 @@ inst64_select_packages() {
 #   0: preparation ok
 #   >0: preparation failed
 #######################################
-inst64_prepare() {
+my_prepare() {
   inst64_msg_show_task 'prepare deployment'
   # X_PREPARE_PLACEHOLDER_X
 }
@@ -161,7 +161,7 @@ inst64_prepare() {
 #   0: verification ok
 #   >0: verification failed
 #######################################
-inst64_verify() {
+my_verify() {
   inst64_msg_show_task 'verify deployment'
   # X_VERIFY_PLACEHOLDER_X
   # example # "$INST64_CLI_PATH" --version
@@ -178,7 +178,7 @@ inst64_verify() {
 #   0: initialization ok
 #   >: initialization failed
 #######################################
-inst64_initialize() {
+my_initialize() {
   # X_INIT_PLACEHOLDER_X
   # X_PRE_REQ_PLACEHOLDER_X
   # X_SELECTORS_PLACEHOLDER_X
@@ -198,9 +198,9 @@ if [ -n "$INST64_DEBUG" ]; then
   set -x
 fi
 
-inst64_initialize &&
-  inst64_prepare &&
-  inst64_install &&
-  inst64_verify
+my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_verify
   # X_MAIN_POST_VERIFY_PLACEHOLDER_X
 inst64_msg_show_batch_stop "$?" "$0"

@@ -59,37 +59,37 @@ function inst64_install_custom() {
     "$INST64_PKG_MAIN"
 }
 
-function inst64_prepare() {
+function my_prepare() {
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_XCODECLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     :
   fi
 }
 
-function inst64_install() {
+function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_XCODECLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_install_custom
   fi
 }
 
-function inst64_setup() {
+function my_setup() {
   inst64_lib_step_setup || return 0
   if [[ "$INST64_XCODECLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     :
   fi
 }
 
-function inst64_verify() {
+function my_verify() {
   inst64_lib_step_verify || return 0
   "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --print-path
 }
 
-function inst64_select_platform() {
+function my_select_platform() {
   return 0
 }
 
-function inst64_select_packages() {
+function my_select_packages() {
   if [[ "$INST64_XCODECLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     INST64_PKG_MAIN="${INST64_PKG_MAIN}-${INST64_XCODECLI_VERSION}"
     [[ -z "$INST64_PKG_MAIN" ]] && echo 'Error: unable to determine package name' && return 1
@@ -97,7 +97,7 @@ function inst64_select_packages() {
   return 0
 }
 
-function inst64_initialize() {
+function my_initialize() {
   inst64_lib_base_initialize &&
     inst64_lib_app_check_method "$INST64_METHOD_CUSTOM" ||
     return $?
@@ -108,8 +108,8 @@ function inst64_initialize() {
       return $?
   fi
 
-  inst64_select_platform &&
-    inst64_select_packages ||
+  my_select_platform &&
+    my_select_packages ||
     return $?
 
   inst64_lib_app_check_installed && return 0
@@ -121,9 +121,9 @@ function inst64_initialize() {
 #
 
 inst64_lib_task_process_start &&
-  inst64_initialize &&
-  inst64_prepare &&
-  inst64_install &&
-  inst64_setup &&
-  inst64_verify
+  my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_setup &&
+  my_verify
 inst64_lib_task_process_finish $?
