@@ -26,7 +26,7 @@
   # Enable debugging? Options: BL64_DBG_TARGET_*
   declare INST64_DEBUG="${INST64_DEBUG:-$BL64_DBG_TARGET_NONE}"
   # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
-  declare INST64_VERBOSE="${INST64_VERBOSE:-$BL64_MSG_FORMAT_FULL}"
+  declare INST64_VERBOSE="${INST64_VERBOSE:-}"
   # Base path for local applications
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
   # Local applications binaries location
@@ -151,7 +151,7 @@
   declare INST64_LIB_VERSION_BL64='1.11.0'
 
   # BashLib64 version required
-  declare INST64_LIB_VERSION_REQUIRED='22.9.0'
+  declare INST64_LIB_VERSION_REQUIRED='22.10.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -502,6 +502,8 @@ function inst64_lib_app_register_version() {
 
 function inst64_lib_base_initialize() {
   bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+
   bl64_msg_show_phase 'initialize installer'
 
   if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
@@ -511,6 +513,9 @@ function inst64_lib_base_initialize() {
     bl64_msg_show_warning "BashLib64 library must be upgraded to ensure compatibility (current: ${BL64_VERSION} / required: ${INST64_LIB_VERSION_REQUIRED})"
   fi
 
+  if [[ ! "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_FPAK") ]]; then
+    bl64_msg_show_warning 'Disclaimer: This installer is provided as-is without any warranties. You are fully responsible for checking the source, the software license, the author, and the safety of the application you install.'
+  fi
   inst64_lib_base_set_system_wide &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
@@ -1119,4 +1124,22 @@ function inst64_lib_brew_install() {
   else
     bl64_pkg_brew_install $INST64_PKG_MAIN
   fi
+}
+
+function inst64_lib_base_set_verbosity() {
+  bl64_dbg_app_show_function
+  local output="$BL64_MSG_OUTPUT_ANSI"
+  local format="$BL64_MSG_FORMAT_FULL"
+
+  bl64_dbg_set_level "$INST64_DEBUG"
+  bl64_dbg_app_show_comments 'support legacy bl64 versions'
+  if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
+    if ! bl64_fmt_version_is_less_than "$BL64_VERSION" '22.10.0'; then
+      output="$BL64_MSG_OUTPUT_EMOJI"
+      format="$BL64_MSG_FORMAT_FULL2"
+    fi
+  fi
+  bl64_msg_set_output "$output" &&
+    bl64_msg_set_format "${INST64_VERBOSE:-$format}" &&
+    bl64_msg_all_enable_verbose
 }
