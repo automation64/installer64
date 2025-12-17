@@ -152,7 +152,7 @@
   declare INST64_LIB_VERSION_BL64='1.13.0'
 
   # BashLib64 version required
-  declare INST64_LIB_VERSION_REQUIRED='22.10.0'
+  declare INST64_LIB_VERSION_REQUIRED='22.8.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
