@@ -42,63 +42,45 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_GO_METHOD="${INST64_GO_METHOD:-BINARY}"
+declare INST64_BANDWICH_METHOD="${INST64_BANDWICH_METHOD:-BINARY}"
 # Installation destination
-declare INST64_GO_TARGET="${INST64_GO_TARGET:-}"
+declare INST64_BANDWICH_TARGET="${INST64_BANDWICH_TARGET:-}"
 # Hardware architecture
-declare INST64_GO_PLATFORM="${INST64_GO_PLATFORM:-}"
+declare INST64_BANDWICH_PLATFORM="${INST64_BANDWICH_PLATFORM:-}"
 # Application version
-declare INST64_GO_VERSION="${INST64_GO_VERSION:-latest}"
+declare INST64_BANDWICH_VERSION="${INST64_BANDWICH_VERSION:-latest}"
 
-INST64_APP_NAME='go'
-INST64_APP_ID='GO'
-INST64_APP_FULL_NAME='GO - Go Programming Language'
-INST64_CLI_NAME='go'
-INST64_CLI_NAME_GOFMT='gofmt'
+INST64_APP_NAME='bandwhich'
+INST64_APP_ID='BANDWICH'
+INST64_APP_FULL_NAME='BandWhich - Terminal bandwidth utilization tool'
+INST64_CLI_NAME='bandwhich'
 
-INST64_WEB_REPO_URL='https://go.dev'
-INST64_WEB_REPO_PATH='dl'
-INST64_PKG_MAIN_PREFIX='go'
-INST64_PKG_MAIN_SUFFIX='tar.gz'
-INST64_CPU_DARWIN_ARM64='darwin-arm64'
-INST64_CPU_LINUX_AMD64='linux-amd64'
+INST64_GH_REPO_NAME='bandwhich'
+INST64_GH_REPO_OWNER='imsnif'
+INST64_PKG_MAIN_PREFIX='bandwhich-'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='aarch64-apple-darwin'
+INST64_CPU_LINUX_AMD64_GNU='x86_64-unknown-linux-gnu'
+INST64_CPU_LINUX_AMD64_MUSL='x86_64-unknown-linux-musl'
+INST64_CPU_LINUX_ARM64_GNU='aarch64-unknown-linux-gnu'
+INST64_CPU_LINUX_ARM64_MUSL='aarch64-unknown-linux-musl'
 
 #
 # Functions
 #
 
-function inst64_select_packages_version() {
-  bl64_dbg_app_show_function
-  local package_version=''
-  package_version="$(
-    bl64_api_call \
-      "$INST64_WEB_REPO_URL" \
-      '/VERSION?m=text' \
-      "$BL64_API_METHOD_GET" |
-      bl64_txt_run_grep 'go'
-  )"
-  if [[ -n "$package_version" ]]; then
-    echo "${package_version#go}"
-  else
-    bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
-    # shellcheck disable=SC2086
-    return $BL64_LIB_ERROR_TASK_FAILED
-  fi
-}
-
 function inst64_install_binary() {
   bl64_dbg_app_show_function
 
-  INST64_WORK_PATH_SOURCE="$INST64_APP_NAME"
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file &&
+    inst64_lib_gh_get_asset &&
     inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
   inst64_lib_target_create &&
-    inst64_lib_target_merge ||
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -108,7 +90,7 @@ function inst64_install_binary() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -116,7 +98,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_install_binary
   fi
 }
@@ -124,21 +106,17 @@ function my_install() {
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_task_publish
-    INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME}" \
-      inst64_lib_cli_promote &&
-      INST64_CLI_NAME="$INST64_CLI_NAME_GOFMT" \
-        INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME}" \
-        inst64_lib_cli_promote
+    inst64_lib_cli_promote
   fi
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" version || return $?
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version || return $?
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -149,19 +127,37 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_GO_METHOD="$INST64_METHOD_BINARY"
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_BANDWICH_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ -z "$INST64_GO_PLATFORM" ]]; then
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ -z "$INST64_BANDWICH_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_GO_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+        INST64_BANDWICH_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_GO_PLATFORM="$INST64_CPU_LINUX_AMD64"
+        # shellcheck disable=SC2249
+        case "$BL64_OS_FLAVOR" in
+          "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+            ;;
+          "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_ARCH")
+            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+            ;;
+        esac
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        # shellcheck disable=SC2249
+        case "$BL64_OS_FLAVOR" in
+          "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+            ;;
+          "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_ARCH")
+            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+            ;;
+        esac
       fi
     fi
     inst64_lib_platform_check_cpu
@@ -170,12 +166,12 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ "$INST64_GO_VERSION" == 'latest' ]]; then
-      INST64_GO_VERSION="$(inst64_select_packages_version)" ||
+  if [[ "$INST64_BANDWICH_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ "$INST64_BANDWICH_VERSION" == 'latest' ]]; then
+      INST64_BANDWICH_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${INST64_PKG_MAIN_SUFFIX}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_BANDWICH_VERSION}-${INST64_BANDWICH_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
@@ -199,7 +195,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.2'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

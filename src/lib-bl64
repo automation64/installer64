@@ -56,6 +56,7 @@
   declare INST64_METHOD_BREW='BREW'
   declare INST64_METHOD_CUSTOM='CUSTOM'
   declare INST64_METHOD_FPAK='FPAK'
+  declare INST64_METHOD_GO='GO'
   declare INST64_METHOD_KREW='KREW'
   declare INST64_METHOD_EXTERNAL='EXTERNAL'
   declare INST64_METHOD_NATIVE='NATIVE'
@@ -148,7 +149,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.11.0'
+  declare INST64_LIB_VERSION_BL64='1.13.0'
 
   # BashLib64 version required
   declare INST64_LIB_VERSION_REQUIRED='22.10.0'
@@ -168,11 +169,12 @@
   declare INST64_WORK_PATH_STAGING=''
 
   # External commands
-  declare INST64_COMMAND_PIPX=''
-  declare INST64_COMMAND_NPM=''
-  declare INST64_COMMAND_GUNZIP=''
-  declare INST64_COMMAND_FLATPAK=''
   declare INST64_COMMAND_7ZZ=''
+  declare INST64_COMMAND_FLATPAK=''
+  declare INST64_COMMAND_GO=''
+  declare INST64_COMMAND_GUNZIP=''
+  declare INST64_COMMAND_NPM=''
+  declare INST64_COMMAND_PIPX=''
 
   # BashLib64 overrides
   declare BL64_API_CALL_SET_MAX_RETRIES='3'
@@ -206,6 +208,9 @@ function inst64_lib_base_set_system_wide() {
       "$INST64_METHOD_NPM")
         INST64_SYSTEM_WIDE='NO'
         ;;
+      "$INST64_METHOD_GO")
+        INST64_SYSTEM_WIDE='NO'
+        ;;
       "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL")
         INST64_SYSTEM_WIDE='YES'
         ;;
@@ -233,7 +238,7 @@ function inst64_lib_base_set_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_check_parameter "$method" || return $?
-  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   if [[ -z "$INST64_OPT_ROOT" ]]; then
@@ -264,7 +269,7 @@ function inst64_lib_target_set_path() {
   local target_basename="$INST64_APP_NAME"
 
   bl64_check_parameter "$method" || return $?
-  if [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]]; then
+  if [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]]; then
     bl64_dbg_app_show_comments 'TARGET is not used for this installation method. Reset it'
     printf \
       -v "INST64_${INST64_APP_ID}_TARGET" \
@@ -305,7 +310,7 @@ function inst64_lib_target_set_owner() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_check_parameter "$method" || return $?
-  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -337,6 +342,9 @@ function inst64_lib_cli_set_path() {
       ;;
     "$INST64_METHOD_NPM")
       INST64_CLI_PATH="${HOME}/node_modules/.bin"
+      ;;
+    "$INST64_METHOD_GO")
+      INST64_CLI_PATH="${HOME}/go/bin"
       ;;
     "$INST64_METHOD_FPAK")
       INST64_CLI_PATH='/var/lib/flatpak/exports/bin'
@@ -464,7 +472,7 @@ function inst64_lib_base_create_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_check_parameter "$method" || return $?
-  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -586,6 +594,17 @@ function inst64_lib_method_initialize() {
       INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
       if [[ -z "$INST64_COMMAND_NPM" ]]; then
         bl64_msg_show_error 'npm command not found. Please install it and try again'
+        return 1
+      fi
+      return 0
+      ;;
+    "$INST64_METHOD_GO")
+      bl64_check_privilege_not_root ||
+        return $?
+
+      INST64_COMMAND_GO="$(bl64_bsh_command_locate 'go')"
+      if [[ -z "$INST64_COMMAND_GO" ]]; then
+        bl64_msg_show_error 'go command not found. Please install it and try again'
         return 1
       fi
       return 0
@@ -716,6 +735,15 @@ function inst64_lib_command_run_pipx() {
   bl64_dbg_app_trace_stop
 }
 
+function inst64_lib_command_run_go() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_GO" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
 function inst64_lib_command_run_npm() {
   bl64_dbg_app_show_function "$@"
   bl64_dbg_app_trace_start
@@ -815,12 +843,13 @@ function inst64_lib_git_get_dir() {
     bl64_check_parameter 'INST64_GIT_REPO' ||
     return $?
 
-  bl64_rxtx_git_get_dir \
-    "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
-    '.' \
-    "${!target}" \
-    "$BL64_VAR_ON" \
-    "$INST64_GIT_BRANCH"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_rxtx_git_get_dir \
+      "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
+      '.' \
+      "${!target}" \
+      "$BL64_VAR_ON" \
+      "$INST64_GIT_BRANCH"
 }
 
 function inst64_lib_cli_promote() {
@@ -870,7 +899,7 @@ function inst64_lib_target_create() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local method="INST64_${INST64_APP_ID}_METHOD"
 
-  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   bl64_fs_dir_create \
@@ -895,9 +924,10 @@ function inst64_lib_staging_open_tar() {
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
-  bl64_arc_open_tar \
-    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
-    "${INST64_WORK_PATH_STAGING}"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_arc_open_tar \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+      "${INST64_WORK_PATH_STAGING}"
 }
 
 function inst64_lib_staging_open_zip() {
@@ -905,9 +935,10 @@ function inst64_lib_staging_open_zip() {
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
-  bl64_arc_open_zip \
-    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
-    "${INST64_WORK_PATH_STAGING}"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_arc_open_zip \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+      "${INST64_WORK_PATH_STAGING}"
 }
 
 function inst64_lib_staging_open_gz() {
@@ -915,8 +946,9 @@ function inst64_lib_staging_open_gz() {
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
-  inst64_lib_command_run_gunzip \
-    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    inst64_lib_command_run_gunzip \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
 }
 
 function inst64_lib_staging_open_7z() {
@@ -924,7 +956,8 @@ function inst64_lib_staging_open_7z() {
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
-  cd "${INST64_WORK_PATH_STAGING}" &&
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    cd "${INST64_WORK_PATH_STAGING}" &&
     inst64_lib_command_run_7zz \
       x \
       "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
@@ -947,11 +980,12 @@ function inst64_lib_target_populate() {
 
   [[ -z "$INST64_WORK_PATH_SOURCE" ]] && INST64_WORK_PATH_SOURCE="$INST64_CLI_NAME"
 
-  bl64_fs_path_copy \
-    "$INST64_CLI_MODE" "$INST64_TARGET_MODE_DIR" \
-    "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
-    "${!target}" \
-    "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_fs_path_copy \
+      "$INST64_CLI_MODE" "$INST64_TARGET_MODE_DIR" \
+      "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
+      "${!target}" \
+      "${INST64_WORK_PATH_STAGING}/${INST64_WORK_PATH_SOURCE}"
 }
 
 function inst64_lib_target_merge() {
@@ -976,9 +1010,10 @@ function inst64_lib_target_open_tar() {
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
-  bl64_arc_open_tar \
-    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
-    "${INST64_OPT_ROOT}"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_arc_open_tar \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
+      "${INST64_OPT_ROOT}"
 }
 
 function inst64_lib_installer_run() {
@@ -986,7 +1021,8 @@ function inst64_lib_installer_run() {
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_APP_INSTALLER' || return $?
 
-  "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" "$@"
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" "$@"
 }
 
 function inst64_lib_web_get_file() {
@@ -1087,6 +1123,23 @@ function inst64_lib_nodejs_install_npm() {
       return $?
   fi
   return 0
+}
+
+function inst64_lib_go_install_go() {
+  bl64_dbg_app_show_function
+  local package_version="INST64_${INST64_APP_ID}_VERSION"
+
+  bl64_check_parameter 'INST64_PKG_MAIN' &&
+    bl64_check_parameter "$package_version" ||
+    return $?
+
+  bl64_msg_show_task 'deploy application'
+  cd "$HOME" || return $?
+  inst64_lib_command_run_go \
+    install \
+    -trimpath \
+    -v \
+    "${INST64_PKG_MAIN}@${!package_version}"
 }
 
 function inst64_lib_flatpak_install() {

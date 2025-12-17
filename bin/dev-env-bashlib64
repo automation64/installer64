@@ -37,6 +37,18 @@
 }
 
 #
+# Module variables
+#
+# * Shared internal variables for module tasks
+#
+
+# shellcheck disable=SC2154
+{
+  # Env / BashLib64 / Module environment definition version
+  export DEV_ENV_BASHLIB64_VERSION='2.2.0'
+}
+
+#
 # External
 #
 
@@ -66,16 +78,4 @@
   export INST64_BASHLIB64_TARGET="$DEV_LIB_BASHLIB64_TARGET"
   # Lib / Installer64 / Force user install type
   export INST64_SYSTEM_WIDE='NO'
-}
-
-#
-# Internal variables
-#
-# * Shared internal variables for module tasks
-#
-
-# shellcheck disable=SC2154
-{
-  # Env / BashLib64 / Module environment definition version
-  export DEV_ENV_BASHLIB64_VERSION='2.2.0'
 }

@@ -73,7 +73,6 @@ function inst64_install_binary() {
   inst64_lib_task_download
   inst64_lib_staging_create &&
     inst64_lib_web_get_file &&
-    bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
     inst64_lib_staging_open_tar ||
     return $?
 
@@ -216,8 +215,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '1.1.1'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

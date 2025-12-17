@@ -104,12 +104,13 @@ _Installer64_ implements the optimal installation method for each application:
 1. `CUSTOM`: Custom installer. Catch all method, when no other option is available
 1. `EXTERNAL`: OS standard packages from external repository
 1. `FPAK`: FlatPak package (system-wide installation)
-1. `KREW`: Krew (KubeCTL plugin) package (user-wide installation)
+1. `GO`: Go Lang module (user-wide installation only)
+1. `KREW`: Krew (KubeCTL plugin) package (user-wide installation only)
 1. `NATIVE`: OS standard packages from package repository
-1. `NPM`: NodeJS module (user-wide installation)
+1. `NPM`: NodeJS module (user-wide installation only)
 1. `PACKAGE`: Standalone OS package file (RPM for RHEL, DEB for Debian/Ubuntu, etc.)
-1. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation)
-1. `PIPX`: Python module (user-wide installation)
+1. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation only)
+1. `PIPX`: Python module (user-wide installation only)
 
 ---
 

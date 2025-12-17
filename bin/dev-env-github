@@ -57,19 +57,7 @@
 }
 
 #
-# External
-#
-# * External tools only. Use to declare configuration env-vars
-#
-
-# shellcheck disable=SC2154
-{
-  # Auth / GitHub / Token
-  export GITHUB_TOKEN="${GITHUB_TOKEN:-}"
-}
-
-#
-# Internal variables
+# Module variables
 #
 # * Shared internal variables for module tasks
 #
@@ -81,4 +69,16 @@
 
   # Lib / GitHub / Installer
   export DEV_LIB_GITHUB_INSTALLER="${DEV_LIB_INSTALLER64_TARGET}/install-ghcli"
+}
+
+#
+# External
+#
+# * External tools only. Use to declare configuration env-vars
+#
+
+# shellcheck disable=SC2154
+{
+  # Auth / GitHub / Token
+  export GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 }

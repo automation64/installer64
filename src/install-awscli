@@ -71,11 +71,10 @@ function inst64_install_custom_linux() {
     return $?
 
   inst64_lib_task_deploy
-  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    "${INST64_WORK_PATH_STAGING}/$INST64_APP_INSTALLER" \
-      --bin-dir "${INST64_AWSCLI_TARGET}/bin" \
-      --install-dir "${INST64_AWSCLI_TARGET}/versions" \
-      --update
+  inst64_lib_installer_run \
+    --bin-dir "${INST64_AWSCLI_TARGET}/bin" \
+    --install-dir "${INST64_AWSCLI_TARGET}/versions" \
+    --update
 }
 
 function inst64_install_custom_macos() {
@@ -207,8 +206,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.2'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '2.0.3'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&
