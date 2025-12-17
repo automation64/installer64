@@ -22,3 +22,4 @@ enable=deprecate-which
 
 source-path=src
 source-path=/opt/bl64
+source-path=./lib/bl64
