@@ -50,7 +50,7 @@
 }
 
 #
-# Internal variables
+# Module variables
 #
 # * Shared internal variables for module tasks
 #

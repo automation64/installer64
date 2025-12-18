@@ -48,7 +48,7 @@ function _lib_test_home_remove_local() {
 if [[ "$(uname -s)" == 'Linux' ]]; then
   if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" != 'ON' ]]; then
     echo 'error: Test must be executed inside a container'
-#    exit 1
+    exit 1
   fi
 else
   if [[ "$DEV_TEST_BASH_RUNNER_ENVIRONMENT" != 'ON' ]]; then
@@ -57,7 +57,7 @@ else
   fi
 fi
 
-if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" == 'ON' ]]; then
+if [[ "$DEV_TEST_BASH_CONTAINER_ENVIRONMENT" == 'ON' || "$DEV_TEST_BASH_RUNNER_ENVIRONMENT" == 'ON' ]]; then
   INST64_BASHLIB64="${DEV_ENV_BASH_CONTAINER_PATH_ROOT}/lib/bl64"
   INST64_LIB_PATH="$DEV_ENV_BASH_CONTAINER_PATH_SRC"
   [[ ! -d "$DEV_ENV_BASH_CONTAINER_PATH_SRC" ]] && echo "error: source path not found (${DEV_ENV_BASH_CONTAINER_PATH_SRC})" && exit 1
