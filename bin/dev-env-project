@@ -14,6 +14,28 @@
 #######################################
 
 #
+# Module variables
+#
+# * Shared internal variables for module tasks
+#
+
+# shellcheck disable=SC2154
+{
+  # Env / Project / Module environment definition version
+  export DEV_ENV_PROJECT_ID='project'
+  export DEV_ENV_PROJECT_VERSION='1.1.0'
+
+  # Env / Project / Container path for project mounts
+  export DEV_ENV_PROJECT_CONTAINER_PATH_SRC='/source'
+  export DEV_ENV_PROJECT_CONTAINER_PATH_ROOT='/project'
+  export DEV_ENV_PROJECT_CONTAINER_PATH_TEST='/test'
+
+  # Pack / Project / Paths
+  export DEV_PACK_PROJECT_PATH_STAGING="${DEV_PATH_BUILD_STAGING}/${DEV_ENV_PROJECT_ID}"
+  export DEV_PACK_PROJECT_PATH_TARGET="${DEV_PATH_BUILD_PACK}/${DEV_ENV_PROJECT_ID}"
+}
+
+#
 # Module parameters
 #
 # * Use .env file to override values
@@ -23,29 +45,14 @@
 {
   # Env / Project / Registry for lab and testing containers
   export DEV_ENV_PROJECT_REGISTRY="${DEV_ENV_PROJECT_REGISTRY:-ghcr.io/automation64}"
+
   # Lab / Project / Default image
   export DEV_LAB_PROJECT_CONTAINER="${DEV_LAB_PROJECT_CONTAINER:-dev/ubuntu-22.4-dev}"
+
   # Pack / Project / Package file name
   export DEV_PACK_PROJECT_BUNDLE="${DEV_PACK_PROJECT_BUNDLE:-}"
   # Pack / Project / Assets to include in the package
   export DEV_PACK_PROJECT_ASSETS="${DEV_PACK_PROJECT_ASSETS:-}"
   # Pack / Project / List of generated distributable files
-  export DEV_PACK_PROJECT_DISTRIBUTABLE="${DEV_PACK_PROJECT_DISTRIBUTABLE:-${DEV_PATH_BUILD_PACK}/${DEV_PACK_PROJECT_BUNDLE}}"
-}
-
-#
-# Internal variables
-#
-# * Shared internal variables for module tasks
-#
-
-# shellcheck disable=SC2154
-{
-  # Env / Project / Module environment definition version
-  export DEV_ENV_PROJECT_VERSION='1.0.0'
-
-  # Env / Project / Container path for project mounts
-  export DEV_ENV_PROJECT_CONTAINER_PATH_SRC='/source'
-  export DEV_ENV_PROJECT_CONTAINER_PATH_ROOT='/project'
-  export DEV_ENV_PROJECT_CONTAINER_PATH_TEST='/test'
+  export DEV_PACK_PROJECT_DISTRIBUTABLE="${DEV_PACK_PROJECT_DISTRIBUTABLE:-}"
 }

@@ -53,7 +53,7 @@ function my_initialize() {
   bl64_lib_var_is_default "$MY_CONTAINER" &&
     MY_CONTAINER="$DEV_TEST_TESTMANSH_CONTAINER"
   bl64_check_command "$DEV_LIB_TESTMANSH_BIN" &&
-    bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
+    dev_bin64_task_show_setup \
       'MY_CONTAINER' \
       'MY_TARGET'
 }

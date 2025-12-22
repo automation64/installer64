@@ -52,7 +52,7 @@ function my_initialize() {
   bl64_msg_show_about
   bl64_vcs_setup &&
     bl64_check_parameter 'MY_BRANCH' &&
-    bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
+    dev_bin64_task_show_setup \
       'DEV_GIT_REMOTE_ORIGIN' \
       'MY_BRANCH' &&
     bl64_ui_ask_yesno 'The branch will be force deleted. Continue?'

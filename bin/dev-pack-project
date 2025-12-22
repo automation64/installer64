@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# template-task: 1.9.0
+# template-pack: 1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -28,14 +28,14 @@ source ./bin/dev-env-project || exit 1
 
 function my_prepare() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task "gather distributable package content (${DEV_PATH_BUILD_STAGING})"
+  bl64_msg_show_task 'gather distributable package content'
   # shellcheck disable=SC2086
   bl64_fs_path_copy \
     '0755' \
     "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" \
-    "$DEV_PATH_BUILD_STAGING" \
+    "$DEV_PACK_PROJECT_PATH_STAGING" \
     ${DEV_PATH_SRC}/install-* \
     ${DEV_PATH_SRC}/lib-* &&
     bl64_fs_path_copy \
@@ -43,25 +43,24 @@ function my_prepare() {
       "$BL64_VAR_DEFAULT" \
       "$BL64_VAR_DEFAULT" \
       "$BL64_VAR_DEFAULT" \
-      "$DEV_PATH_BUILD_PACK" \
-      "${DEV_PATH_BUILD_STAGING}/${DEV_ENV_PROJECT_INSTALLER_FILE}" ||
+      "$DEV_PACK_PROJECT_PATH_TARGET" \
+      "${DEV_PACK_PROJECT_PATH_STAGING}/${DEV_ENV_PROJECT_INSTALLER_FILE}" ||
     return $?
 }
 
 function my_create() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task "create dstributable bundle (${DEV_PACK_PROJECT_BUNDLE})"
+  bl64_msg_show_task 'create dstributable bundle'
   # shellcheck disable=SC2086
-  cd "$DEV_PATH_BUILD_STAGING" &&
+  cd "$DEV_PACK_PROJECT_PATH_STAGING" &&
     bl64_arc_run_tar \
-      czf "${DEV_PATH_BUILD_PACK}/${DEV_PACK_PROJECT_BUNDLE}" \
+      czf "${DEV_PACK_PROJECT_PATH_TARGET}/${DEV_PACK_PROJECT_BUNDLE}" \
       $BL64_ARC_SET_TAR_VERBOSE \
       *
 }
 
 function my_pack() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task "prepare packages destination (${DEV_PATH_BUILD_PACK})"
   my_prepare &&
     my_create
 }
@@ -69,19 +68,18 @@ function my_pack() {
 function my_initialize() {
   bl64_dbg_app_show_function
   bl64_msg_show_about
-  bl64_check_export 'DEV_PACK_PROJECT_BUNDLE' &&
-    bl64_arc_setup &&
-    bl64_fs_dir_reset \
-      "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
-      "$DEV_PATH_BUILD_STAGING" \
-      "$DEV_PATH_BUILD_PACK" &&
+  bl64_arc_setup &&
+    dev_bin64_build_setup "$DEV_PACK_PROJECT_PATH_TARGET" "$DEV_PACK_PROJECT_PATH_STAGING" &&
+    bl64_check_export 'DEV_PACK_PROJECT_BUNDLE' &&
     bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
+      'DEV_BUILD_PROJECT_PATH_OUTPUT' \
+      'DEV_PACK_PROJECT_PATH_TARGET' \
       'DEV_PACK_PROJECT_BUNDLE'
 }
 
-bl64_lib_script_version_set '1.0.0'
-bl64_msg_help_about_set 'Prepare package for distribution'
-bl64_msg_set_format "$DEV_VERBOSE" && bl64_msg_all_enable_verbose && bl64_dbg_set_level "$DEV_CICD_DEBUG" && my_initialize || exit $?
+bl64_lib_script_version_set '2.0.0'
+bl64_msg_help_about_set 'Pack application for release'
+dev_bin64_initialize && my_initialize || exit $?
 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_pack

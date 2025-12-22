@@ -29,8 +29,6 @@ function my_download() {
   bl64_dbg_app_show_function
   bl64_lib_flag_is_enabled "$DEV_LIB_SHELLCHECK_SKIP" && return 0
   INST64_SHELLCHECK_TARGET="$DEV_LIB_SHELLCHECK_TARGET" \
-    INST64_SYSTEM_WIDE='NO' \
-    INST64_CLI_PROMOTE='NO' \
     "${DEV_LIB_SHELLCHECK_INSTALLER}"
 }
 
