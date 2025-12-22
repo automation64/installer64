@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/github/license/automation64/installer64)
 ![GitHub stars](https://img.shields.io/github/stars/automation64/installer64?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/automation64/installer64?style=social)
-![GitHub All Releases](https://img.shields.io/github/downloads/automation64/installer64/total)
+![Release Downloads](https://img.shields.io/github/downloads/automation64/installer64/total)
 
 🚀 **One-Line installers for Tools and Applications**
 

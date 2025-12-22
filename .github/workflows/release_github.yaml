@@ -1,11 +1,10 @@
 ---
-# template: 1.3.0
-name: "Release / GitHub"
+# template: 1.4.0
+name: "Release/GitHub"
 
 env:
   DEV_CICD_DEBUG: "NONE"
   BL64_LIB_CICD: "YES"
-  DEV_LIB_GITHUB_BIN: "gh"
 
 on:
   push:
@@ -29,10 +28,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-lib-cache
 
-      - name: "Prepare environment"
-        run: "./bin/dev-lib-base"
+      - name: "Download tools"
+        run: |
+          ./bin/dev-lib-base &&
+          ./bin/dev-lib-github
 
-      - name: "Prepare distributable package"
+      - name: "Prepare application for release"
         run: "./bin/dev-pack-project"
 
       - name: "Create release"

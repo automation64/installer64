@@ -1,6 +1,6 @@
 ---
-# template-gh-lint: 1.2.0
-name: "Lint / ShellCheck"
+# template: 1.3.0
+name: "Lint/ShellCheck"
 
 env:
   DEV_CICD_DEBUG: "NONE"
@@ -32,9 +32,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-lib-cache
 
-      - name: "Prepare environment"
-        run: "./bin/dev-lib-base"
+      - name: "Download tools"
+        run: |
+          ./bin/dev-lib-base
 
-      - name: "Run tests"
+      - name: "Run Linter"
         run: "./bin/dev-lint-shellcheck"
 ...

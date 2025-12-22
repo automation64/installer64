@@ -14,51 +14,6 @@
 #######################################
 
 #
-# Locals
-#
-# * Use .local.env file or CICD variables to override values
-#
-
-# shellcheck disable=SC2154
-{
-  # Env / DevBin64 / Debug flag for scripts (Format: BL64_DBG_TARGET_*)
-  export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-NONE}"
-
-  # Env / DevBin64 / Debug flag for pure bash scripts
-  export DEV_CICD_DEBUG_BASH="${DEV_CICD_DEBUG_BASH:-}"
-
-  # Env / DevBin64 / Verbose format (Format: BL64_MSG_FORMAT_*)
-  export DEV_VERBOSE="${DEV_VERBOSE:-FULL2}"
-
-  # Env / DevBin64 / Verbose output type (Format: BL64_MSG_OUTPUT_*)
-  export DEV_VERBOSE_TYPE="${DEV_VERBOSE_TYPE:-EMOJI}"
-
-  # Env / DevBin64 / Profile
-  export DEV_PROFILE="${DEV_PROFILE:-}"
-}
-
-#
-# External
-#
-# * External tools only. Use to declare configuration env-vars
-#
-
-# shellcheck disable=SC2154
-{
-  # Env / DevBin64 / BashLib64 debugging
-  export BL64_LIB_CICD="${BL64_LIB_CICD:-}"
-
-  # Env / DevBin64 / GitHub Actions. Managed by the runner
-  export GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-}"
-
-  # Env / DevBin64 / GitLab CICD. Managed by the runner
-  export GITLAB_CI="${GITLAB_CI:-}"
-
-  # Env / DevBin64 / TestManSH container. Managed by the runner
-  export TESTMANSH_PROJECT_ROOT="${TESTMANSH_PROJECT_ROOT:-}"
-}
-
-#
 # Module variables
 #
 # * Shared internal variables for module tasks
@@ -81,11 +36,14 @@
   export DEV_BASE_SRC="src"
   export DEV_BASE_TEST="test"
 
+  # Env / DevBin64 / Standard prefixes and suffixes
+  export DEV_SUFFIX_CHECKSUM='-checksums.txt'
+
   # Env / DevBin64 / List of modules to load
   export DEV_MODULE_LOAD=''
 
   # Env / DevBin64 / Current version
-  export DEV_BIN64_VERSION='12.0.0'
+  export DEV_BIN64_VERSION='12.0.1'
 
   # Env / DevBin64 / Project root
   export DEV_PATH_ROOT=''
@@ -139,6 +97,51 @@
 }
 
 #
+# Locals
+#
+# * Use .local.env file or CICD variables to override values
+#
+
+# shellcheck disable=SC2154
+{
+  # Env / DevBin64 / Debug flag for scripts (Format: BL64_DBG_TARGET_*)
+  export DEV_CICD_DEBUG="${DEV_CICD_DEBUG:-NONE}"
+
+  # Env / DevBin64 / Debug flag for pure bash scripts
+  export DEV_CICD_DEBUG_BASH="${DEV_CICD_DEBUG_BASH:-}"
+
+  # Env / DevBin64 / Verbose format (Format: BL64_MSG_FORMAT_*)
+  export DEV_VERBOSE="${DEV_VERBOSE:-FULL2}"
+
+  # Env / DevBin64 / Verbose output type (Format: BL64_MSG_OUTPUT_*)
+  export DEV_VERBOSE_TYPE="${DEV_VERBOSE_TYPE:-EMOJI}"
+
+  # Env / DevBin64 / Profile
+  export DEV_PROFILE="${DEV_PROFILE:-}"
+}
+
+#
+# External
+#
+# * External tools only. Use to declare configuration env-vars
+#
+
+# shellcheck disable=SC2154
+{
+  # Env / DevBin64 / BashLib64 debugging
+  export BL64_LIB_CICD="${BL64_LIB_CICD:-}"
+
+  # Env / DevBin64 / GitHub Actions. Managed by the runner
+  export GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-}"
+
+  # Env / DevBin64 / GitLab CICD. Managed by the runner
+  export GITLAB_CI="${GITLAB_CI:-}"
+
+  # Env / DevBin64 / TestManSH container. Managed by the runner
+  export TESTMANSH_PROJECT_ROOT="${TESTMANSH_PROJECT_ROOT:-}"
+}
+
+#
 # Module functions
 #
 # * Shared internal functions for module tasks
@@ -173,24 +176,28 @@ function dev_bin64_profile_is_set() {
 }
 
 function dev_bin64_msg_show_warning() {
-  local msg="$1"
-  echo "db64:Warning: ${msg}" 2>&1
+  local task="$1"
+  local msg="$2"
+  echo "${task}:Warning: ${msg}" 2>&1
 }
 
 function dev_bin64_msg_show_error() {
-  local msg="$1"
-  echo "db64:Error: ${msg}" 2>&1
+  local task="$1"
+  local msg="$2"
+  echo "${task}:Error: ${msg}" 2>&1
 }
 
 function dev_bin64_msg_show_task() {
-  local msg="$1"
-  [[ -n "$DEV_CICD_DEBUG_BASH" ]] && echo "db64:Task: ${msg}"
+  local task="$1"
+  local msg="$2"
+  [[ -n "$DEV_CICD_DEBUG_BASH" ]] && echo "${task}:Task: ${msg}"
   return 0
 }
 
 function dev_bin64_msg_show_legacy() {
-  local msg="$1"
-  echo "db64:Legacy: legacy content detected. Please re-run devbin64 to upgrade the latest repository structure (${msg})" 2>&1
+  local task="$1"
+  local msg="$2"
+  echo "${task}:Legacy: legacy content detected. Please re-run devbin64 to upgrade the latest repository structure (${msg})" 2>&1
 }
 
 function dev_bin64_build_setup() {
@@ -235,9 +242,63 @@ function dev_bin64_tmp_setup() {
   fi
 }
 
+function dev_bin64_log_setup() {
+  bl64_dbg_app_show_function "$@"
+  local module_paths=("${@:-}")
+
+  bl64_msg_show_task 'initialize logging area'
+  bl64_check_export 'DEV_PATH_PROF_LOGS' &&
+    bl64_fs_dir_create \
+      "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
+      "$DEV_PATH_PROF_LOGS" ||
+    return $?
+
+  if [[ -n "${module_paths[*]}" ]]; then
+    bl64_msg_show_task 'initialize module logging paths'
+    bl64_fs_dir_create \
+      "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
+      "${module_paths[@]}"
+  fi
+}
+
 function dev_bin64_initialize() {
   bl64_dbg_set_level "$DEV_CICD_DEBUG" &&
     bl64_msg_set_format "$DEV_VERBOSE" &&
     bl64_msg_set_output "$DEV_VERBOSE_TYPE" &&
-    bl64_msg_all_enable_verbose
+    bl64_msg_all_enable_verbose &&
+    bl64_fs_set_umask 'u=rwx,g=rx,o=rx'
+}
+
+function dev_bin64_task_show_setup() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_show_vars \
+    'DEV_LIB_BASHLIB64_TARGET' \
+    'DEV_PATH_ROOT' \
+    'DEV_PATH_PROF_BUILD' \
+    'DEV_PATH_PROF_BUILD_PREPARE' \
+    'DEV_PATH_PROF_BUILD_STAGING' \
+    'DEV_PATH_PROF_BUILD_PACK' \
+    'DEV_PATH_PROF_ETC' \
+    'DEV_PATH_PROF_LOGS' \
+    'DEV_PATH_PROF_TMP' \
+    'DEV_PATH_PROF_VAR' \
+    'DEV_PATH_PROF_VAULT' \
+    'DEV_CICD_DEBUG' \
+    'DEV_CICD_DEBUG_BASH' \
+    'DEV_VERBOSE' \
+    'DEV_VERBOSE_TYPE' \
+    'DEV_PROFILE' \
+    'BL64_LIB_CICD' \
+    'DEV_LIB_BASHLIB64_TARGET' \
+    'DEV_LIB_INSTALLER64_TARGET' \
+    'INST64_LIB_PATH' \
+    'INST64_BASHLIB64' \
+    'INST64_BASHLIB64_TARGET' \
+    'DEV_SET_VERSION' \
+    'BL64_VERSION'
+
+  bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
+    'DEV_BIN64_VERSION' \
+    'DEV_PROFILE' \
+    "${@}"
 }

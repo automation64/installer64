@@ -114,7 +114,7 @@ function my_initialize() {
 
   bl64_cnt_setup &&
     bl64_check_directory "$DEV_TEST_BASH_CASES" &&
-    bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
+    dev_bin64_task_show_setup \
       'MY_CONTAINER' \
       'MY_TARGET'
 }

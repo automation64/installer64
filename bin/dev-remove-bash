@@ -46,7 +46,7 @@ function my_initialize() {
   bl64_msg_show_about
   bl64_check_parameter 'MY_REMOVER' &&
     bl64_check_command "$MY_REMOVER" &&
-    bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
+    dev_bin64_task_show_setup \
       'MY_REMOVER' \
       'MY_LOGS'
 }
