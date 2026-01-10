@@ -44,7 +44,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-PACKAGE}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Enable development packages?
@@ -60,7 +60,7 @@ INST64_CLI_NAME='X_CLI_NAME_X'
 # Functions
 #
 
-function inst64_install_package() {
+function my_install_package() {
   bl64_dbg_app_show_function
   inst64_lib_pkg_install
 }
@@ -74,7 +74,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    inst64_install_package
+    my_install_package
   fi
 }
 

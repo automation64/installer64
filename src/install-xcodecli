@@ -52,7 +52,7 @@ INST64_PKG_MAIN='Command Line Tools for Xcode'
 # Functions
 #
 
-function inst64_install_custom() {
+function my_install_custom() {
   /usr/sbin/softwareupdate \
     --install \
     --all \
@@ -69,7 +69,7 @@ function my_prepare() {
 function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_XCODECLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_install_custom
+    my_install_custom
   fi
 }
 

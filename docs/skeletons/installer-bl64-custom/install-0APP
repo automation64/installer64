@@ -36,7 +36,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
@@ -58,7 +58,7 @@ INST64_CLI_NAME='X_CLI_NAME_X'
 
 # X_STAND_ALONE_FUNCTIONS_X #
 
-function inst64_install_custom() {
+function my_install_custom() {
   bl64_dbg_app_show_function
   : # X_INSTALL_CUSTOM_PLACEHOLDER_X
 }
@@ -76,7 +76,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_install_custom
+    my_install_custom
   fi
 }
 

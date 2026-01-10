@@ -67,7 +67,7 @@ INST64_TARGET_PATH_DEFAULT_USER='oci'
 # Functions
 #
 
-function inst64_install_custom() {
+function my_install_custom() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_download
@@ -104,7 +104,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_OCI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_install_custom
+    my_install_custom
   elif [[ "$INST64_OCI_METHOD" == "$INST64_METHOD_PIPX" ]]; then
     inst64_lib_python_install_pipx
   elif [[ "$INST64_OCI_METHOD" == "$INST64_METHOD_PIP" ]]; then

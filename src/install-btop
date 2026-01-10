@@ -71,7 +71,7 @@ INST64_CPU_LINUX_AMD64_MUSL='x86_64-linux-musl'
 # Functions
 #
 
-function inst64_install_binary() {
+function my_install_binary() {
   bl64_dbg_app_show_function
 
   INST64_WORK_PATH_SOURCE="btop/bin/${INST64_CLI_NAME}"
@@ -90,11 +90,6 @@ function inst64_install_binary() {
   inst64_lib_staging_remove
 }
 
-function inst64_install_native() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
@@ -107,9 +102,9 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_BTOP_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    inst64_install_native
+    inst64_lib_pkg_install
   elif [[ "$INST64_BTOP_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_install_binary
+    my_install_binary
   fi
 }
 

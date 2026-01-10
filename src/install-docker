@@ -65,12 +65,7 @@ INST64_OS_REPO_KEY_APT='https://download.docker.com/linux/ubuntu/gpg'
 # Functions
 #
 
-function inst64_install_native() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
-function inst64_prepare_repository() {
+function my_prepare_repository() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
@@ -95,7 +90,7 @@ function inst64_prepare_repository() {
     "$repository_apt_suite" "$repository_apt_component"
 }
 
-function inst64_install_external() {
+function my_install_external() {
   bl64_dbg_app_show_function
   inst64_lib_pkg_install
 }
@@ -104,7 +99,7 @@ function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_prepare_repository
+    my_prepare_repository
   fi
 }
 
@@ -112,9 +107,9 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    inst64_install_native
+    inst64_lib_pkg_install
   elif [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_install_external
+    my_install_external
   fi
 }
 

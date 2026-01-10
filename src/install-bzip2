@@ -64,11 +64,6 @@ INST64_CLI_NAME='bzip2'
 # Functions
 #
 
-function inst64_install_native() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
@@ -78,7 +73,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_BZIP2_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    inst64_install_native
+    inst64_lib_pkg_install
   fi
 }
 

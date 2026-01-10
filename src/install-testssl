@@ -63,7 +63,7 @@ INST64_GIT_BRANCH="$INST64_TESTSSL_VERSION"
 # Functions
 #
 
-function inst64_install_custom() {
+function my_install_custom() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_download
@@ -92,7 +92,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_TESTSSL_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_install_custom
+    my_install_custom
   fi
 }
 

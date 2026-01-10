@@ -76,7 +76,7 @@ INST64_OS_REPO_KEY_APT='https://cli.github.com/packages/githubcli-archive-keyrin
 # Functions
 #
 
-function inst64_prepare_repository() {
+function my_prepare_repository() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
@@ -98,12 +98,12 @@ function inst64_prepare_repository() {
     "$repository_apt_suite" "$repository_apt_component"
 }
 
-function inst64_install_external() {
+function my_install_external() {
   bl64_dbg_app_show_function
   inst64_lib_pkg_install
 }
 
-function inst64_install_binary() {
+function my_install_binary() {
   bl64_dbg_app_show_function
 
   INST64_WORK_PATH_SOURCE="gh_${INST64_GHCLI_VERSION#v}_${INST64_GHCLI_PLATFORM}/bin/${INST64_CLI_NAME}"
@@ -128,7 +128,7 @@ function my_prepare() {
   if [[ "$INST64_GHCLI_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   elif [[ "$INST64_GHCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_prepare_repository
+    my_prepare_repository
   fi
 }
 
@@ -136,9 +136,9 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_GHCLI_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_install_binary
+    my_install_binary
   elif [[ "$INST64_GHCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_install_external
+    my_install_external
   fi
 }
 

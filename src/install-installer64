@@ -742,7 +742,7 @@ function inst64_install_binary_deploy() {
   return 0
 }
 
-function inst64_install_binary() {
+function my_install_binary() {
   inst64_lib_task_deploy
 
   inst64_lib_task_download
@@ -769,7 +769,7 @@ function my_prepare() {
 function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_install_binary
+    my_install_binary
   fi
 }
 

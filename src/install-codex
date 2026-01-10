@@ -67,7 +67,7 @@ INST64_CPU_LINUX_AMD64_MUSL='x86_64-unknown-linux-musl'
 # Functions
 #
 
-function inst64_install_binary() {
+function my_install_binary() {
   bl64_dbg_app_show_function
 
   INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}"
@@ -98,7 +98,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_install_binary
+    my_install_binary
   fi
 }
 
