@@ -44,7 +44,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BREW}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Enable development packages?
@@ -62,11 +62,6 @@ INST64_PKG_MAIN='X_PACKAGE_NAME_X'
 # Functions
 #
 
-function inst64_install_brew() {
-  bl64_dbg_app_show_function
-  inst64_lib_brew_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
@@ -76,7 +71,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BREW" ]]; then
-    inst64_install_brew
+    inst64_lib_brew_install
   fi
 }
 

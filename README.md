@@ -99,18 +99,19 @@ Common parameters:
 _Installer64_ implements the optimal installation method for each application:
 
 1. `AUTO`: Determine best available method
-1. `BINARY`: Pre-compiled binary download
-1. `BREW`: HomeBrew package
-1. `CUSTOM`: Custom installer. Catch all method, when no other option is available
-1. `EXTERNAL`: OS standard packages from external repository
-1. `FPAK`: FlatPak package (system-wide installation)
-1. `GO`: Go Lang module (user-wide installation only)
-1. `KREW`: Krew (KubeCTL plugin) package (user-wide installation only)
-1. `NATIVE`: OS standard packages from package repository
-1. `NPM`: NodeJS module (user-wide installation only)
-1. `PACKAGE`: Standalone OS package file (RPM for RHEL, DEB for Debian/Ubuntu, etc.)
-1. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation only)
-1. `PIPX`: Python module (user-wide installation only)
+2. `AUR`: ArchLinux User Repository method
+3. `BINARY`: Pre-compiled binary download
+4. `BREW`: HomeBrew package
+5. `CUSTOM`: Custom installer. Catch all method, when no other option is available
+6. `EXTERNAL`: OS standard packages from external repository
+7. `FPAK`: FlatPak package (system-wide installation)
+8. `GO`: Go Lang module (user-wide installation only)
+9. `KREW`: Krew (KubeCTL plugin) package (user-wide installation only)
+10. `NATIVE`: OS standard packages from package repository
+11. `NPM`: NodeJS module (user-wide installation only)
+12. `PACKAGE`: Standalone OS package file (RPM for RHEL, DEB for Debian/Ubuntu, etc.)
+13. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation only)
+14. `PIPX`: Python module (user-wide installation only)
 
 ---
 

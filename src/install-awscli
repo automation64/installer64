@@ -85,7 +85,7 @@ function inst64_install_custom_macos() {
     -target /
 }
 
-function inst64_install_custom() {
+function my_install_custom() {
   bl64_dbg_app_show_function
   inst64_lib_task_download
   inst64_lib_staging_create &&
@@ -109,7 +109,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_AWSCLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_install_custom
+    my_install_custom
   fi
 }
 
@@ -154,7 +154,6 @@ function my_select_platform() {
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_AWSCLI_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
-      INST64_CLI_PATH='/usr/local/bin'
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -172,6 +171,7 @@ function my_select_packages() {
       INST64_PKG_MAIN_SUFFIX='.pkg'
       INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
     fi
+    INST64_CLI_PATH='/usr/local/bin'
   fi
   inst64_lib_package_check_definition
 }
@@ -185,6 +185,7 @@ function my_initialize() {
   if [[ "$INST64_AWSCLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     bl64_check_privilege_root &&
       bl64_os_check_flavor \
+        "$BL64_OS_FLAVOR_ARCH" \
         "$BL64_OS_FLAVOR_DEBIAN" \
         "$BL64_OS_FLAVOR_FEDORA" \
         "$BL64_OS_FLAVOR_REDHAT" \
@@ -206,7 +207,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.3'
+bl64_lib_script_version_set '2.1.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

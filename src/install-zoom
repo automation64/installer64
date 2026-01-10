@@ -61,7 +61,7 @@ INST64_PKG_MAIN_PREFIX='zoom_'
 # Functions
 #
 
-function inst64_install_package() {
+function my_install_package() {
   bl64_dbg_app_show_function
   inst64_lib_task_download
   inst64_lib_staging_create &&
@@ -85,7 +85,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    inst64_install_package
+    my_install_package
   fi
 }
 

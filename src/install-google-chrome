@@ -43,23 +43,22 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_GCHROME_METHOD="${INST64_GCHROME_METHOD:-PACKAGE}"
+declare INST64_GCHROME_METHOD="${INST64_GCHROME_METHOD:-AUTO}"
+# Application version
+declare INST64_GCHROME_VERSION="${INST64_GCHROME_VERSION:-latest}"
 
 # App information
 INST64_APP_NAME='gchrome'
 INST64_APP_ID='GCHROME'
 INST64_APP_FULL_NAME='Google Chrome - Web Browser'
 INST64_CLI_NAME='google-chrome'
-INST64_WEB_REPO_URL='https://dl.google.com'
-INST64_WEB_REPO_PATH='linux/direct'
 INST64_CPU_LINUX_AMD64='amd64'
-INST64_PKG_MAIN_PREFIX='google-chrome-stable_current'
 
 #
 # Functions
 #
 
-function inst64_install_package() {
+function my_install_package() {
   bl64_dbg_app_show_function
   inst64_lib_task_download
   inst64_lib_staging_create &&
@@ -83,7 +82,9 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    inst64_install_package
+    my_install_package
+  elif [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    inst64_lib_aur_install_yay
   fi
 }
 
@@ -102,10 +103,15 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_PACKAGE" ||
+    "$INST64_METHOD_PACKAGE" \
+    "$INST64_METHOD_AUR" ||
     return $?
   if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_GCHROME_METHOD="$INST64_METHOD_PACKAGE"
+    if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
+      INST64_GCHROME_METHOD="$INST64_METHOD_AUR"
+    else
+      INST64_GCHROME_METHOD="$INST64_METHOD_PACKAGE"
+    fi
   fi
 }
 
@@ -122,16 +128,22 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+    INST64_WEB_REPO_URL='https://dl.google.com'
+    INST64_WEB_REPO_PATH='linux/direct'
+    INST64_PKG_MAIN_PREFIX='google-chrome-stable_current'
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-    "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-      INST64_PKG_MAIN_SUFFIX='.rpm'
-      ;;
-    "$BL64_OS_FLAVOR_DEBIAN")
-      INST64_PKG_MAIN_SUFFIX='.deb'
-      ;;
+      "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN_SUFFIX='.rpm'
+        ;;
+      "$BL64_OS_FLAVOR_DEBIAN")
+        INST64_PKG_MAIN_SUFFIX='.deb'
+        ;;
     esac
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}_${INST64_GCHROME_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+  elif [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    INST64_PKG_MAIN='google-chrome'
+    INST64_CLI_PATH='/opt/google/chrome'
   fi
   inst64_lib_package_check_definition
 }
@@ -144,11 +156,13 @@ function my_initialize() {
 
   if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_DEBIAN" \
-        "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" ||
-      return $?
-  fi
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT"
+  elif [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH"
+  fi || return $?
 
   my_select_platform &&
     my_select_packages &&
@@ -163,8 +177,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '2.1.0'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

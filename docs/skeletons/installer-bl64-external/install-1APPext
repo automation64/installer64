@@ -44,7 +44,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-EXTERNAL}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Application version
 declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 # Enable development packages?
@@ -66,7 +66,7 @@ INST64_OS_REPO_KEY_APT='X_KEY_URL_X'
 # Functions
 #
 
-function inst64_prepare_repository() {
+function my_prepare_repository() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
@@ -86,7 +86,7 @@ function inst64_prepare_repository() {
     "$repository_apt_suite" "$repository_apt_component"
 }
 
-function inst64_install_external() {
+function my_install_external() {
   bl64_dbg_app_show_function
   inst64_lib_pkg_install
 }
@@ -95,7 +95,7 @@ function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_prepare_repository
+    my_prepare_repository
   fi
 }
 
@@ -103,7 +103,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_install_external
+    my_install_external
   fi
 }
 

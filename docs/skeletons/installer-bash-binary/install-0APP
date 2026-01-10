@@ -29,7 +29,7 @@ source "${INST64_LIB_PATH}/lib-bash" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-BINARY}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
@@ -54,7 +54,7 @@ INST64_GH_REPO_NAME='X_REPO_URL_X'
 # Functions
 #
 
-function inst64_install_binary() {
+function my_install_binary() {
   inst64_lib_task_deploy
 
   inst64_lib_task_download
@@ -81,7 +81,7 @@ function my_prepare() {
 function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_install_binary
+    my_install_binary
   fi
 }
 
