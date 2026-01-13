@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - bootstrap: source repository typo
 - Google Chrome
   - Platform name for RPM
+- K9S
+  - Fixed version flag
 
 ## [7.5.0]
 
