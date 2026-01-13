@@ -5,11 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.6.0]
+
+### Added
+
+- Core
+  - SNAP method
+- Installers
+  - Slack Desktop
+
+### Fixed
+
+- Core
+  - bootstrap: source repository typo
+- Google Chrome
+  - Platform name for RPM
+- K9S
+  - Fixed version flag
+
 ## [7.5.0]
 
 ### Added
 
-- Installer
+- Installers
   - KeePassXC
   - Antigen
   - Alacritty

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-bl64-package-1.0.0
+# Template: install-bl64-aur-1.0.0
+# Template: install-bl64-snap-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,18 +22,13 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
@@ -43,34 +39,20 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_GCHROME_METHOD="${INST64_GCHROME_METHOD:-AUTO}"
+declare INST64_SLACK_METHOD="${INST64_SLACK_METHOD:-AUTO}"
 # Application version
-declare INST64_GCHROME_VERSION="${INST64_GCHROME_VERSION:-latest}"
+declare INST64_SLACK_VERSION="${INST64_SLACK_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='gchrome'
-INST64_APP_ID='GCHROME'
-INST64_APP_FULL_NAME='Google Chrome - Web Browser'
-INST64_CLI_NAME='google-chrome'
+INST64_APP_NAME='slack'
+INST64_APP_ID='SLACK'
+INST64_APP_FULL_NAME='Slack'
+
+INST64_CLI_NAME='slack'
 
 #
 # Functions
 #
-
-function my_install_package() {
-  bl64_dbg_app_show_function
-  inst64_lib_task_download
-  inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
-    return $?
-
-  inst64_lib_task_deploy
-  inst64_lib_pkg_install_file ||
-    return $?
-
-  inst64_lib_task_cleanup
-  inst64_lib_staging_remove
-}
 
 function my_prepare() {
   bl64_dbg_app_show_function
@@ -80,10 +62,10 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    my_install_package
-  elif [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUR" ]]; then
+  if [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_AUR" ]]; then
     inst64_lib_aur_install_yay
+  elif [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_SNAP" ]]; then
+    inst64_lib_snap_install
   fi
 }
 
@@ -102,51 +84,29 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_app_check_method \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_PACKAGE" \
-    "$INST64_METHOD_AUR" ||
+    "$INST64_METHOD_AUR" \
+    "$INST64_METHOD_SNAP" ||
     return $?
-  if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+  if [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
-      INST64_GCHROME_METHOD="$INST64_METHOD_AUR"
-    else
-      INST64_GCHROME_METHOD="$INST64_METHOD_PACKAGE"
+      INST64_SLACK_METHOD="$INST64_METHOD_AUR"
+    elif [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_DEBIAN" ]]; then
+      INST64_SLACK_METHOD="$INST64_METHOD_SNAP"
     fi
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_DEBIAN" ]]; then
-        INST64_GCHROME_PLATFORM='amd64'
-      else
-        INST64_GCHROME_PLATFORM='x86_64'
-      fi
-    fi
-    inst64_lib_platform_check_cpu
-  fi
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    INST64_WEB_REPO_URL='https://dl.google.com'
-    INST64_WEB_REPO_PATH='linux/direct'
-    INST64_PKG_MAIN_PREFIX='google-chrome-stable_current'
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-        INST64_PKG_MAIN_SUFFIX='.rpm'
-        ;;
-      "$BL64_OS_FLAVOR_DEBIAN")
-        INST64_PKG_MAIN_SUFFIX='.deb'
-        ;;
-    esac
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}_${INST64_GCHROME_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
-  elif [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUR" ]]; then
-    INST64_PKG_MAIN='google-chrome'
-    INST64_CLI_PATH='/opt/google/chrome'
+  if [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    INST64_PKG_MAIN='slack-desktop'
+  elif [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_SNAP" ]]; then
+    INST64_PKG_MAIN='slack'
   fi
   inst64_lib_package_check_definition
 }
@@ -157,15 +117,15 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
+  if [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_AUR" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT"
-  elif [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_AUR" ]]; then
+      "$BL64_OS_FLAVOR_ARCH" ||
+      return $?
+  elif [[ "$INST64_SLACK_METHOD" == "$INST64_METHOD_SNAP" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ARCH"
-  fi || return $?
+      "$BL64_OS_FLAVOR_DEBIAN" ||
+      return $?
+  fi
 
   my_select_platform &&
     my_select_packages &&
@@ -180,7 +140,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.1'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
