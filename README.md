@@ -112,6 +112,7 @@ _Installer64_ implements the optimal installation method for each application:
 12. `PACKAGE`: Standalone OS package file (RPM for RHEL, DEB for Debian/Ubuntu, etc.)
 13. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation only)
 14. `PIPX`: Python module (user-wide installation only)
+15. `SNAP`: Snapcraft packages (system-wide installation)
 
 ---
 

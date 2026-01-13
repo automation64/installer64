@@ -13,29 +13,43 @@
 #######################################
 
 MY_MODE="${1:-SYSTEM}"
+MY_REPOSITORY='automation64/installer64'
+MY_INSTALLER='install-installer64'
 
 my_prepare() {
-  TARGET_RELEASE="$(curl -s "https://api.github.com/repos/automation64/my_installer64/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" &&
-    [ -n "$TARGET_RELEASE" ] &&
-    curl -LO "https://github.com/automation64/my_installer64/releases/download/${TARGET_RELEASE}/my_install-my_installer64" &&
-    chmod 755 my_install-my_installer64
+  echo "Task: getting latest version number (${MY_REPOSITORY})"
+  TARGET_RELEASE="$(curl -s "https://api.github.com/repos/${MY_REPOSITORY}/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" ||
+    return $?
+
+  echo "Task: downloading installer from GitHub (${MY_INSTALLER})"
+  [ -n "$TARGET_RELEASE" ] &&
+    cd /tmp || return $?
+  test -f "./${MY_INSTALLER}" && rm -f "./${MY_INSTALLER}"
+  curl -LO "https://github.com/${MY_REPOSITORY}/releases/download/${TARGET_RELEASE}/${MY_INSTALLER}" &&
+    chmod 755 "./${MY_INSTALLER}"
 }
 
 my_install() {
   if [ "$MY_MODE" = 'SYSTEM' ]; then
+    echo 'Task: installing tool for everyone (/opt)'
     INST64_SYSTEM_WIDE='YES'
     export INST64_SYSTEM_WIDE
     if [ "$(id -u)" = "0" ]; then
-      ./my_install-my_installer64
+      "./${MY_INSTALLER}"
     else
-      sudo -E ./my_install-my_installer64
-    fi
-  else
+      sudo -E "./${MY_INSTALLER}"
+    fi || return $?
+  elif [ "$MY_MODE" = 'USER' ]; then
+    echo "Task: installing tool for the user (${HOME})"
     INST64_SYSTEM_WIDE='NO'
     export INST64_SYSTEM_WIDE
-    ./my_install-my_installer64
-  fi || return $?
-  rm -f my_install-my_installer64
+    "./${MY_INSTALLER}" || return $?
+  else
+    echo 'Error: invalid parameter. Must be one of: SYSTEM, USER'
+    return 1
+  fi
+  echo "Task: removing temporary installer (${MY_INSTALLER})"
+  rm -f "./${MY_INSTALLER}"
   return 0
 }
 
