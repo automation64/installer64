@@ -28,11 +28,9 @@ source "${INST64_LIB_PATH}/lib-bash" ||
 #
 
 # Installation method
-declare INST64_BASHLIB64_METHOD="${INST64_BASHLIB64_METHOD:-BINARY}"
+declare INST64_BASHLIB64_METHOD='BINARY'
 # Installation destination
 declare INST64_BASHLIB64_TARGET="${INST64_BASHLIB64_TARGET:-}"
-# Hardware architecture
-declare INST64_BASHLIB64_PLATFORM="${INST64_BASHLIB64_PLATFORM:-}"
 # Application version
 declare INST64_BASHLIB64_VERSION="${INST64_BASHLIB64_VERSION:-latest}"
 
@@ -41,7 +39,7 @@ INST64_APP_NAME='bashlib64'
 INST64_APP_ID='BASHLIB64'
 INST64_APP_FULL_NAME='BashLib64 - Automation Library'
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.0.1'
+INST64_SCRIPT_VERSION='2.0.2'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='bashlib64'
@@ -129,7 +127,7 @@ function my_select_packages() {
 
 function my_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method "$INST64_METHOD_BINARY" ||
+    inst64_lib_method_check "$INST64_METHOD_BINARY" ||
     return $?
 
   if [[ "$INST64_BASHLIB64_METHOD" == "$INST64_METHOD_BINARY" ]]; then

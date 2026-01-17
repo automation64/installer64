@@ -151,7 +151,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.16.0'
+  declare INST64_LIB_VERSION_BL64='1.18.0'
 
   # BashLib64 version required
   declare INST64_LIB_VERSION_REQUIRED='22.12.0'
@@ -186,16 +186,12 @@
 # Functions
 #
 
-#######################################
-# Sets the default value for INST64_SYSTEM_WIDE.
-#######################################
-function inst64_lib_base_set_system_wide() {
+function inst64_lib_type_set() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
   local app_wide="INST64_${INST64_APP_ID}_SYSTEM_WIDE"
 
   bl64_check_parameter "$method" || return $?
-  bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
   if [[ -v "$app_wide" && -n "${!app_wide}" ]]; then
     bl64_dbg_app_show_comments "using $app_wide to set INST64_SYSTEM_WIDE"
     INST64_SYSTEM_WIDE="${!app_wide}"
@@ -204,7 +200,7 @@ function inst64_lib_base_set_system_wide() {
     if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
       bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to NO'
       INST64_SYSTEM_WIDE='NO'
-    elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL")$ ]]; then
+    elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
       bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to YES'
       INST64_SYSTEM_WIDE='YES'
     elif [[ "${!method}" =~ ^("$INST64_METHOD_BINARY"|"$INST64_METHOD_CUSTOM")$ ]]; then
@@ -217,7 +213,7 @@ function inst64_lib_base_set_system_wide() {
     fi
   fi
   if [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL")$ ]]; then
-    inst64_lib_app_check_mode_system
+    inst64_lib_type_check_system
     return $?
   fi
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
@@ -227,9 +223,6 @@ function inst64_lib_base_set_system_wide() {
   bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
 }
 
-#######################################
-# Sets the base installation path (INST64_OPT_ROOT).
-#######################################
 function inst64_lib_base_set_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
@@ -256,9 +249,6 @@ function inst64_lib_base_set_path() {
   bl64_dbg_app_show_vars 'INST64_OPT_ROOT'
 }
 
-#######################################
-# Sets the application-specific target installation path.
-#######################################
 function inst64_lib_target_set_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
@@ -267,11 +257,7 @@ function inst64_lib_target_set_path() {
 
   bl64_check_parameter "$method" || return $?
   if [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]]; then
-    bl64_dbg_app_show_comments 'TARGET is not used for this installation method. Reset it'
-    printf \
-      -v "INST64_${INST64_APP_ID}_TARGET" \
-      '%s' \
-      ''
+    bl64_dbg_app_show_comments 'TARGET is not used for this installation method'
     return 0
   fi
 
@@ -299,9 +285,6 @@ function inst64_lib_target_set_path() {
   bl64_dbg_app_show_vars "$target" 'INST64_TARGET_REQUESTED'
 }
 
-#######################################
-# Sets target ownership and permissions
-#######################################
 function inst64_lib_target_set_owner() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
@@ -320,9 +303,6 @@ function inst64_lib_target_set_owner() {
   bl64_dbg_app_show_vars 'INST64_TARGET_OWNER' 'INST64_TARGET_GROUP'
 }
 
-#######################################
-# Sets the default path for CLI promotion
-#######################################
 function inst64_lib_cli_set_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
@@ -368,10 +348,7 @@ function inst64_lib_cli_set_path() {
   esac
 }
 
-#######################################
-# Validates the installation method for the current application.
-#######################################
-function inst64_lib_app_check_method() {
+function inst64_lib_method_check() {
   bl64_dbg_app_show_function "$@"
   local requested="INST64_${INST64_APP_ID}_METHOD"
   bl64_check_parameter "$requested" || return $?
@@ -381,9 +358,6 @@ function inst64_lib_app_check_method() {
     "$@"
 }
 
-#######################################
-# Checks if the application is already installed at the current version.
-#######################################
 function inst64_lib_app_check_installed() {
   bl64_dbg_app_show_function
   local app_target="INST64_${INST64_APP_ID}_TARGET"
@@ -409,9 +383,6 @@ function inst64_lib_app_check_installed() {
   return 1
 }
 
-#######################################
-# Displays key installation parameters for the current application.
-#######################################
 function inst64_lib_message_show_parameters() {
   bl64_dbg_app_show_function
   local parameter_list=''
@@ -461,11 +432,6 @@ function inst64_lib_message_show_parameters() {
     $parameter_list
 }
 
-#######################################
-# Creates base installation directories if not system-wide.
-#
-# * Must create local regardless of requested target to allow promotion to searchable path
-#######################################
 function inst64_lib_base_create_path() {
   bl64_dbg_app_show_function
   local method="INST64_${INST64_APP_ID}_METHOD"
@@ -486,12 +452,6 @@ function inst64_lib_base_create_path() {
   fi
 }
 
-#######################################
-# Register current app version.
-#
-# * Optional function used mainly by BINARY installation methods
-# * Used to register the current application version in the status file
-#######################################
 function inst64_lib_app_register_version() {
   bl64_dbg_app_show_function
   local version="INST64_${INST64_APP_ID}_VERSION"
@@ -517,7 +477,7 @@ function inst64_lib_base_initialize() {
   if [[ ! "${!method}" =~ ^("$INST64_METHOD_NATIVE") ]]; then
     bl64_msg_show_warning 'Disclaimer: This installer is provided as-is without any warranties. You are fully responsible for checking the source, the software license, the author, and the safety of the application you install.'
   fi
-  inst64_lib_base_set_system_wide &&
+  inst64_lib_type_set &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
@@ -552,11 +512,8 @@ function inst64_lib_method_initialize() {
       fi
       return 0
       ;;
-    "$INST64_METHOD_PIP")
-      bl64_check_privilege_not_root &&
-        bl64_py_setup
-      ;;
     "$INST64_METHOD_AUR")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root ||
         return $?
 
@@ -567,22 +524,26 @@ function inst64_lib_method_initialize() {
         'yay'
       ;;
     "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL")
+      INST64_CLI_PROMOTE='NO'
       [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
       bl64_check_privilege_root &&
         bl64_cryp_setup &&
         bl64_pkg_setup
       ;;
-    "$INST64_METHOD_PIPX")
+    "$INST64_METHOD_PIPX" | "$INST64_METHOD_PIP")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
         bl64_py_setup
       ;;
     "$INST64_METHOD_BREW")
+      INST64_CLI_PROMOTE='NO'
       [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
       bl64_check_privilege_root &&
         bl64_cryp_setup &&
         bl64_pkg_setup
       ;;
     "$INST64_METHOD_NPM")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root ||
         return $?
 
@@ -594,6 +555,7 @@ function inst64_lib_method_initialize() {
       return 0
       ;;
     "$INST64_METHOD_GO")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root ||
         return $?
 
@@ -605,6 +567,7 @@ function inst64_lib_method_initialize() {
       return 0
       ;;
     "$INST64_METHOD_FPAK")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_root ||
         return $?
 
@@ -615,6 +578,7 @@ function inst64_lib_method_initialize() {
         'flatpak'
       ;;
     "$INST64_METHOD_SNAP")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_root ||
         return $?
 
@@ -625,6 +589,7 @@ function inst64_lib_method_initialize() {
         'snap'
       ;;
     "$INST64_METHOD_KREW")
+      INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
         bl64_k8s_setup &&
         bl64_check_command \
@@ -651,24 +616,24 @@ function inst64_lib_step_install() {
 
 function inst64_lib_step_setup() {
   bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'setup environment'
-  bl64_check_parameter 'INST64_CLI_PATH' &&
-    bl64_check_parameter 'INST64_CLI_NAME'
 }
 
 function inst64_lib_step_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'verify deployment'
-  bl64_check_parameter 'INST64_CLI_PATH' &&
-    bl64_check_parameter 'INST64_CLI_NAME'
-  bl64_msg_show_task "test application (${INST64_CLI_PATH}/${INST64_CLI_NAME})"
+  if [[ -z "$INST64_CLI_TARGET" ]]; then
+    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
+  fi
+  bl64_msg_show_task "test application (${INST64_CLI_TARGET})"
 }
 
 function inst64_lib_task_download() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'download application'
+  bl64_msg_show_task 'download application assets'
   return 0
 }
 
@@ -787,7 +752,7 @@ function inst64_lib_platform_check_cpu() {
   bl64_os_raise_platform_unsupported
 }
 
-function inst64_lib_app_check_mode_user() {
+function inst64_lib_type_check_user() {
   bl64_dbg_app_show_function
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_warning 'app can only be installed user-wide. Adjusting INST64_SYSTEM_WIDE to "NO"'
@@ -796,7 +761,7 @@ function inst64_lib_app_check_mode_user() {
   return 0
 }
 
-function inst64_lib_app_check_mode_system() {
+function inst64_lib_type_check_system() {
   bl64_dbg_app_show_function
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_error 'app can only be installed system-wide. Set INST64_SYSTEM_WIDE=YES and try again.'
@@ -839,15 +804,15 @@ function inst64_lib_cli_promote() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local needs_target_alias='NO'
 
-  bl64_check_parameter 'INST64_CLI_PATH' &&
-    bl64_check_parameter 'INST64_CLI_NAME' || return $?
+  bl64_check_parameter 'INST64_CLI_NAME' || return $?
 
   if [[ -z "$INST64_CLI_TARGET" ]]; then
-    INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_SOURCE:-$INST64_CLI_NAME}"
+    bl64_check_parameter 'target' &&
+      INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_SOURCE:-$INST64_CLI_NAME}"
   fi
 
-  bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
   if bl64_lib_flag_is_enabled "$INST64_CLI_NORMALIZE" && [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
+    bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
     bl64_fs_symlink_create \
       "$INST64_CLI_TARGET" "${!target}/${INST64_CLI_NAME}" \
       "$BL64_VAR_ON"
@@ -855,13 +820,11 @@ function inst64_lib_cli_promote() {
 
   if bl64_lib_flag_is_enabled "$INST64_CLI_PROMOTE"; then
     bl64_dbg_app_show_comments 'create symlink for CLI'
-    bl64_fs_symlink_create \
-      "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
-      "$BL64_VAR_ON" ||
+    bl64_check_parameter 'INST64_CLI_PATH' &&
+      bl64_fs_symlink_create \
+        "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+        "$BL64_VAR_ON" ||
       return $?
-  else
-    bl64_dbg_app_show_comments 'alter the CLI path to point to the target directly'
-    INST64_CLI_PATH="${!target}"
   fi
 }
 
@@ -1033,6 +996,8 @@ function inst64_lib_web_get_file() {
 function inst64_lib_pkg_suffix_set() {
   bl64_dbg_app_show_function
   case "$BL64_OS_FLAVOR" in
+    "$BL64_OS_FLAVOR_ALPINE") INST64_PKG_MAIN_SUFFIX='.apk' ;;
+    "$BL64_OS_FLAVOR_ARCH") INST64_PKG_MAIN_SUFFIX='.pacman' ;;
     "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT") INST64_PKG_MAIN_SUFFIX='.rpm' ;;
     "$BL64_OS_FLAVOR_DEBIAN") INST64_PKG_MAIN_SUFFIX='.deb' ;;
     "$BL64_OS_FLAVOR_MACOS") INST64_PKG_MAIN_SUFFIX='.pkg' ;;
@@ -1063,7 +1028,8 @@ function inst64_lib_pkg_install_linux() {
   bl64_dbg_app_show_function
   # shellcheck disable=SC2086
   if bl64_lib_flag_is_enabled "$INST64_REFRESH_PACKAGE_MANAGER"; then
-    bl64_pkg_deploy $INST64_PKG_MAIN
+    bl64_pkg_prepare &&
+      bl64_pkg_install $INST64_PKG_MAIN
   else
     bl64_pkg_install $INST64_PKG_MAIN
   fi
@@ -1228,6 +1194,59 @@ function inst64_lib_base_set_verbosity() {
     "INST64_${INST64_APP_ID}_PLATFORM" \
     "INST64_${INST64_APP_ID}_VERSION"
 
+  bl64_dbg_app_show_comments 'Method parameters'
+  bl64_dbg_app_show_vars \
+    'INST64_PKG_MAIN' \
+    'INST64_PKG_MAIN_PREFIX' \
+    'INST64_PKG_MAIN_SUFFIX' \
+    'INST64_PKG_PRE' \
+    'INST64_PKG_POST' \
+    'INST64_PKG_DEV' \
+    'INST64_CPU_DARWIN_ARM64' \
+    'INST64_CPU_LINUX_AMD64' \
+    'INST64_CPU_LINUX_AMD64_GNU' \
+    'INST64_CPU_LINUX_AMD64_MUSL' \
+    'INST64_CPU_LINUX_ARM64' \
+    'INST64_APP_INSTALLER' \
+    'INST64_CLI_NAME' \
+    'INST64_CLI_SOURCE' \
+    'INST64_CLI_PATH' \
+    'INST64_CLI_SUBPATH' \
+    'INST64_CLI_TARGET' \
+    'INST64_CLI_NORMALIZE' \
+    'INST64_CLI_MODE' \
+    'INST64_GH_REPO_OWNER' \
+    'INST64_GH_REPO_NAME' \
+    'INST64_GIT_SERVER' \
+    'INST64_GIT_REPO' \
+    'INST64_GIT_BRANCH' \
+    'INST64_WEB_REPO_URL' \
+    'INST64_WEB_REPO_PATH' \
+    'INST64_WEB_FILE_SOURCE' \
+    'INST64_WEB_FILE_TARGET' \
+    'INST64_OS_REPO_NAME' \
+    'INST64_OS_SOURCE_YUM' \
+    'INST64_OS_SOURCE_APT' \
+    'INST64_OS_REPO_KEY_YUM' \
+    'INST64_OS_REPO_KEY_APT' \
+    'INST64_FPAK_REPO_NAME'
+
+  bl64_dbg_app_show_comments 'Internals'
+  bl64_dbg_app_show_vars \
+    'INST64_LIB_VERSION_BL64' \
+    'INST64_LIB_VERSION_REQUIRED' \
+    'INST64_TARGET_REQUESTED' \
+    'INST64_WORK_PATH_STAGING'
+
+  bl64_dbg_app_show_comments 'External'
+  bl64_dbg_app_show_vars \
+    'INST64_COMMAND_FLATPAK' \
+    'INST64_COMMAND_GO' \
+    'INST64_COMMAND_NPM' \
+    'INST64_COMMAND_SNAP' \
+    'INST64_COMMAND_YAY' \
+    'INST64_BASHLIB64'
+
   bl64_dbg_app_show_comments 'support legacy bl64 versions'
   if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
     if ! bl64_fmt_version_is_less_than "$BL64_VERSION" '22.10.0'; then
@@ -1238,4 +1257,19 @@ function inst64_lib_base_set_verbosity() {
   bl64_msg_set_output "$output" &&
     bl64_msg_set_format "${INST64_VERBOSE:-$format}" &&
     bl64_msg_all_enable_verbose
+}
+
+function inst64_lib_command_check_prereq() {
+  bl64_dbg_app_show_function "$@"
+  local command_name="${1:-}"
+
+  bl64_check_parameter 'command_name' ||
+    return $?
+
+  shift
+  if [[ -z "$(bl64_bsh_command_locate_user "$command_name" "$@")" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
 }
