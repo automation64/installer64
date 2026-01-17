@@ -15,6 +15,8 @@
 MY_MODE="${1:-SYSTEM}"
 MY_REPOSITORY='automation64/installer64'
 MY_INSTALLER='install-installer64'
+MY_TARGET_ROOT=''
+MY_INSTALLER_LOCAL="/tmp/${MY_INSTALLER}"
 
 my_prepare() {
   echo "Task: getting latest version number (${MY_REPOSITORY})"
@@ -24,32 +26,38 @@ my_prepare() {
   echo "Task: downloading installer from GitHub (${MY_INSTALLER})"
   [ -n "$TARGET_RELEASE" ] &&
     cd /tmp || return $?
-  test -f "./${MY_INSTALLER}" && rm -f "./${MY_INSTALLER}"
+  test -f "$MY_INSTALLER_LOCAL" && rm -f "$MY_INSTALLER_LOCAL"
   curl -LO "https://github.com/${MY_REPOSITORY}/releases/download/${TARGET_RELEASE}/${MY_INSTALLER}" &&
-    chmod 755 "./${MY_INSTALLER}"
+    chmod 755 "$MY_INSTALLER_LOCAL"
 }
 
 my_install() {
   if [ "$MY_MODE" = 'SYSTEM' ]; then
+    MY_TARGET_ROOT='/opt'
     echo 'Task: installing tool for everyone (/opt)'
     INST64_SYSTEM_WIDE='YES'
     export INST64_SYSTEM_WIDE
     if [ "$(id -u)" = "0" ]; then
-      "./${MY_INSTALLER}"
+      "$MY_INSTALLER_LOCAL" &&
+        "${MY_TARGET_ROOT}/inst64/install-bashlib64"
     else
-      sudo -E "./${MY_INSTALLER}"
+      sudo -E "$MY_INSTALLER_LOCAL" &&
+        sudo -E "${MY_TARGET_ROOT}/inst64/install-bashlib64"
     fi || return $?
   elif [ "$MY_MODE" = 'USER' ]; then
+    MY_TARGET_ROOT="${HOME}/at64"
     echo "Task: installing tool for the user (${HOME})"
     INST64_SYSTEM_WIDE='NO'
     export INST64_SYSTEM_WIDE
-    "./${MY_INSTALLER}" || return $?
+    "$MY_INSTALLER_LOCAL" &&
+      "${MY_TARGET_ROOT}/inst64/install-bashlib64" ||
+      return $?
   else
     echo 'Error: invalid parameter. Must be one of: SYSTEM, USER'
     return 1
   fi
   echo "Task: removing temporary installer (${MY_INSTALLER})"
-  rm -f "./${MY_INSTALLER}"
+  rm -f "$MY_INSTALLER_LOCAL"
   return 0
 }
 

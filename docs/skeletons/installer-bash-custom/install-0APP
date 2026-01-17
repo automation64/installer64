@@ -90,7 +90,7 @@ function my_select_packages() {
 
 function my_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method "$INST64_METHOD_CUSTOM" ||
+    inst64_lib_method_check "$INST64_METHOD_CUSTOM" ||
     return $?
 
   # X_INIT_PLACEHOLDER_X

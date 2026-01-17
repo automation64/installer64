@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0]
+
+### Added
+
+- Installers
+  - CSH
+  - Fish
+  - GhosTTY
+  - GIT
+  - Hyper
+  - IOTop
+  - IPTrafNG
+  - KSH
+  - LTrace
+  - NMap
+  - Playwright
+  - PowerShell
+  - RSync
+  - S-TUI
+  - Screen
+  - STrace
+  - StressNG
+  - SysStat
+  - Tabby
+  - Telnet
+  - TMUX
+  - YARN
+  - ZSH
+  - ZSH-Autosuggestions
+  - ZSH-FZF-tab
+  - ZSH-Powerlevel10k
+  - ZSH-Syntax-highlighting
+
+### Changed
+
+- MC
+  - Added remaining Linux OS support
+- Installer64
+  - **breaking-change** removed BashLib64 installer. Now is installed by the bootstrap script
+  - Default to system wide if user is root
+
+### Fixed
+
+- KeePassXC
+  - Typo
+
 ## [7.6.0]
 
 ### Added

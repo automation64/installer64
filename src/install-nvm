@@ -42,7 +42,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_NVM_METHOD="${INST64_NVM_METHOD:-CUSTOM}"
+declare INST64_NVM_METHOD="${INST64_NVM_METHOD:-AUTO}"
 # Installation destination
 declare INST64_NVM_TARGET="${INST64_NVM_TARGET:-}"
 # Hardware architecture
@@ -116,7 +116,7 @@ function my_verify() {
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_CUSTOM" ||
     return $?

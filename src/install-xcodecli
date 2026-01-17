@@ -28,7 +28,7 @@ source "${INST64_LIB_PATH}/lib-bash" ||
 #
 
 # Installation method
-declare INST64_XCODECLI_METHOD="${INST64_XCODECLI_METHOD:-CUSTOM}"
+declare INST64_XCODECLI_METHOD="${INST64_XCODECLI_METHOD:-AUTO}"
 # Installation destination
 declare INST64_XCODECLI_TARGET="${INST64_XCODECLI_TARGET:-/Library/Developer/CommandLineTools}"
 # Hardware architecture
@@ -82,7 +82,7 @@ function my_setup() {
 
 function my_verify() {
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --print-path
+  "${INST64_CLI_TARGET}" --print-path
 }
 
 function my_select_platform() {
@@ -99,7 +99,7 @@ function my_select_packages() {
 
 function my_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method "$INST64_METHOD_CUSTOM" ||
+    inst64_lib_method_check "$INST64_METHOD_CUSTOM" ||
     return $?
 
   if [[ "$INST64_XCODECLI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then

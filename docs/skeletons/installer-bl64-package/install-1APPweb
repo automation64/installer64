@@ -57,8 +57,8 @@ INST64_CLI_NAME='X_CLI_NAME_X'
 
 INST64_WEB_REPO_URL='X_WEB_REPO_URL_X'
 INST64_WEB_REPO_PATH='X_WEB_REPO_PATH_X'
-INST64_CPU_LINUX_AMD64='X_CPU_LINUX_AMD64_X'
 INST64_PKG_MAIN_PREFIX='X_PKG_MAIN_PREFIX_X'
+INST64_CPU_LINUX_AMD64='X_CPU_LINUX_AMD64_X'
 
 #
 # Functions
@@ -100,12 +100,12 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_PACKAGE" ||
     return $?
@@ -127,13 +127,8 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-        INST64_PKG_MAIN_SUFFIX='.rpm'
-        ;;
-    esac
-    INST64_PKG_MAIN="X_PKG_MAIN_X"
+    inst64_lib_pkg_suffix_set || return $?
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_X_APP_NAME_CAPS_X_VERSION#v}-${INST64_X_APP_NAME_CAPS_X_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }

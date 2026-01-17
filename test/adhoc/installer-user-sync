@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+[[ ! -d /project ]] && echo 'Error: test for lab container only' && exit 1
+
+declare TARGET="$HOME/at64"
+declare TARGET_INST64="$TARGET/inst64"
+declare TARGET_BL64="$TARGET/bl64"
+
+[[ -d "$TARGET" ]] && rm -Rf "$TARGET"
+mkdir "$TARGET" &&
+  mkdir "$TARGET_INST64" &&
+  mkdir "$TARGET_BL64" &&
+  cp -f /project/src/* "$TARGET_INST64" &&
+  cp -f lib/bl64/* "$TARGET_BL64"

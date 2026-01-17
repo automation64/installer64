@@ -1,1 +1,1 @@
-    bl64_check_command_search_path 'X_CMD_X'
+    inst64_lib_command_check_prereq 'X_CMD_X'

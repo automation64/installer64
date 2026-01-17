@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-[[ ! -d /project ]] && echo 'Error: test for lab container only' && exit 1
-
-mkdir $HOME/at64 &&
-    INST64_SYSTEM_WIDE="NO" /project/src/install-installer64 &&
-    cp -f /project/src/* $HOME/at64/inst64 &&
-    sudo cp -f /project/src/* /opt/inst64 &&
-    INST64_SYSTEM_WIDE="NO" /project/src/install-bashlib64

@@ -42,7 +42,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-CUSTOM}"
+declare INST64_BASHIT_METHOD="${INST64_BASHIT_METHOD:-AUTO}"
 # Installation destination
 declare INST64_BASHIT_TARGET="${HOME}/.bashit"
 # Hardware architecture
@@ -118,7 +118,7 @@ function my_verify() {
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_CUSTOM" ||
     return $?
@@ -144,7 +144,7 @@ function my_initialize() {
     return $?
 
   if [[ "$INST64_BASHIT_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_app_check_mode_user &&
+    inst64_lib_type_check_user &&
       bl64_check_privilege_not_root &&
       bl64_arc_setup ||
       return $?

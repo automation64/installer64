@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+[[ ! -d /project ]] && echo 'Error: test for lab container only' && exit 1
+
+declare TARGET='/opt'
+declare TARGET_INST64="$TARGET/inst64"
+declare TARGET_BL64="$TARGET/bl64"
+
+[[ -d "$TARGET_INST64" ]] && sudo rm -Rf "$TARGET_INST64"
+[[ -d "$TARGET_BL64" ]] && sudo rm -Rf "$TARGET_BL64"
+  sudo mkdir "$TARGET_INST64" &&
+  sudo mkdir "$TARGET_BL64" &&
+  sudo cp -f /project/src/* "$TARGET_INST64" &&
+  sudo cp -f lib/bl64/* "$TARGET_BL64"
