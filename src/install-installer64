@@ -716,7 +716,7 @@ INST64_APP_ID='INSTALLER64'
 INST64_APP_FULL_NAME='Installer64 - Automated application installers'
 
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.4.0'
+INST64_SCRIPT_VERSION='3.0.0'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'
