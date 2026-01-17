@@ -50,7 +50,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.4.0'
+  declare INST64_LIB_VERSION_BASH='1.5.0'
 
   # Installation methods
   declare INST64_METHOD_AUTO='AUTO'
@@ -433,9 +433,13 @@ function inst64_lib_base_is_system_wide() {
   [[ "$INST64_SYSTEM_WIDE" == 'YES' ]]
 }
 
-function inst64_lib_base_set_system_wide() {
+function inst64_lib_type_set() {
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+    if [[ "$EUID" == '0' ]]; then
+      INST64_SYSTEM_WIDE='YES'
+    else
+      [[ -d '/opt/bl64' || -d '/opt/inst64' ]] && INST64_SYSTEM_WIDE='YES' || INST64_SYSTEM_WIDE='NO'
+    fi
   fi
 }
 
@@ -510,7 +514,7 @@ function inst64_lib_check_privilege_not_root() {
   fi
 }
 
-function inst64_lib_app_check_method() {
+function inst64_lib_method_check() {
   local allowed="${1:-}"
   local requested="INST64_${INST64_APP_ID}_METHOD"
   if [[ "${!requested}" != "$allowed" ]]; then
@@ -536,7 +540,7 @@ function inst64_lib_base_initialize() {
     inst64_lib_platform_get_cpu &&
     inst64_lib_platform_get_type &&
     inst64_lib_platform_get_flavor &&
-    inst64_lib_base_set_system_wide &&
+    inst64_lib_type_set &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
@@ -700,11 +704,9 @@ builtin unset MAILPATH
 #
 
 # Installation method
-declare INST64_INSTALLER64_METHOD="${INST64_INSTALLER64_METHOD:-BINARY}"
+declare INST64_INSTALLER64_METHOD='BINARY'
 # Installation destination
 declare INST64_INSTALLER64_TARGET="${INST64_INSTALLER64_TARGET:-}"
-# Hardware architecture
-declare INST64_INSTALLER64_PLATFORM="${INST64_INSTALLER64_PLATFORM:-}"
 # Application version
 declare INST64_INSTALLER64_VERSION="${INST64_INSTALLER64_VERSION:-latest}"
 
@@ -714,7 +716,7 @@ INST64_APP_ID='INSTALLER64'
 INST64_APP_FULL_NAME='Installer64 - Automated application installers'
 
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.3.0'
+INST64_SCRIPT_VERSION='2.4.0'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'
@@ -775,7 +777,6 @@ function my_install() {
 
 function my_setup() {
   inst64_lib_step_setup || return 0
-  "${INST64_INSTALLER64_TARGET}/install-bashlib64"
 }
 
 function my_verify() {
@@ -805,7 +806,7 @@ function my_select_packages() {
 
 function my_initialize() {
   inst64_lib_base_initialize &&
-    inst64_lib_app_check_method "$INST64_METHOD_BINARY" ||
+    inst64_lib_method_check "$INST64_METHOD_BINARY" ||
     return $?
 
   if [[ "$INST64_INSTALLER64_METHOD" == "$INST64_METHOD_BINARY" ]]; then

@@ -76,12 +76,12 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_GO" ||
     return $?

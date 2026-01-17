@@ -43,7 +43,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-PACKAGE}"
+declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-AUTO}"
 # Application version
 declare INST64_ZOOM_VERSION="${INST64_ZOOM_VERSION:-6.5.7.3298}"
 
@@ -101,7 +101,7 @@ function my_verify() {
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_PACKAGE" ||
     return $?

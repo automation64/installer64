@@ -43,7 +43,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-CUSTOM}"
+declare INST64_NODEJS_METHOD="${INST64_NODEJS_METHOD:-AUTO}"
 # Installation destination
 declare INST64_NODEJS_TARGET="${INST64_NODEJS_TARGET:-}"
 # Hardware architecture
@@ -130,7 +130,7 @@ function my_setup() {
     INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%.tar.gz}/bin"
     inst64_lib_task_publish
     # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" "$BL64_VAR_ON" &&
+    bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME}" "${INST64_CLI_TARGET}" "$BL64_VAR_ON" &&
       bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME_NPM}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPM}" "$BL64_VAR_ON" &&
       bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME_NPX}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPX}" "$BL64_VAR_ON"
   fi
@@ -140,12 +140,12 @@ function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   export PATH="${PATH}:${INST64_CLI_PATH}"
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_CUSTOM" ||
     return $?

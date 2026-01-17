@@ -6,4 +6,4 @@ sudo touch /bin/zsh
 sudo chmod 755 /bin/zsh
 
 export INST64_SYSTEM_WIDE=NO
-src/install-ohmyzsh
+src/install-zsh-ohmyzsh

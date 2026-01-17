@@ -34,7 +34,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
   { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
 
 # Installation method
-declare INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-BINARY}"
+declare INST64_SYSOP64_METHOD="${INST64_SYSOP64_METHOD:-AUTO}"
 # Installation destination
 declare INST64_SYSOP64_TARGET="${INST64_SYSOP64_TARGET:-}"
 # Hardware architecture
@@ -103,7 +103,7 @@ function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   [[ -d "$INST64_SYSOP64_TARGET" ]] &&
-    "${INST64_CLI_PATH}/${INST64_CLI_NAME}" || return $?
+    "${INST64_CLI_TARGET}" || return $?
   if [[ "$INST64_SYSOP64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
@@ -111,7 +111,7 @@ function my_verify() {
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_BINARY" ||
     return $?

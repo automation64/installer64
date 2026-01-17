@@ -42,7 +42,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_VSCODIUM_METHOD="${INST64_VSCODIUM_METHOD:-BINARY}"
+declare INST64_VSCODIUM_METHOD="${INST64_VSCODIUM_METHOD:-AUTO}"
 # Installation destination
 declare INST64_VSCODIUM_TARGET="${INST64_VSCODIUM_TARGET:-}"
 # Hardware architecture
@@ -116,7 +116,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  [[ -x "${INST64_CLI_PATH}/${INST64_CLI_NAME}" ]] || return $?
+  [[ -x "${INST64_CLI_TARGET}" ]] || return $?
   if [[ "$INST64_VSCODIUM_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
@@ -124,7 +124,7 @@ function my_verify() {
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_BINARY" ||
     return $?

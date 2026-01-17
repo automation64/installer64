@@ -41,7 +41,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-CUSTOM}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Installation destination
 declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
 # Hardware architecture
@@ -107,12 +107,12 @@ function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   # X_VERIFY_PLACEHOLDER_X
-  "${INST64_CLI_PATH}/${INST64_CLI_NAME}" --version
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
-  inst64_lib_app_check_method \
+  inst64_lib_method_check \
     'AUTO' \
     'CUSTOM' ||
     return $?
