@@ -44,7 +44,7 @@ declare INST64_KST_METHOD="${INST64_KST_METHOD:-AUTO}"
 declare INST64_KST_VERSION="${INST64_KST_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='ksh'
+INST64_APP_NAME='kst'
 INST64_APP_ID='KST'
 INST64_APP_FULL_NAME='Kandji Sync Toolkit'
 # CLI information
@@ -130,7 +130,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
