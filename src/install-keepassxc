@@ -80,7 +80,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  [[ -x "${INST64_CLI_TARGET}" ]]
 }
 
 function my_select_method() {
@@ -147,7 +147,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

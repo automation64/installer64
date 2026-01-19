@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,96 +21,76 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
 # Installation method
-declare INST64_OHMYZSH_METHOD="${INST64_OHMYZSH_METHOD:-AUTO}"
+declare INST64_VARIETY_METHOD="${INST64_VARIETY_METHOD:-AUTO}"
+# Application version
+declare INST64_VARIETY_VERSION="${INST64_VARIETY_VERSION:-latest}"
+# Enable development packages?
+declare INST64_VARIETY_DEVELOPMENT="${INST64_VARIETY_DEVELOPMENT:-NO}"
 
-INST64_APP_NAME='zsh-ohmyzsh'
-INST64_APP_ID='OHMYZSH'
-INST64_APP_FULL_NAME='Oh-My-ZSH - ZSH Framework'
-INST64_CLI_NAME='oh-my-zsh.sh'
-
-INST64_WEB_REPO_URL='https://raw.github.com'
-INST64_WEB_REPO_PATH='ohmyzsh/ohmyzsh/master/tools'
-INST64_APP_INSTALLER='install.sh'
+# App information
+INST64_APP_NAME='variety'
+INST64_APP_ID='VARIETY'
+INST64_APP_FULL_NAME='Variety - Wallpaper downloader and manager'
+INST64_CLI_NAME='variety'
 
 #
 # Functions
 #
 
-function my_install_custom() {
-  bl64_dbg_app_show_function
-
-  inst64_lib_task_download
-  inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
-    return $?
-
-  inst64_lib_task_deploy
-  "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" \
-    --unattended ||
-    return $?
-
-  inst64_lib_task_cleanup
-  inst64_lib_staging_remove
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_OHMYZSH_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_base_create_path
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_OHMYZSH_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    my_install_custom
+  if [[ "$INST64_VARIETY_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    inst64_lib_pkg_install
   fi
 }
 
 function my_setup() {
   bl64_dbg_app_show_function
-  inst64_lib_step_install || return 0
-  return 0
+  inst64_lib_step_setup || return 0
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  [[ -f "${INST64_CLI_TARGET}" ]]
+  [[ -x "${INST64_CLI_TARGET}" ]]
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_CUSTOM" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_OHMYZSH_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_OHMYZSH_METHOD="$INST64_METHOD_CUSTOM"
-    INST64_SYSTEM_WIDE='NO'
+  if [[ "$INST64_VARIETY_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_VARIETY_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -121,9 +101,11 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_OHMYZSH_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    INST64_PKG_MAIN="$INST64_APP_INSTALLER"
-    INST64_CLI_PATH="${HOME}/.oh-my-zsh"
+  if [[ "$INST64_VARIETY_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    \  bl64_lib_flag_is_enabled "$INST64_VARIETY_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN='variety'
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
 }
@@ -134,11 +116,11 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_OHMYZSH_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_type_check_user &&
-      bl64_check_privilege_not_root &&
-      inst64_lib_command_check_prereq 'zsh' &&
-      bl64_arc_setup ||
+  if [[ "$INST64_VARIETY_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH" \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" ||
       return $?
   fi
 
@@ -155,7 +137,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

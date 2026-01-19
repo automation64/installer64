@@ -59,8 +59,11 @@ function my_release_upload() {
     artifacts="$(bl64_fs_file_search "$DEV_RELEASE_GITHUB_ARTIFACT")" &&
       [[ -n "$artifacts" ]] ||
       return $?
-  else
+  elif [[ -f "$DEV_RELEASE_GITHUB_ARTIFACT" ]]; then
     artifacts="$DEV_RELEASE_GITHUB_ARTIFACT"
+  else
+    bl64_msg_show_error "unable to find the release artifact (${DEV_RELEASE_GITHUB_ARTIFACT})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
   fi
 
   bl64_msg_show_task "Upload release assets (${DEV_RELEASE_GITHUB_REPO_OWNER}/${DEV_RELEASE_GITHUB_REPO_NAME})"
@@ -108,7 +111,7 @@ function my_initialize() {
       'MY_RELEASE_TAG'
 }
 
-bl64_lib_script_version_set '2.3.0'
+bl64_lib_script_version_set '2.4.0'
 bl64_msg_help_about_set 'Create a GitHub release'
 dev_bin64_initialize && my_initialize || exit $?
 

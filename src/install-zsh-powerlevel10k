@@ -45,7 +45,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 declare INST64_POWERLEVEL10K_METHOD="${INST64_POWERLEVEL10K_METHOD:-AUTO}"
 # Installation destination
 declare INST64_POWERLEVEL10K_TARGET_THEMES="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/themes"
-declare INST64_POWERLEVEL10K_TARGET=''
+declare INST64_POWERLEVEL10K_TARGET="${INST64_POWERLEVEL10K_TARGET_THEMES}/powerlevel10k"
 
 INST64_APP_NAME='powerlevel10k'
 INST64_APP_ID='POWERLEVEL10K'
@@ -55,7 +55,6 @@ INST64_CLI_NAME='powerlevel10k.zsh-theme'
 INST64_GIT_SERVER='https://github.com'
 INST64_GIT_REPO='romkatv/powerlevel10k.git'
 INST64_GIT_BRANCH='master'
-INST64_POWERLEVEL10K_TARGET="${INST64_POWERLEVEL10K_TARGET_THEMES}/${INST64_APP_NAME}"
 INST64_CLI_PROMOTE='NO'
 
 #
@@ -113,6 +112,7 @@ function my_select_method() {
     return $?
   if [[ "$INST64_POWERLEVEL10K_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     INST64_POWERLEVEL10K_METHOD="$INST64_METHOD_CUSTOM"
+    INST64_SYSTEM_WIDE='NO'
   fi
 }
 
@@ -153,7 +153,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
