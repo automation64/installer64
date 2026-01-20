@@ -73,7 +73,7 @@ function my_release_upload() {
     artifacts="$(bl64_fs_file_search "$DEV_RELEASE_GITHUB_ARTIFACT")" &&
       [[ -n "$artifacts" ]] ||
       return $?
-  elif [[ -f "$DEV_RELEASE_GITHUB_ARTIFACT" ]]; then
+  else
     artifacts="$DEV_RELEASE_GITHUB_ARTIFACT"
   fi
 
