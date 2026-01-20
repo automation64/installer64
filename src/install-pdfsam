@@ -68,7 +68,7 @@ INST64_CPU_LINUX_AMD64='linux-x64'
 function my_install_binary() {
   bl64_dbg_app_show_function
 
-  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN%$INST64_PKG_MAIN_SUFFIX}"
+  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN%"$INST64_PKG_MAIN_SUFFIX"}"
   inst64_lib_task_download
   inst64_lib_staging_create &&
     inst64_lib_gh_get_asset &&
@@ -181,7 +181,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

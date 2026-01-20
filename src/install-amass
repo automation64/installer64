@@ -140,7 +140,7 @@ function my_select_platform() {
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_AMASS_PLATFORM="$INST64_CPU_LINUX_AMD64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_AMASS_PLATFORM="$INST64_CPU_LINUX_ARM6464"
+        INST64_AMASS_PLATFORM="$INST64_CPU_LINUX_ARM64"
       fi
     fi
     inst64_lib_platform_check_cpu
@@ -178,7 +178,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

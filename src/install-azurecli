@@ -61,7 +61,6 @@ INST64_OS_SOURCE_YUM='https://packages.microsoft.com/yumrepos/azure-cli'
 INST64_OS_SOURCE_APT='https://packages.microsoft.com/repos/azure-cli'
 INST64_OS_REPO_KEY_YUM='https://packages.microsoft.com/keys/microsoft.asc'
 INST64_OS_REPO_KEY_APT='https://packages.microsoft.com/keys/microsoft.asc'
-INST64_CPU_LINUX_AMD64='x86_64'
 
 #
 # Functions
@@ -136,16 +135,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_AZURECLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      if bl64_os_is_distro "${BL64_OS_OL}-9"; then
-        INST64_AZURECLI_PLATFORM="$INST64_CPU_LINUX_AMD64"
-      elif bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-        INST64_AZURECLI_PLATFORM="$INST64_CPU_ALL_ALL"
-      fi
-    fi
-    inst64_lib_platform_check_cpu
-  fi
+  return 0
 }
 
 function my_select_packages() {
@@ -186,7 +176,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.0.0'
+bl64_lib_script_version_set '3.0.1'
 inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

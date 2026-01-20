@@ -78,8 +78,7 @@ function inst64_select_packages_version() {
     echo "${package_version#v}"
   else
     bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
-    # shellcheck disable=SC2086
-    return $BL64_LIB_ERROR_TASK_FAILED
+    return "$BL64_LIB_ERROR_TASK_FAILED"
   fi
 }
 

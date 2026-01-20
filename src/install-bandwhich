@@ -152,10 +152,10 @@ function my_select_platform() {
         # shellcheck disable=SC2249
         case "$BL64_OS_FLAVOR" in
           "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
-            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_ARM64_MUSL"
             ;;
           "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_ARCH")
-            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+            INST64_BANDWICH_PLATFORM="$INST64_CPU_LINUX_ARM64_GNU"
             ;;
         esac
       fi
@@ -195,7 +195,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

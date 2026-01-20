@@ -43,7 +43,7 @@
   export DEV_MODULE_LOAD=''
 
   # Env / DevBin64 / Current version
-  export DEV_BIN64_VERSION='12.3.0'
+  export DEV_BIN64_VERSION='12.3.1'
 
   # Env / DevBin64 / Project root
   export DEV_PATH_ROOT=''
