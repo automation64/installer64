@@ -53,8 +53,9 @@ declare INST64_GO_VERSION="${INST64_GO_VERSION:-latest}"
 INST64_APP_NAME='go'
 INST64_APP_ID='GO'
 INST64_APP_FULL_NAME='GO - Go Programming Language'
-INST64_CLI_NAME='go'
+INST64_CLI_NAME_GO='go'
 INST64_CLI_NAME_GOFMT='gofmt'
+INST64_CLI_NAME="$INST64_CLI_NAME_GO"
 
 INST64_WEB_REPO_URL='https://go.dev'
 INST64_WEB_REPO_PATH='dl'
@@ -81,8 +82,7 @@ function inst64_select_packages_version() {
     echo "${package_version#go}"
   else
     bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
-    # shellcheck disable=SC2086
-    return $BL64_LIB_ERROR_TASK_FAILED
+    return "$BL64_LIB_ERROR_TASK_FAILED"
   fi
 }
 
@@ -126,11 +126,13 @@ function my_setup() {
   inst64_lib_step_setup || return 0
   if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_task_publish
-    INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME}" \
-      inst64_lib_cli_promote &&
-      INST64_CLI_NAME="$INST64_CLI_NAME_GOFMT" \
-        INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME}" \
-        inst64_lib_cli_promote
+
+    INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME_GOFMT}"
+    inst64_lib_cli_promote || return $?
+
+    INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME_GO}"
+    inst64_lib_cli_promote
+
   fi
 }
 
@@ -199,7 +201,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.2'
+bl64_lib_script_version_set '2.0.3'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

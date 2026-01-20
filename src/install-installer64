@@ -50,7 +50,7 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.5.0'
+  declare INST64_LIB_VERSION_BASH='1.5.1'
 
   # Installation methods
   declare INST64_METHOD_AUTO='AUTO'
@@ -228,7 +228,6 @@ function _inst64_lib_platform_get_flavor_from_release() {
     'ALMALINUX') INST64_OS_FLAVOR='REDHAT' ;;
     'ALPINE') INST64_OS_FLAVOR='ALPINE' ;;
     'AMZN') INST64_OS_FLAVOR='FEDORA' ;;
-    'CACHYOS') INST64_OS_FLAVOR='ARCHLINUX' ;;
     'CENTOS') INST64_OS_FLAVOR='REDHAT' ;;
     'DEBIAN') INST64_OS_FLAVOR='DEBIAN' ;;
     'FEDORA') INST64_OS_FLAVOR='FEDORA' ;;

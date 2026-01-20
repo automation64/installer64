@@ -44,8 +44,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 
 # Installation method
 declare INST64_GCLOUD_METHOD="${INST64_GCLOUD_METHOD:-AUTO}"
-# Application version
-declare INST64_GCLOUD_VERSION=''
 # Enable development packages?
 declare INST64_GCLOUD_DEVELOPMENT="${INST64_GCLOUD_DEVELOPMENT:-NO}"
 

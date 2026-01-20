@@ -70,7 +70,7 @@ INST64_CPU_LINUX_ARM64='linux_arm64'
 function my_install_binary() {
   bl64_dbg_app_show_function
 
-  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN%${INST64_PKG_MAIN_SUFFIX}}"
+  INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN%"${INST64_PKG_MAIN_SUFFIX}"}"
   inst64_lib_task_download
   inst64_lib_staging_create &&
     inst64_lib_gh_get_asset &&
@@ -106,7 +106,7 @@ function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_RESTIC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    INST64_CLI_SOURCE="${INST64_PKG_MAIN%${INST64_PKG_MAIN_SUFFIX}}"
+    INST64_CLI_SOURCE="${INST64_PKG_MAIN%"${INST64_PKG_MAIN_SUFFIX}"}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -141,7 +141,7 @@ function my_select_platform() {
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_RESTIC_PLATFORM="$INST64_CPU_LINUX_AMD64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_RESTIC_PLATFORM="$INST64_CPU_LINUX_ARM6464"
+        INST64_RESTIC_PLATFORM="$INST64_CPU_LINUX_ARM64"
       fi
     fi
     inst64_lib_platform_check_cpu
@@ -179,7 +179,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-package-1.0.0
+# Template: install-bl64-nodejs-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,18 +21,13 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
@@ -43,38 +38,22 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_ZOOM_METHOD="${INST64_ZOOM_METHOD:-AUTO}"
+declare INST64_PNPM_METHOD="${INST64_PNPM_METHOD:-AUTO}"
 # Application version
-declare INST64_ZOOM_VERSION="${INST64_ZOOM_VERSION:-6.5.7.3298}"
+declare INST64_PNPM_VERSION="${INST64_PNPM_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='zoom'
-INST64_APP_ID='ZOOM'
-INST64_APP_FULL_NAME='Zoom - Video Conferencing and Online Meetings'
-INST64_CLI_NAME='zoom'
+INST64_APP_NAME='pnpm'
+INST64_APP_ID='PNPM'
+INST64_APP_FULL_NAME='PNPM - NodeJS Package Manager'
 
-INST64_WEB_REPO_URL='https://zoom.us'
-INST64_WEB_REPO_PATH='client'
-INST64_PKG_MAIN_PREFIX='zoom_'
+INST64_CLI_NAME='pnpm'
+
+INST64_PKG_MAIN='pnpm'
 
 #
 # Functions
 #
-
-function my_install_package() {
-  bl64_dbg_app_show_function
-  inst64_lib_task_download
-  inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
-    return $?
-
-  inst64_lib_task_deploy
-  inst64_lib_pkg_install_file ||
-    return $?
-
-  inst64_lib_task_cleanup
-  inst64_lib_staging_remove
-}
 
 function my_prepare() {
   bl64_dbg_app_show_function
@@ -84,8 +63,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    my_install_package
+  if [[ "$INST64_PNPM_METHOD" == "$INST64_METHOD_NPM" ]]; then
+    inst64_lib_nodejs_install_npm
   fi
 }
 
@@ -97,43 +76,35 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_PACKAGE" ||
+    "$INST64_METHOD_NPM" ||
     return $?
-  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_ZOOM_METHOD="$INST64_METHOD_PACKAGE"
+  if [[ "$INST64_PNPM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_PNPM_METHOD="$INST64_METHOD_NPM"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      # shellcheck disable=SC2249
-      case "$BL64_OS_FLAVOR" in
-        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
-          INST64_ZOOM_PLATFORM='amd64'
-          ;;
-        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
-          INST64_ZOOM_PLATFORM='x86_64'
-          ;;
-      esac
-    fi
-    inst64_lib_platform_check_cpu
-  fi
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    inst64_lib_pkg_suffix_set || return $?
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ZOOM_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
-    INST64_WEB_REPO_PATH+="/${INST64_ZOOM_VERSION}"
+  local version_target=''
+  if [[ "$INST64_PNPM_METHOD" == "$INST64_METHOD_NPM" ]]; then
+    if [[ "$INST64_PNPM_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="@${INST64_PNPM_VERSION}"
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi
   inst64_lib_package_check_definition
 }
@@ -143,14 +114,6 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" ||
-      return $?
-  fi
 
   my_select_platform &&
     my_select_packages &&
@@ -165,8 +128,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
-inst64_lib_base_set_verbosity
+bl64_lib_script_version_set '1.0.0'
+inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

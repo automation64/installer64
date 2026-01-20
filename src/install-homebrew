@@ -40,7 +40,7 @@ declare INST64_HOMEBREW_VERSION="${INST64_HOMEBREW_VERSION:-latest}"
 INST64_APP_NAME='homebrew'
 INST64_APP_ID='HOMEBREW'
 INST64_APP_FULL_NAME='Homebrew'
-# CLI information
+# shellcheck disable=SC2034
 INST64_CLI_NAME='brew'
 INST64_CLI_PATH=''
 # shellcheck disable=SC2034
