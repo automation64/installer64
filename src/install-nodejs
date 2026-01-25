@@ -56,9 +56,10 @@ INST64_APP_NAME='nodejs'
 INST64_APP_ID='NODEJS'
 INST64_APP_FULL_NAME='NodeJS'
 # CLI information
-INST64_CLI_NAME='node'
+INST64_CLI_NAME_NODE='node'
 INST64_CLI_NAME_NPM='npm'
 INST64_CLI_NAME_NPX='npx'
+INST64_CLI_NAME="$INST64_CLI_NAME_NODE"
 
 INST64_PKG_MAIN_PREFIX='node-'
 INST64_PKG_MAIN_SUFFIX='.tar.gz'
@@ -126,12 +127,19 @@ function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%.tar.gz}/bin"
     inst64_lib_task_publish
-    # shellcheck disable=SC2086
-    bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME}" "${INST64_CLI_TARGET}" "$BL64_VAR_ON" &&
-      bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME_NPM}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPM}" "$BL64_VAR_ON" &&
-      bl64_fs_symlink_create "${INST64_CLI_TARGET}/${INST64_CLI_NAME_NPX}" "${INST64_CLI_PATH}/${INST64_CLI_NAME_NPX}" "$BL64_VAR_ON"
+
+    INST64_CLI_NAME="$INST64_CLI_NAME_NPM"
+    INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%"$INST64_PKG_MAIN_SUFFIX"}/bin/${INST64_CLI_NAME}"
+    inst64_lib_cli_promote || return $?
+
+    INST64_CLI_NAME="$INST64_CLI_NAME_NPX"
+    INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%"$INST64_PKG_MAIN_SUFFIX"}/bin/${INST64_CLI_NAME}"
+    inst64_lib_cli_promote || return $?
+
+    INST64_CLI_NAME="$INST64_CLI_NAME_NODE"
+    INST64_CLI_TARGET="${INST64_NODEJS_TARGET}/${INST64_PKG_MAIN%"$INST64_PKG_MAIN_SUFFIX"}/bin/${INST64_CLI_NAME}"
+    inst64_lib_cli_promote
   fi
 }
 
@@ -150,6 +158,7 @@ function my_select_method() {
     return $?
   if [[ "$INST64_NODEJS_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     INST64_NODEJS_METHOD="$INST64_METHOD_CUSTOM"
+    INST64_CLI_NORMALIZE='NO'
   fi
 }
 
@@ -211,7 +220,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.1'
+bl64_lib_script_version_set '2.1.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

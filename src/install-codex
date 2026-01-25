@@ -106,7 +106,6 @@ function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_CODEX_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    INST64_CLI_TARGET="${INST64_CODEX_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -162,6 +161,7 @@ function my_select_packages() {
         return $?
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+    INST64_CLI_TARGET="${INST64_CODEX_TARGET}/${INST64_PKG_MAIN_PREFIX}${INST64_CODEX_PLATFORM}"
   fi
   inst64_lib_package_check_definition
 }
@@ -185,7 +185,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

@@ -16,6 +16,9 @@
 # Globals
 #
 
+# shellcheck source=lib/bl64/bashlib64.bash
+source /dev/null # keep to force shellcheck using source=
+
 # shellcheck disable=SC2034
 {
 
@@ -51,21 +54,22 @@
   #
 
   # Installation methods
-  declare INST64_METHOD_AUR='AUR'
-  declare INST64_METHOD_AUTO='AUTO'
-  declare INST64_METHOD_BINARY='BINARY'
-  declare INST64_METHOD_BREW='BREW'
-  declare INST64_METHOD_CUSTOM='CUSTOM'
-  declare INST64_METHOD_EXTERNAL='EXTERNAL'
-  declare INST64_METHOD_FPAK='FPAK'
-  declare INST64_METHOD_GO='GO'
-  declare INST64_METHOD_KREW='KREW'
-  declare INST64_METHOD_NATIVE='NATIVE'
-  declare INST64_METHOD_NPM='NPM'
-  declare INST64_METHOD_PACKAGE='PACKAGE'
-  declare INST64_METHOD_PIP='PIP'
-  declare INST64_METHOD_PIPX='PIPX'
-  declare INST64_METHOD_SNAP='SNAP'
+  readonly INST64_METHOD_AUR='AUR'
+  readonly INST64_METHOD_AUTO='AUTO'
+  readonly INST64_METHOD_BINARY='BINARY'
+  readonly INST64_METHOD_BREW='BREW'
+  readonly INST64_METHOD_CUSTOM='CUSTOM'
+  readonly INST64_METHOD_EXTERNAL='EXTERNAL'
+  readonly INST64_METHOD_FPAK='FPAK'
+  readonly INST64_METHOD_GO='GO'
+  readonly INST64_METHOD_KREW='KREW'
+  readonly INST64_METHOD_NATIVE='NATIVE'
+  readonly INST64_METHOD_NPM='NPM'
+  readonly INST64_METHOD_PACKAGE='PACKAGE'
+  readonly INST64_METHOD_PIP='PIP'
+  readonly INST64_METHOD_PIPX='PIPX'
+  readonly INST64_METHOD_UV='UV'
+  readonly INST64_METHOD_SNAP='SNAP'
 
   # App information
   declare INST64_APP_NAME=''
@@ -113,7 +117,7 @@
   declare INST64_APP_INSTALLER=''
 
   # CLI information
-  declare INST64_CLI_NAME=''         # CLI command to publish
+  declare INST64_CLI_NAME=''         # CLI command to publish. Format: name only
   declare INST64_CLI_SOURCE=''       # Optional. Source CLI name, before published
   declare INST64_CLI_PATH=''         # Optional. CLI promotion path
   declare INST64_CLI_SUBPATH=''      # Optional. CLI target subpath
@@ -151,10 +155,10 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BL64='1.18.0'
+  readonly INST64_LIB_VERSION_BL64='1.19.0'
 
   # BashLib64 version required
-  declare INST64_LIB_VERSION_REQUIRED='22.12.0'
+  readonly INST64_LIB_VERSION_REQUIRED='22.12.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -175,6 +179,7 @@
   declare INST64_COMMAND_GO=''
   declare INST64_COMMAND_NPM=''
   declare INST64_COMMAND_SNAP=''
+  declare INST64_COMMAND_UV=''
   declare INST64_COMMAND_YAY=''
 
   # BashLib64 overrides
@@ -197,7 +202,7 @@ function inst64_lib_type_set() {
     INST64_SYSTEM_WIDE="${!app_wide}"
   fi
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
+    if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
       bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to NO'
       INST64_SYSTEM_WIDE='NO'
     elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
@@ -228,7 +233,7 @@ function inst64_lib_base_set_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_check_parameter "$method" || return $?
-  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   if [[ -z "$INST64_OPT_ROOT" ]]; then
@@ -256,7 +261,7 @@ function inst64_lib_target_set_path() {
   local target_basename="$INST64_APP_NAME"
 
   bl64_check_parameter "$method" || return $?
-  if [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]]; then
+  if [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]]; then
     bl64_dbg_app_show_comments 'TARGET is not used for this installation method'
     return 0
   fi
@@ -290,7 +295,7 @@ function inst64_lib_target_set_owner() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_check_parameter "$method" || return $?
-  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -329,7 +334,7 @@ function inst64_lib_cli_set_path() {
     "$INST64_METHOD_SNAP")
       INST64_CLI_PATH='/snap/bin'
       ;;
-    "$INST64_METHOD_PIPX")
+    "$INST64_METHOD_PIPX" | "$INST64_METHOD_UV")
       INST64_CLI_PATH="${HOME}/.local/bin"
       ;;
     "$INST64_METHOD_PIP")
@@ -437,7 +442,7 @@ function inst64_lib_base_create_path() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_check_parameter "$method" || return $?
-  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
@@ -454,12 +459,12 @@ function inst64_lib_base_create_path() {
 
 function inst64_lib_app_register_version() {
   bl64_dbg_app_show_function
-  local version="INST64_${INST64_APP_ID}_VERSION"
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
   bl64_msg_show_task 'register application version'
-  bl64_check_parameter "$version" &&
+  bl64_check_parameter "$app_version" &&
     bl64_fs_file_remove "$INST64_STATUS_PATH" &&
     bl64_fs_file_create "$INST64_STATUS_PATH" "$INST64_STATUS_MODE" &&
-    echo "${!version}" >"$INST64_STATUS_PATH"
+    echo "${!app_version}" >"$INST64_STATUS_PATH"
 }
 
 function inst64_lib_base_initialize() {
@@ -485,7 +490,7 @@ function inst64_lib_base_initialize() {
     return 0
 
   bl64_msg_show_error 'installer initialization failed'
-  return $BL64_LIB_ERROR_TASK_FAILED
+  return "$BL64_LIB_ERROR_TASK_FAILED"
 }
 
 function inst64_lib_method_initialize() {
@@ -514,14 +519,8 @@ function inst64_lib_method_initialize() {
       ;;
     "$INST64_METHOD_AUR")
       INST64_CLI_PROMOTE='NO'
-      bl64_check_privilege_not_root ||
-        return $?
-
-      INST64_COMMAND_YAY='/usr/bin/yay'
-      bl64_check_command \
-        "$INST64_COMMAND_YAY" \
-        "$BL64_VAR_DEFAULT" \
-        'yay'
+      bl64_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_YAY' 'yay'
       ;;
     "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL")
       INST64_CLI_PROMOTE='NO'
@@ -530,10 +529,15 @@ function inst64_lib_method_initialize() {
         bl64_cryp_setup &&
         bl64_pkg_setup
       ;;
-    "$INST64_METHOD_PIPX" | "$INST64_METHOD_PIP")
+    "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
         bl64_py_setup
+      ;;
+    "$INST64_METHOD_UV")
+      INST64_CLI_PROMOTE='NO'
+      bl64_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_UV' 'uv'
       ;;
     "$INST64_METHOD_BREW")
       INST64_CLI_PROMOTE='NO'
@@ -544,58 +548,29 @@ function inst64_lib_method_initialize() {
       ;;
     "$INST64_METHOD_NPM")
       INST64_CLI_PROMOTE='NO'
-      bl64_check_privilege_not_root ||
-        return $?
-
-      INST64_COMMAND_NPM="$(bl64_bsh_command_locate 'npm' "$HOME/.local/bin")"
-      if [[ -z "$INST64_COMMAND_NPM" ]]; then
-        bl64_msg_show_error 'npm command not found. Please install it and try again'
-        return 1
-      fi
-      return 0
+      bl64_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_NPM' 'npm' "$HOME/.local/bin"
       ;;
     "$INST64_METHOD_GO")
       INST64_CLI_PROMOTE='NO'
-      bl64_check_privilege_not_root ||
-        return $?
-
-      INST64_COMMAND_GO="$(bl64_bsh_command_locate 'go')"
-      if [[ -z "$INST64_COMMAND_GO" ]]; then
-        bl64_msg_show_error 'go command not found. Please install it and try again'
-        return 1
-      fi
-      return 0
+      bl64_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_GO' 'go'
       ;;
     "$INST64_METHOD_FPAK")
       INST64_CLI_PROMOTE='NO'
-      bl64_check_privilege_root ||
-        return $?
-
-      INST64_COMMAND_FLATPAK='/usr/bin/flatpak'
-      bl64_check_command \
-        "$INST64_COMMAND_FLATPAK" \
-        "$BL64_VAR_DEFAULT" \
-        'flatpak'
+      bl64_check_privilege_root &&
+        inst64_lib_command_define 'INST64_COMMAND_FLATPAK' 'flatpak'
       ;;
     "$INST64_METHOD_SNAP")
       INST64_CLI_PROMOTE='NO'
-      bl64_check_privilege_root ||
-        return $?
-
-      INST64_COMMAND_SNAP='/usr/bin/snap'
-      bl64_check_command \
-        "$INST64_COMMAND_SNAP" \
-        "$BL64_VAR_DEFAULT" \
-        'snap'
+      bl64_check_privilege_root &&
+        inst64_lib_command_define 'INST64_COMMAND_SNAP' 'snap'
       ;;
     "$INST64_METHOD_KREW")
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
         bl64_k8s_setup &&
-        bl64_check_command \
-          "${HOME}/.krew/bin/kubectl-krew" \
-          "$BL64_VAR_DEFAULT" \
-          'krew'
+        inst64_lib_command_check_prereq 'kubectl-krew' "${HOME}/.krew/bin"
       ;;
   esac
 }
@@ -684,12 +659,32 @@ function inst64_lib_python_install_pipx() {
       return $?
   else
     # shellcheck disable=SC2086
-    bl64_py_run_pipx install $INST64_PKG_MAIN $INST64_PKG_PRE ||
+    bl64_py_run_pipx install $INST64_PKG_MAIN ||
       return $?
   fi
   if [[ -n "$INST64_PKG_POST" ]]; then
     # shellcheck disable=SC2086
     bl64_py_run_pipx inject $INST64_PKG_MAIN $INST64_PKG_POST ||
+      return $?
+  fi
+  return 0
+}
+
+function inst64_lib_python_install_uv() {
+  bl64_dbg_app_show_function
+
+  if [[ -n "$INST64_PKG_PRE" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_uv tool install --with $INST64_PKG_PRE $INST64_PKG_MAIN ||
+      return $?
+  else
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_uv tool install $INST64_PKG_MAIN ||
+      return $?
+  fi
+  if [[ -n "$INST64_PKG_POST" ]]; then
+    # shellcheck disable=SC2086
+    inst64_lib_command_run_uv tool install --with $INST64_PKG_POST $INST64_PKG_MAIN ||
       return $?
   fi
   return 0
@@ -740,6 +735,15 @@ function inst64_lib_command_run_snap() {
   bl64_dbg_app_trace_stop
 }
 
+function inst64_lib_command_run_uv() {
+  bl64_dbg_app_show_function "$@"
+  bl64_dbg_app_trace_start
+  # shellcheck disable=SC2086
+  "$INST64_COMMAND_UV" \
+    "$@"
+  bl64_dbg_app_trace_stop
+}
+
 function inst64_lib_package_check_definition() {
   bl64_dbg_app_show_function
   bl64_check_parameter 'INST64_PKG_MAIN'
@@ -765,7 +769,7 @@ function inst64_lib_type_check_system() {
   bl64_dbg_app_show_function
   if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
     bl64_msg_show_error 'app can only be installed system-wide. Set INST64_SYSTEM_WIDE=YES and try again.'
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
+    return "$BL64_LIB_ERROR_PARAMETER_INVALID"
   fi
   return 0
 }
@@ -802,7 +806,6 @@ function inst64_lib_git_get_dir() {
 function inst64_lib_cli_promote() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
-  local needs_target_alias='NO'
 
   bl64_check_parameter 'INST64_CLI_NAME' || return $?
 
@@ -844,7 +847,7 @@ function inst64_lib_target_create() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   local method="INST64_${INST64_APP_ID}_METHOD"
 
-  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
+  [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW")$ ]] &&
     return 0
 
   bl64_fs_dir_create \
@@ -995,6 +998,7 @@ function inst64_lib_web_get_file() {
 
 function inst64_lib_pkg_suffix_set() {
   bl64_dbg_app_show_function
+  # shellcheck disable=SC2034
   case "$BL64_OS_FLAVOR" in
     "$BL64_OS_FLAVOR_ALPINE") INST64_PKG_MAIN_SUFFIX='.apk' ;;
     "$BL64_OS_FLAVOR_ARCH") INST64_PKG_MAIN_SUFFIX='.pacman' ;;
@@ -1117,7 +1121,19 @@ function inst64_lib_flatpak_install() {
 
   inst64_lib_command_run_flatpak \
     install \
+    --noninteractive \
+    --assumeyes \
     "$INST64_FPAK_REPO_NAME" \
+    "$INST64_PKG_MAIN"
+}
+
+function inst64_lib_flatpak_verify() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_PKG_MAIN' ||
+    return $?
+
+  inst64_lib_command_run_flatpak \
+    info \
     "$INST64_PKG_MAIN"
 }
 
@@ -1268,6 +1284,29 @@ function inst64_lib_command_check_prereq() {
 
   shift
   if [[ -z "$(bl64_bsh_command_locate_user "$command_name" "$@")" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
+}
+
+function inst64_lib_command_define() {
+  bl64_dbg_app_show_function "$@"
+  local command_variable="${1:-}"
+  local command_name="${2:-}"
+
+  bl64_check_parameter 'command_variable' &&
+    bl64_check_parameter 'command_name' ||
+    return $?
+
+  shift
+  shift
+  printf \
+    -v "$command_variable" \
+    '%s' \
+    "$(bl64_bsh_command_locate_user "$command_name" "$@")"
+
+  if [[ -z "${!command_variable}" ]]; then
     bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
     return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
   fi

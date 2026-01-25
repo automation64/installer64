@@ -148,7 +148,10 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    INST64_PKG_MAIN='docker'
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_ARCH") INST64_PKG_MAIN='docker extra/docker-buildx extra/docker-compose' ;;
+    esac
   elif [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_lib_flag_is_enabled "$INST64_DOCKER_DEVELOPMENT" &&
       INST64_PKG_DEV=''
@@ -170,6 +173,7 @@ function my_initialize() {
       return $?
   elif [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH" \
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
@@ -189,7 +193,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.0.0'
+bl64_lib_script_version_set '3.0.1'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

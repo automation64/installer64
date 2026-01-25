@@ -127,9 +127,11 @@ function my_setup() {
   if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_task_publish
 
+    INST64_CLI_NAME="$INST64_CLI_NAME_GOFMT"
     INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME_GOFMT}"
     inst64_lib_cli_promote || return $?
 
+    INST64_CLI_NAME="$INST64_CLI_NAME_GO"
     INST64_CLI_TARGET="${INST64_GO_TARGET}/bin/${INST64_CLI_NAME_GO}"
     inst64_lib_cli_promote
 
@@ -201,7 +203,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.3'
+bl64_lib_script_version_set '2.0.4'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

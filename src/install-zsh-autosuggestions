@@ -45,6 +45,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 declare INST64_ZSHAS_METHOD="${INST64_ZSHAS_METHOD:-AUTO}"
 # Installation destination
 declare INST64_ZSHAS_TARGET_THEMES="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/plugins"
+# shellcheck disable=SC2034
 declare INST64_ZSHAS_TARGET="${INST64_ZSHAS_TARGET_THEMES}/zsh-autosuggestions"
 
 INST64_APP_NAME='zsh-autosuggestions'

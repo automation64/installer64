@@ -45,6 +45,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 declare INST64_POWERLEVEL10K_METHOD="${INST64_POWERLEVEL10K_METHOD:-AUTO}"
 # Installation destination
 declare INST64_POWERLEVEL10K_TARGET_THEMES="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/themes"
+# shellcheck disable=SC2034
 declare INST64_POWERLEVEL10K_TARGET="${INST64_POWERLEVEL10K_TARGET_THEMES}/powerlevel10k"
 
 INST64_APP_NAME='powerlevel10k'
