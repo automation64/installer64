@@ -45,9 +45,10 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 declare INST64_ZSHFT_METHOD="${INST64_ZSHFT_METHOD:-AUTO}"
 # Installation destination
 declare INST64_ZSHFT_TARGET_THEMES="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/plugins"
+# shellcheck disable=SC2034
 declare INST64_ZSHFT_TARGET="${INST64_ZSHFT_TARGET_THEMES}/zsh-fzf-tab"
 
-INST64_APP_NAME='zsh-fzf-tab'
+INST64_APP_NAME='fzf-tab'
 INST64_APP_ID='ZSHFT'
 INST64_APP_FULL_NAME='FZF Tab - ZSH Plugin'
 INST64_CLI_NAME='fzf-tab.plugin.zsh'
@@ -152,7 +153,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

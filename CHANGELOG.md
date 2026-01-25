@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.0]
+
+### Added
+
+- Core
+  - UV method
+- Installers
+  - Shotwell
+  - Digikam
+  - GIMP
+  - CowSay
+
+### Changed
+
+- Hadolint
+  - Promoted to multiplatform
+- Core
+  - Changed python default method from PIPX to UV
+
+### Fixed
+
+- Docker
+  - Added missing plugins for Arch
+- BTop
+  - New GitHub package name
+
 ## [8.2.0]
 
 ### Added

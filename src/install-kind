@@ -103,7 +103,6 @@ function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
   if [[ "$INST64_KIND_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    INST64_CLI_TARGET="${INST64_KIND_TARGET}/${INST64_PKG_MAIN}"
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -151,6 +150,7 @@ function my_select_packages() {
         return $?
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KIND_PLATFORM}"
+    INST64_CLI_TARGET="${INST64_KIND_TARGET}/${INST64_PKG_MAIN}"
   fi
   inst64_lib_package_check_definition
 }

@@ -100,6 +100,7 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
+  local version_target=''
   if [[ "$INST64_AWSSHELL_METHOD" == "$INST64_METHOD_PIPX" || "$INST64_AWSSHELL_METHOD" == "$INST64_METHOD_PIP" ]]; then
     if [[ "$INST64_AWSSHELL_VERSION" == 'latest' ]]; then
       version_target=''
@@ -130,7 +131,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '2.0.2'
 inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

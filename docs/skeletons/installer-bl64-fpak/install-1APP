@@ -78,7 +78,9 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_FPAK" ]]; then
+    inst64_lib_flatpak_verify
+  fi
 }
 
 function my_select_method() {
