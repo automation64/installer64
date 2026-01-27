@@ -106,8 +106,12 @@ function my_select_packages() {
     INST64_PKG_MAIN='iptraf-ng'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
     case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH" | "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+      "$BL64_OS_FLAVOR_ARCH")
         INST64_CLI_NAME='iptraf-ng'
+        ;;
+      "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT")
+        INST64_CLI_NAME='iptraf-ng'
+        INST64_CLI_TARGET="/usr/sbin/${INST64_CLI_NAME}"
         ;;
       *)
         INST64_CLI_NAME='iptraf'
@@ -147,7 +151,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

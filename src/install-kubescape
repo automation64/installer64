@@ -57,10 +57,11 @@ INST64_CLI_NAME='kubescape'
 
 INST64_GH_REPO_NAME='kubescape'
 INST64_GH_REPO_OWNER='kubescape'
-INST64_PKG_MAIN_PREFIX='kubescape-'
-INST64_PKG_MAIN_SUFFIX='-latest'
-INST64_CPU_DARWIN_ARM64='arm64-macos'
-INST64_CPU_LINUX_AMD64='ubuntu'
+INST64_PKG_MAIN_PREFIX='kubescape_'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='darwin_arm64'
+INST64_CPU_LINUX_AMD64='linux_amd64'
+INST64_CPU_LINUX_ARM64='linux_arm64'
 
 #
 # Functions
@@ -69,10 +70,10 @@ INST64_CPU_LINUX_AMD64='ubuntu'
 function my_install_binary() {
   bl64_dbg_app_show_function
 
-  INST64_WORK_PATH_SOURCE="$INST64_PKG_MAIN"
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_gh_get_asset ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
@@ -137,6 +138,8 @@ function my_select_platform() {
         INST64_KUBESCAPE_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         INST64_KUBESCAPE_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_KUBESCAPE_PLATFORM="$INST64_CPU_LINUX_ARM64"
       fi
     fi
     inst64_lib_platform_check_cpu
@@ -150,7 +153,7 @@ function my_select_packages() {
       INST64_KUBESCAPE_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KUBESCAPE_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KUBESCAPE_VERSION#v}_${INST64_KUBESCAPE_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
     INST64_CLI_TARGET="${INST64_KUBESCAPE_TARGET}/${INST64_PKG_MAIN}"
   fi
   inst64_lib_package_check_definition
@@ -161,6 +164,11 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
+
+  if [[ "$INST64_KUBESCAPE_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    bl64_os_check_not_version "${BL64_OS_ALP}" ||
+      return $?
+  fi
 
   my_select_platform &&
     my_select_packages &&
@@ -175,8 +183,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '2.1.0'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&
