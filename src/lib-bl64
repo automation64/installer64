@@ -155,7 +155,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.19.0'
+  readonly INST64_LIB_VERSION_BL64='1.20.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='22.12.0'
@@ -480,7 +480,7 @@ function inst64_lib_base_initialize() {
   fi
 
   if [[ ! "${!method}" =~ ^("$INST64_METHOD_NATIVE") ]]; then
-    bl64_msg_show_warning 'Disclaimer: This installer is provided as-is without any warranties. You are fully responsible for checking the source, the software license, the author, and the safety of the application you install.'
+    bl64_msg_show_warning 'Disclaimer: This installer is provided as-is without any warranties. You are fully responsible for checking the source, license, and security of the application you are installing.'
   fi
   inst64_lib_type_set &&
     inst64_lib_base_set_path &&
@@ -532,7 +532,8 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
-        bl64_py_setup
+        bl64_py_setup &&
+        inst64_lib_command_check_prereq 'pip'
       ;;
     "$INST64_METHOD_UV")
       INST64_CLI_PROMOTE='NO'
@@ -549,7 +550,7 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_NPM")
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
-        inst64_lib_command_define 'INST64_COMMAND_NPM' 'npm' "$HOME/.local/bin"
+        inst64_lib_command_define 'INST64_COMMAND_NPM' 'npm'
       ;;
     "$INST64_METHOD_GO")
       INST64_CLI_PROMOTE='NO'
