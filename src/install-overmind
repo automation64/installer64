@@ -167,12 +167,10 @@ function my_initialize() {
     return $?
 
   my_select_platform &&
-    my_select_packages &&
-    inst64_lib_cli_set_path ||
+    my_select_packages ||
     return $?
 
-  inst64_lib_app_check_installed && return 0
-  inst64_lib_message_show_parameters
+  inst64_lib_base_finalize
 }
 
 #

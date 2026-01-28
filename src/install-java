@@ -196,8 +196,7 @@ function my_initialize() {
   fi
 
   my_select_platform &&
-    my_select_packages &&
-    inst64_lib_cli_set_path ||
+    my_select_packages ||
     return $?
 
   if [[ "$INST64_JAVA_METHOD" == "$INST64_METHOD_BINARY" ]]; then
@@ -207,8 +206,7 @@ function my_initialize() {
     fi
   fi
 
-  inst64_lib_app_check_installed && return 0
-  inst64_lib_message_show_parameters
+  inst64_lib_base_finalize
 }
 
 #

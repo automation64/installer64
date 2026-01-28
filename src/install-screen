@@ -122,25 +122,22 @@ function my_initialize() {
       "$BL64_OS_FLAVOR_ALPINE" \
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" \
       "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   fi
 
   my_select_platform &&
-    my_select_packages &&
-    inst64_lib_cli_set_path ||
+    my_select_packages ||
     return $?
 
-  inst64_lib_app_check_installed && return 0
-  inst64_lib_message_show_parameters
+  inst64_lib_base_finalize
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

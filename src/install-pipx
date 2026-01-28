@@ -124,23 +124,9 @@ function my_select_packages() {
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   elif [[ "$INST64_PIPX_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH")
-        INST64_PKG_MAIN='python-pipx'
-        ;;
-      "$BL64_OS_FLAVOR_ALPINE")
-        INST64_PKG_MAIN='pipx'
-        ;;
-      "$BL64_OS_FLAVOR_DEBIAN")
-        INST64_PKG_MAIN='pipx'
-        ;;
-      "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_FEDORA")
-        INST64_PKG_MAIN='pipx'
-        ;;
-      "$BL64_OS_FLAVOR_SUSE")
-        INST64_PKG_MAIN='pipx'
-        ;;
+      "$BL64_OS_FLAVOR_ARCH") INST64_PKG_MAIN='python-pipx' ;;
+      *) INST64_PKG_MAIN='pipx' ;;
     esac
   fi
   inst64_lib_package_check_definition
@@ -148,7 +134,6 @@ function my_select_packages() {
 
 function my_initialize() {
   bl64_dbg_app_show_function
-  bl64_py_setup &&
     my_select_method &&
     inst64_lib_base_initialize ||
     return $?
@@ -165,19 +150,17 @@ function my_initialize() {
   fi
 
   my_select_platform &&
-    my_select_packages &&
-    inst64_lib_cli_set_path ||
+    my_select_packages ||
     return $?
 
-  inst64_lib_app_check_installed && return 0
-  inst64_lib_message_show_parameters
+  inst64_lib_base_finalize
 }
 
 #
 # Main
 #
 
-bl64_lib_script_version_set '2.2.1'
+bl64_lib_script_version_set '2.2.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
