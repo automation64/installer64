@@ -36,22 +36,23 @@ function my_prepare() {
     "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" \
     "$DEV_PACK_PROJECT_PATH_STAGING" \
-    ${DEV_PATH_SRC}/install-* \
-    ${DEV_PATH_SRC}/lib-* &&
+    "${DEV_PATH_SRC}"/install-* \
+    "${DEV_PATH_SRC}"/lib-* &&
     bl64_fs_path_copy \
       '0755' \
       "$BL64_VAR_DEFAULT" \
       "$BL64_VAR_DEFAULT" \
       "$BL64_VAR_DEFAULT" \
       "$DEV_PACK_PROJECT_PATH_TARGET" \
+      "${DEV_PATH_SRC}/${DEV_ENV_PROJECT_BOOTSTRAP_FILE}" \
       "${DEV_PACK_PROJECT_PATH_STAGING}/${DEV_ENV_PROJECT_INSTALLER_FILE}" ||
     return $?
 }
 
 function my_create() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'create dstributable bundle'
-  # shellcheck disable=SC2086
+  bl64_msg_show_task 'create distributable bundle'
+  # shellcheck disable=SC2086,SC2035
   cd "$DEV_PACK_PROJECT_PATH_STAGING" &&
     bl64_arc_run_tar \
       czf "${DEV_PACK_PROJECT_PATH_TARGET}/${DEV_PACK_PROJECT_BUNDLE}" \
@@ -77,7 +78,7 @@ function my_initialize() {
       'DEV_PACK_PROJECT_BUNDLE'
 }
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.1.0'
 bl64_msg_help_about_set 'Pack application for release'
 dev_bin64_initialize && my_initialize || exit $?
 
