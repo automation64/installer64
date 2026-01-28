@@ -466,7 +466,9 @@ function inst64_lib_app_register_version() {
   bl64_dbg_app_show_function
   local app_version="INST64_${INST64_APP_ID}_VERSION"
   bl64_msg_show_task 'register application version'
-  bl64_check_parameter "$app_version" &&
+  bl64_check_parameter 'INST64_STATUS_MODE' &&
+    bl64_check_parameter 'INST64_STATUS_PATH' &&
+    bl64_check_parameter "$app_version" &&
     bl64_fs_file_remove "$INST64_STATUS_PATH" &&
     bl64_fs_file_create "$INST64_STATUS_PATH" "$INST64_STATUS_MODE" &&
     echo "${!app_version}" >"$INST64_STATUS_PATH"
@@ -494,6 +496,12 @@ function inst64_lib_base_initialize() {
 
   bl64_msg_show_error 'installer initialization failed'
   return "$BL64_LIB_ERROR_TASK_FAILED"
+}
+
+function inst64_lib_base_finalize() {
+  bl64_dbg_app_show_function
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
 }
 
 function inst64_lib_method_initialize() {
