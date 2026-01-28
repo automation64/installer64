@@ -30,6 +30,8 @@ source /dev/null # keep to force shellcheck using source=
   declare INST64_DEBUG="${INST64_DEBUG:-$BL64_DBG_TARGET_NONE}"
   # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
   declare INST64_VERBOSE="${INST64_VERBOSE:-}"
+  # Set verbosity level. Format: as defined by BL64_MSG_VERBOSE_*
+  declare INST64_VERBOSE_LEVEL="${INST64_VERBOSE_LEVEL:-ALL}"
   # Base path for local applications
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"
   # Local applications binaries location
@@ -155,10 +157,10 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.20.0'
+  readonly INST64_LIB_VERSION_BL64='1.21.0'
 
   # BashLib64 version required
-  readonly INST64_LIB_VERSION_REQUIRED='22.12.0'
+  readonly INST64_LIB_VERSION_REQUIRED='22.10.0'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -167,6 +169,9 @@ source /dev/null # keep to force shellcheck using source=
   declare INST64_STATUS_FLAG='CONTINUE'
   declare INST64_STATUS_PATH=''
   declare INST64_STATUS_MODE='0644'
+
+  # Bashlib64 Legacy flag
+  declare INST64_STATUS_LEGACY='NO'
 
   # Target management
   declare INST64_TARGET_REQUESTED='NO'
@@ -433,7 +438,7 @@ function inst64_lib_message_show_parameters() {
 
   # shellcheck disable=SC2086
   bl64_msg_show_setup \
-    "Install application: ${INST64_APP_FULL_NAME}" \
+    "$BL64_VAR_DEFAULT" \
     $parameter_list
 }
 
@@ -472,16 +477,13 @@ function inst64_lib_base_initialize() {
   local method="INST64_${INST64_APP_ID}_METHOD"
 
   bl64_msg_show_phase 'initialize installer'
-  if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
+  if ! bl64_lib_flag_is_enabled "$INST64_STATUS_LEGACY"; then
     bl64_lib_script_minver_check "$INST64_LIB_VERSION_REQUIRED" ||
       return $?
   else
     bl64_msg_show_warning "BashLib64 library must be upgraded to ensure compatibility (current: ${BL64_VERSION} / required: ${INST64_LIB_VERSION_REQUIRED})"
   fi
 
-  if [[ ! "${!method}" =~ ^("$INST64_METHOD_NATIVE") ]]; then
-    bl64_msg_show_warning 'Disclaimer: This installer is provided as-is without any warranties. You are fully responsible for checking the source, license, and security of the application you are installing.'
-  fi
   inst64_lib_type_set &&
     inst64_lib_base_set_path &&
     inst64_lib_target_set_owner &&
@@ -532,8 +534,8 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
-        bl64_py_setup &&
-        inst64_lib_command_check_prereq 'pip'
+        inst64_lib_command_check_prereq 'pip' &&
+        bl64_py_setup
       ;;
     "$INST64_METHOD_UV")
       INST64_CLI_PROMOTE='NO'
@@ -1183,6 +1185,27 @@ function inst64_lib_base_set_verbosity() {
   local format="$BL64_MSG_FORMAT_FULL"
 
   bl64_dbg_set_level "$INST64_DEBUG"
+  bl64_dbg_app_show_comments 'support legacy bl64 versions'
+  if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
+    if ! bl64_fmt_version_is_less_than "$BL64_VERSION" '22.10.0'; then
+      output="$BL64_MSG_OUTPUT_EMOJI"
+      format="$BL64_MSG_FORMAT_FULL2"
+    fi
+  else
+    INST64_STATUS_LEGACY='YES'
+  fi
+
+  bl64_msg_set_output "$output" &&
+    bl64_msg_set_format "${INST64_VERBOSE:-$format}" &&
+    bl64_msg_set_level "$INST64_VERBOSE_LEVEL" &&
+    bl64_msg_help_about_set "Installer tool for: ${INST64_APP_FULL_NAME}" &&
+    bl64_msg_show_about ||
+    return $?
+
+  if ! bl64_lib_flag_is_enabled "$INST64_STATUS_LEGACY" && [[ $(type -t 'bl64_msg_show_attention') == 'function' ]]; then
+    bl64_msg_show_attention 'this installer is provided as-is without any warranties. Please ensure that you have verified the origin, license, and security status of the application before proceeding. Press CONTROL+C at any time to stop the installation task.'
+  fi
+
   bl64_dbg_app_show_comments 'Global parameters'
   bl64_dbg_app_show_vars \
     'INST64_DEBUG' \
@@ -1264,16 +1287,7 @@ function inst64_lib_base_set_verbosity() {
     'INST64_COMMAND_YAY' \
     'INST64_BASHLIB64'
 
-  bl64_dbg_app_show_comments 'support legacy bl64 versions'
-  if [[ $(type -t 'bl64_lib_script_minver_check') == 'function' ]]; then
-    if ! bl64_fmt_version_is_less_than "$BL64_VERSION" '22.10.0'; then
-      output="$BL64_MSG_OUTPUT_EMOJI"
-      format="$BL64_MSG_FORMAT_FULL2"
-    fi
-  fi
-  bl64_msg_set_output "$output" &&
-    bl64_msg_set_format "${INST64_VERBOSE:-$format}" &&
-    bl64_msg_all_enable_verbose
+  return 0
 }
 
 function inst64_lib_command_check_prereq() {
