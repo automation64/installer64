@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed obsolete pysetup
 - Screen
   - Removed native RHEL flavor compatibility
+- VaultCLI
+  - Fixed setup when setcap is not present
 
 ## [8.3.2]
 

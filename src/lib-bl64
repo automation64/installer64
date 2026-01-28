@@ -594,7 +594,9 @@ function inst64_lib_step_install() {
 
 function inst64_lib_step_setup() {
   bl64_dbg_app_show_function
-  local target="INST64_${INST64_APP_ID}_TARGET"
+  if [[ -z "$INST64_CLI_TARGET" ]]; then
+    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
+  fi
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'setup environment'
 }
@@ -603,9 +605,6 @@ function inst64_lib_step_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'verify deployment'
-  if [[ -z "$INST64_CLI_TARGET" ]]; then
-    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
-  fi
   bl64_msg_show_task "test application (${INST64_CLI_TARGET})"
 }
 

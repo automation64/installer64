@@ -115,7 +115,7 @@ function my_setup() {
   local getcap_bin='/usr/sbin/getcap'
   inst64_lib_step_setup || return 0
   if [[ "$INST64_VAULTCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    if [[ -x "$getcap_bin" && -n "$("$getcap_bin" "${INST64_CLI_TARGET}")" ]]; then
+    if [[ -x "$getcap_bin" && -x "$setcap_bin" && -n "$("$getcap_bin" "${INST64_CLI_TARGET}")" ]]; then
       bl64_dbg_app_show_comments 'rationale: https://developer.hashicorp.com/vault/docs/configuration#disable_mlock'
       "$setcap_bin" -r "${INST64_CLI_TARGET}"
     fi
@@ -125,7 +125,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" version
+  [[ -e "${INST64_CLI_TARGET}" ]]
 }
 
 function my_select_method() {
@@ -183,7 +183,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
+bl64_lib_script_version_set '2.0.2'
 inst64_lib_base_set_verbosity 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
