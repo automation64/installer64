@@ -45,21 +45,12 @@
   #
 
   # Inst64 Library version
-  declare INST64_LIB_VERSION_BASH='1.5.1'
+  declare INST64_LIB_VERSION_BASH='2.0.0'
 
   # Installation methods
   declare INST64_METHOD_AUTO='AUTO'
   declare INST64_METHOD_BINARY='BINARY'
-  declare INST64_METHOD_BREW='BREW'
   declare INST64_METHOD_CUSTOM='CUSTOM'
-  declare INST64_METHOD_FPAK='FPAK'
-  declare INST64_METHOD_KREW='KREW'
-  declare INST64_METHOD_EXTERNAL='EXTERNAL'
-  declare INST64_METHOD_NATIVE='NATIVE'
-  declare INST64_METHOD_NPM='NPM'
-  declare INST64_METHOD_PACKAGE='PACKAGE'
-  declare INST64_METHOD_PIP='PIP'
-  declare INST64_METHOD_PIPX='PIPX'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -545,6 +536,11 @@ function inst64_lib_base_initialize() {
   return 1
 }
 
+function inst64_lib_base_finalize() {
+  inst64_lib_app_check_installed && return 0
+  inst64_lib_message_show_parameters
+}
+
 function inst64_lib_step_prepare() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   inst64_lib_message_show_phase 'prepare deployment'
@@ -565,8 +561,11 @@ function inst64_lib_step_setup() {
 
 function inst64_lib_step_verify() {
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  if [[ -z "$INST64_CLI_TARGET" ]]; then
+    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
+  fi
   inst64_lib_message_show_phase 'verify deployment'
-  return 0
+  inst64_lib_message_show_task "test application (${INST64_CLI_TARGET})"
 }
 
 function inst64_lib_task_download() {
