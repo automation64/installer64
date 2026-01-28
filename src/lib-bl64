@@ -489,6 +489,7 @@ function inst64_lib_base_initialize() {
     inst64_lib_target_set_owner &&
     inst64_lib_target_set_path &&
     inst64_lib_method_initialize &&
+    inst64_lib_cli_set_path &&
     return 0
 
   bl64_msg_show_error 'installer initialization failed'
@@ -594,9 +595,6 @@ function inst64_lib_step_install() {
 
 function inst64_lib_step_setup() {
   bl64_dbg_app_show_function
-  if [[ -z "$INST64_CLI_TARGET" ]]; then
-    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
-  fi
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
   bl64_msg_show_phase 'setup environment'
 }
@@ -604,6 +602,9 @@ function inst64_lib_step_setup() {
 function inst64_lib_step_verify() {
   bl64_dbg_app_show_function
   [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  if [[ -z "$INST64_CLI_TARGET" ]]; then
+    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
+  fi
   bl64_msg_show_phase 'verify deployment'
   bl64_msg_show_task "test application (${INST64_CLI_TARGET})"
 }

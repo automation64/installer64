@@ -152,6 +152,7 @@ function my_select_packages() {
       INST64_PKG_DEV=''
     INST64_PKG_MAIN='vault'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+    INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
   fi
   inst64_lib_package_check_definition
 }
@@ -171,8 +172,7 @@ function my_initialize() {
   fi
 
   my_select_platform &&
-    my_select_packages &&
-    inst64_lib_cli_set_path ||
+    my_select_packages ||
     return $?
 
   inst64_lib_app_check_installed && return 0
