@@ -55,24 +55,6 @@ source /dev/null # keep to force shellcheck using source=
   # Global definitions
   #
 
-  # Installation methods
-  readonly INST64_METHOD_AUR='AUR'
-  readonly INST64_METHOD_AUTO='AUTO'
-  readonly INST64_METHOD_BINARY='BINARY'
-  readonly INST64_METHOD_BREW='BREW'
-  readonly INST64_METHOD_CUSTOM='CUSTOM'
-  readonly INST64_METHOD_EXTERNAL='EXTERNAL'
-  readonly INST64_METHOD_FPAK='FPAK'
-  readonly INST64_METHOD_GO='GO'
-  readonly INST64_METHOD_KREW='KREW'
-  readonly INST64_METHOD_NATIVE='NATIVE'
-  readonly INST64_METHOD_NPM='NPM'
-  readonly INST64_METHOD_PACKAGE='PACKAGE'
-  readonly INST64_METHOD_PIP='PIP'
-  readonly INST64_METHOD_PIPX='PIPX'
-  readonly INST64_METHOD_UV='UV'
-  readonly INST64_METHOD_SNAP='SNAP'
-
   # App information
   declare INST64_APP_NAME=''
   declare INST64_APP_ID=''
@@ -161,6 +143,24 @@ source /dev/null # keep to force shellcheck using source=
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='22.10.0'
+
+  # Installation methods
+  readonly INST64_METHOD_AUR='AUR'
+  readonly INST64_METHOD_AUTO='AUTO'
+  readonly INST64_METHOD_BINARY='BINARY'
+  readonly INST64_METHOD_BREW='BREW'
+  readonly INST64_METHOD_CUSTOM='CUSTOM'
+  readonly INST64_METHOD_EXTERNAL='EXTERNAL'
+  readonly INST64_METHOD_FPAK='FPAK'
+  readonly INST64_METHOD_GO='GO'
+  readonly INST64_METHOD_KREW='KREW'
+  readonly INST64_METHOD_NATIVE='NATIVE'
+  readonly INST64_METHOD_NPM='NPM'
+  readonly INST64_METHOD_PACKAGE='PACKAGE'
+  readonly INST64_METHOD_PIP='PIP'
+  readonly INST64_METHOD_PIPX='PIPX'
+  readonly INST64_METHOD_UV='UV'
+  readonly INST64_METHOD_SNAP='SNAP'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -824,6 +824,7 @@ function inst64_lib_cli_promote() {
     bl64_check_parameter 'target' &&
       INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_SOURCE:-$INST64_CLI_NAME}"
   fi
+  bl64_dbg_app_show_vars "$target" 'INST64_CLI_TARGET' 'INST64_CLI_SUBPATH' 'INST64_CLI_SOURCE' 'INST64_CLI_NAME' 'INST64_CLI_NORMALIZE'
 
   if bl64_lib_flag_is_enabled "$INST64_CLI_NORMALIZE" && [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
     bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
@@ -973,17 +974,6 @@ function inst64_lib_target_merge() {
     bl64_fs_path_merge \
       "${source}" \
       "${!target}"
-}
-
-function inst64_lib_target_open_tar() {
-  bl64_dbg_app_show_function
-  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
-    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
-
-  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
-    bl64_arc_open_tar \
-      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" \
-      "${INST64_OPT_ROOT}"
 }
 
 function inst64_lib_installer_run() {
@@ -1216,68 +1206,68 @@ function inst64_lib_base_set_verbosity() {
 
   bl64_dbg_app_show_comments 'Global parameters'
   bl64_dbg_app_show_vars \
+    'INST64_CLI_PROMOTE' \
     'INST64_DEBUG' \
-    'INST64_VERBOSE' \
-    'INST64_LOCAL_ROOT' \
     'INST64_LOCAL_BIN' \
-    'INST64_USER_BIN' \
-    'INST64_TMP' \
+    'INST64_LOCAL_ROOT' \
     'INST64_OPT_ROOT' \
-    'INST64_SYSTEM_WIDE' \
-    'INST64_REPLACE_INSTALLED' \
     'INST64_REFRESH_PACKAGE_MANAGER' \
-    'INST64_CLI_PROMOTE'
+    'INST64_REPLACE_INSTALLED' \
+    'INST64_SYSTEM_WIDE' \
+    'INST64_TMP' \
+    'INST64_USER_BIN' \
+    'INST64_VERBOSE'
 
   bl64_dbg_app_show_comments 'Module ID'
   bl64_dbg_app_show_vars \
-    'INST64_APP_NAME' \
-    'INST64_APP_ID' \
     'INST64_APP_FULL_NAME' \
+    'INST64_APP_ID' \
+    'INST64_APP_NAME' \
     'INST64_CLI_NAME'
 
   bl64_dbg_app_show_comments 'Module parameters'
   bl64_dbg_app_show_vars \
     "INST64_${INST64_APP_ID}_METHOD" \
-    "INST64_${INST64_APP_ID}_TARGET" \
     "INST64_${INST64_APP_ID}_PLATFORM" \
+    "INST64_${INST64_APP_ID}_TARGET" \
     "INST64_${INST64_APP_ID}_VERSION"
 
   bl64_dbg_app_show_comments 'Method parameters'
   bl64_dbg_app_show_vars \
-    'INST64_PKG_MAIN' \
-    'INST64_PKG_MAIN_PREFIX' \
-    'INST64_PKG_MAIN_SUFFIX' \
-    'INST64_PKG_PRE' \
-    'INST64_PKG_POST' \
-    'INST64_PKG_DEV' \
-    'INST64_CPU_DARWIN_ARM64' \
-    'INST64_CPU_LINUX_AMD64' \
-    'INST64_CPU_LINUX_AMD64_GNU' \
-    'INST64_CPU_LINUX_AMD64_MUSL' \
-    'INST64_CPU_LINUX_ARM64' \
     'INST64_APP_INSTALLER' \
+    'INST64_CLI_MODE' \
     'INST64_CLI_NAME' \
-    'INST64_CLI_SOURCE' \
+    'INST64_CLI_NORMALIZE' \
     'INST64_CLI_PATH' \
+    'INST64_CLI_SOURCE' \
     'INST64_CLI_SUBPATH' \
     'INST64_CLI_TARGET' \
-    'INST64_CLI_NORMALIZE' \
-    'INST64_CLI_MODE' \
-    'INST64_GH_REPO_OWNER' \
+    'INST64_CPU_DARWIN_ARM64' \
+    'INST64_CPU_LINUX_AMD64_GNU' \
+    'INST64_CPU_LINUX_AMD64_MUSL' \
+    'INST64_CPU_LINUX_AMD64' \
+    'INST64_CPU_LINUX_ARM64' \
+    'INST64_FPAK_REPO_NAME' \
     'INST64_GH_REPO_NAME' \
-    'INST64_GIT_SERVER' \
-    'INST64_GIT_REPO' \
+    'INST64_GH_REPO_OWNER' \
     'INST64_GIT_BRANCH' \
-    'INST64_WEB_REPO_URL' \
-    'INST64_WEB_REPO_PATH' \
+    'INST64_GIT_REPO' \
+    'INST64_GIT_SERVER' \
+    'INST64_OS_REPO_KEY_APT' \
+    'INST64_OS_REPO_KEY_YUM' \
+    'INST64_OS_REPO_NAME' \
+    'INST64_OS_SOURCE_APT' \
+    'INST64_OS_SOURCE_YUM' \
+    'INST64_PKG_DEV' \
+    'INST64_PKG_MAIN_PREFIX' \
+    'INST64_PKG_MAIN_SUFFIX' \
+    'INST64_PKG_MAIN' \
+    'INST64_PKG_POST' \
+    'INST64_PKG_PRE' \
     'INST64_WEB_FILE_SOURCE' \
     'INST64_WEB_FILE_TARGET' \
-    'INST64_OS_REPO_NAME' \
-    'INST64_OS_SOURCE_YUM' \
-    'INST64_OS_SOURCE_APT' \
-    'INST64_OS_REPO_KEY_YUM' \
-    'INST64_OS_REPO_KEY_APT' \
-    'INST64_FPAK_REPO_NAME'
+    'INST64_WEB_REPO_PATH' \
+    'INST64_WEB_REPO_URL'
 
   bl64_dbg_app_show_comments 'Internals'
   bl64_dbg_app_show_vars \
@@ -1288,12 +1278,12 @@ function inst64_lib_base_set_verbosity() {
 
   bl64_dbg_app_show_comments 'External'
   bl64_dbg_app_show_vars \
+    'INST64_BASHLIB64' \
     'INST64_COMMAND_FLATPAK' \
     'INST64_COMMAND_GO' \
     'INST64_COMMAND_NPM' \
     'INST64_COMMAND_SNAP' \
-    'INST64_COMMAND_YAY' \
-    'INST64_BASHLIB64'
+    'INST64_COMMAND_YAY'
 
   return 0
 }

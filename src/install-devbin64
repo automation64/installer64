@@ -69,16 +69,14 @@ function my_install_binary() {
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    bl64_rxtx_github_get_asset \
-      "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" "$INST64_DEVBIN64_VERSION" "$INST64_PKG_MAIN" "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
   bl64_fs_path_remove "$INST64_DEVBIN64_TARGET"
-  bl64_fs_dir_create "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$INST64_DEVBIN64_TARGET" &&
-    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "$INST64_DEVBIN64_TARGET" ||
-    bl64_fs_path_permission_set "$INST64_TARGET_MODE" "$INST64_TARGET_MODE" "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" "$BL64_VAR_ON" \
-      "$INST64_DEVBIN64_TARGET" ||
+  inst64_lib_target_create &&
+    inst64_lib_target_merge ||
     return $?
 
   inst64_lib_task_cleanup
@@ -115,7 +113,8 @@ function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
   [[ -d "$INST64_DEVBIN64_TARGET" ]] &&
-    [[ -x "${INST64_DEVBIN64_TARGET}/bin/dev-bootstrap" ]] || return $?
+    [[ -x "${INST64_DEVBIN64_TARGET}/bin/dev-bootstrap" ]] ||
+    return $?
   if [[ "$INST64_DEVBIN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
@@ -166,8 +165,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '2.0.1'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

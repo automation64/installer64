@@ -95,12 +95,13 @@ function my_install_custom() {
   bl64_dbg_app_show_function
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
+    inst64_lib_web_get_file &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
   inst64_lib_target_create &&
-    bl64_arc_open_tar "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}" "${INST64_NODEJS_TARGET}" ||
+    inst64_lib_target_merge ||
     return $?
 
   inst64_lib_task_cleanup
@@ -218,7 +219,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.2'
+bl64_lib_script_version_set '2.1.3'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
