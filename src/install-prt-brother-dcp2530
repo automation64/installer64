@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-python-1.2.0
+# Template: install-bl64-aur-1.0.0
 #   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
@@ -22,14 +22,13 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
@@ -40,18 +39,16 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_SEMGREP_METHOD="${INST64_SEMGREP_METHOD:-AUTO}"
+declare INST64_PRTDCP2530_METHOD="${INST64_PRTDCP2530_METHOD:-AUTO}"
 # Application version
-declare INST64_SEMGREP_VERSION="${INST64_SEMGREP_VERSION:-latest}"
+declare INST64_PRTDCP2530_VERSION="${INST64_PRTDCP2530_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='semgrep'
-INST64_APP_ID='SEMGREP'
-INST64_APP_FULL_NAME='Semgrep - Software Static Analysis Tool'
+INST64_APP_NAME='prt-brother-dcp-l2530dw'
+INST64_APP_ID='PRTDCP2530'
+INST64_APP_FULL_NAME='Printer Driver - Brother dcp-l2530'
 
-INST64_CLI_NAME='semgrep'
-
-INST64_PKG_MAIN='semgrep'
+INST64_PKG_MAIN='brother-dcp-l2530dw'
 
 #
 # Functions
@@ -65,12 +62,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_SEMGREP_METHOD" == "$INST64_METHOD_PIPX" ]]; then
-    inst64_lib_python_install_pipx
-  elif [[ "$INST64_SEMGREP_METHOD" == "$INST64_METHOD_PIP" ]]; then
-    inst64_lib_python_install_pip
-  elif [[ "$INST64_SEMGREP_METHOD" == "$INST64_METHOD_UV" ]]; then
-    inst64_lib_python_install_uv
+  if [[ "$INST64_PRTDCP2530_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    inst64_lib_aur_install_yay
   fi
 }
 
@@ -82,17 +75,18 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" show version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" "$INST64_METHOD_UV" ||
+    "$INST64_METHOD_AUR" ||
     return $?
-  if [[ "$INST64_SEMGREP_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_SEMGREP_METHOD="$INST64_METHOD_UV"
+  if [[ "$INST64_PRTDCP2530_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
+      INST64_PRTDCP2530_METHOD="$INST64_METHOD_AUR"
+    fi
   fi
 }
 
@@ -103,14 +97,6 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_SEMGREP_METHOD" =~ ("$INST64_METHOD_PIPX"|"$INST64_METHOD_PIP"|"$INST64_METHOD_UV") ]]; then
-    if [[ "$INST64_SEMGREP_VERSION" == 'latest' ]]; then
-      version_target=''
-    else
-      version_target="==${INST64_SEMGREP_VERSION}.*"
-    fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
-  fi
   inst64_lib_package_check_definition
 }
 
@@ -119,6 +105,12 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
+
+  if [[ "$INST64_PRTDCP2530_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH" ||
+      return $?
+  fi
 
   my_select_platform &&
     my_select_packages ||
@@ -131,8 +123,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '1.0.0'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

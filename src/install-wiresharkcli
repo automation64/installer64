@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,112 +21,76 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo "Fatal: unable to load Installer64 libraries (${BL64_SCRIPT_PATH}/lib-bl64)" && exit 1; }
+  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
 
 #
 # Globals
 #
 
 # Installation method
-declare INST64_SYSDEN64_METHOD="${INST64_SYSDEN64_METHOD:-AUTO}"
-# Installation destination
-declare INST64_SYSDEN64_TARGET="${INST64_SYSDEN64_TARGET:-}"
-# Hardware architecture
-declare INST64_SYSDEN64_PLATFORM="${INST64_SYSDEN64_PLATFORM:-}"
+declare INST64_WIRESHARKCLI_METHOD="${INST64_WIRESHARKCLI_METHOD:-AUTO}"
 # Application version
-declare INST64_SYSDEN64_VERSION="${INST64_SYSDEN64_VERSION:-latest}"
+declare INST64_WIRESHARKCLI_VERSION="${INST64_WIRESHARKCLI_VERSION:-latest}"
+# Enable development packages?
+declare INST64_WIRESHARKCLI_DEVELOPMENT="${INST64_WIRESHARKCLI_DEVELOPMENT:-NO}"
 
-INST64_APP_NAME='sysden64'
-INST64_APP_ID='SYSDEN64'
-INST64_APP_FULL_NAME='SysDen64'
-INST64_CLI_NAME='sysden64'
-
-INST64_GH_REPO_NAME='sysden64'
-INST64_GH_REPO_OWNER='automation64'
-INST64_PKG_MAIN_PREFIX='sysden64'
-INST64_PKG_MAIN_SUFFIX='.tar.gz'
+# App information
+INST64_APP_NAME='wiresharkcli'
+INST64_APP_ID='WIRESHARKCLI'
+INST64_APP_FULL_NAME='Wireshark - Network protocol analyzer'
+INST64_CLI_NAME='tshark'
 
 #
 # Functions
 #
 
-function my_install_binary() {
-  bl64_dbg_app_show_function
-
-  inst64_lib_task_download
-  inst64_lib_staging_create &&
-    inst64_lib_gh_get_asset &&
-    inst64_lib_staging_open_tar ||
-    return $?
-
-  inst64_lib_task_deploy
-  bl64_fs_path_remove "$INST64_SYSDEN64_TARGET"
-  inst64_lib_target_create &&
-    inst64_lib_target_merge ||
-    return $?
-
-  inst64_lib_task_cleanup
-  inst64_lib_staging_remove
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_lib_base_create_path
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    my_install_binary
+  if [[ "$INST64_WIRESHARKCLI_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    inst64_lib_pkg_install
   fi
 }
 
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_lib_task_publish
-    inst64_lib_cli_promote
-  fi
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  [[ -d "$INST64_SYSDEN64_TARGET" ]] &&
-    [[ -x "${INST64_CLI_TARGET}" ]] ||
-    return $?
-  if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_lib_app_register_version
-  fi
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_BINARY" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_SYSDEN64_METHOD="$INST64_METHOD_BINARY"
+  if [[ "$INST64_WIRESHARKCLI_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_WIRESHARKCLI_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -137,13 +101,26 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ "$INST64_SYSDEN64_VERSION" == 'latest' ]]; then
-      INST64_SYSDEN64_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
-        return $?
-    fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
-    INST64_CLI_TARGET="${INST64_SYSDEN64_TARGET}/bin/${INST64_CLI_NAME}"
+  if [[ "$INST64_WIRESHARKCLI_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN")
+        bl64_lib_flag_is_enabled "$INST64_WIRESHARKCLI_DEVELOPMENT" &&
+          INST64_PKG_DEV=''
+        INST64_PKG_MAIN='tshark'
+        ;;
+      "$BL64_OS_FLAVOR_FEDORA")
+        bl64_lib_flag_is_enabled "$INST64_WIRESHARKCLI_DEVELOPMENT" &&
+          INST64_PKG_DEV=''
+        INST64_PKG_MAIN='wireshark-cli'
+        ;;
+      "$BL64_OS_FLAVOR_ARCH")
+        bl64_lib_flag_is_enabled "$INST64_WIRESHARKCLI_DEVELOPMENT" &&
+          INST64_PKG_DEV=''
+        INST64_PKG_MAIN='wireshark-cli'
+        ;;
+    esac
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
 }
@@ -153,6 +130,15 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
+
+  if [[ "$INST64_WIRESHARKCLI_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ALPINE" \
+      "$BL64_OS_FLAVOR_ARCH" \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" ||
+      return $?
+  fi
 
   my_select_platform &&
     my_select_packages ||
@@ -165,7 +151,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.2'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
