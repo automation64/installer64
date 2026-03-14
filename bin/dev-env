@@ -40,7 +40,7 @@
   export DEV_SUFFIX_CHECKSUM='-checksums.txt'
 
   # Env / DevBin64 / Current version
-  export DEV_BIN64_VERSION='13.0.0'
+  export DEV_BIN64_VERSION='14.0.0'
 
   # Env / DevBin64 / Project root
   export DEV_PATH_ROOT=''
@@ -206,17 +206,34 @@ function dev_bin64_build_setup() {
 
   bl64_msg_show_task 'initialize build area'
   bl64_check_export 'DEV_PATH_BUILD_PREPARE' &&
-    bl64_check_export 'DEV_PATH_BUILD_STAGING' &&
+    bl64_fs_dir_create \
+      "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
+      "$DEV_PATH_PROF_BUILD_PREPARE" ||
+    return $?
+
+  if [[ -n "${module_paths[*]}" ]]; then
+    bl64_msg_show_task 'reset temporal build paths'
+    bl64_fs_dir_reset \
+      "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
+      "${module_paths[@]}"
+  fi
+}
+
+function dev_bin64_pack_setup() {
+  bl64_dbg_app_show_function "$@"
+  local module_paths=("${@:-}")
+
+  bl64_msg_show_task 'initialize packing area'
+  bl64_check_export 'DEV_PATH_BUILD_STAGING' &&
     bl64_check_export 'DEV_PATH_BUILD_PACK' &&
     bl64_fs_dir_create \
       "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
-      "$DEV_PATH_PROF_BUILD_PREPARE" \
       "$DEV_PATH_PROF_BUILD_STAGING" \
       "$DEV_PATH_PROF_BUILD_PACK" ||
     return $?
 
   if [[ -n "${module_paths[*]}" ]]; then
-    bl64_msg_show_task 'reset temporal build paths'
+    bl64_msg_show_task 'reset temporal packing paths'
     bl64_fs_dir_reset \
       "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" \
       "${module_paths[@]}"

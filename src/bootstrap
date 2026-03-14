@@ -17,6 +17,7 @@ MY_REPOSITORY='automation64/installer64'
 MY_INSTALLER='install-installer64'
 MY_TARGET_ROOT=''
 MY_INSTALLER_LOCAL="/tmp/${MY_INSTALLER}"
+MY_VERSION='1.0.0'
 
 my_prepare() {
   echo "Task: getting latest version number (${MY_REPOSITORY})"
@@ -61,5 +62,13 @@ my_install() {
   return 0
 }
 
-my_prepare &&
+my_initialize() {
+  if [ ! -x /bin/bash ] && [ ! -x /usr/bin/bash ]; then
+    echo 'Error: Installer64 requires the Bash shell to be installed'
+    return 1
+  fi
+}
+
+my_initialize &&
+  my_prepare &&
   my_install
