@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-external-1.0.0
+# Template: install-bl64-aur-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -105,6 +106,8 @@ function my_install() {
   inst64_lib_step_install || return 0
   if [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     my_install_external
+  elif [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    inst64_lib_aur_install_yay
   fi
 }
 
@@ -123,10 +126,15 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_AUR" \
     "$INST64_METHOD_EXTERNAL" ||
     return $?
   if [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_GCLOUD_METHOD="$INST64_METHOD_EXTERNAL"
+    if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
+      INST64_GCLOUD_METHOD="$INST64_METHOD_AUR"
+    else
+      INST64_GCLOUD_METHOD="$INST64_METHOD_EXTERNAL"
+    fi
   fi
 }
 
@@ -151,6 +159,8 @@ function my_select_packages() {
       INST64_PKG_DEV=''
     INST64_PKG_MAIN='google-cloud-cli'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+  elif [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    INST64_PKG_MAIN='google-cloud-cli'
   fi
   inst64_lib_package_check_definition
 }
@@ -163,9 +173,13 @@ function my_initialize() {
 
   if [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_DEBIAN" \
-        "$BL64_OS_FLAVOR_FEDORA" \
-        "$BL64_OS_FLAVOR_REDHAT" ||
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" ||
+      return $?
+  elif [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH" ||
       return $?
   fi
 
@@ -180,8 +194,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.0.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '3.1.0'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

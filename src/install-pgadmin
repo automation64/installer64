@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-python-1.1.0
+# Template: install-bl64-python-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -47,6 +47,7 @@ declare INST64_PGADMIN_VERSION="${INST64_PGADMIN_VERSION:-latest}"
 INST64_APP_NAME='pgadmin'
 INST64_APP_ID='PGADMIN'
 INST64_APP_FULL_NAME='PGAdmin - PostgreSQL Database Management Tool'
+
 INST64_CLI_NAME='pgadmin4'
 
 INST64_PKG_MAIN='pgadmin4'
@@ -67,6 +68,8 @@ function my_install() {
     inst64_lib_python_install_pipx
   elif [[ "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_PIP" ]]; then
     inst64_lib_python_install_pip
+  elif [[ "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_UV" ]]; then
+    inst64_lib_python_install_uv
   fi
 }
 
@@ -85,10 +88,10 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" ||
+    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" "$INST64_METHOD_UV" ||
     return $?
   if [[ "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_PGADMIN_METHOD="$INST64_METHOD_PIPX"
+    INST64_PGADMIN_METHOD="$INST64_METHOD_UV"
   fi
 }
 
@@ -99,7 +102,7 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_PIPX" || "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_PIP" ]]; then
+  if [[ "$INST64_PGADMIN_METHOD" =~ ("$INST64_METHOD_PIPX"|"$INST64_METHOD_PIP"|"$INST64_METHOD_UV") ]]; then
     if [[ "$INST64_PGADMIN_VERSION" == 'latest' ]]; then
       version_target=''
     else
@@ -116,14 +119,6 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_PIPX" || "$INST64_PGADMIN_METHOD" == "$INST64_METHOD_PIP" ]]; then
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" ||
-      return $?
-  fi
-
   my_select_platform &&
     my_select_packages ||
     return $?
@@ -135,8 +130,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.1'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '3.0.0'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

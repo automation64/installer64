@@ -1,1 +1,0 @@
-../UB/install-gomplate_01.sh

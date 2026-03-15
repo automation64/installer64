@@ -1,1 +1,0 @@
-../UB/install-capa_01.sh

@@ -1,1 +1,0 @@
-../UB/install-ray_01.sh

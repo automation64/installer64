@@ -1,1 +1,0 @@
-../UB/install-localstack_01.sh

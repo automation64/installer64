@@ -75,8 +75,7 @@ function my_install_custom() {
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_target_create &&
-    inst64_lib_target_populate ||
+  inst64_lib_installer_run ||
     return $?
 
   inst64_lib_task_cleanup
@@ -177,7 +176,7 @@ function my_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.0'
-inst64_lib_base_set_verbosity 
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

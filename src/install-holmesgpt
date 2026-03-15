@@ -39,31 +39,18 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_MKDOCS_METHOD="${INST64_MKDOCS_METHOD:-AUTO}"
+declare INST64_HOLMESGPT_METHOD="${INST64_HOLMESGPT_METHOD:-AUTO}"
 # Application version
-declare INST64_MKDOCS_VERSION="${INST64_MKDOCS_VERSION:-latest}"
+declare INST64_HOLMESGPT_VERSION="${INST64_HOLMESGPT_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='mkdocs'
-INST64_APP_ID='MKDOCS'
-INST64_APP_FULL_NAME='MKDocs - Project Documentation Tool'
+INST64_APP_NAME='holmesgpt'
+INST64_APP_ID='HOLMESGPT'
+INST64_APP_FULL_NAME='HolmesGPT - SRE AI Agent'
 
-INST64_CLI_NAME='mkdocs'
+INST64_CLI_NAME='holmes'
 
-INST64_PKG_MAIN='mkdocs'
-INST64_PKG_POST='Markdown,'
-INST64_PKG_POST+='mdx-truly-sane-lists,'
-INST64_PKG_POST+='mkdocs-autorefs,'
-INST64_PKG_POST+='mkdocs-awesome-pages-plugin,'
-INST64_PKG_POST+='mkdocs-exclude,'
-INST64_PKG_POST+='mkdocs-include-markdown-plugin,'
-INST64_PKG_POST+='mkdocs-markmap,'
-INST64_PKG_POST+='mkdocs-material,'
-INST64_PKG_POST+='mkdocs-mermaid2-plugin,'
-INST64_PKG_POST+='mkdocs-minify-plugin,'
-INST64_PKG_POST+='mkdocstrings,'
-INST64_PKG_POST+='Pygments,'
-INST64_PKG_POST+='pymdown-extensions'
+INST64_PKG_MAIN='holmesgpt'
 
 #
 # Functions
@@ -77,11 +64,11 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_MKDOCS_METHOD" == "$INST64_METHOD_PIPX" ]]; then
+  if [[ "$INST64_HOLMESGPT_METHOD" == "$INST64_METHOD_PIPX" ]]; then
     inst64_lib_python_install_pipx
-  elif [[ "$INST64_MKDOCS_METHOD" == "$INST64_METHOD_PIP" ]]; then
+  elif [[ "$INST64_HOLMESGPT_METHOD" == "$INST64_METHOD_PIP" ]]; then
     inst64_lib_python_install_pip
-  elif [[ "$INST64_MKDOCS_METHOD" == "$INST64_METHOD_UV" ]]; then
+  elif [[ "$INST64_HOLMESGPT_METHOD" == "$INST64_METHOD_UV" ]]; then
     inst64_lib_python_install_uv
   fi
 }
@@ -94,7 +81,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  [[ -x "${INST64_CLI_TARGET}" ]]
 }
 
 function my_select_method() {
@@ -103,8 +90,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" "$INST64_METHOD_UV" ||
     return $?
-  if [[ "$INST64_MKDOCS_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_MKDOCS_METHOD="$INST64_METHOD_UV"
+  if [[ "$INST64_HOLMESGPT_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_HOLMESGPT_METHOD="$INST64_METHOD_UV"
   fi
 }
 
@@ -115,11 +102,11 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_MKDOCS_METHOD" =~ ("$INST64_METHOD_PIPX"|"$INST64_METHOD_PIP"|"$INST64_METHOD_UV") ]]; then
-    if [[ "$INST64_MKDOCS_VERSION" == 'latest' ]]; then
+  if [[ "$INST64_HOLMESGPT_METHOD" =~ ("$INST64_METHOD_PIPX"|"$INST64_METHOD_PIP"|"$INST64_METHOD_UV") ]]; then
+    if [[ "$INST64_HOLMESGPT_VERSION" == 'latest' ]]; then
       version_target=''
     else
-      version_target="==${INST64_MKDOCS_VERSION}.*"
+      version_target="==${INST64_HOLMESGPT_VERSION}.*"
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi
@@ -143,7 +130,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '4.0.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

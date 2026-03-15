@@ -1,1 +1,0 @@
-../UB/install-ripgrep_01.sh

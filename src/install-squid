@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-bl64-native-1.0.0
-#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -105,11 +104,11 @@ function my_select_packages() {
   if [[ "$INST64_SQUID_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-    "$BL64_OS_FLAVOR_DEBIAN")
-      bl64_lib_flag_is_enabled "$INST64_SQUID_DEVELOPMENT" &&
-        INST64_PKG_DEV=''
-      INST64_PKG_MAIN='squid'
-      ;;
+      "$BL64_OS_FLAVOR_DEBIAN")
+        bl64_lib_flag_is_enabled "$INST64_SQUID_DEVELOPMENT" &&
+          INST64_PKG_DEV=''
+        INST64_PKG_MAIN='squid'
+        ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
@@ -124,7 +123,7 @@ function my_initialize() {
 
   if [[ "$INST64_SQUID_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-        "$BL64_OS_FLAVOR_DEBIAN" ||
+      "$BL64_OS_FLAVOR_DEBIAN" ||
       return $?
   fi
 
@@ -140,7 +139,7 @@ function my_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.0'
-inst64_lib_base_set_verbosity 
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&
