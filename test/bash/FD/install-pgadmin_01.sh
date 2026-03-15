@@ -1,1 +1,0 @@
-../UB/install-pgadmin_01.sh

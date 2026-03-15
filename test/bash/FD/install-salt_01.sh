@@ -1,1 +1,0 @@
-../UB/install-salt_01.sh

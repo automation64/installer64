@@ -1,1 +1,0 @@
-../UB/install-ruff_01.sh

@@ -1,1 +1,0 @@
-../UB/install-nikto_01.sh
