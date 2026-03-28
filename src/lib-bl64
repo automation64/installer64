@@ -128,7 +128,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.21.1'
+  readonly INST64_LIB_VERSION_BL64='1.22.2'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='22.10.0'
@@ -1146,12 +1146,13 @@ function inst64_lib_aur_install_yay() {
   bl64_check_parameter 'INST64_PKG_MAIN' ||
     return $?
 
+  # shellcheck disable=SC2086
   cd "$HOME" &&
     inst64_lib_command_run_yay \
       --sync \
       --noconfirm \
       --aur \
-      "${INST64_PKG_MAIN}"
+      $INST64_PKG_MAIN
 }
 
 function inst64_lib_brew_install() {
