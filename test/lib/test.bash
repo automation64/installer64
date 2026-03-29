@@ -12,6 +12,7 @@
 
 export INST64_BASHLIB64=''
 export INST64_LIB_PATH=''
+export BL64_LIB_CICD='ON'
 
 #
 # Functions

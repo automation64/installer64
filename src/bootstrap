@@ -17,14 +17,35 @@ MY_REPOSITORY='automation64/installer64'
 MY_INSTALLER='install-installer64'
 MY_TARGET_ROOT=''
 MY_INSTALLER_LOCAL="/tmp/${MY_INSTALLER}"
-MY_VERSION='1.0.0'
+MY_VERSION='1.1.0'
+
+my_show_task() {
+  echo "bootstrap:Task   : ${1:-}"
+}
+
+my_show_error() {
+  echo "bootstrap:Error  : ${1:-}" >&2
+}
+
+my_show_process_start() {
+  echo 'bootstrap:Process: start Installer64 deployment'
+}
+
+my_show_process_end() {
+  if [ $? -eq 0 ]; then
+    echo 'bootstrap:Process: Installer64 deployment finished successfully'
+  else
+    echo 'bootstrap:Process: Installer64 deployment failed'
+    return 1
+  fi
+}
 
 my_prepare() {
-  echo "Task: getting latest version number (${MY_REPOSITORY})"
+  my_show_task "determine latest version number (${MY_REPOSITORY})"
   TARGET_RELEASE="$(curl -s "https://api.github.com/repos/${MY_REPOSITORY}/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)" ||
     return $?
 
-  echo "Task: downloading installer from GitHub (${MY_INSTALLER})"
+  my_show_task "download installer (${MY_INSTALLER})"
   [ -n "$TARGET_RELEASE" ] &&
     cd /tmp || return $?
   test -f "$MY_INSTALLER_LOCAL" && rm -f "$MY_INSTALLER_LOCAL"
@@ -35,7 +56,7 @@ my_prepare() {
 my_install() {
   if [ "$MY_MODE" = 'SYSTEM' ]; then
     MY_TARGET_ROOT='/opt'
-    echo 'Task: installing tool for everyone (/opt)'
+    my_show_task 'install system-wide tool (/opt)'
     INST64_SYSTEM_WIDE='YES'
     export INST64_SYSTEM_WIDE
     if [ "$(id -u)" = "0" ]; then
@@ -47,28 +68,42 @@ my_install() {
     fi || return $?
   elif [ "$MY_MODE" = 'USER' ]; then
     MY_TARGET_ROOT="${HOME}/at64"
-    echo "Task: installing tool for the user (${HOME})"
+    my_show_task "install user-wide tool (${HOME})"
     INST64_SYSTEM_WIDE='NO'
     export INST64_SYSTEM_WIDE
     "$MY_INSTALLER_LOCAL" &&
       "${MY_TARGET_ROOT}/inst64/install-bashlib64" ||
       return $?
   else
-    echo 'Error: invalid parameter. Must be one of: SYSTEM, USER'
+    my_show_error 'invalid parameter. Must be one of: SYSTEM, USER'
     return 1
   fi
-  echo "Task: removing temporary installer (${MY_INSTALLER})"
+  my_show_task "remove temporary installer (${MY_INSTALLER})"
   rm -f "$MY_INSTALLER_LOCAL"
   return 0
 }
 
 my_initialize() {
   if [ ! -x /bin/bash ] && [ ! -x /usr/bin/bash ]; then
-    echo 'Error: Installer64 requires the Bash shell to be installed'
+    my_show_error 'Installer64 requires the Bash shell to be installed'
     return 1
   fi
+  unset INST64_BASHLIB64_TARGET
+  unset INST64_BASHLIB64_VERSION
+  unset INST64_DEBUG
+  unset INST64_INSTALLER64_TARGET
+  unset INST64_INSTALLER64_VERSION
+  unset INST64_LOCAL_BIN
+  unset INST64_LOCAL_ROOT
+  unset INST64_OPT_ROOT
+  unset INST64_REPLACE_INSTALLED
+  unset INST64_SYSTEM_WIDE
+  unset INST64_TMP
+  unset INST64_USER_BIN
 }
 
+my_show_process_start
 my_initialize &&
   my_prepare &&
   my_install
+my_show_process_end
