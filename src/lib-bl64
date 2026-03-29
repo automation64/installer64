@@ -28,7 +28,7 @@ source /dev/null # keep to force shellcheck using source=
 
   declare INST64_DEBUG="${INST64_DEBUG:-$BL64_DBG_TARGET_NONE}"                # Enable debugging? Options: BL64_DBG_TARGET_*
   declare INST64_VERBOSE="${INST64_VERBOSE:-}"                                 # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
-  declare INST64_VERBOSE_LEVEL="${INST64_VERBOSE_LEVEL:-ALL}"                  # Set verbosity level. Format: as defined by BL64_MSG_VERBOSE_*
+  declare INST64_VERBOSE_LEVEL="${INST64_VERBOSE_LEVEL:-APP}"                  # Set verbosity level. Format: as defined by BL64_MSG_VERBOSE_*
   declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"                 # Base path for local applications
   declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"     # Local applications binaries location
   declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"             # User applications binaries location
@@ -128,7 +128,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.22.2'
+  readonly INST64_LIB_VERSION_BL64='1.22.3'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='22.10.0'
