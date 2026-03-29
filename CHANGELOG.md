@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Installer64
   - Bootstrap: do not allow custom parameters
+- Homebrew
+  - Fixed installation parameters
 
 ## [8.7.0]
 
