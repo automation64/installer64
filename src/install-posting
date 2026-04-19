@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
+# Template: install-bl64-python-1.2.0
+#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,11 +22,14 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-# X_IMPORTS_PLACEHOLDER_X
-source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64" ||
@@ -36,100 +40,79 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
-# Installation destination
-declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
-# Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_POSTING_METHOD="${INST64_POSTING_METHOD:-AUTO}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_POSTING_VERSION="${INST64_POSTING_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
-# optional # INST64_APP_DOC_SETUP='X_DOC_SETUP_URL_X'
+INST64_APP_NAME='posting'
+INST64_APP_ID='POSTING'
+INST64_APP_FULL_NAME='Posting - Modern API client TUI'
+INST64_APP_DOC_SETUP='https://github.com/darrenburns/posting'
 
-# X_GLOBALS_METHOD_PLACEHOLDER_X
+INST64_CLI_NAME='posting'
+
+INST64_PKG_MAIN='posting'
+INST64_PKG_PRE=''
+INST64_PKG_POST=''
 
 #
 # Functions
 #
 
-# X_STAND_ALONE_FUNCTIONS_X #
-
-function my_install_custom() {
-  bl64_dbg_app_show_function
-  # optional # INST64_WORK_PATH_SOURCE='X_PATH_FILE_X'
-  # X_INSTALL_CUSTOM_PLACEHOLDER_X
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_base_create_path
-    # X_PREPARE_PLACEHOLDER_X
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    my_install_custom
+  if [[ "$INST64_POSTING_METHOD" == "$INST64_METHOD_PIPX" ]]; then
+    inst64_lib_python_install_pipx
+  elif [[ "$INST64_POSTING_METHOD" == "$INST64_METHOD_PIP" ]]; then
+    inst64_lib_python_install_pip
+  elif [[ "$INST64_POSTING_METHOD" == "$INST64_METHOD_UV" ]]; then
+    inst64_lib_python_install_uv
   fi
 }
 
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    # optional # inst64_lib_task_publish
-    # optional # inst64_lib_cli_promote
-    : # X_SETUP_PLACEHOLDER_X
-  fi
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  # X_VERIFY_PLACEHOLDER_X
-  # example # "${INST64_CLI_TARGET}" --version
+  "${INST64_CLI_TARGET}" --help
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_CUSTOM" ||
+    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" "$INST64_METHOD_UV" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_CUSTOM"
-    # optional # INST64_SYSTEM_WIDE='NO'
+  if [[ "$INST64_POSTING_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_POSTING_METHOD="$INST64_METHOD_UV"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      # X_PLATFORM_SELECTION_PLACEHOLDER_X
-      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
-    fi
-    inst64_lib_platform_check_cpu
-  fi
   return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    : # X_SELECT_PKG_PLACEHOLDER_X
-    # optional # INST64_CLI_PATH='X_PATH_DIR_X'
-    # optional # INST64_CLI_TARGET='X_PATH_FILE_X'
+  if [[ "$INST64_POSTING_METHOD" =~ ("$INST64_METHOD_PIPX"|"$INST64_METHOD_PIP"|"$INST64_METHOD_UV") ]]; then
+    if [[ "$INST64_POSTING_VERSION" == 'latest' ]]; then
+      version_target=''
+    else
+      version_target="==${INST64_POSTING_VERSION}.*"
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi
   inst64_lib_package_check_definition
 }
@@ -139,11 +122,6 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    # X_INIT_PLACEHOLDER_X
-    :
-  fi
 
   my_select_platform &&
     my_select_packages ||

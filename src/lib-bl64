@@ -128,10 +128,10 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.22.3'
+  readonly INST64_LIB_VERSION_BL64='1.23.0'
 
   # BashLib64 version required
-  readonly INST64_LIB_VERSION_REQUIRED='22.10.0'
+  readonly INST64_LIB_VERSION_REQUIRED='23.0.0'
 
   # Installation methods
   readonly INST64_METHOD_AUR='AUR'
@@ -363,23 +363,31 @@ function inst64_lib_app_check_installed() {
   local app_version="INST64_${INST64_APP_ID}_VERSION"
 
   if [[ ! -v "$app_target" || ! -v "$app_version" ]]; then
-    bl64_dbg_app_show_comments 'check is not performed for methods that do not use TARGET or VERSION'
-    return 0
+    bl64_dbg_app_show_comments 'check is not performed for methods that do not use TARGET or VERSION. Assume new install'
+    return 1
   fi
 
   INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
   if [[ -f "$INST64_STATUS_PATH" ]]; then
     if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
       if ! bl64_lib_flag_is_enabled "$INST64_REPLACE_INSTALLED"; then
-        bl64_msg_show_warning "application already installed. No further action taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
+        bl64_msg_show_warning "application already installed. No further action will be taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
         INST64_STATUS_FLAG='SKIP'
         return 0
       fi
     fi
   fi
 
-  bl64_dbg_app_show_comments 'use return-1 to inform that the application is not installed'
+  bl64_dbg_app_show_comments 'No previous installation found. Assume new install'
   return 1
+}
+
+function inst64_lib_message_show_docs() {
+  bl64_dbg_app_show_function
+  if [[ -n "$INST64_APP_DOC_SETUP" ]]; then
+    bl64_msg_show_doc "Setup documentation: ${INST64_APP_DOC_SETUP}"
+  fi
+  return 0
 }
 
 function inst64_lib_message_show_parameters() {
@@ -426,8 +434,7 @@ function inst64_lib_message_show_parameters() {
   done
 
   # shellcheck disable=SC2086
-  bl64_msg_show_setup \
-    "$BL64_VAR_DEFAULT" \
+  bl64_msg_show_setup 'Installation parameters' \
     $parameter_list
 }
 
@@ -489,8 +496,10 @@ function inst64_lib_base_initialize() {
 
 function inst64_lib_base_finalize() {
   bl64_dbg_app_show_function
+
   inst64_lib_app_check_installed && return 0
-  inst64_lib_message_show_parameters
+  inst64_lib_message_show_docs &&
+    inst64_lib_message_show_parameters
 }
 
 function inst64_lib_method_initialize() {
@@ -524,7 +533,7 @@ function inst64_lib_method_initialize() {
       ;;
     "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL")
       INST64_CLI_PROMOTE='NO'
-      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
       bl64_check_privilege_root &&
         bl64_cryp_setup &&
         bl64_pkg_setup
@@ -542,7 +551,7 @@ function inst64_lib_method_initialize() {
       ;;
     "$INST64_METHOD_BREW")
       INST64_CLI_PROMOTE='NO'
-      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER="$BL64_VAR_ON"
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
       bl64_check_privilege_root &&
         bl64_cryp_setup &&
         bl64_pkg_setup
@@ -1209,7 +1218,6 @@ function inst64_lib_base_set_verbosity() {
   bl64_dbg_app_show_comments 'Module ID'
   bl64_dbg_app_show_vars \
     'INST64_APP_FULL_NAME' \
-    'INST64_APP_DOC_SETUP' \
     'INST64_APP_ID' \
     'INST64_APP_NAME' \
     'INST64_CLI_NAME'

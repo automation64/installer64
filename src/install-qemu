@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.0.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,61 +43,31 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_PSQLCLI_METHOD="${INST64_PSQLCLI_METHOD:-AUTO}"
+declare INST64_QEMU_METHOD="${INST64_QEMU_METHOD:-AUTO}"
 # Application version
-declare INST64_PSQLCLI_VERSION="${INST64_PSQLCLI_VERSION:-latest}"
+declare INST64_QEMU_VERSION="${INST64_QEMU_VERSION:-latest}"
 # Enable development packages?
-declare INST64_PSQLCLI_DEVELOPMENT="${INST64_PSQLCLI_DEVELOPMENT:-NO}"
+declare INST64_QEMU_DEVELOPMENT="${INST64_QEMU_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='psqlcli'
-INST64_APP_ID='PSQLCLI'
-INST64_APP_FULL_NAME='PSQLCLI - PostgreSQL Client'
-INST64_CLI_NAME='psql'
-INST64_APP_DOC_SETUP='https://www.postgresql.org/download/'
-
-INST64_OS_SOURCE_YUM='https://download.postgresql.org/pub/repos/yum/reporpms'
+INST64_APP_NAME='qemu'
+INST64_APP_ID='QEMU'
+INST64_APP_FULL_NAME='QEMU - Machine Emulator and Virtualizer'
+INST64_CLI_NAME='qemu-img'
 
 #
 # Functions
 #
 
-function my_prepare_repository() {
-  bl64_dbg_app_show_function
-  local repository_url=''
-  local repository_key=''
-  local repository_apt_suite=''
-  local repository_apt_component=''
-
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
-    bl64_msg_show_subtask 'Disable built-in postgresql yum repository'
-    # shellcheck disable=SC2086
-    bl64_pkg_run_dnf $BL64_PKG_SET_ASSUME_YES module disable postgresql &&
-      bl64_msg_show_task 'Add postgresql.org yum repository' &&
-      bl64_pkg_install "$repository_url"
-  fi
-}
-
-function my_install_external() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_prepare_repository
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_install_external
-  elif [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -117,14 +87,10 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_REDHAT") INST64_PSQLCLI_METHOD="$INST64_METHOD_EXTERNAL" ;;
-      "$BL64_OS_FLAVOR_ARCH") INST64_PSQLCLI_METHOD="$INST64_METHOD_NATIVE" ;;
-    esac
+  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_QEMU_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -135,26 +101,16 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    if [[ "$INST64_PSQLCLI_VERSION" == 'latest' ]]; then
-      INST64_PSQLCLI_VERSION='17'
-    fi
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_REDHAT")
-        bl64_lib_flag_is_enabled "$INST64_PSQLCLI_DEVELOPMENT" &&
-          INST64_PKG_DEV=''
-        INST64_PKG_MAIN="postgresql${INST64_PSQLCLI_VERSION}"
-        ;;
-    esac
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
-  elif [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
       "$BL64_OS_FLAVOR_ARCH")
-        bl64_lib_flag_is_enabled "$INST64_PSQLCLI_DEVELOPMENT" &&
+        bl64_lib_flag_is_enabled "$INST64_QEMU_DEVELOPMENT" &&
           INST64_PKG_DEV=''
-        INST64_PKG_MAIN='postgresql-libs'
+        INST64_PKG_MAIN+=' qemu-full'
+        INST64_PKG_MAIN+=' swtpm'
+        INST64_PKG_MAIN+=' fuse2'
+        INST64_APP_DOC_SETUP='https://wiki.cachyos.org/virtualization/qemu_and_vmm_setup'
         ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
@@ -168,11 +124,7 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_REDHAT" ||
-      return $?
-  elif [[ "$INST64_PSQLCLI_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_ARCH" ||
       return $?
@@ -189,7 +141,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.1.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

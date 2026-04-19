@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-bl64-binary-1.2.0
-#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,25 +42,29 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
+declare INST64_GCPSQLPROXY_METHOD="${INST64_GCPSQLPROXY_METHOD:-AUTO}"
 # Installation destination
-declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
+declare INST64_GCPSQLPROXY_TARGET="${INST64_GCPSQLPROXY_TARGET:-}"
 # Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_GCPSQLPROXY_PLATFORM="${INST64_GCPSQLPROXY_PLATFORM:-}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_GCPSQLPROXY_VERSION="${INST64_GCPSQLPROXY_VERSION:-latest}"
 
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
-INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
+INST64_APP_NAME='gcpsqlproxy'
+INST64_APP_ID='GCPSQLPROXY'
+INST64_APP_FULL_NAME='Google Cloud SQL Proxy'
+INST64_CLI_NAME='cloud-sql-proxy'
 
-# X_GLOBALS_METHOD_PLACEHOLDER_X
-INST64_GH_REPO_NAME='X_REPO_NAME_X'
-INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
-INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
-INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
+INST64_APP_DOC_SETUP='https://github.com/GoogleCloudPlatform/cloud-sql-proxy'
+INST64_WEB_REPO_URL='https://storage.googleapis.com'
+INST64_WEB_REPO_PATH='cloud-sql-connectors/cloud-sql-proxy'
+INST64_GH_REPO_NAME='cloud-sql-proxy'
+INST64_GH_REPO_OWNER='GoogleCloudPlatform'
+INST64_PKG_MAIN_PREFIX='cloud-sql-proxy'
+INST64_PKG_MAIN_SUFFIX=''
+INST64_CPU_DARWIN_ARM64='.darwin.arm64'
+INST64_CPU_LINUX_AMD64='.linux.amd64'
+INST64_CPU_LINUX_ARM64='.linux.arm64'
 
 #
 # Functions
@@ -72,8 +75,7 @@ function my_install_binary() {
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_gh_get_asset &&
-    inst64_lib_staging_open_tar ||
+    inst64_lib_web_get_file ||
     return $?
 
   inst64_lib_task_deploy
@@ -88,7 +90,7 @@ function my_install_binary() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -96,7 +98,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
   fi
 }
@@ -104,7 +106,7 @@ function my_install() {
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -113,9 +115,8 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  # X_VERIFY_PLACEHOLDER_X
   "${INST64_CLI_TARGET}" --version || return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -126,18 +127,22 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_BINARY"
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_GCPSQLPROXY_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      # X_PLATFORM_SELECTION_PLACEHOLDER_X
-      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ -z "$INST64_GCPSQLPROXY_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_GCPSQLPROXY_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_GCPSQLPROXY_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_GCPSQLPROXY_PLATFORM="$INST64_CPU_LINUX_ARM64"
+      fi
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -145,15 +150,15 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+  if [[ "$INST64_GCPSQLPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ "$INST64_GCPSQLPROXY_VERSION" == 'latest' ]]; then
+      INST64_GCPSQLPROXY_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
-    # optional # INST64_WORK_PATH_SOURCE="X_CUSTOM_FILE_NAME_X"
-    # optional # INST64_WEB_REPO_PATH="X_CUSTOM_URL_X"
-    # optional # INST64_CLI_SOURCE="X_CUSTOM_CLI_NAME"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_GCPSQLPROXY_PLATFORM}"
+    INST64_WEB_REPO_PATH+="/${INST64_GCPSQLPROXY_VERSION}"
+    INST64_WORK_PATH_SOURCE="$INST64_PKG_MAIN"
+    INST64_CLI_SOURCE="$INST64_WORK_PATH_SOURCE"
   fi
   inst64_lib_package_check_definition
 }
@@ -163,8 +168,6 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  # X_PRE_OS_PLACEHOLDER_X
 
   my_select_platform &&
     my_select_packages ||

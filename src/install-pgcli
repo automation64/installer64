@@ -46,7 +46,7 @@ declare INST64_PGCLI_VERSION="${INST64_PGCLI_VERSION:-latest}"
 # App information
 INST64_APP_NAME='pgcli'
 INST64_APP_ID='PGCLI'
-INST64_APP_FULL_NAME='PGCLI - PostgreSQL Command Line Interface'
+INST64_APP_FULL_NAME='PGCLI - PostgreSQL enhanced CLI'
 
 INST64_CLI_NAME='pgcli'
 
