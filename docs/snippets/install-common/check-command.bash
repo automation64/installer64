@@ -1,1 +1,1 @@
-    inst64_lib_command_check_prereq 'X_CMD_X'
+inst64_lib_command_check_prereq_exe 'X_CMD_X'

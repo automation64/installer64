@@ -52,7 +52,7 @@ declare INST64_OVERMIND_VERSION="${INST64_OVERMIND_VERSION:-latest}"
 
 INST64_APP_NAME='overmind'
 INST64_APP_ID='OVERMIND'
-INST64_APP_FULL_NAME='Overmind: Process manager for Procfile-based applications'
+INST64_APP_FULL_NAME='Overmind - Process manager for Procfile-based applications'
 INST64_CLI_NAME='overmind'
 
 INST64_GH_REPO_NAME='overmind'
@@ -178,7 +178,7 @@ function my_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.1'
-inst64_lib_base_set_verbosity 
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

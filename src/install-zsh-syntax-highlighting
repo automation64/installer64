@@ -135,7 +135,8 @@ function my_initialize() {
   if [[ "$INST64_ZSHSH_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_type_check_user &&
       bl64_check_privilege_not_root &&
-      inst64_lib_command_check_prereq 'zsh' &&
+      inst64_lib_command_check_prereq_exe 'zsh' &&
+      inst64_lib_command_check_prereq_file 'oh-my-zsh' "${HOME}/.oh-my-zsh/oh-my-zsh.sh" &&
       bl64_check_directory "$INST64_ZSHSH_TARGET_THEMES" ||
       return $?
   fi
@@ -151,7 +152,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

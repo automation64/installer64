@@ -108,7 +108,6 @@ function my_select_method() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
     INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_CUSTOM"
-    # optional # INST64_SYSTEM_WIDE='NO'
   fi
 }
 
@@ -128,8 +127,6 @@ function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
-    # optional # INST64_CLI_PATH='X_PATH_DIR_X'
-    # optional # INST64_CLI_TARGET='X_PATH_FILE_X'
   fi
   inst64_lib_package_check_definition
 }
@@ -142,6 +139,7 @@ function my_initialize() {
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     # X_INIT_PLACEHOLDER_X
+    # optional # inst64_lib_command_check_prereq_exe 'X_COMMAND_NAME_X'
     :
   fi
 

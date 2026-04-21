@@ -128,7 +128,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.23.0'
+  readonly INST64_LIB_VERSION_BL64='1.24.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.0.0'
@@ -541,7 +541,7 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
-        inst64_lib_command_check_prereq 'pip' &&
+        inst64_lib_command_check_prereq_exe 'pip' &&
         bl64_py_setup
       ;;
     "$INST64_METHOD_UV")
@@ -580,7 +580,7 @@ function inst64_lib_method_initialize() {
       INST64_CLI_PROMOTE='NO'
       bl64_check_privilege_not_root &&
         bl64_k8s_setup &&
-        inst64_lib_command_check_prereq 'kubectl-krew' "${HOME}/.krew/bin"
+        inst64_lib_command_check_prereq_exe 'kubectl-krew' "${HOME}/.krew/bin"
       ;;
   esac
 }
@@ -1285,7 +1285,7 @@ function inst64_lib_base_set_verbosity() {
   return 0
 }
 
-function inst64_lib_command_check_prereq() {
+function inst64_lib_command_check_prereq_exe() {
   bl64_dbg_app_show_function "$@"
   local command_name="${1:-}"
 
@@ -1294,6 +1294,22 @@ function inst64_lib_command_check_prereq() {
 
   shift
   if [[ -z "$(bl64_bsh_command_locate_user "$command_name" "$@")" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
+}
+
+function inst64_lib_command_check_prereq_file() {
+  bl64_dbg_app_show_function "$@"
+  local command_name="${1:-}"
+  local file_path="${2:-}"
+
+  bl64_check_parameter 'command_name' &&
+    bl64_check_parameter 'file_path' ||
+    return $?
+
+  if [[ ! -r "$file_path" ]]; then
     bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
     return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
   fi

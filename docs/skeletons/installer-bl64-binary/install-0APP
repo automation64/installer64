@@ -89,6 +89,11 @@ function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    # optional # INST64_CLI_PATH='X_PATH_DIR_X'
+    # optional # INST64_CLI_TARGET='X_PATH_FILE_X'
+    # optional # INST64_WORK_PATH_SOURCE="X_CUSTOM_FILE_NAME_X"
+    # optional # INST64_WEB_REPO_PATH="X_CUSTOM_URL_X"
+    # optional # INST64_CLI_SOURCE="X_CUSTOM_CLI_NAME"
     inst64_lib_base_create_path
   fi
 }
@@ -129,6 +134,7 @@ function my_select_method() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
     # X_METHOD_AUTO_PLACEHOLDER_X
     INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_BINARY"
+    # optional # INST64_SYSTEM_WIDE='NO'
   fi
 }
 
@@ -151,9 +157,6 @@ function my_select_packages() {
         return $?
     fi
     INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
-    # optional # INST64_WORK_PATH_SOURCE="X_CUSTOM_FILE_NAME_X"
-    # optional # INST64_WEB_REPO_PATH="X_CUSTOM_URL_X"
-    # optional # INST64_CLI_SOURCE="X_CUSTOM_CLI_NAME"
   fi
   inst64_lib_package_check_definition
 }

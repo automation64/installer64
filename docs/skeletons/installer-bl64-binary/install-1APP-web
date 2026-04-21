@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-binary-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -167,7 +167,7 @@ function my_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.0'
-inst64_lib_base_set_verbosity 
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

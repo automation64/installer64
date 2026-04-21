@@ -52,7 +52,7 @@ declare INST64_PIPX_VERSION="${INST64_PIPX_VERSION:-latest}"
 # App information
 INST64_APP_NAME='pipx'
 INST64_APP_ID='PIPX'
-INST64_APP_FULL_NAME='pipX'
+INST64_APP_FULL_NAME='pipX - Isolated Python Applications installation manager'
 # CLI information
 INST64_CLI_NAME='pipx'
 
@@ -134,7 +134,7 @@ function my_select_packages() {
 
 function my_initialize() {
   bl64_dbg_app_show_function
-    my_select_method &&
+  my_select_method &&
     inst64_lib_base_initialize ||
     return $?
 

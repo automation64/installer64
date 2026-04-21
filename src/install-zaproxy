@@ -159,7 +159,7 @@ function my_initialize() {
     return $?
 
   if [[ "$INST64_ZAPROXY_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_lib_command_check_prereq 'java' ||
+    inst64_lib_command_check_prereq_exe 'java' ||
       return $?
   fi
 
@@ -174,7 +174,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
