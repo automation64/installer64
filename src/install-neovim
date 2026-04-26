@@ -52,7 +52,7 @@ declare INST64_NEOVIM_VERSION="${INST64_NEOVIM_VERSION:-latest}"
 
 INST64_APP_NAME='neovim'
 INST64_APP_ID='NEOVIM'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+INST64_APP_FULL_NAME='NeoVIM - Enhanced VI Editor'
 INST64_CLI_NAME='nvim'
 
 INST64_GH_REPO_NAME='neovim'
@@ -191,8 +191,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.1'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '2.1.2'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

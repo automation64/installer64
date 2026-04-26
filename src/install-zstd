@@ -43,17 +43,17 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_CPPCHECK_METHOD="${INST64_CPPCHECK_METHOD:-AUTO}"
+declare INST64_ZSTD_METHOD="${INST64_ZSTD_METHOD:-AUTO}"
 # Application version
-declare INST64_CPPCHECK_VERSION="${INST64_CPPCHECK_VERSION:-latest}"
+declare INST64_ZSTD_VERSION="${INST64_ZSTD_VERSION:-latest}"
 # Enable development packages?
-declare INST64_CPPCHECK_DEVELOPMENT="${INST64_CPPCHECK_DEVELOPMENT:-NO}"
+declare INST64_ZSTD_DEVELOPMENT="${INST64_ZSTD_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='cppcheck'
-INST64_APP_ID='CPPCHECK'
-INST64_APP_FULL_NAME='CPPCheck - Static analysis of C/C++ code'
-INST64_CLI_NAME='cppcheck'
+INST64_APP_NAME='zstd'
+INST64_APP_ID='ZSTD'
+INST64_APP_FULL_NAME='ZSTD - ZStandard compression tool'
+INST64_CLI_NAME='zstd'
 
 #
 # Functions
@@ -67,7 +67,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_CPPCHECK_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_ZSTD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -89,8 +89,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_CPPCHECK_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_CPPCHECK_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_ZSTD_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_ZSTD_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -101,15 +101,10 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_CPPCHECK_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN")
-        bl64_lib_flag_is_enabled "$INST64_CPPCHECK_DEVELOPMENT" &&
-          INST64_PKG_DEV=''
-        INST64_PKG_MAIN='cppcheck'
-        ;;
-    esac
+  if [[ "$INST64_ZSTD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_ZSTD_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN='zstd'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_package_check_definition
@@ -121,10 +116,14 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_CPPCHECK_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_ZSTD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_ARCH" \
       "$BL64_OS_FLAVOR_ALPINE" \
-      "$BL64_OS_FLAVOR_DEBIAN" ||
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" \
+      "$BL64_OS_FLAVOR_SUSE" ||
       return $?
   fi
 
@@ -139,7 +138,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

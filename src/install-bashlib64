@@ -39,7 +39,7 @@ INST64_APP_NAME='bashlib64'
 INST64_APP_ID='BASHLIB64'
 INST64_APP_FULL_NAME='BashLib64 - Automation Library'
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='2.0.2'
+INST64_SCRIPT_VERSION='2.0.3'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='bashlib64'
@@ -122,6 +122,7 @@ function my_select_packages() {
     fi
     INST64_PKG_MAIN='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
   fi
+  INST64_CLI_TARGET="${INST64_BASHLIB64_TARGET}/bashlib64.bash"
   inst64_lib_package_check_definition
 }
 

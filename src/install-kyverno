@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-bl64-binary-1.2.0
-#   Skeleton: install-bl64-custom-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,25 +42,26 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
+declare INST64_KYVERNO_METHOD="${INST64_KYVERNO_METHOD:-AUTO}"
 # Installation destination
-declare INST64_X_APP_NAME_CAPS_X_TARGET="${INST64_X_APP_NAME_CAPS_X_TARGET:-}"
+declare INST64_KYVERNO_TARGET="${INST64_KYVERNO_TARGET:-}"
 # Hardware architecture
-declare INST64_X_APP_NAME_CAPS_X_PLATFORM="${INST64_X_APP_NAME_CAPS_X_PLATFORM:-}"
+declare INST64_KYVERNO_PLATFORM="${INST64_KYVERNO_PLATFORM:-}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_KYVERNO_VERSION="${INST64_KYVERNO_VERSION:-latest}"
 
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
-INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
+INST64_APP_NAME='kyverno'
+INST64_APP_ID='KYVERNO'
+INST64_APP_FULL_NAME='Kyverno - Kubernetes Native Policy Engine'
+INST64_CLI_NAME='kyverno'
 
-# X_GLOBALS_METHOD_PLACEHOLDER_X
-INST64_GH_REPO_NAME='X_REPO_NAME_X'
-INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
-INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
-INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
+INST64_GH_REPO_NAME='kyverno'
+INST64_GH_REPO_OWNER='kyverno'
+INST64_PKG_MAIN_PREFIX='kyverno-cli_'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_DARWIN_ARM64='darwin_arm64'
+INST64_CPU_LINUX_AMD64='linux_x86_64'
+INST64_CPU_LINUX_ARM64='linux_arm64'
 
 #
 # Functions
@@ -88,13 +88,7 @@ function my_install_binary() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    # optional # INST64_CLI_PATH='X_PATH_DIR_X'
-    # optional # INST64_CLI_TARGET='X_PATH_FILE_X'
-    # optional # INST64_WORK_PATH_SOURCE="X_CUSTOM_FILE_NAME_X"
-    # optional # INST64_WEB_REPO_PATH="X_CUSTOM_URL_X"
-    # optional # INST64_CLI_SOURCE="X_CUSTOM_CLI_NAME"
-    # optional # INST64_CLI_SUBPATH='X_CUSTOM_CLI_SUBPATH_X'
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -102,7 +96,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
   fi
 }
@@ -110,7 +104,7 @@ function my_install() {
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -119,9 +113,8 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  # X_VERIFY_PLACEHOLDER_X
-  "${INST64_CLI_TARGET}" --version || return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  "${INST64_CLI_TARGET}" version || return $?
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_app_register_version
   fi
 }
@@ -132,19 +125,22 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_BINARY"
-    # optional # INST64_SYSTEM_WIDE='NO'
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_KYVERNO_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
-      # X_PLATFORM_SELECTION_PLACEHOLDER_X
-      INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ -z "$INST64_KYVERNO_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_KYVERNO_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_KYVERNO_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_KYVERNO_PLATFORM="$INST64_CPU_LINUX_ARM64"
+      fi
     fi
     inst64_lib_platform_check_cpu
   fi
@@ -152,12 +148,12 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
-      INST64_X_APP_NAME_CAPS_X_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+  if [[ "$INST64_KYVERNO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ "$INST64_KYVERNO_VERSION" == 'latest' ]]; then
+      INST64_KYVERNO_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_KYVERNO_VERSION}_${INST64_KYVERNO_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_package_check_definition
 }
@@ -167,8 +163,6 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_initialize ||
     return $?
-
-  # X_PRE_OS_PLACEHOLDER_X
 
   my_select_platform &&
     my_select_packages ||

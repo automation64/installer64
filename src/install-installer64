@@ -714,7 +714,7 @@ INST64_APP_ID='INSTALLER64'
 INST64_APP_FULL_NAME='Installer64 - Automated application installers'
 
 # shellcheck disable=SC2034
-INST64_SCRIPT_VERSION='3.1.0'
+INST64_SCRIPT_VERSION='3.1.1'
 
 INST64_GH_REPO_OWNER='automation64'
 INST64_GH_REPO_NAME='installer64'
@@ -799,6 +799,7 @@ function my_select_packages() {
         return $?
     fi
   fi
+  INST64_CLI_TARGET="${INST64_INSTALLER64_TARGET}/install-installer64"
   inst64_lib_package_check_definition
 }
 

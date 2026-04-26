@@ -128,7 +128,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.24.0'
+  readonly INST64_LIB_VERSION_BL64='1.25.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.0.0'
@@ -875,6 +875,16 @@ function inst64_lib_gh_get_asset() {
     "${!asset_version}" \
     "$INST64_PKG_MAIN" \
     "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+}
+
+function inst64_lib_staging_open_zstd() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    zstd -d \
+      "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
 }
 
 function inst64_lib_staging_open_tar() {

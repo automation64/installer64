@@ -140,12 +140,12 @@ function my_select_platform() {
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
         # shellcheck disable=SC2249
         case "$BL64_OS_FLAVOR" in
-        "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
-          INST64_ATUIN_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
-          ;;
-        "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_ARCH")
-          INST64_ATUIN_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
-          ;;
+          "$BL64_OS_FLAVOR_ALPINE" | "$BL64_OS_FLAVOR_DEBIAN" | "$BL64_OS_FLAVOR_SUSE")
+            INST64_ATUIN_PLATFORM="$INST64_CPU_LINUX_AMD64_MUSL"
+            ;;
+          "$BL64_OS_FLAVOR_FEDORA" | "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_ARCH")
+            INST64_ATUIN_PLATFORM="$INST64_CPU_LINUX_AMD64_GNU"
+            ;;
         esac
       fi
     fi
@@ -171,6 +171,17 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
+  if [[ "$INST64_ATUIN_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    bl64_os_check_not_version \
+      "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
+      "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+      "${BL64_OS_FD}-8" "${BL64_OS_FD}-9" \
+      "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+      "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+      "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" ||
+      return $?
+  fi
+
   my_select_platform &&
     my_select_packages ||
     return $?
@@ -182,8 +193,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '1.1.1'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&
