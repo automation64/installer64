@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-custom-1.1.0
+# Template: install-bl64-binary-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,41 +42,42 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_DOTNET_METHOD="${INST64_DOTNET_METHOD:-AUTO}"
+declare INST64_NERDCTL_METHOD="${INST64_NERDCTL_METHOD:-AUTO}"
 # Installation destination
-declare INST64_DOTNET_TARGET="${INST64_DOTNET_TARGET:-}"
+declare INST64_NERDCTL_TARGET="${INST64_NERDCTL_TARGET:-}"
 # Hardware architecture
-declare INST64_DOTNET_PLATFORM="${INST64_DOTNET_PLATFORM:-}"
+declare INST64_NERDCTL_PLATFORM="${INST64_NERDCTL_PLATFORM:-}"
 # Application version
-declare INST64_DOTNET_VERSION="${INST64_DOTNET_VERSION:-}"
+declare INST64_NERDCTL_VERSION="${INST64_NERDCTL_VERSION:-latest}"
 
-INST64_APP_NAME='dotnet'
-INST64_APP_ID='DOTNET'
-INST64_APP_FULL_NAME='DotNet - Microsoft .NET Runtime'
-INST64_APP_DOC_INSTALL='https://learn.microsoft.com/en-us/dotnet/core/install/linux'
-INST64_CLI_NAME='dotnet'
+INST64_APP_NAME='nerdctl'
+INST64_APP_ID='NERDCTL'
+INST64_APP_FULL_NAME='NerdCTL - ContainerD CLI'
+INST64_CLI_NAME='nerdctl'
 
-INST64_WEB_REPO_URL='https://dot.net'
-INST64_WEB_REPO_PATH='v1'
-INST64_APP_INSTALLER='dotnet-install.sh'
-INST64_PKG_MAIN="$INST64_APP_INSTALLER"
+INST64_GH_REPO_NAME='nerdctl'
+INST64_GH_REPO_OWNER='containerd'
+INST64_PKG_MAIN_PREFIX='nerdctl-'
+INST64_PKG_MAIN_SUFFIX='.tar.gz'
+INST64_CPU_LINUX_AMD64='linux-amd64'
+INST64_CPU_LINUX_ARM64='linux-arm64'
 
 #
 # Functions
 #
 
-function my_install_custom() {
+function my_install_binary() {
   bl64_dbg_app_show_function
 
   inst64_lib_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
+    inst64_lib_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_task_deploy
-  inst64_lib_installer_run \
-    --install-dir "$INST64_DOTNET_TARGET" \
-    ${INST64_DOTNET_VERSION:+--version "$INST64_DOTNET_VERSION"} ||
+  inst64_lib_target_create &&
+    inst64_lib_target_populate ||
     return $?
 
   inst64_lib_task_cleanup
@@ -86,7 +87,7 @@ function my_install_custom() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_DOTNET_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -94,15 +95,15 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_DOTNET_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    my_install_custom
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    my_install_binary
   fi
 }
 
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_step_setup || return 0
-  if [[ "$INST64_DOTNET_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_task_publish
     inst64_lib_cli_promote
   fi
@@ -111,26 +112,47 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  "${INST64_CLI_TARGET}" --version || return $?
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    inst64_lib_app_register_version
+  fi
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_CUSTOM" ||
+    "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_DOTNET_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_DOTNET_METHOD="$INST64_METHOD_CUSTOM"
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_NERDCTL_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ -z "$INST64_NERDCTL_PLATFORM" ]]; then
+      if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+        INST64_NERDCTL_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_NERDCTL_PLATFORM="$INST64_CPU_LINUX_ARM64"
+      fi
+    fi
+    inst64_lib_platform_check_cpu
+  fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
+  if [[ "$INST64_NERDCTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ "$INST64_NERDCTL_VERSION" == 'latest' ]]; then
+      INST64_NERDCTL_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+        return $?
+    fi
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_NERDCTL_VERSION#v}-${INST64_NERDCTL_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+  fi
+  inst64_lib_package_check_definition
 }
 
 function my_initialize() {

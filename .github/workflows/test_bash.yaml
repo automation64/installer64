@@ -1,6 +1,9 @@
 ---
-# template: 2.6.0
+# template: 2.7.0
 name: "Test/Bash"
+
+permissions:
+  contents: read
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
@@ -31,9 +34,10 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 3
       matrix:
         target:
+          - "ARCH"
           - "ALM"
           - "ALP"
           - "AMZ"
@@ -50,7 +54,7 @@ jobs:
       - name: "Check out repository code"
         uses: "actions/checkout@main"
 
-      - name: "Cache local tools"
+      - name: "Cache base tools"
         uses: "actions/cache@v5"
         with:
           path: |
@@ -95,7 +99,7 @@ jobs:
         run: |
           ./bin/dev-lib-bash
 
-      - name: "Cache local tools"
+      - name: "Cache base tools"
         uses: "actions/cache@v5"
         with:
           path: |

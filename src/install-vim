@@ -43,17 +43,17 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_QEMU_METHOD="${INST64_QEMU_METHOD:-AUTO}"
+declare INST64_VIM_METHOD="${INST64_VIM_METHOD:-AUTO}"
 # Application version
-declare INST64_QEMU_VERSION="${INST64_QEMU_VERSION:-latest}"
+declare INST64_VIM_VERSION="${INST64_VIM_VERSION:-latest}"
 # Enable development packages?
-declare INST64_QEMU_DEVELOPMENT="${INST64_QEMU_DEVELOPMENT:-NO}"
+declare INST64_VIM_DEVELOPMENT="${INST64_VIM_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='qemu'
-INST64_APP_ID='QEMU'
-INST64_APP_FULL_NAME='QEMU - Machine Emulator and Virtualizer'
-INST64_CLI_NAME='qemu-img'
+INST64_APP_NAME='vim'
+INST64_APP_ID='VIM'
+INST64_APP_FULL_NAME='VIM - VI Improved text editor'
+INST64_CLI_NAME='vim'
 
 #
 # Functions
@@ -62,20 +62,12 @@ INST64_CLI_NAME='qemu-img'
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH")
-        INST64_APP_DOC_SETUP='https://wiki.cachyos.org/virtualization/qemu_and_vmm_setup'
-        ;;
-    esac
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_VIM_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -97,8 +89,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_QEMU_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_VIM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_VIM_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -109,15 +101,13 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_VIM_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH")
-        bl64_lib_flag_is_enabled "$INST64_QEMU_DEVELOPMENT" &&
+      "$BL64_OS_FLAVOR_DEBIAN")
+        bl64_lib_flag_is_enabled "$INST64_VIM_DEVELOPMENT" &&
           INST64_PKG_DEV=''
-        INST64_PKG_MAIN+=' qemu-full'
-        INST64_PKG_MAIN+=' swtpm'
-        INST64_PKG_MAIN+=' fuse2'
+        INST64_PKG_MAIN='vim'
         ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
@@ -131,9 +121,9 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_VIM_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ARCH" ||
+      "$BL64_OS_FLAVOR_DEBIAN" ||
       return $?
   fi
 
