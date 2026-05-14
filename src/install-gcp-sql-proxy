@@ -55,7 +55,7 @@ INST64_APP_ID='GCPSQLPROXY'
 INST64_APP_FULL_NAME='Google Cloud SQL Proxy'
 INST64_CLI_NAME='cloud-sql-proxy'
 
-INST64_APP_DOC_SETUP='https://github.com/GoogleCloudPlatform/cloud-sql-proxy'
+INST64_APP_DOC_INSTALL='https://github.com/GoogleCloudPlatform/cloud-sql-proxy'
 INST64_WEB_REPO_URL='https://storage.googleapis.com'
 INST64_WEB_REPO_PATH='cloud-sql-connectors/cloud-sql-proxy'
 INST64_GH_REPO_NAME='cloud-sql-proxy'

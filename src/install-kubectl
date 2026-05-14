@@ -65,7 +65,7 @@ INST64_CPU_LINUX_AMD64='linux/amd64'
 # Functions
 #
 
-function inst64_select_packages_version() {
+function my_select_packages_version() {
   bl64_dbg_app_show_function
   local package_version=''
   package_version="$(
@@ -162,7 +162,7 @@ function my_select_packages() {
   bl64_dbg_app_show_function
   if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_KUBECTL_VERSION" == 'latest' ]]; then
-      INST64_KUBECTL_VERSION="$(inst64_select_packages_version)" ||
+      INST64_KUBECTL_VERSION="$(my_select_packages_version)" ||
         return $?
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}"
@@ -188,8 +188,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
-inst64_lib_base_set_verbosity 
+bl64_lib_script_version_set '2.0.1'
+inst64_lib_base_set_verbosity
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

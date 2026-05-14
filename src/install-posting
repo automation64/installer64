@@ -48,7 +48,7 @@ declare INST64_POSTING_VERSION="${INST64_POSTING_VERSION:-latest}"
 INST64_APP_NAME='posting'
 INST64_APP_ID='POSTING'
 INST64_APP_FULL_NAME='Posting - Modern API client TUI'
-INST64_APP_DOC_SETUP='https://github.com/darrenburns/posting'
+INST64_APP_DOC_INSTALL='https://github.com/darrenburns/posting'
 
 INST64_CLI_NAME='posting'
 

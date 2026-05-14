@@ -1,5 +1,5 @@
 ---
-# template: 1.7.0
+# template: 1.7.1
 name: "Release/GitHub"
 
 concurrency:
@@ -20,7 +20,8 @@ on:
 jobs:
   release-github:
     runs-on: "ubuntu-latest"
-    permissions: "write-all"
+    permissions:
+      contents: "write"
     steps:
 
       - name: "Check out repository code"

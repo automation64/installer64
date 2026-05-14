@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-external-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,40 +43,78 @@ source "${BL64_SCRIPT_PATH}/lib-bl64" ||
 #
 
 # Installation method
-declare INST64_QEMU_METHOD="${INST64_QEMU_METHOD:-AUTO}"
+declare INST64_KUBEADM_METHOD="${INST64_KUBEADM_METHOD:-AUTO}"
 # Application version
-declare INST64_QEMU_VERSION="${INST64_QEMU_VERSION:-latest}"
+declare INST64_KUBEADM_VERSION="${INST64_KUBEADM_VERSION:-1.36}"
 # Enable development packages?
-declare INST64_QEMU_DEVELOPMENT="${INST64_QEMU_DEVELOPMENT:-NO}"
+declare INST64_KUBEADM_DEVELOPMENT="${INST64_KUBEADM_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='qemu'
-INST64_APP_ID='QEMU'
-INST64_APP_FULL_NAME='QEMU - Machine Emulator and Virtualizer'
-INST64_CLI_NAME='qemu-img'
+INST64_APP_NAME='kubeadm'
+INST64_APP_ID='KUBEADM'
+INST64_APP_FULL_NAME='KubeAdm - Kubernetes Bootstrap Toolbox'
+INST64_CLI_NAME='kubeadm'
+INST64_APP_DOC_INSTALL='https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm'
+
+INST64_OS_REPO_NAME='kubernetes'
+INST64_WEB_REPO_URL='https://dl.k8s.io'
 
 #
 # Functions
 #
 
+function my_select_packages() {
+  bl64_dbg_app_show_function
+  local package_version=''
+  package_version="$(
+    bl64_api_call \
+      "$INST64_WEB_REPO_URL" \
+      '/release/stable.txt' \
+      "$BL64_API_METHOD_GET"
+  )"
+  if [[ -n "$package_version" ]]; then
+    echo "${package_version#v}"
+  else
+    bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
+    return "$BL64_LIB_ERROR_TASK_FAILED"
+  fi
+}
+
+function my_prepare_repository() {
+  bl64_dbg_app_show_function
+  local repository_url=''
+  local repository_key=''
+  local repository_apt_suite='/'
+  local repository_apt_component=''
+
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
+    repository_url="${INST64_OS_SOURCE_APT}"
+    repository_key="$INST64_OS_REPO_KEY_APT"
+  fi
+
+  inst64_lib_pkg_repo_add \
+    "$repository_url" "$repository_key" \
+    "$repository_apt_suite" "$repository_apt_component"
+}
+
+function my_install_external() {
+  bl64_dbg_app_show_function
+  inst64_lib_pkg_install
+}
+
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_step_prepare || return 0
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH")
-        INST64_APP_DOC_SETUP='https://wiki.cachyos.org/virtualization/qemu_and_vmm_setup'
-        ;;
-    esac
+  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    my_prepare_repository
   fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_step_install || return 0
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    inst64_lib_pkg_install
+  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    my_install_external
   fi
 }
 
@@ -88,36 +126,41 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  "${INST64_CLI_TARGET}" version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_NATIVE" ||
+    "$INST64_METHOD_EXTERNAL" ||
     return $?
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_QEMU_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_KUBEADM_METHOD="$INST64_METHOD_EXTERNAL"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    if [[ "$INST64_KUBEADM_VERSION" == 'latest' ]]; then
+      INST64_KUBEADM_VERSION="$(my_select_packages_version)" ||
+        return $?
+    fi
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH")
-        bl64_lib_flag_is_enabled "$INST64_QEMU_DEVELOPMENT" &&
+      "$BL64_OS_FLAVOR_DEBIAN")
+        bl64_lib_flag_is_enabled "$INST64_KUBEADM_DEVELOPMENT" &&
           INST64_PKG_DEV=''
-        INST64_PKG_MAIN+=' qemu-full'
-        INST64_PKG_MAIN+=' swtpm'
-        INST64_PKG_MAIN+=' fuse2'
+        INST64_PKG_MAIN=' kubelet'
+        INST64_PKG_MAIN+=' kubeadm'
+        INST64_PKG_MAIN+=' kubeadm'
+        INST64_OS_SOURCE_APT="https://pkgs.k8s.io/core:/stable:/v${INST64_KUBEADM_VERSION}/deb"
+        INST64_OS_REPO_KEY_APT="https://pkgs.k8s.io/core:/stable:/v${INST64_KUBEADM_VERSION}/deb/Release.key"
         ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
@@ -131,9 +174,9 @@ function my_initialize() {
     inst64_lib_base_initialize ||
     return $?
 
-  if [[ "$INST64_QEMU_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ARCH" ||
+      "$BL64_OS_FLAVOR_DEBIAN" ||
       return $?
   fi
 

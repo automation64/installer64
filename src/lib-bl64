@@ -44,10 +44,11 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # App information
-  declare INST64_APP_NAME=''      # Application name. Format: a-z0-9
-  declare INST64_APP_ID=''        # Application ID. Format: A-Z0-9
-  declare INST64_APP_FULL_NAME='' # Application full name
-  declare INST64_APP_DOC_SETUP='' # Optional. Application setup documentation URL
+  declare INST64_APP_NAME=''        # Application name. Format: a-z0-9
+  declare INST64_APP_ID=''          # Application ID. Format: A-Z0-9
+  declare INST64_APP_FULL_NAME=''   # Application full name
+  declare INST64_APP_DOC_SETUP=''   # Optional. Application setup documentation URL
+  declare INST64_APP_DOC_INSTALL='' # Optional. Application installation documentation URL
 
   #
   # Method definitions
@@ -128,7 +129,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='1.25.0'
+  readonly INST64_LIB_VERSION_BL64='1.26.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.0.0'
@@ -386,6 +387,9 @@ function inst64_lib_message_show_docs() {
   bl64_dbg_app_show_function
   if [[ -n "$INST64_APP_DOC_SETUP" ]]; then
     bl64_msg_show_doc "Setup documentation: ${INST64_APP_DOC_SETUP}"
+  fi
+  if [[ -n "$INST64_APP_DOC_INSTALL" ]]; then
+    bl64_msg_show_doc "Installation documentation: ${INST64_APP_DOC_INSTALL}"
   fi
   return 0
 }
