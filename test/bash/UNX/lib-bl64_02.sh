@@ -8,4 +8,5 @@ source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" || exit 1
 
+export BL64_SCRIPT_PATH='src'
 source src/lib-bl64
