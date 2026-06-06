@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 source src/lib-bash
-inst64_lib_base_initialize
+inst64_lib_base_setup

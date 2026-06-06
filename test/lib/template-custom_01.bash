@@ -33,8 +33,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 # ===[TEST-ONLY-SECTION]===[END]===
-source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+source "${BL64_SCRIPT_PATH}/lib-bl64"
 
 #
 # Globals
@@ -76,7 +75,7 @@ function inst64_install_custom() {
 
 function my_prepare() {
   bl64_dbg_app_show_function
-  inst64_lib_step_prepare || return 0
+  inst64_lib_show_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     inst64_lib_base_create_path
     # X_PREPARE_PLACEHOLDER_X
@@ -85,7 +84,7 @@ function my_prepare() {
 
 function my_install() {
   bl64_dbg_app_show_function
-  inst64_lib_step_install || return 0
+  inst64_lib_show_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     inst64_install_custom
   fi
@@ -93,19 +92,19 @@ function my_install() {
 
 function my_setup() {
   bl64_dbg_app_show_function
-  inst64_lib_step_setup || return 0
+  inst64_lib_show_step_setup || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SETUP_PLACEHOLDER_X
     # ===[TEST-ONLY-SECTION]===[START]===
-    inst64_lib_task_publish
-    inst64_lib_cli_promote
+    inst64_lib_show_task_publish
+    inst64_lib_setup_promote
     # ===[TEST-ONLY-SECTION]===[END]===
   fi
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
-  inst64_lib_step_verify || return 0
+  inst64_lib_show_step_verify || return 0
   # X_VERIFY_PLACEHOLDER_X
   "${INST64_CLI_TARGET}" --version
 }
@@ -124,31 +123,33 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
+  inst64_lib_show_task_select_platform
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
       # X_PLATFORM_SELECTION_PLACEHOLDER_X
       INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
-    inst64_lib_platform_check_cpu
+    inst64_lib_base_check_platform
   fi
   return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
+  inst64_lib_show_task_select_packages
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
     # ===[TEST-ONLY-SECTION]===[START]===
     INST64_PKG_MAIN='TEST'
     # ===[TEST-ONLY-SECTION]===[END]===
   fi
-  inst64_lib_package_check_definition
+  inst64_lib_base_check_package
 }
 
 function my_initialize() {
   bl64_dbg_app_show_function
   my_select_method &&
-    inst64_lib_base_initialize ||
+    inst64_lib_base_setup ||
     return $?
 
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
@@ -170,7 +171,7 @@ function my_initialize() {
 #
 
 bl64_lib_script_version_set '1.0.0'
-inst64_lib_base_set_verbosity 
+inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

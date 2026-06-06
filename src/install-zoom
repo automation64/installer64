@@ -35,8 +35,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
-source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+source "${BL64_SCRIPT_PATH}/lib-bl64"
 
 #
 # Globals
@@ -63,27 +62,27 @@ INST64_PKG_MAIN_PREFIX='zoom_'
 
 function my_install_package() {
   bl64_dbg_app_show_function
-  inst64_lib_task_download
+  inst64_lib_show_task_download
   inst64_lib_staging_create &&
-    inst64_lib_web_get_file ||
+    inst64_lib_custom_web_get_file ||
     return $?
 
-  inst64_lib_task_deploy
+  inst64_lib_show_task_deploy
   inst64_lib_pkg_install_file ||
     return $?
 
-  inst64_lib_task_cleanup
+  inst64_lib_show_task_cleanup
   inst64_lib_staging_remove
 }
 
 function my_prepare() {
   bl64_dbg_app_show_function
-  inst64_lib_step_prepare || return 0
+  inst64_lib_show_step_prepare || return 0
 }
 
 function my_install() {
   bl64_dbg_app_show_function
-  inst64_lib_step_install || return 0
+  inst64_lib_show_step_install || return 0
   if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     my_install_package
   fi
@@ -91,12 +90,12 @@ function my_install() {
 
 function my_setup() {
   bl64_dbg_app_show_function
-  inst64_lib_step_setup || return 0
+  inst64_lib_show_step_setup || return 0
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
-  inst64_lib_step_verify || return 0
+  inst64_lib_show_step_verify || return 0
 }
 
 function my_select_method() {
@@ -112,6 +111,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
+  inst64_lib_show_task_select_platform
   if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
       # shellcheck disable=SC2249
@@ -124,24 +124,25 @@ function my_select_platform() {
           ;;
       esac
     fi
-    inst64_lib_platform_check_cpu
+    inst64_lib_base_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
+  inst64_lib_show_task_select_packages
   if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     inst64_lib_pkg_suffix_set || return $?
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ZOOM_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
     INST64_WEB_REPO_PATH+="/${INST64_ZOOM_VERSION}"
   fi
-  inst64_lib_package_check_definition
+  inst64_lib_base_check_package
 }
 
 function my_initialize() {
   bl64_dbg_app_show_function
   my_select_method &&
-    inst64_lib_base_initialize ||
+    inst64_lib_base_setup ||
     return $?
 
   if [[ "$INST64_ZOOM_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
@@ -164,7 +165,7 @@ function my_initialize() {
 #
 
 bl64_lib_script_version_set '2.0.0'
-inst64_lib_base_set_verbosity
+inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&

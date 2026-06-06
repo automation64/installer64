@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.0.0]
+
+### Changed
+
+- Installer64 **breaking-change**
+  - Upgraded minimum BashLib64 version requirement to v23.2
+
+### Added
+
+- Installers
+  - Rust
+  - Bash Preexec
+  - Antigravity IDE
+  - HAProxy
+  - NGINX
+  - CoreDNS
+  - Step CA
+  - Step CLI
+  - Envoy
+  - Trippy
+  - KeepAliveD
+  - Grubby
+  - TCPDump
+  - Bind
+  - BCC
+  - BPFTrace
+  - OpenSSH CLI
+  - CertMan CLI
+
 ## [9.3.0]
 
 ### Added

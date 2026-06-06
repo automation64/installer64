@@ -1,3 +1,0 @@
-bl64_check_privilege_not_root
-
-bl64_check_privilege_root

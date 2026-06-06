@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+function inst64_lib_method_check() {
+  bl64_dbg_app_show_function "$@"
+  local requested="INST64_${INST64_APP_ID}_METHOD"
+  bl64_check_parameter "$requested" || return $?
+  bl64_fmt_list_check_membership \
+    "invalid installation method for the parameter INST64_${INST64_APP_ID}_METHOD" \
+    "${!requested}" \
+    "$@"
+}
+
+function inst64_lib_method_initialize() {
+  bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+
+  # shellcheck disable=SC2249
+  case "${!method}" in
+    "$INST64_METHOD_BINARY")
+      [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
+      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      inst64_lib_type_check_privilege_root &&
+        bl64_arc_setup
+      ;;
+    "$INST64_METHOD_CUSTOM")
+      [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
+      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      return 0
+      ;;
+    "$INST64_METHOD_AUR")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_YAY' 'yay'
+      ;;
+    "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL")
+      INST64_CLI_PROMOTE='NO'
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
+      inst64_lib_type_check_privilege_root &&
+        bl64_cryp_setup &&
+        bl64_pkg_setup
+      ;;
+    "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_not_root &&
+        inst64_lib_command_check_prereq_exe 'pip' &&
+        bl64_py_setup
+      ;;
+    "$INST64_METHOD_UV")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_UV' 'uv'
+      ;;
+    "$INST64_METHOD_BREW")
+      INST64_CLI_PROMOTE='NO'
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
+      inst64_lib_type_check_privilege_root &&
+        bl64_cryp_setup &&
+        bl64_pkg_setup
+      ;;
+    "$INST64_METHOD_NPM")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_NPM' 'npm'
+      ;;
+    "$INST64_METHOD_GO")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_not_root &&
+        inst64_lib_command_define 'INST64_COMMAND_GO' 'go'
+      ;;
+    "$INST64_METHOD_FPAK")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_root &&
+        inst64_lib_command_define 'INST64_COMMAND_FLATPAK' 'flatpak'
+      ;;
+    "$INST64_METHOD_SNAP")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_root &&
+        inst64_lib_command_define 'INST64_COMMAND_SNAP' 'snap'
+      ;;
+    "$INST64_METHOD_KREW")
+      INST64_CLI_PROMOTE='NO'
+      inst64_lib_type_check_privilege_not_root &&
+        bl64_k8s_setup &&
+        inst64_lib_command_check_prereq_exe 'kubectl-krew' "${HOME}/.krew/bin"
+      ;;
+  esac
+}

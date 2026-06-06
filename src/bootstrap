@@ -13,11 +13,13 @@
 #######################################
 
 MY_MODE="${1:-SYSTEM}"
+
 MY_REPOSITORY='automation64/installer64'
 MY_INSTALLER='install-installer64'
 MY_TARGET_ROOT=''
 MY_INSTALLER_LOCAL="/tmp/${MY_INSTALLER}"
-MY_VERSION='1.1.0'
+# shellcheck disable=SC2034
+MY_VERSION='1.2.0'
 
 my_show_task() {
   echo "bootstrap:Task   : ${1:-}"
@@ -85,7 +87,15 @@ my_install() {
 
 my_initialize() {
   if [ ! -x /bin/bash ] && [ ! -x /usr/bin/bash ]; then
-    my_show_error 'Installer64 requires the Bash shell to be installed'
+    my_show_error 'Installer64 requires the Bash shell to be installed. Please install it and try again.'
+    return 1
+  fi
+  if [ ! -x /bin/tar ] && [ ! -x /usr/bin/tar ]; then
+    my_show_error 'Installer64 requires the TAR utility to be installed. Please install it and try again.'
+    return 1
+  fi
+  if [ ! -x /bin/curl ] && [ ! -x /usr/bin/curl ]; then
+    my_show_error 'Installer64 requires the CURL utility to be installed. Please install it and try again.'
     return 1
   fi
   unset INST64_BASHLIB64_TARGET

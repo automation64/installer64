@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+function inst64_lib_setup_promote() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+
+  bl64_check_parameter 'INST64_CLI_NAME' || return $?
+
+  if [[ -z "$INST64_CLI_TARGET" ]]; then
+    bl64_check_parameter 'target' &&
+      INST64_CLI_TARGET="${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_SOURCE:-$INST64_CLI_NAME}"
+  fi
+  bl64_dbg_app_show_vars "$target" 'INST64_CLI_TARGET' 'INST64_CLI_SUBPATH' 'INST64_CLI_SOURCE' 'INST64_CLI_NAME' 'INST64_CLI_NORMALIZE'
+
+  if bl64_lib_flag_is_enabled "$INST64_CLI_NORMALIZE" && [[ "$INST64_CLI_TARGET" != "${!target}/${INST64_CLI_NAME}" ]]; then
+    bl64_dbg_app_show_comments 'create additional symlink for normalized CLI name'
+    bl64_fs_symlink_create \
+      "$INST64_CLI_TARGET" "${!target}/${INST64_CLI_NAME}" \
+      "$BL64_VAR_ON"
+  fi
+
+  if bl64_lib_flag_is_enabled "$INST64_CLI_PROMOTE"; then
+    bl64_dbg_app_show_comments 'create symlink for CLI'
+    bl64_check_parameter 'INST64_CLI_PATH' &&
+      bl64_fs_symlink_create \
+        "${INST64_CLI_TARGET}" "${INST64_CLI_PATH}/${INST64_CLI_NAME}" \
+        "$BL64_VAR_ON" ||
+      return $?
+  fi
+}

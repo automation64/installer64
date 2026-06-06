@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+function inst64_lib_custom_install() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
+    bl64_check_parameter 'INST64_APP_INSTALLER' || return $?
+
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" "$@"
+}
+
+function inst64_lib_custom_git_get_dir() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+
+  bl64_check_parameter 'INST64_GIT_SERVER' &&
+    bl64_check_parameter 'INST64_GIT_REPO' ||
+    return $?
+
+  bl64_fs_set_umask "$BL64_FS_UMASK_RW_USER_RO_ALL" &&
+    bl64_rxtx_git_get_dir \
+      "${INST64_GIT_SERVER}/${INST64_GIT_REPO}" \
+      '.' \
+      "${!target}" \
+      "$BL64_VAR_ON" \
+      "$INST64_GIT_BRANCH"
+}
+
+function inst64_lib_custom_gh_get_asset() {
+  bl64_dbg_app_show_function
+  local asset_version="INST64_${INST64_APP_ID}_VERSION"
+  bl64_check_parameter "$asset_version" || return $?
+
+  bl64_rxtx_github_get_asset \
+    "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME" \
+    "${!asset_version}" \
+    "$INST64_PKG_MAIN" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_PKG_MAIN}"
+}
+
+function inst64_lib_custom_web_get_file() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_WEB_REPO_URL' &&
+    bl64_check_parameter 'INST64_PKG_MAIN' || return $?
+
+  bl64_rxtx_web_get_file \
+    "${INST64_WEB_REPO_URL}/${INST64_WEB_REPO_PATH}${INST64_WEB_REPO_PATH:+/}${INST64_WEB_FILE_SOURCE:-$INST64_PKG_MAIN}" \
+    "${INST64_WORK_PATH_STAGING}/${INST64_WEB_FILE_TARGET:-$INST64_PKG_MAIN}" \
+    'YES' \
+    "$INST64_CLI_MODE"
+}
+
+function inst64_lib_custom_normalize() {
+  bl64_dbg_app_show_function
+  local target="INST64_${INST64_APP_ID}_TARGET"
+  bl64_check_parameter "$target" || return $?
+
+  bl64_fs_path_permission_set \
+    "$INST64_CLI_MODE" "$BL64_VAR_DEFAULT" \
+    "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_OFF" \
+    "${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"
+}
