@@ -51,7 +51,7 @@ INST64_TARGET_PATH_DEFAULT='bl64'
 
 function inst64_install_binary_deploy() {
   local package_name="$1"
-  inst64_lib_task_deploy
+  inst64_lib_show_task_deploy
   [[ -f "${INST64_WORK_PATH_STAGING}/${package_name}" ]] &&
     "$INST64_CMD_TAR" zx -C "$INST64_BASHLIB64_TARGET" -f "${INST64_WORK_PATH_STAGING}/${package_name}" &&
     "$INST64_CMD_CHMOD" "$INST64_TARGET_MODE_FILE" "$INST64_BASHLIB64_TARGET"/* ||
@@ -65,7 +65,7 @@ function inst64_install_binary_deploy() {
 function my_install_binary() {
   local package_name=''
 
-  inst64_lib_task_download
+  inst64_lib_show_task_download
   inst64_lib_staging_create || return $?
 
   for package_name in $INST64_PKG_MAIN; do
@@ -74,12 +74,12 @@ function my_install_binary() {
       return $?
   done
 
-  inst64_lib_task_cleanup
+  inst64_lib_show_task_cleanup
   inst64_lib_staging_remove
 }
 
 function my_prepare() {
-  inst64_lib_step_prepare || return 0
+  inst64_lib_show_step_prepare || return 0
   if [[ "$INST64_BASHLIB64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
     if [[ ! -d "$INST64_BASHLIB64_TARGET" ]]; then
@@ -90,23 +90,23 @@ function my_prepare() {
 }
 
 function my_install() {
-  inst64_lib_step_install || return 0
+  inst64_lib_show_step_install || return 0
   if [[ "$INST64_BASHLIB64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
   fi
 }
 
 function my_setup() {
-  inst64_lib_step_setup || return 0
+  inst64_lib_show_step_setup || return 0
 }
 
 function my_verify() {
-  inst64_lib_step_verify || return 0
+  inst64_lib_show_step_verify || return 0
   [[ -d "${INST64_BASHLIB64_TARGET}" ]] &&
     [[ -f "${INST64_BASHLIB64_TARGET}/bashlib64.bash" ]] ||
     return $?
   if [[ "$INST64_BASHLIB64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    inst64_lib_app_register_version
+    inst64_lib_verify_register_version
   fi
 }
 
@@ -123,11 +123,11 @@ function my_select_packages() {
     INST64_PKG_MAIN='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
   fi
   INST64_CLI_TARGET="${INST64_BASHLIB64_TARGET}/bashlib64.bash"
-  inst64_lib_package_check_definition
+  inst64_lib_base_check_package
 }
 
 function my_initialize() {
-  inst64_lib_base_initialize &&
+  inst64_lib_base_setup &&
     inst64_lib_method_check "$INST64_METHOD_BINARY" ||
     return $?
 
@@ -149,10 +149,10 @@ function my_initialize() {
 # Main
 #
 
-inst64_lib_task_process_start &&
+inst64_lib_show_task_process_start &&
   my_initialize &&
   my_prepare &&
   my_install &&
   my_setup &&
   my_verify
-inst64_lib_task_process_finish $?
+inst64_lib_show_task_process_finish $?

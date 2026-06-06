@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+# Template: install-bl64-custom-1.1.0
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+#
+# Imports
+#
+
+# BashLib64 location
+declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
+[[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
+# shellcheck disable=SC2015
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
+  { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
+source "${BL64_SCRIPT_PATH}/lib-bl64"
+
+#
+# Globals
+#
+
+# Installation method
+declare INST64_RUST_METHOD="${INST64_RUST_METHOD:-AUTO}"
+
+INST64_APP_NAME='rust'
+INST64_APP_ID='RUST'
+INST64_APP_FULL_NAME='Rust - The Rust Programming Language'
+INST64_CLI_NAME='cargo'
+
+INST64_APP_DOC_INSTALL='https://rust-lang.org/tools/install/'
+INST64_WEB_REPO_URL='https://sh.rustup.rs'
+INST64_APP_INSTALLER='rustup-init.sh'
+
+#
+# Functions
+#
+
+function my_install_custom() {
+  bl64_dbg_app_show_function
+
+  inst64_lib_show_task_download
+  inst64_lib_staging_create &&
+    bl64_rxtx_run_curl \
+      --proto '=https' --tlsv1.2 -sSf \
+      --output "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" \
+      "${INST64_WEB_REPO_URL}" &&
+    bl64_fs_run_chmod +x "${INST64_WORK_PATH_STAGING}/${INST64_APP_INSTALLER}" ||
+    return $?
+
+  inst64_lib_show_task_deploy
+  inst64_lib_custom_install \
+    -y \
+    --no-modify-path ||
+    return $?
+
+  inst64_lib_show_task_cleanup
+  inst64_lib_staging_remove
+}
+
+function my_prepare() {
+  bl64_dbg_app_show_function
+  inst64_lib_show_step_prepare || return 0
+  if [[ "$INST64_RUST_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
+    INST64_TARGET_PATH_DEFAULT_USER="${HOME}/.cargo"
+    INST64_CLI_TARGET="${INST64_TARGET_PATH_DEFAULT_USER}/bin/${INST64_CLI_NAME}"
+  fi
+}
+
+function my_install() {
+  bl64_dbg_app_show_function
+  inst64_lib_show_step_install || return 0
+  if [[ "$INST64_RUST_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
+    my_install_custom
+  fi
+}
+
+function my_setup() {
+  bl64_dbg_app_show_function
+}
+
+function my_verify() {
+  bl64_dbg_app_show_function
+  inst64_lib_show_step_verify || return 0
+  "${INST64_CLI_TARGET}" --version
+}
+
+function my_select_method() {
+  bl64_dbg_app_show_function
+  inst64_lib_method_check \
+    "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_CUSTOM" ||
+    return $?
+  if [[ "$INST64_RUST_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_RUST_METHOD="$INST64_METHOD_CUSTOM"
+  fi
+  if [[ "$INST64_RUST_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
+    INST64_SYSTEM_WIDE='NO'
+  fi
+}
+
+function my_select_platform() {
+  bl64_dbg_app_show_function
+  inst64_lib_show_task_select_platform
+}
+
+function my_select_packages() {
+  bl64_dbg_app_show_function
+  inst64_lib_show_task_select_packages
+}
+
+function my_initialize() {
+  bl64_dbg_app_show_function
+  my_select_method &&
+    inst64_lib_base_setup ||
+    return $?
+
+  if [[ "$INST64_RUST_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
+    inst64_lib_type_check_privilege_not_root ||
+      return $?
+  fi
+
+  my_select_platform &&
+    my_select_packages ||
+    return $?
+
+  inst64_lib_base_finalize
+}
+
+#
+# Main
+#
+
+bl64_lib_script_version_set '1.0.0'
+inst64_lib_base_initialize
+bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
+my_initialize &&
+  my_prepare &&
+  my_install &&
+  my_setup &&
+  my_verify
+bl64_msg_show_batch_finish $? "$BL64_SCRIPT_ID"

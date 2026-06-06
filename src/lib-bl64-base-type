@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+function inst64_lib_type_set() {
+  bl64_dbg_app_show_function
+  local method="INST64_${INST64_APP_ID}_METHOD"
+  local app_wide="INST64_${INST64_APP_ID}_SYSTEM_WIDE"
+
+  bl64_check_parameter "$method" || return $?
+  if [[ -v "$app_wide" && -n "${!app_wide}" ]]; then
+    bl64_dbg_app_show_comments "using $app_wide to set INST64_SYSTEM_WIDE"
+    INST64_SYSTEM_WIDE="${!app_wide}"
+  fi
+
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
+      bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to NO'
+      INST64_SYSTEM_WIDE='NO'
+    elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
+      bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to YES'
+      INST64_SYSTEM_WIDE='YES'
+    elif [[ "${!method}" =~ ^("$INST64_METHOD_BINARY"|"$INST64_METHOD_CUSTOM")$ ]]; then
+      bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to match inst64 or bl64 location'
+      if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
+        INST64_SYSTEM_WIDE='YES'
+      else
+        INST64_SYSTEM_WIDE='NO'
+      fi
+    fi
+  fi
+
+  if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
+    bl64_check_alert_parameter_invalid 'INST64_SYSTEM_WIDE' 'installer method requires explicit declaration of installation type. Set it and try again.'
+    return $?
+  fi
+
+  if [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL")$ ]]; then
+    inst64_lib_type_check_system_wide ||
+      return $?
+  elif [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
+    inst64_lib_type_check_user_wide ||
+      return $?
+  fi
+
+  bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
+  return 0
+}
+
+function inst64_lib_type_check_privilege_root() {
+  bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_check_privilege_root ||
+      return $?
+  else
+    return 0
+  fi
+}
+
+function inst64_lib_type_check_privilege_not_root() {
+  bl64_dbg_app_show_function
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_check_privilege_not_root ||
+      return $?
+  else
+    return 0
+  fi
+}
+
+function inst64_lib_type_check_user_wide() {
+  bl64_dbg_app_show_function
+  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_msg_show_error 'app can only be installed user-wide. Set INST64_SYSTEM_WIDE=NO and try again.'
+    return "$BL64_LIB_ERROR_PARAMETER_INVALID"
+  fi
+  return 0
+}
+
+function inst64_lib_type_check_system_wide() {
+  bl64_dbg_app_show_function
+  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
+    bl64_msg_show_error 'app can only be installed system-wide. Set INST64_SYSTEM_WIDE=YES and try again.'
+    return "$BL64_LIB_ERROR_PARAMETER_INVALID"
+  fi
+  return 0
+}

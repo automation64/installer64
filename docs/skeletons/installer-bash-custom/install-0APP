@@ -50,28 +50,28 @@ INST64_CLI_PATH='X_CLI_CUSTOM_PATH_X'
 #
 
 function my_prepare() {
-  inst64_lib_step_prepare || return 0
+  inst64_lib_show_step_prepare || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_PREPARE_PLACEHOLDER_X
   fi
 }
 
 function my_install() {
-  inst64_lib_step_install || return 0
+  inst64_lib_show_step_install || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_INSTALL_PLACEHOLDER_X
   fi
 }
 
 function my_setup() {
-  inst64_lib_step_setup || return 0
+  inst64_lib_show_step_setup || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SETUP_PLACEHOLDER_X
   fi
 }
 
 function my_verify() {
-  inst64_lib_step_verify || return 0
+  inst64_lib_show_step_verify || return 0
   # X_VERIFY_PLACEHOLDER_X
 }
 
@@ -85,11 +85,11 @@ function my_select_packages() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
-  inst64_lib_package_check_definition
+  inst64_lib_base_check_package
 }
 
 function my_initialize() {
-  inst64_lib_base_initialize &&
+  inst64_lib_base_setup &&
     inst64_lib_method_check "$INST64_METHOD_CUSTOM" ||
     return $?
 
@@ -107,10 +107,10 @@ function my_initialize() {
 # Main
 #
 
-inst64_lib_task_process_start &&
+inst64_lib_show_task_process_start &&
   my_initialize &&
   my_prepare &&
   my_install &&
   my_setup &&
   my_verify
-inst64_lib_task_process_finish $?
+inst64_lib_show_task_process_finish $?

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+function inst64_lib_verify_check_installed() {
+  bl64_dbg_app_show_function
+  local app_target="INST64_${INST64_APP_ID}_TARGET"
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
+
+  if [[ ! -v "$app_target" || ! -v "$app_version" ]]; then
+    bl64_dbg_app_show_comments 'check is not performed for methods that do not use TARGET or VERSION. Assume new install'
+    return 1
+  fi
+
+  INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
+  if [[ -f "$INST64_STATUS_PATH" ]]; then
+    if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
+      if ! bl64_lib_flag_is_enabled "$INST64_REPLACE_INSTALLED"; then
+        bl64_msg_show_warning "application already installed. No further action will be taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
+        INST64_STATUS_FLAG='SKIP'
+        return 0
+      fi
+    fi
+  fi
+
+  bl64_dbg_app_show_comments 'No previous installation found. Assume new install'
+  return 1
+}
+
+function inst64_lib_verify_register_version() {
+  bl64_dbg_app_show_function
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
+  bl64_msg_show_task 'register application version'
+  bl64_check_parameter 'INST64_STATUS_MODE' &&
+    bl64_check_parameter 'INST64_STATUS_PATH' &&
+    bl64_check_parameter "$app_version" &&
+    bl64_fs_file_remove "$INST64_STATUS_PATH" &&
+    bl64_fs_file_create "$INST64_STATUS_PATH" "$INST64_STATUS_MODE" &&
+    echo "${!app_version}" >"$INST64_STATUS_PATH"
+}

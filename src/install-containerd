@@ -35,8 +35,7 @@ source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
-source "${BL64_SCRIPT_PATH}/lib-bl64" ||
-  { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
+source "${BL64_SCRIPT_PATH}/lib-bl64"
 
 #
 # Globals
@@ -54,33 +53,64 @@ INST64_APP_NAME='containerd'
 INST64_APP_ID='CONTAINERD'
 INST64_APP_FULL_NAME='ContainerD - OCI-compliant runtime'
 INST64_CLI_NAME='ctr'
-INST64_APP_DOC_SETUP='https://containerd.io/docs/2.2/getting-started'
+INST64_APP_DOC_SETUP='https://containerd.io/docs/main'
+
+INST64_OS_REPO_NAME='docker'
+INST64_OS_SOURCE_YUM='https://download.docker.com/linux/centos'
+INST64_OS_REPO_KEY_YUM='https://download.docker.com/linux/centos/gpg'
 
 #
 # Functions
 #
 
+function my_prepare_repository() {
+  bl64_dbg_app_show_function
+  local repository_url=''
+  local repository_key=''
+  local repository_apt_suite=''
+  local repository_apt_component=''
+
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}/\$releasever/\$basearch/stable"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
+  fi
+
+  inst64_lib_pkg_repo_add \
+    "$repository_url" "$repository_key" \
+    "$repository_apt_suite" "$repository_apt_component"
+}
+
+function my_install_external() {
+  bl64_dbg_app_show_function
+  inst64_lib_pkg_install
+}
+
 function my_prepare() {
   bl64_dbg_app_show_function
-  inst64_lib_step_prepare || return 0
+  inst64_lib_show_step_prepare || return 0
+  if [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    my_prepare_repository
+  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
-  inst64_lib_step_install || return 0
+  inst64_lib_show_step_install || return 0
   if [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
+  elif [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    my_install_external
   fi
 }
 
 function my_setup() {
   bl64_dbg_app_show_function
-  inst64_lib_step_setup || return 0
+  inst64_lib_show_step_setup || return 0
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
-  inst64_lib_step_verify || return 0
+  inst64_lib_show_step_verify || return 0
   "${INST64_CLI_TARGET}" --version
 }
 
@@ -88,20 +118,26 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_EXTERNAL" \
     "$INST64_METHOD_NATIVE" ||
     return $?
   if [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_CONTAINERD_METHOD="$INST64_METHOD_NATIVE"
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_DEBIAN") INST64_CONTAINERD_METHOD="$INST64_METHOD_NATIVE" ;;
+      "$BL64_OS_FLAVOR_REDHAT") INST64_CONTAINERD_METHOD="$INST64_METHOD_EXTERNAL" ;;
+    esac
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  return 0
+  inst64_lib_show_task_select_platform
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
+  inst64_lib_show_task_select_packages
   if [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
@@ -112,19 +148,33 @@ function my_select_packages() {
         ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+  elif [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_REDHAT")
+        bl64_lib_flag_is_enabled "$INST64_CONTAINERD_DEVELOPMENT" &&
+          INST64_PKG_DEV=''
+        INST64_PKG_MAIN='containerd.io'
+        ;;
+    esac
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
-  inst64_lib_package_check_definition
+  inst64_lib_base_check_package
 }
 
 function my_initialize() {
   bl64_dbg_app_show_function
   my_select_method &&
-    inst64_lib_base_initialize ||
+    inst64_lib_base_setup ||
     return $?
 
   if [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_DEBIAN" ||
+      return $?
+  elif [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 
@@ -139,8 +189,8 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
-inst64_lib_base_set_verbosity
+bl64_lib_script_version_set '1.1.0'
+inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
   my_prepare &&
