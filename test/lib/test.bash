@@ -86,3 +86,7 @@ fi
 if [[ -n "$INST64_BASHLIB64" ]]; then
   [[ ! -d "$INST64_BASHLIB64" ]] && echo "error: BASHLIB64 not found (${INST64_BASHLIB64})" && exit 1
 fi
+
+echo "TEST-ENVIRONMENT:
+ => INST64_BASHLIB64=${INST64_BASHLIB64}
+ => INST64_LIB_PATH=${INST64_BASHLIB64}"
