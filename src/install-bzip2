@@ -138,6 +138,12 @@ function my_initialize() {
     my_select_packages ||
     return $?
 
+  if [[ "$INST64_BZIP2_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
+      INST64_CLI_PATH='/bin'
+    fi
+  fi
+
   inst64_lib_base_finalize
 }
 
@@ -145,7 +151,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

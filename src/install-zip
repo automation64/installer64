@@ -122,6 +122,7 @@ function my_initialize() {
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" \
+      "$BL64_OS_FLAVOR_SUSE" \
       "$BL64_OS_FLAVOR_ARCH" ||
       return $?
   fi
@@ -137,7 +138,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
