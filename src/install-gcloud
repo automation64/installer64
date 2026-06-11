@@ -51,6 +51,7 @@ declare INST64_GCLOUD_DEVELOPMENT="${INST64_GCLOUD_DEVELOPMENT:-NO}"
 INST64_APP_NAME='gcloud'
 INST64_APP_ID='GCLOUD'
 INST64_APP_FULL_NAME='GCloud CLI'
+INST64_APP_DOC_INSTALL='https://docs.cloud.google.com/sdk/docs/install-sdk'
 # CLI information
 INST64_CLI_NAME='gcloud'
 
@@ -74,15 +75,32 @@ function my_prepare_repository() {
   local repository_apt_suite=''
   local repository_apt_component=''
 
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-    repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPO_KEY_APT"
-    repository_apt_suite='cloud-sdk'
-    repository_apt_component='main'
-  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}/cloud-sdk-el9-${INST64_GCLOUD_PLATFORM}"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  fi
+  # shellcheck disable=SC2249
+  case "$BL64_OS_FLAVOR" in
+    "$BL64_OS_FLAVOR_DEBIAN")
+      repository_url="${INST64_OS_SOURCE_APT}"
+      repository_key="$INST64_OS_REPO_KEY_APT"
+      repository_apt_suite='cloud-sdk'
+      repository_apt_component='main'
+      ;;
+    "$BL64_OS_FLAVOR_FEDORA")
+      repository_url="${INST64_OS_SOURCE_YUM}/cloud-sdk-el9-${INST64_GCLOUD_PLATFORM}"
+      repository_key="$INST64_OS_REPO_KEY_YUM"
+      ;;
+    "$BL64_OS_FLAVOR_REDHAT")
+      if bl64_os_is_distro \
+        "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
+        "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+        "${BL64_OS_CNT}-7" "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+        "${BL64_OS_OL}-7" "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+        "${BL64_OS_RHEL}-7" "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9"; then
+        repository_url="${INST64_OS_SOURCE_YUM}/cloud-sdk-el9-${INST64_GCLOUD_PLATFORM}"
+      else
+        repository_url="${INST64_OS_SOURCE_YUM}/cloud-sdk-el10-${INST64_GCLOUD_PLATFORM}"
+      fi
+      repository_key="$INST64_OS_REPO_KEY_YUM"
+      ;;
+  esac
 
   inst64_lib_pkg_repo_add \
     "$repository_url" "$repository_key" \
@@ -144,7 +162,7 @@ function my_select_platform() {
   inst64_lib_show_task_select_platform
   if [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      if bl64_os_is_distro "${BL64_OS_OL}-9"; then
+      if bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
         INST64_GCLOUD_PLATFORM="$INST64_CPU_LINUX_AMD64"
       elif bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
         INST64_GCLOUD_PLATFORM="$INST64_CPU_ALL_ALL"
@@ -188,7 +206,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.2.0'
+bl64_lib_script_version_set '3.2.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

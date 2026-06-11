@@ -168,6 +168,11 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
+  if [[ "$INST64_7ZIP_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    inst64_lib_command_check_prereq_exe 'xz' ||
+      return $?
+  fi
+
   my_select_platform &&
     my_select_packages ||
     return $?
@@ -179,7 +184,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
