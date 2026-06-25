@@ -67,7 +67,7 @@ function inst64_lib_custom_normalize() {
   local target="INST64_${INST64_APP_ID}_TARGET"
   bl64_check_parameter "$target" || return $?
 
-  bl64_fs_path_permission_set \
+  bl64_fs_path_set_permissions \
     "$INST64_CLI_MODE" "$BL64_VAR_DEFAULT" \
     "$BL64_VAR_DEFAULT" "$BL64_VAR_DEFAULT" "$BL64_VAR_OFF" \
     "${!target}/${INST64_CLI_SUBPATH}${INST64_CLI_SUBPATH:+/}${INST64_CLI_NAME}"

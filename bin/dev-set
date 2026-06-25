@@ -15,7 +15,7 @@
 # shellcheck disable=SC2034
 {
   # DevSet / Version
-  declare DEV_SET_VERSION='12.0.0'
+  declare DEV_SET_VERSION='12.1.0'
 }
 
 function _dev_set_define_paths() {
@@ -96,6 +96,7 @@ function _dev_set_load_gitlab() {
   # shellcheck disable=SC2155
   DEV_PATH_ROOT="$CI_PROJECT_DIR"
   BL64_LIB_CICD='YES'
+  DEV_BASE_RUNTIME_CURRENT="$DEV_BASE_FLAG_RUN_CONTAINER"
 }
 
 function _dev_set_load_local_post() {
@@ -114,6 +115,7 @@ function _dev_set_load_github() {
   # shellcheck disable=SC2155
   DEV_PATH_ROOT="$GITHUB_WORKSPACE"
   BL64_LIB_CICD='YES'
+  DEV_BASE_RUNTIME_CURRENT="$DEV_BASE_FLAG_RUN_VM"
 
   DEV_BASE_LOCAL="${DEV_PATH_ROOT}/.local-github.env"
   if [[ -r "$DEV_BASE_LOCAL" ]]; then
@@ -128,6 +130,7 @@ function _dev_set_load_testmansh() {
   dev_bin64_msg_show_task 'dev-set' "Info: testmansh container detected, setting project root (${TESTMANSH_PROJECT_ROOT})"
   DEV_PATH_ROOT="$TESTMANSH_PROJECT_ROOT"
   BL64_LIB_CICD='YES'
+  DEV_BASE_RUNTIME_CURRENT="$DEV_BASE_FLAG_RUN_CONTAINER"
 }
 
 # shellcheck disable=SC1090
@@ -204,6 +207,21 @@ function _dev_set_initialize() {
     { dev_bin64_msg_show_error_source "$path_main_env" && return 1; }
 }
 
+function _dev_set_legacy() {
+  local file=''
+
+  file="${DEV_PATH_ROOT}/.env"
+  [[ -f "$file" ]] && dev_bin64_msg_show_legacy 'dev-set' "${file}"
+
+  file="${DEV_PATH_ROOT}/dot.env"
+  [[ -f "$file" ]] && dev_bin64_msg_show_legacy 'dev-set' "${file}"
+
+  file="${DEV_PATH_ROOT}/${DEV_BASE_SECRETS}"
+  [[ -f "$file" ]] && dev_bin64_msg_show_legacy 'dev-set' "${file}"
+
+  return 0
+}
+
 function _dev_set_cleanup() {
 
   dev_bin64_msg_show_task 'dev-set' 'cleanup unused external variables'
@@ -224,21 +242,6 @@ function _dev_set_cleanup() {
   unset _dev_set_load_testmansh
   unset _dev_set_load_workstation
   unset _dev_set_load_github
-}
-
-function _dev_set_legacy() {
-  local file=''
-
-  file="${DEV_PATH_ROOT}/.env"
-  [[ -f "$file" ]] && dev_bin64_msg_show_legacy 'dev-set' "${file}"
-
-  file="${DEV_PATH_ROOT}/dot.env"
-  [[ -f "$file" ]] && dev_bin64_msg_show_legacy 'dev-set' "${file}"
-
-  file="${DEV_PATH_ROOT}/${DEV_BASE_SECRETS}"
-  [[ -f "$file" ]] && dev_bin64_msg_show_legacy 'dev-set' "${file}"
-
-  return 0
 }
 
 # Warning: keep the namespace to avoid source conflicts

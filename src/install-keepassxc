@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-native-1.0.0
+# Template: install-bl64-external-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -68,6 +69,8 @@ function my_install() {
   inst64_lib_show_step_install || return 0
   if [[ "$INST64_KEEPASSXC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
+  elif [[ "$INST64_KEEPASSXC_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    inst64_lib_pkg_install
   fi
 }
 
@@ -79,17 +82,26 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  [[ -x "${INST64_CLI_TARGET}" ]]
+  bl64_check_command "$INST64_CLI_TARGET"
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_EXTERNAL" \
     "$INST64_METHOD_NATIVE" ||
     return $?
   if [[ "$INST64_KEEPASSXC_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_KEEPASSXC_METHOD="$INST64_METHOD_NATIVE"
+    if bl64_os_is_flavor \
+      "$BL64_OS_FLAVOR_ARCH" \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA"; then
+      INST64_KEEPASSXC_METHOD="$INST64_METHOD_NATIVE"
+    elif bl64_os_is_flavor \
+      "$BL64_OS_FLAVOR_REDHAT"; then
+      INST64_KEEPASSXC_METHOD="$INST64_METHOD_EXTERNAL"
+    fi
   fi
 }
 
@@ -116,6 +128,10 @@ function my_select_packages() {
         ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+  elif [[ "$INST64_KEEPASSXC_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    bl64_lib_flag_is_enabled "$INST64_KEEPASSXC_DEVELOPMENT" &&
+      INST64_PKG_DEV=''
+    INST64_PKG_MAIN='keepassxc'
   fi
   inst64_lib_base_check_package
 }
@@ -132,6 +148,11 @@ function my_initialize() {
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_ARCH" ||
       return $?
+  elif [[ "$INST64_KEEPASSXC_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    bl64_os_check_version \
+      "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" "${BL64_OS_OL}-10" &&
+      inst64_lib_base_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
+      return $?
   fi
 
   my_select_platform &&
@@ -145,7 +166,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.2'
+bl64_lib_script_version_set '1.1.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

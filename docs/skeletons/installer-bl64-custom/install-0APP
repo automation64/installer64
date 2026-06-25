@@ -146,7 +146,7 @@ function my_initialize() {
 
   # X_INIT_PLACEHOLDER_X
   # optional # if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-  # optional #   inst64_lib_command_check_prereq_exe 'X_COMMAND_NAME_X'
+  # optional #   inst64_lib_base_check_prereq_exe 'X_COMMAND_NAME_X'
   # optional # fi
 
   my_select_platform &&

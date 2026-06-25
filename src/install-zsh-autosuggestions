@@ -136,8 +136,8 @@ function my_initialize() {
 
   if [[ "$INST64_ZSHAS_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     inst64_lib_type_check_privilege_not_root &&
-      inst64_lib_command_check_prereq_exe 'zsh' &&
-      inst64_lib_command_check_prereq_file 'oh-my-zsh' "${HOME}/.oh-my-zsh/oh-my-zsh.sh" &&
+      inst64_lib_base_check_prereq_exe 'zsh' &&
+      inst64_lib_base_check_prereq_file 'oh-my-zsh' "${HOME}/.oh-my-zsh/oh-my-zsh.sh" &&
       bl64_check_directory "$INST64_ZSHAS_TARGET_THEMES" ||
       return $?
   fi

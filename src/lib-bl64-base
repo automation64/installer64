@@ -114,8 +114,8 @@ function inst64_lib_base_initialize() {
   bl64_msg_set_output "$output" &&
     bl64_msg_set_format "${INST64_VERBOSE:-$format}" &&
     bl64_msg_set_level "$INST64_VERBOSE_LEVEL" &&
-    bl64_msg_help_about_set "Installer tool for: ${INST64_APP_FULL_NAME}" &&
-    bl64_msg_show_about ||
+    bl64_msg_help_set_about "Installer tool for: ${INST64_APP_FULL_NAME}" &&
+    bl64_msg_help_show_about ||
     return $?
 
   if ! bl64_lib_flag_is_enabled "$INST64_STATUS_LEGACY" && [[ $(type -t 'bl64_msg_show_attention') == 'function' ]]; then
@@ -179,4 +179,35 @@ function inst64_lib_base_check_platform() {
   local platform="INST64_${INST64_APP_ID}_PLATFORM"
   [[ -v "$platform" && -n "${!platform}" ]] && return 0
   bl64_os_raise_platform_unsupported
+}
+
+function inst64_lib_base_check_prereq_exe() {
+  bl64_dbg_app_show_function "$@"
+  local command_name="${1:-}"
+
+  bl64_check_parameter 'command_name' ||
+    return $?
+
+  shift
+  if [[ -z "$(bl64_bsh_command_locate_user "$command_name" "$@")" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
+}
+
+function inst64_lib_base_check_prereq_file() {
+  bl64_dbg_app_show_function "$@"
+  local file_about="${1:-}"
+  local file_path="${2:-}"
+
+  bl64_check_parameter 'file_about' &&
+    bl64_check_parameter 'file_path' ||
+    return $?
+
+  if [[ ! -r "$file_path" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required file. Install it and try again (file: ${file_about})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
 }

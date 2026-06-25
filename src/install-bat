@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-binary-1.1.0
+# Template: install-bl64-external-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,7 +22,9 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
@@ -98,6 +101,8 @@ function my_install() {
   inst64_lib_show_step_install || return 0
   if [[ "$INST64_BAT_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
+  elif [[ "$INST64_BAT_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    inst64_lib_pkg_install
   fi
 }
 
@@ -126,7 +131,11 @@ function my_select_method() {
     "$INST64_METHOD_BINARY" ||
     return $?
   if [[ "$INST64_BAT_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_BAT_METHOD="$INST64_METHOD_BINARY"
+    if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+      INST64_BAT_METHOD="$INST64_METHOD_EXTERNAL"
+    else
+      INST64_BAT_METHOD="$INST64_METHOD_BINARY"
+    fi
   fi
 }
 
@@ -162,6 +171,8 @@ function my_select_packages() {
         return $?
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_BAT_VERSION}-${INST64_BAT_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
+  elif [[ "$INST64_BAT_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    INST64_PKG_MAIN='bat'
   fi
   inst64_lib_base_check_package
 }
@@ -172,6 +183,12 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
+  if [[ "$INST64_BAT_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    bl64_os_check_version \
+      "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" "${BL64_OS_OL}-10" &&
+      inst64_lib_base_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
+      return $?
+  fi
   my_select_platform &&
     my_select_packages ||
     return $?
@@ -183,7 +200,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.2.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
