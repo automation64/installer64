@@ -41,7 +41,7 @@ function inst64_lib_type_set() {
   fi
 
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    bl64_check_alert_parameter_invalid 'INST64_SYSTEM_WIDE' 'installer method requires explicit declaration of installation type. Set it and try again.'
+    bl64_check_rise_parameter_invalid 'INST64_SYSTEM_WIDE' 'installer method requires explicit declaration of installation type. Set it and try again.'
     return $?
   fi
 

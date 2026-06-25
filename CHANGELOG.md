@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.0]
+
+### Added
+
+- Installers
+  - Repo EPEL
+  - Tilix
+  - LSOF
+  - JQ
+  - Bash-Completion
+  - Molecule
+
+### Changed
+
+- Installer64: **breaking-change** Upgraded minimum BashLib64 version requirement to v23.3.1
+- KeePassXC: added OEL
+- Kitty: added OEL
+- BTop: added OEL
+- BAT: added OEL
+- FD: added OEL
+- FZF: added OEL
+- LNav: added OEL
+- Zoxide: added OEL
+- NeoVIM: added OEL
+- NodeJS: added OEL
+- GO: added OEL
+- YAMLLint: added UV,PIPX,PIP
+
 ## [10.0.2]
 
 ### Changed

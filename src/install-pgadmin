@@ -80,7 +80,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  [[ -x "${INST64_CLI_TARGET}" ]]
+  bl64_check_command "$INST64_CLI_TARGET"
 }
 
 function my_select_method() {

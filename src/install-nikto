@@ -139,7 +139,7 @@ function my_initialize() {
     return $?
 
   if [[ "$INST64_NIKTO_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-    inst64_lib_command_check_prereq_exe 'perl' &&
+    inst64_lib_base_check_prereq_exe 'perl' &&
       bl64_arc_setup ||
       return $?
   fi

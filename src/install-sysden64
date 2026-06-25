@@ -111,7 +111,7 @@ function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
   [[ -d "$INST64_SYSDEN64_TARGET" ]] &&
-    [[ -x "${INST64_CLI_TARGET}" ]] ||
+    bl64_check_command "$INST64_CLI_TARGET" ||
     return $?
   if [[ "$INST64_SYSDEN64_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_verify_register_version

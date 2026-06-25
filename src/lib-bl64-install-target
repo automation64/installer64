@@ -70,7 +70,7 @@ function inst64_lib_target_normalize() {
   bl64_dbg_app_show_function
   local target="INST64_${INST64_APP_ID}_TARGET"
   if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_fs_path_permission_set \
+    bl64_fs_path_set_permissions \
       "$INST64_TARGET_MODE_FILE" "$INST64_TARGET_MODE_DIR" \
       "$INST64_TARGET_OWNER" "$INST64_TARGET_GROUP" \
       "$BL64_VAR_ON" \

@@ -70,7 +70,7 @@ function my_initialize() {
   bl64_dbg_app_show_function
   bl64_msg_show_about
   bl64_arc_setup &&
-    dev_bin64_build_setup "$DEV_PACK_PROJECT_PATH_TARGET" "$DEV_PACK_PROJECT_PATH_STAGING" &&
+    dev_base_build_setup "$DEV_PACK_PROJECT_PATH_TARGET" "$DEV_PACK_PROJECT_PATH_STAGING" &&
     bl64_check_export 'DEV_PACK_PROJECT_BUNDLE' &&
     bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
       'DEV_BUILD_PROJECT_PATH_OUTPUT' \
@@ -78,9 +78,9 @@ function my_initialize() {
       'DEV_PACK_PROJECT_BUNDLE'
 }
 
-bl64_lib_script_version_set '2.1.0'
+bl64_lib_script_version_set '2.1.1'
 bl64_msg_help_about_set 'Pack application for release'
-dev_bin64_initialize && my_initialize || exit $?
+dev_base_initialize && my_initialize || exit $?
 
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_pack
