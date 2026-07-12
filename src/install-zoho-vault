@@ -163,6 +163,12 @@ function my_initialize() {
   if [[ "$INST64_ZOHOVAULT_METHOD" == "$INST64_METHOD_BINARY" ]]; then
 
     bl64_os_check_not_version \
+      "${BL64_OS_UB}-18" \
+      "${BL64_OS_UB}-19" \
+      "${BL64_OS_UB}-20" \
+      "${BL64_OS_UB}-21" \
+      "${BL64_OS_UB}-22" \
+      "${BL64_OS_UB}-23" \
       "${BL64_OS_UB}-24" \
       "${BL64_OS_UB}-25" ||
       return $?
@@ -179,7 +185,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

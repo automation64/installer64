@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-native-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -80,11 +80,6 @@ function my_prepare_repository() {
     "$repository_apt_suite" "$repository_apt_component"
 }
 
-function my_install_external() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
@@ -99,7 +94,7 @@ function my_install() {
   if [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   elif [[ "$INST64_CONTAINERD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_install_external
+    inst64_lib_pkg_install
   fi
 }
 
@@ -189,7 +184,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

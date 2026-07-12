@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.0.0
+# Template: install-bl64-external-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -58,11 +58,6 @@ INST64_CLI_NAME='tilix'
 # Functions
 #
 
-function my_install_external() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
@@ -72,7 +67,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
   if [[ "$INST64_TILIX_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_install_external
+    inst64_lib_pkg_install
   fi
 }
 
@@ -136,7 +131,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

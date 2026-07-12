@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-native-1.0.0
+# Template: install-bl64-external-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -43,13 +44,12 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 
 # Installation method
 declare INST64_REPOEPEL_METHOD="${INST64_REPOEPEL_METHOD:-AUTO}"
-# Enable development packages?
-declare INST64_REPOEPEL_DEVELOPMENT="${INST64_REPOEPEL_DEVELOPMENT:-NO}"
 
 # App information
 INST64_APP_NAME='repoepel'
 INST64_APP_ID='REPOEPEL'
-INST64_APP_FULL_NAME='Repo EPEL - Extra Packages for Enterprise Linux'
+INST64_APP_FULL_NAME='EPEL - Fedora Packages for Enterprise Linux'
+INST64_APP_DOC_INSTALL='https://docs.fedoraproject.org/en-US/epel/getting-started/'
 
 #
 # Functions
@@ -64,6 +64,8 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
   if [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    inst64_lib_pkg_install
+  elif [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -81,10 +83,19 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_EXTERNAL" \
     "$INST64_METHOD_NATIVE" ||
     return $?
   if [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_REPOEPEL_METHOD="$INST64_METHOD_NATIVE"
+    if bl64_os_is_distro \
+      "${BL64_OS_OL}" \
+      "${BL64_OS_ALM}" \
+      "${BL64_OS_RCK}" \
+      "${BL64_OS_CNT}"; then
+      INST64_REPOEPEL_METHOD="$INST64_METHOD_NATIVE"
+    else
+      INST64_REPOEPEL_METHOD="$INST64_METHOD_EXTERNAL"
+    fi
   fi
 }
 
@@ -96,12 +107,19 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
+  # shellcheck disable=SC2249
   if [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    # shellcheck disable=SC2249
     case "$BL64_OS_DISTRO" in
       "${BL64_OS_OL}"-8.*) INST64_PKG_MAIN='oracle-epel-release-el8' ;;
       "${BL64_OS_OL}"-9.*) INST64_PKG_MAIN='oracle-epel-release-el9' ;;
       "${BL64_OS_OL}"-10.*) INST64_PKG_MAIN='oracle-epel-release-el10' ;;
+      "${BL64_OS_ALM}"-* | "${BL64_OS_RCK}"-* | "${BL64_OS_CNT}"-*) INST64_PKG_MAIN='epel-release' ;;
+    esac
+  elif [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    case "$BL64_OS_DISTRO" in
+      "${BL64_OS_RHEL}"-8.*) INST64_PKG_MAIN='https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm' ;;
+      "${BL64_OS_RHEL}"-9.*) INST64_PKG_MAIN='https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm' ;;
+      "${BL64_OS_RHEL}"-10.*) INST64_PKG_MAIN='https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm' ;;
     esac
   fi
   inst64_lib_base_check_package
@@ -117,6 +135,10 @@ function my_initialize() {
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
+  elif [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    bl64_os_check_version \
+      "$BL64_OS_RHEL" ||
+      return $?
   fi
 
   my_select_platform &&
@@ -130,7 +152,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.1.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

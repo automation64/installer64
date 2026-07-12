@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.0.0
+# Template: install-bl64-external-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,17 +42,22 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_PROTONVPN_METHOD="${INST64_PROTONVPN_METHOD:-AUTO}"
+declare INST64_REPOHPSPP12_METHOD="${INST64_REPOHPSPP12_METHOD:-AUTO}"
 # Application version
-declare INST64_PROTONVPN_VERSION="${INST64_PROTONVPN_VERSION:-latest}"
-# Enable development packages?
-declare INST64_PROTONVPN_DEVELOPMENT="${INST64_PROTONVPN_DEVELOPMENT:-NO}"
+declare INST64_REPOHPSPP12_VERSION="${INST64_REPOHPSPP12_VERSION:-current}"
+# Hardware architecture
+declare INST64_REPOHPSPP12_PLATFORM="${INST64_REPOHPSPP12_PLATFORM:-}"
 
 # App information
-INST64_APP_NAME='protonvpn'
-INST64_APP_ID='PROTONVPN'
-INST64_APP_FULL_NAME='ProtonVPN - Secure VPN Service'
-INST64_CLI_NAME='protonvpn-cli'
+INST64_APP_NAME='repohpspp12'
+INST64_APP_ID='REPOHPSPP12'
+INST64_APP_FULL_NAME='HP SPP - External Linux RPM repository for HP Service Pack ProLiant Gen12'
+INST64_APP_DOC_INSTALL='https://downloads.linux.hpe.com/sdr/project/spp/'
+
+INST64_OS_REPO_NAME='hp-spp-12'
+INST64_OS_SOURCE_YUM='https://downloads.linux.hpe.com/repo'
+INST64_OS_REPO_KEY_YUM='https://downloads.linux.hpe.com/repo/spp/GPG-KEY-spp,https://downloads.linux.hpe.com/repo/spp/GPG-KEY2-spp'
+INST64_CPU_LINUX_AMD64='x86_64'
 
 #
 # Functions
@@ -60,32 +65,22 @@ INST64_CLI_NAME='protonvpn-cli'
 
 function my_prepare_repository() {
   bl64_dbg_app_show_function
-  local current_package="$INST64_PKG_MAIN"
+  local repository_url=''
+  local repository_key=''
 
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-    INST64_PKG_MAIN='protonvpn-stable-release_1.0.8_all.deb'
-    INST64_WEB_REPO_URL='https://repo.protonvpn.com'
-    INST64_WEB_REPO_PATH="debian/dists/stable/main/binary-all"
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}/spp-gen12/redhat/${BL64_OS_DISTRO##*-}/${INST64_REPOHPSPP12_PLATFORM}/${INST64_REPOHPSPP12_VERSION}"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
-  inst64_lib_staging_create &&
-    inst64_lib_custom_web_get_file &&
-    inst64_lib_pkg_install_file ||
-    return $?
-
-  INST64_PKG_MAIN="$current_package"
-  inst64_lib_staging_remove
-}
-
-function my_install_external() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
+  inst64_lib_pkg_repo_add \
+    "$repository_url" "$repository_key"
 }
 
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_PROTONVPN_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOHPSPP12_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     my_prepare_repository
   fi
 }
@@ -93,9 +88,6 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_PROTONVPN_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_install_external
-  fi
 }
 
 function my_setup() {
@@ -105,7 +97,6 @@ function my_setup() {
 
 function my_verify() {
   bl64_dbg_app_show_function
-  inst64_lib_show_step_verify || return 0
 }
 
 function my_select_method() {
@@ -114,31 +105,25 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_EXTERNAL" ||
     return $?
-  if [[ "$INST64_PROTONVPN_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_PROTONVPN_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_REPOHPSPP12_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_REPOHPSPP12_METHOD="$INST64_METHOD_EXTERNAL"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
+  if [[ "$INST64_REPOHPSPP12_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+      INST64_REPOHPSPP12_PLATFORM="$INST64_CPU_LINUX_AMD64"
+    fi
+    inst64_lib_base_check_platform
+  fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_PROTONVPN_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_DEBIAN")
-        bl64_lib_flag_is_enabled "$INST64_PROTONVPN_DEVELOPMENT" &&
-          INST64_PKG_DEV=''
-        INST64_PKG_MAIN='proton-vpn-gnome-desktop'
-        ;;
-    esac
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
-  fi
-  inst64_lib_base_check_package
 }
 
 function my_initialize() {
@@ -147,9 +132,9 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_PROTONVPN_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOHPSPP12_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" ||
+      "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
 
@@ -164,7 +149,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

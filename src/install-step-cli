@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Template: install-bl64-binary-1.1.0
-# Template: install-bl64-external-1.0.0
+# Template: install-bl64-external-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -110,11 +110,6 @@ function my_install_binary() {
   inst64_lib_staging_remove
 }
 
-function my_install_external() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
@@ -132,7 +127,7 @@ function my_install() {
   if [[ "$INST64_STEPCLI_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
   elif [[ "$INST64_STEPCLI_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_install_external
+    inst64_lib_pkg_install
   fi
 }
 
@@ -234,7 +229,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
