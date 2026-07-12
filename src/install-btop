@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Template: install-bl64-native-1.0.0
 # Template: install-bl64-binary-1.1.0
-# Template: install-bl64-external-1.0.0
+# Template: install-bl64-external-1.1.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -136,6 +136,7 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
+    "$INST64_METHOD_EXTERNAL" \
     "$INST64_METHOD_BINARY" \
     "$INST64_METHOD_NATIVE" ||
     return $?
@@ -228,7 +229,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.3.0'
+bl64_lib_script_version_set '2.3.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

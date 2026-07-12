@@ -178,9 +178,12 @@ function my_initialize() {
 
   if [[ "$INST64_YAZI_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     bl64_os_check_not_version \
-      "${BL64_OS_ALM}-9" \
-      "${BL64_OS_RCK}-9" \
-      "${BL64_OS_OL}-9" ||
+      "${BL64-OS-OL}-7" "${BL64-OS-CNT}-7" \
+      "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
+      "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+      "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+      "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+      "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" ||
       return $?
   fi
 
@@ -195,7 +198,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.1.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

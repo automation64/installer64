@@ -1,0 +1,49 @@
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:compact-bar"
+        }
+        children
+        pane size=1 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+    tab name="RHEL" focus=true {
+        pane split_direction="vertical" {
+            pane split_direction="horizontal" {
+                pane name="centos-7" command="./bin/dev-lab-bash" { args "bash-test/centos-7-bash-test"; }
+                pane name="oraclelinux-8" command="./bin/dev-lab-bash" { args "bash-test/oraclelinux-8-bash-test"; }
+                pane name="oraclelinux-9" command="./bin/dev-lab-bash" { args "bash-test/oraclelinux-9-bash-test"; }
+            }
+            pane split_direction="horizontal" {
+                pane name="rhel-10" command="./bin/dev-lab-bash" { args "bash-test/rhel-10-bash-test"; }
+                pane name="fedora-43" command="./bin/dev-lab-bash" { args "bash-test/fedora-43-bash-test"; }
+                pane name="almalinux-9" command="./bin/dev-lab-bash" { args "bash-test/almalinux-9-bash-test"; }
+            }
+        }
+    }
+    tab name="DEB" {
+        pane split_direction="vertical" {
+            pane split_direction="horizontal" {
+                pane name="debian-10" command="./bin/dev-lab-bash" { args "bash-test/debian-10-bash-test"; }
+                pane name="ubuntu-22.4" command="./bin/dev-lab-bash" { args "bash-test/ubuntu-22.4-bash-test"; }
+            }
+            pane split_direction="horizontal" {
+                pane name="ubuntu-24.4" command="./bin/dev-lab-bash" { args "bash-test/ubuntu-24.4-bash-test"; }
+                pane name="ubuntu-26.4" command="./bin/dev-lab-bash" { args "bash-test/ubuntu-26.4-bash-test"; }
+            }
+        }
+    }
+    tab name="OTHER" {
+        pane split_direction="vertical" {
+            pane split_direction="horizontal" {
+                pane name="alpine-3" command="./bin/dev-lab-bash" { args "bash-test/alpine-3-bash-test"; }
+                pane name="alpine-3.22" command="./bin/dev-lab-bash" { args "bash-test/alpine-3.22-bash-test"; }
+            }
+            pane split_direction="horizontal" {
+                pane name="sles-15" command="./bin/dev-lab-bash" { args "bash-test/sles-15-bash-test"; }
+                pane name="sles-16" command="./bin/dev-lab-bash" { args "bash-test/sles-16-bash-test"; }
+            }
+        }
+    }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.0.0
+# Template: install-bl64-external-1.1.0
 # Template: install-bl64-aur-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
@@ -108,11 +108,6 @@ function my_prepare_repository() {
     "$repository_apt_suite" "$repository_apt_component"
 }
 
-function my_install_external() {
-  bl64_dbg_app_show_function
-  inst64_lib_pkg_install
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
@@ -125,7 +120,7 @@ function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
   if [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_install_external
+    inst64_lib_pkg_install
   elif [[ "$INST64_GCLOUD_METHOD" == "$INST64_METHOD_AUR" ]]; then
     inst64_lib_aur_install_yay
   fi

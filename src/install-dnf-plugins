@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.1.0
 # Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
@@ -43,66 +42,28 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_DOCKER_METHOD="${INST64_DOCKER_METHOD:-AUTO}"
-# Application version
-declare INST64_DOCKER_VERSION="${INST64_DOCKER_VERSION:-latest}"
+declare INST64_DNFPLUGINS_METHOD="${INST64_DNFPLUGINS_METHOD:-AUTO}"
 # Enable development packages?
-declare INST64_DOCKER_DEVELOPMENT="${INST64_DOCKER_DEVELOPMENT:-NO}"
+declare INST64_DNFPLUGINS_DEVELOPMENT="${INST64_DNFPLUGINS_DEVELOPMENT:-NO}"
 
-INST64_APP_NAME='docker'
-INST64_APP_ID='DOCKER'
-INST64_APP_FULL_NAME='Docker - Container Engine'
-INST64_CLI_NAME='docker'
-
-INST64_OS_REPO_NAME='docker-ce'
-INST64_OS_SOURCE_YUM='https://download.docker.com/linux'
-INST64_OS_SOURCE_APT='https://download.docker.com/linux/ubuntu'
-INST64_OS_REPO_KEY_YUM='https://download.docker.com/linux/fedora/gpg'
-INST64_OS_REPO_KEY_APT='https://download.docker.com/linux/ubuntu/gpg'
+# App information
+INST64_APP_NAME='dnfplugins'
+INST64_APP_ID='DNFPLUGINS'
+INST64_APP_FULL_NAME='DNF Plugins'
 
 #
 # Functions
 #
 
-function my_prepare_repository() {
-  bl64_dbg_app_show_function
-  local repository_url=''
-  local repository_key=''
-  local repository_apt_suite=''
-  local repository_apt_component=''
-
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-    repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPO_KEY_APT"
-    repository_apt_suite='mantic'
-    repository_apt_component='stable'
-  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA"; then
-    repository_url="${INST64_OS_SOURCE_YUM}/fedora/\$releasever/\$basearch/stable"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}/rhel/\$releasever/\$basearch/stable"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  fi
-
-  inst64_lib_pkg_repo_add \
-    "$repository_url" "$repository_key" \
-    "$repository_apt_suite" "$repository_apt_component"
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_prepare_repository
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    inst64_lib_pkg_install
-  elif [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -115,22 +76,16 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_NATIVE" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
-      INST64_DOCKER_METHOD="$INST64_METHOD_NATIVE"
-    else
-      INST64_DOCKER_METHOD="$INST64_METHOD_EXTERNAL"
-    fi
+  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_DNFPLUGINS_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -142,16 +97,8 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    # shellcheck disable=SC2249
-    case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_ARCH") INST64_PKG_MAIN='docker extra/docker-buildx extra/docker-compose' ;;
-    esac
-  elif [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_DOCKER_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
-    INST64_PKG_MAIN='docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    INST64_PKG_MAIN='dnf-plugins-core.noarch'
   fi
   inst64_lib_base_check_package
 }
@@ -162,15 +109,8 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ARCH" ||
-      return $?
-  elif [[ "$INST64_DOCKER_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_ARCH" \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
@@ -186,7 +126,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '3.0.2'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
