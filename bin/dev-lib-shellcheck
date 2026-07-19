@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# template-lib-inst64: 1.4.0
+# template-lib-inst64: 2.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,13 +21,12 @@ function my_download() {
   bl64_dbg_app_show_function
   bl64_lib_flag_is_enabled "$DEV_LIB_SHELLCHECK_SKIP" && return 0
   INST64_SHELLCHECK_TARGET="$DEV_LIB_SHELLCHECK_TARGET" \
-    "${DEV_LIB_SHELLCHECK_INSTALLER}"
+    dev_base_lib_install "$DEV_LIB_SHELLCHECK_INSTALLER"
 }
 
 function my_initialize() {
   bl64_dbg_app_show_function
-  dev_base_task_initialize &&
-    bl64_check_file "$DEV_LIB_SHELLCHECK_INSTALLER"
+  dev_base_task_initialize
 }
 
 bl64_lib_script_version_set '1.0.4'

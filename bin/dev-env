@@ -22,7 +22,9 @@
 # shellcheck disable=SC2154
 {
   # Env / DevBin64 / Current version
-  export DEV_BIN64_VERSION='15.0.0'
+  export DEV_BIN64_VERSION='16.0.0'
+  # Env / DevBin64 / Minimum BashLib64 version
+  export DEV_BASE_BASHLIB64='23.4.0'
 
   # Env / DevBin64 / Base file and directory names
   export DEV_BASE_BUILD='build'
@@ -46,6 +48,9 @@
 
   # Env / DevBin64 / Suffixes
   export DEV_BASE_SUFFIX_CHECKSUM='-checksums.txt'
+  export DEV_BASE_SUFFIX_LOG='.log'
+  export DEV_BASE_SUFFIX_STDOUT='.stdout'
+  export DEV_BASE_SUFFIX_STDERR='.stderr'
 
   # Env / DevBin64 / Task run mode
   export DEV_BASE_FLAG_RUN_LOCAL='LOCAL'         # Local dev env
@@ -135,6 +140,10 @@
 
   # Env / DevBin64 / Target run mode
   export DEV_BASE_RUNTIME_TARGET="${DEV_BASE_RUNTIME_TARGET:-$DEV_BASE_FLAG_RUN_AUTO}"
+
+  # Env / DevBin64 / AT64 tools
+  export DEV_PATH_LIB_INSTALLER64="${DEV_PATH_LIB_INSTALLER64:-}"
+  export DEV_PATH_LIB_BASHLIB64="${DEV_PATH_LIB_BASHLIB64:-}"
 }
 
 #
@@ -146,7 +155,7 @@
 # shellcheck disable=SC2154
 {
   # Env / DevBin64 / BashLib64 debugging
-  export BL64_LIB_CICD="${BL64_LIB_CICD:-ON}"
+  export BL64_LIB_CICD="${BL64_LIB_CICD:-}"
 
   # Env / DevBin64 / GitHub Actions. Managed by the runner
   export GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-}"
@@ -163,6 +172,19 @@
 #
 # * Shared functions for all modules
 #
+
+function dev_base_lib_install() {
+  bl64_dbg_app_show_function "$@"
+  local tool_id="${1:-}"
+  bl64_check_parameter 'tool_id' &&
+    bl64_check_command "${DEV_PATH_LIB_INSTALLER64}/install-${tool_id}" &&
+    INST64_LIB_PATH="$DEV_PATH_LIB_INSTALLER64" \
+      INST64_SYSTEM_WIDE='NO' \
+      INST64_CLI_PROMOTE='NO' \
+      INST64_INSTALLER64_TARGET="$DEV_PATH_LIB_INSTALLER64" \
+      INST64_BASHLIB64="$DEV_PATH_LIB_BASHLIB64" \
+      "${DEV_PATH_LIB_INSTALLER64}/install-${tool_id}"
+}
 
 function dev_base_lib_check_command() {
   bl64_dbg_app_show_function "$@"
@@ -395,7 +417,8 @@ function dev_base_task_initialize() {
 function dev_base_task_show_setup() {
   bl64_dbg_app_show_function "$@"
   bl64_dbg_app_show_vars \
-    'DEV_LIB_BASHLIB64_TARGET' \
+    'DEV_PATH_LIB_BASHLIB64' \
+    'DEV_PATH_LIB_INSTALLER64' \
     'DEV_PATH_ROOT' \
     'DEV_PATH_PROF_BUILD' \
     'DEV_PATH_PROF_BUILD_PREPARE' \
@@ -412,14 +435,7 @@ function dev_base_task_show_setup() {
     'DEV_VERBOSE' \
     'DEV_VERBOSE_TYPE' \
     'DEV_PROFILE' \
-    'BL64_LIB_CICD' \
-    'DEV_LIB_BASHLIB64_TARGET' \
-    'DEV_LIB_INSTALLER64_TARGET' \
-    'INST64_LIB_PATH' \
-    'INST64_BASHLIB64' \
-    'INST64_BASHLIB64_TARGET' \
-    'DEV_SET_VERSION' \
-    'BL64_VERSION'
+    'DEV_SET_VERSION'
 
   bl64_msg_show_setup "$BL64_VAR_DEFAULT" \
     'DEV_BIN64_VERSION' \

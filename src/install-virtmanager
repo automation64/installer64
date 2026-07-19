@@ -45,8 +45,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 declare INST64_VIRTMANAGER_METHOD="${INST64_VIRTMANAGER_METHOD:-AUTO}"
 # Application version
 declare INST64_VIRTMANAGER_VERSION="${INST64_VIRTMANAGER_VERSION:-latest}"
-# Enable development packages?
-declare INST64_VIRTMANAGER_DEVELOPMENT="${INST64_VIRTMANAGER_DEVELOPMENT:-NO}"
 
 # App information
 INST64_APP_NAME='virtmanager'
@@ -102,10 +100,7 @@ function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
   if [[ "$INST64_VIRTMANAGER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_VIRTMANAGER_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
     INST64_PKG_MAIN='virt-manager virt-viewer'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_base_check_package
 }
@@ -123,6 +118,15 @@ function my_initialize() {
       "$BL64_OS_FLAVOR_DEBIAN" \
       "$BL64_OS_FLAVOR_ARCH" ||
       return $?
+    if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+      bl64_os_check_version \
+        "${BL64_OS_ALM}-8" "${BL64_OS_ALM}-9" \
+        "${BL64_OS_CNT}-8" "${BL64_OS_CNT}-9" \
+        "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
+        "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
+        "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" ||
+      return $?
+    fi
   fi
 
   my_select_platform &&
@@ -136,7 +140,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

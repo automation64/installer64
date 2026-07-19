@@ -26,7 +26,7 @@
   export DEV_ENV_GITLEAKS_VERSION='1.4.0'
 
   # Lib / GitLeaks / Installer
-  export DEV_LIB_GITLEAKS_INSTALLER="${DEV_LIB_INSTALLER64_TARGET}/install-gitleaks"
+  export DEV_LIB_GITLEAKS_INSTALLER="gitleaks"
   # Lib / GitLeaks / Skip installation?
   export DEV_LIB_GITLEAKS_SKIP='YES'
   # Lib / GitLeaks / Target

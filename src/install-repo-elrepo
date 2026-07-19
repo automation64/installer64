@@ -46,7 +46,7 @@ declare INST64_REPOELREPO_METHOD="${INST64_REPOELREPO_METHOD:-AUTO}"
 
 # App information
 INST64_APP_NAME='repoelrepo'
-INST64_APP_ID='ELREPO'
+INST64_APP_ID='REPOELREPO'
 INST64_APP_FULL_NAME='El Repo - Community supported hardware packages for Enterprise Linux'
 INST64_APP_DOC_INSTALL='https://elrepo.org/wiki/doku.php?id=start'
 
@@ -129,7 +129,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
