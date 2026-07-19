@@ -26,7 +26,7 @@
   export DEV_ENV_ACT_VERSION='1.5.0'
 
   # Lib / Act / Installer
-  export DEV_LIB_ACT_INSTALLER="${DEV_LIB_INSTALLER64_TARGET}/install-act"
+  export DEV_LIB_ACT_INSTALLER="act"
   # Lib / Act / Skip installation?
   export DEV_LIB_ACT_SKIP='YES'
   # Lib / Act / Target

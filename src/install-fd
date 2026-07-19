@@ -176,8 +176,8 @@ function my_initialize() {
     return $?
 
   if [[ "$INST64_FD_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_os_check_version \
-      "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" "${BL64_OS_OL}-10" &&
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_REDHAT" &&
       inst64_lib_base_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
       return $?
   fi
@@ -193,7 +193,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.1'
+bl64_lib_script_version_set '2.2.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

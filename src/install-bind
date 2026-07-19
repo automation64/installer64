@@ -43,8 +43,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 
 # Installation method
 declare INST64_BIND_METHOD="${INST64_BIND_METHOD:-AUTO}"
-# Enable development packages?
-declare INST64_BIND_DEVELOPMENT="${INST64_BIND_DEVELOPMENT:-NO}"
 
 # App information
 INST64_APP_NAME='bind'
@@ -101,12 +99,9 @@ function my_select_packages() {
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
       "$BL64_OS_FLAVOR_REDHAT" | "$BL64_OS_FLAVOR_FEDORA")
-        bl64_lib_flag_is_enabled "$INST64_BIND_DEVELOPMENT" &&
-          INST64_PKG_DEV=''
         INST64_PKG_MAIN='bind'
         ;;
     esac
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_base_check_package
 }
@@ -135,7 +130,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

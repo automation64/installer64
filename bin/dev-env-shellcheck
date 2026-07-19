@@ -26,7 +26,7 @@
   export DEV_ENV_SHELLCHECK_VERSION='2.3.0'
 
   # Lib / ShellCheck / Installer
-  export DEV_LIB_SHELLCHECK_INSTALLER="${DEV_LIB_INSTALLER64_TARGET}/install-shellcheck"
+  export DEV_LIB_SHELLCHECK_INSTALLER="shellcheck"
   # Lib / ShellCheck / Skip installation?
   export DEV_LIB_SHELLCHECK_SKIP='YES'
   # Lib / ShellCheck / Target

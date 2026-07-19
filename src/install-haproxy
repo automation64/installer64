@@ -45,8 +45,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 declare INST64_HAPROXY_METHOD="${INST64_HAPROXY_METHOD:-AUTO}"
 # Application version
 declare INST64_HAPROXY_VERSION="${INST64_HAPROXY_VERSION:-latest}"
-# Enable development packages?
-declare INST64_HAPROXY_DEVELOPMENT="${INST64_HAPROXY_DEVELOPMENT:-NO}"
 
 # App information
 INST64_APP_NAME='haproxy'
@@ -56,7 +54,7 @@ INST64_CLI_NAME='haproxy'
 INST64_APP_DOC_INSTALL='https://www.haproxy.com/downloads'
 
 #
-0# Functions
+# Functions
 #
 
 function my_prepare() {
@@ -101,10 +99,7 @@ function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
   if [[ "$INST64_HAPROXY_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_HAPROXY_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
     INST64_PKG_MAIN='haproxy'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_base_check_package
 }
@@ -137,7 +132,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.0'
+bl64_lib_script_version_set '1.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

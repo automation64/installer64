@@ -99,7 +99,10 @@ function my_select_packages() {
   inst64_lib_show_task_select_packages
   if [[ "$INST64_REPOCRB_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     case "$BL64_OS_DISTRO" in
-      "$BL64_OS_ALM"-8.* | "$BL64_OS_CNT"-8.* | "$BL64_OS_OL"-8.* | "$BL64_OS_RCK"-8.*) INST64_PKG_MAIN='powertools' ;;
+      "$BL64_OS_ALM"-8.* | "$BL64_OS_CNT"-8.* | "$BL64_OS_RCK"-8.*) INST64_PKG_MAIN='powertools' ;;
+      "$BL64_OS_OL"-8.*) INST64_PKG_MAIN='ol8_codeready_builder' ;;
+      "$BL64_OS_OL"-9.*) INST64_PKG_MAIN='ol9_codeready_builder' ;;
+      "$BL64_OS_OL"-10.*) INST64_PKG_MAIN='ol10_codeready_builder' ;;
       *) INST64_PKG_MAIN='crb' ;;
     esac
   fi
@@ -116,6 +119,7 @@ function my_initialize() {
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" &&
       bl64_os_check_not_version \
+        "${BL64-OS-RHEL}" \
         "${BL64-OS-OL}-7" \
         "${BL64-OS-CNT}-7" ||
       return $?
@@ -132,7 +136,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

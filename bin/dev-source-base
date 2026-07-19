@@ -19,21 +19,21 @@
 # * The task can add more modules before this one
 #
 
-source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-ui.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-rbac.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-rnd.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-iam.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-rxtx.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-api.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-vcs.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-arc.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-cnt.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fs.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-txt.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-xsv.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-fmt.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-module-bsh.bash" &&
-  source "${DEV_LIB_BASHLIB64_TARGET}/bashlib64-core.bash" || exit 1
+source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-ui.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-rbac.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-rxtx.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-arc.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-cnt.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-txt.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-fmt.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${DEV_PATH_LIB_BASHLIB64}/bashlib64-core.bash" || exit 1
 
 # shellcheck disable=SC2034
 {

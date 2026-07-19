@@ -111,7 +111,7 @@ function inst64_lib_base_initialize() {
     INST64_STATUS_LEGACY='YES'
   fi
 
-  bl64_msg_set_output "$output" &&
+  bl64_msg_set_output "${INST64_VERBOSE_OUTPUT:-$output}" &&
     bl64_msg_set_format "${INST64_VERBOSE:-$format}" &&
     bl64_msg_set_level "$INST64_VERBOSE_LEVEL" &&
     bl64_msg_help_set_about "Installer tool for: ${INST64_APP_FULL_NAME}" &&

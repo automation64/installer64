@@ -42,16 +42,13 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_SQUID_METHOD="${INST64_SQUID_METHOD:-AUTO}"
-# Application version
-declare INST64_SQUID_VERSION="${INST64_SQUID_VERSION:-latest}"
+declare INST64_CONNTRACK_METHOD="${INST64_CONNTRACK_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='squid'
-INST64_APP_ID='SQUID'
-INST64_APP_FULL_NAME='Squid Cache - Web Caching Proxy'
-# CLI information
-INST64_CLI_NAME='squid'
+INST64_APP_NAME='contrack'
+INST64_APP_ID='CONNTRACK'
+INST64_APP_FULL_NAME='ConTrack - Connection Tracking Tools for Linux NetFilter'
+INST64_CLI_NAME='conntrack'
 
 #
 # Functions
@@ -65,7 +62,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_SQUID_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_CONNTRACK_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -78,6 +75,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
@@ -86,8 +84,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_SQUID_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_SQUID_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_CONNTRACK_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_CONNTRACK_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -99,11 +97,12 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_SQUID_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_CONNTRACK_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_DEBIAN") INST64_PKG_MAIN='squid' ;;
-      "$BL64_OS_FLAVOR_REDHAT") INST64_PKG_MAIN='squid' ;;
+      "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN='conntrack'
+        ;;
     esac
   fi
   inst64_lib_base_check_package
@@ -115,11 +114,11 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_SQUID_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_CONNTRACK_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_REDHAT" \
-      "$BL64_OS_FLAVOR_DEBIAN" ||
+      "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
+    INST64_CLI_TARGET="/usr/sbin/${INST64_CLI_NAME}"
   fi
 
   my_select_platform &&
@@ -133,7 +132,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
