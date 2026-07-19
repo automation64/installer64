@@ -70,7 +70,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # App information
-  declare INST64_APP_NAME=''        # Application name. Format: a-z0-9
+  declare INST64_APP_NAME=''        # Application name. Format: a-z0-9-
   declare INST64_APP_ID=''          # Application ID. Format: A-Z0-9
   declare INST64_APP_FULL_NAME=''   # Application full name
   declare INST64_APP_DOC_SETUP=''   # Optional. Application setup documentation URL
