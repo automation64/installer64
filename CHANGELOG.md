@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Installers
+  - Bind-Utils
   - Distribution
   - ConnTrack
   - GUM
@@ -19,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Consolidated RHEL flavor support
+- Updated OS support
   - Bat
   - BTop
   - FD
@@ -32,6 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - UV
   - VirtManager
   - Zoxide
+  - RClone
+  - ShellCheck
+- Bind
+  - Renamed to Bind-Server
+- ProtonVPN
+  - Proton-VPNCLI
+  - Proton-VPNGUI
 
 ## [11.1.0]
 
