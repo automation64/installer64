@@ -54,6 +54,7 @@ INST64_APP_ID='PODMAN'
 INST64_APP_FULL_NAME='Podman - Container Management Tool'
 # CLI information
 INST64_CLI_NAME='podman'
+INST64_APP_DOC_SETUP='https://podman.io/docs/installation'
 
 #
 # Functions

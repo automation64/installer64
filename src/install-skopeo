@@ -42,14 +42,13 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_DNFPLUGINS_METHOD="${INST64_DNFPLUGINS_METHOD:-AUTO}"
-# Enable development packages?
-declare INST64_DNFPLUGINS_DEVELOPMENT="${INST64_DNFPLUGINS_DEVELOPMENT:-NO}"
+declare INST64_SKOPEO_METHOD="${INST64_SKOPEO_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='dnfplugins'
-INST64_APP_ID='DNFPLUGINS'
-INST64_APP_FULL_NAME='DNF Plugins'
+INST64_APP_NAME='skopeo'
+INST64_APP_ID='SKOPEO'
+INST64_APP_FULL_NAME='Skopeo - Container image manipulation tool'
+INST64_CLI_NAME='skopeo'
 
 #
 # Functions
@@ -63,7 +62,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_SKOPEO_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -76,6 +75,7 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
@@ -84,8 +84,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_DNFPLUGINS_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_SKOPEO_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_SKOPEO_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -97,9 +97,14 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    INST64_PKG_MAIN+=' dnf-plugins-core.noarch'
-    INST64_PKG_MAIN+=' createrepo_c'
+  if [[ "$INST64_SKOPEO_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN='skopeo'
+        ;;
+    esac
+    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_base_check_package
 }
@@ -110,7 +115,7 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_DNFPLUGINS_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_SKOPEO_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
@@ -127,7 +132,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.1.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

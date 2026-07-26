@@ -100,7 +100,7 @@ function my_select_packages() {
     case "$BL64_OS_DISTRO" in
       "${BL64_OS_ALM}"-8.* | "${BL64_OS_RCK}"-8.* | "${BL64_OS_CNT}"-8.* | "${BL64_OS_OL}"-8.* | "${BL64_OS_RHEL}"-8.*) INST64_PKG_MAIN='https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm' ;;
       "${BL64_OS_ALM}"-9.* | "${BL64_OS_RCK}"-9.* | "${BL64_OS_CNT}"-9.* | "${BL64_OS_OL}"-9.* | "${BL64_OS_RHEL}"-9.*) INST64_PKG_MAIN='https://www.elrepo.org/elrepo-release-9.el9.elrepo.noarch.rpm' ;;
-      "${BL64_OS_ALM}"-10.* | "${BL64_OS_RCK}"-10.* | "${BL64_OS_CNT}"-10.* | "${BL64_OS_OL}"-10.* | "${BL64_OS_ORHE}"-10.*) INST64_PKG_MAIN='https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm' ;;
+      "${BL64_OS_ALM}"-10.* | "${BL64_OS_RCK}"-10.* | "${BL64_OS_CNT}"-10.* | "${BL64_OS_OL}"-10.* | "${BL64_OS_RHEL}"-10.*) INST64_PKG_MAIN='https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm' ;;
     esac
   fi
   inst64_lib_base_check_package
@@ -129,7 +129,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.1'
+bl64_lib_script_version_set '1.0.2'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

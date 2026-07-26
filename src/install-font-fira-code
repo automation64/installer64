@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,60 +42,26 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
-# Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
-# Enable development packages?
-declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
+declare INST64_FNTFC_METHOD="${INST64_FNTFC_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
-
-INST64_OS_REPO_NAME=''
-INST64_OS_SOURCE_YUM='X_REPO_URL_X'
-INST64_OS_SOURCE_APT='X_REPO_URL_X'
-INST64_OS_REPO_KEY_YUM='X_KEY_URL_X'
-INST64_OS_REPO_KEY_APT='X_KEY_URL_X'
+INST64_APP_NAME='font-fira-code'
+INST64_APP_ID='FNTFC'
+INST64_APP_FULL_NAME='Fira Code - GUI Font'
 
 #
 # Functions
 #
 
-function my_prepare_repository() {
-  bl64_dbg_app_show_function
-  local repository_url=''
-  local repository_key=''
-  local repository_apt_suite=''
-  local repository_apt_component=''
-
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-    repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPO_KEY_APT"
-  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  fi
-
-  inst64_lib_pkg_repo_add \
-    "$repository_url" "$repository_key" \
-    "$repository_apt_suite" "$repository_apt_component"
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_prepare_repository
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_FNTFC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -108,17 +74,16 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_FNTFC_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_FNTFC_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -130,16 +95,11 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_FNTFC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
-      "$BL64_OS_FLAVOR_X_FLAVOR_X")
-        bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
-          INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
-        INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
-        ;;
+      "$BL64_OS_FLAVOR_ARCH") INST64_PKG_MAIN='ttf-fira-code' ;;
     esac
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_base_check_package
 }
@@ -150,11 +110,9 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_FNTFC_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" ||
+      "$BL64_OS_FLAVOR_ARCH" ||
       return $?
   fi
 

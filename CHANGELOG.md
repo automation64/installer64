@@ -5,17 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.3.0]
+
+### Added
+
+- Installers
+  - Font JetBrains Mono
+  - Font Fira Code
+  - Font Cascadia Code
+  - Font Hack
+  - Skopeo
+
 ## [11.2.0]
 
 ### Added
 
 - Installers
-  - Bind-Utils
+  - Bind Utils
   - Distribution
   - ConnTrack
   - GUM
-  - SELinux-Core
-  - SELinux-Tools
+  - SELinux
   - Man
 
 ### Changed

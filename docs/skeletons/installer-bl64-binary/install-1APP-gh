@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-binary-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -53,11 +53,6 @@ INST64_APP_NAME='X_APP_NAME_X'
 INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
 INST64_CLI_NAME='X_CLI_NAME_X'
-
-INST64_GH_REPO_NAME='X_REPO_NAME_X'
-INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
-INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
-INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
 
 #
 # Functions
@@ -155,6 +150,13 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_setup ||
     return $?
+
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    INST64_GH_REPO_NAME='X_REPO_NAME_X'
+    INST64_GH_REPO_OWNER='X_REPO_OWNER_X'
+    INST64_PKG_MAIN_PREFIX='X_PACKAGE_PREFIX_X'
+    INST64_PKG_MAIN_SUFFIX='X_PACKAGE_SUFFIX_X'
+  fi
 
   my_select_platform &&
     my_select_packages ||
