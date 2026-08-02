@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-bl64-native-1.0.0
+# Template: install-bl64-aur-1.1.0
+#   Skeleton: install-bl64-custom-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,18 +22,13 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64"
@@ -42,14 +38,16 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_REPOCRB_METHOD="${INST64_REPOCRB_METHOD:-AUTO}"
-# Enable development packages?
-declare INST64_REPOCRB_DEVELOPMENT="${INST64_REPOCRB_DEVELOPMENT:-NO}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
+# Application version
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='repocrb'
-INST64_APP_ID='REPOCRB'
-INST64_APP_FULL_NAME='CRB - CodeReady Linux Builder repository'
+INST64_APP_NAME='X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
+
+INST64_CLI_NAME='X_CLI_NAME_X'
 
 #
 # Functions
@@ -63,8 +61,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_REPOCRB_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    bl64_pkg_run_dnf config-manager --set-enabled "$INST64_PKG_MAIN"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    inst64_lib_aur_install_yay
   fi
 }
 
@@ -76,36 +74,31 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
+  "${INST64_CLI_TARGET}" --version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_NATIVE" ||
+    "$INST64_METHOD_AUR" ||
     return $?
-  if [[ "$INST64_REPOCRB_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_REPOCRB_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
+      INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_AUR"
+    fi
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_REPOCRB_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
-    case "$BL64_OS_DISTRO" in
-      "$BL64_OS_ALM"-8.* | "$BL64_OS_CNT"-8.* | "$BL64_OS_RCK"-8.*) INST64_PKG_MAIN='powertools' ;;
-      "$BL64_OS_OL"-8.*) INST64_PKG_MAIN='ol8_codeready_builder' ;;
-      "$BL64_OS_OL"-9.*) INST64_PKG_MAIN='ol9_codeready_builder' ;;
-      "$BL64_OS_OL"-10.*) INST64_PKG_MAIN='ol10_codeready_builder' ;;
-      *) INST64_PKG_MAIN='crb' ;;
-    esac
-  fi
   inst64_lib_base_check_package
 }
 
@@ -115,14 +108,11 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_REPOCRB_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUR" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_REDHAT" &&
-      bl64_os_check_not_version \
-        "${BL64_OS_RHEL}" \
-        "${BL64_OS_OL}-7" \
-        "${BL64_OS_CNT}-7" ||
+      "$BL64_OS_FLAVOR_ARCH" ||
       return $?
+    INST64_PKG_MAIN=''
   fi
 
   my_select_platform &&
@@ -136,7 +126,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.3'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

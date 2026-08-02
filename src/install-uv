@@ -126,7 +126,7 @@ function my_select_method() {
     "$INST64_METHOD_BINARY" ||
     return $?
   if [[ "$INST64_UV_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then 
+    if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
       INST64_UV_METHOD="$INST64_METHOD_EXTERNAL"
     else
       INST64_UV_METHOD="$INST64_METHOD_BINARY"
@@ -178,7 +178,7 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_UV_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_UV_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     INST64_PKG_MAIN_PREFIX='uv-'
     INST64_PKG_MAIN_SUFFIX='.tar.gz'
     INST64_GH_REPO_NAME='uv'
@@ -203,7 +203,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.2.0'
+bl64_lib_script_version_set '2.2.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

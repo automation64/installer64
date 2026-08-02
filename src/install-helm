@@ -53,6 +53,7 @@ INST64_APP_NAME='helm'
 INST64_APP_ID='HELM'
 INST64_APP_FULL_NAME='Helm - Kubernetes package manager'
 INST64_CLI_NAME='helm'
+INST64_APP_DOC_INSTALL='https://helm.sh/docs/intro/install/'
 
 INST64_WEB_REPO_URL='https://get.helm.sh'
 INST64_PKG_MAIN_PREFIX='helm-'

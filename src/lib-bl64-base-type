@@ -24,13 +24,8 @@ function inst64_lib_type_set() {
   fi
 
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
-    if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
-      bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to NO'
-      INST64_SYSTEM_WIDE='NO'
-    elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
-      bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to YES'
-      INST64_SYSTEM_WIDE='YES'
-    elif [[ "${!method}" =~ ^("$INST64_METHOD_BINARY"|"$INST64_METHOD_CUSTOM")$ ]]; then
+    bl64_dbg_app_show_comments 'INST64_SYSTEM_WIDE is not set. Try to assign a default value based on the method'
+    if [[ "${!method}" =~ ^("$INST64_METHOD_BINARY"|"$INST64_METHOD_CUSTOM")$ ]]; then
       bl64_dbg_app_show_comments 'method will set default INST64_SYSTEM_WIDE to match inst64 or bl64 location'
       if [[ -d '/opt/bl64' || -d '/opt/inst64' ]]; then
         INST64_SYSTEM_WIDE='YES'
@@ -38,7 +33,19 @@ function inst64_lib_type_set() {
         INST64_SYSTEM_WIDE='NO'
       fi
     fi
+  else
+    bl64_dbg_app_show_comments 'using user provided INST64_SYSTEM_WIDE'
   fi
+  bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
+
+  if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
+    bl64_dbg_app_show_comments 'overriding value to match method requirement: INST64_SYSTEM_WIDE to NO'
+    INST64_SYSTEM_WIDE='NO'
+  elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
+    bl64_dbg_app_show_comments 'overriding value to match method requirement: INST64_SYSTEM_WIDE to YES'
+    INST64_SYSTEM_WIDE='YES'
+  fi
+  bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
 
   if [[ -z "$INST64_SYSTEM_WIDE" ]]; then
     bl64_check_rise_parameter_invalid 'INST64_SYSTEM_WIDE' 'installer method requires explicit declaration of installation type. Set it and try again.'
@@ -53,28 +60,17 @@ function inst64_lib_type_set() {
       return $?
   fi
 
-  bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
   return 0
 }
 
 function inst64_lib_type_check_privilege_root() {
   bl64_dbg_app_show_function
-  if bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_check_privilege_root ||
-      return $?
-  else
-    return 0
-  fi
+  bl64_check_privilege_root
 }
 
 function inst64_lib_type_check_privilege_not_root() {
   bl64_dbg_app_show_function
-  if ! bl64_lib_flag_is_enabled "$INST64_SYSTEM_WIDE"; then
-    bl64_check_privilege_not_root ||
-      return $?
-  else
-    return 0
-  fi
+  bl64_check_privilege_not_root
 }
 
 function inst64_lib_type_check_user_wide() {

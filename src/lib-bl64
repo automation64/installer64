@@ -155,7 +155,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='2.1.0'
+  readonly INST64_LIB_VERSION_BL64='2.1.1'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.3.1'

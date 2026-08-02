@@ -43,8 +43,6 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 
 # Installation method
 declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
-# Enable development packages?
-declare INST64_X_APP_NAME_CAPS_X_DEVELOPMENT="${INST64_X_APP_NAME_CAPS_X_DEVELOPMENT:-NO}"
 
 # App information
 INST64_APP_NAME='X_APP_NAME_X'
@@ -103,12 +101,9 @@ function my_select_packages() {
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
       "$BL64_OS_FLAVOR_ALPINE")
-        bl64_lib_flag_is_enabled "$INST64_X_APP_NAME_CAPS_X_DEVELOPMENT" &&
-          INST64_PKG_DEV='X_OS_DEV_PACKAGE_LIST_X'
         INST64_PKG_MAIN='X_OS_PACKAGE_LIST_X'
         ;;
     esac
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
   inst64_lib_base_check_package
 }

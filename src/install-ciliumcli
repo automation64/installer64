@@ -53,7 +53,6 @@ INST64_APP_NAME='ciliumcli'
 INST64_APP_ID='CILIUMCLI'
 INST64_APP_FULL_NAME='Cilium CLI'
 INST64_CLI_NAME='cilium'
-INST64_APP_DOC_SETUP='X_DOC_SETUP_URL_X'
 INST64_APP_DOC_INSTALL='https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli'
 
 INST64_GH_REPO_NAME='cilium-cli'

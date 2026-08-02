@@ -42,16 +42,15 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_BPFTRACE_METHOD="${INST64_BPFTRACE_METHOD:-AUTO}"
+declare INST64_OPENSSL_METHOD="${INST64_OPENSSL_METHOD:-AUTO}"
 # Enable development packages?
-declare INST64_BPFTRACE_DEVELOPMENT="${INST64_BPFTRACE_DEVELOPMENT:-NO}"
+declare INST64_OPENSSL_DEVELOPMENT="${INST64_OPENSSL_DEVELOPMENT:-NO}"
 
 # App information
-INST64_APP_NAME='bpftrace'
-INST64_APP_ID='BPFTRACE'
-INST64_APP_FULL_NAME='BPFTrace - eBPF-based general purpose tracing tool'
-INST64_CLI_NAME='bpftrace'
-INST64_APP_DOC_INSTALL='https://github.com/bpftrace/bpftrace'
+INST64_APP_NAME='openssl'
+INST64_APP_ID='OPENSSL'
+INST64_APP_FULL_NAME='OpenSSL - OpenSSL Toolkit'
+INST64_CLI_NAME='openssl'
 
 #
 # Functions
@@ -65,7 +64,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_BPFTRACE_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_OPENSSL_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -87,8 +86,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_BPFTRACE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_BPFTRACE_METHOD="$INST64_METHOD_NATIVE"
+  if [[ "$INST64_OPENSSL_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_OPENSSL_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -100,13 +99,13 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_BPFTRACE_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_OPENSSL_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_FLAVOR" in
       "$BL64_OS_FLAVOR_REDHAT")
-        bl64_lib_flag_is_enabled "$INST64_BPFTRACE_DEVELOPMENT" &&
-          INST64_PKG_DEV=''
-        INST64_PKG_MAIN='bpftrace'
+        bl64_lib_flag_is_enabled "$INST64_OPENSSL_DEVELOPMENT" &&
+          INST64_PKG_DEV='openssl-devel'
+        INST64_PKG_MAIN='openssl'
         ;;
     esac
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
@@ -120,7 +119,7 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_BPFTRACE_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+  if [[ "$INST64_OPENSSL_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
