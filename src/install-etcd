@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-bl64-binary-1.2.0
-# Template: install-bl64-external-1.3.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,9 +21,7 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
@@ -44,50 +41,39 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_KUBECTL_METHOD="${INST64_KUBECTL_METHOD:-AUTO}"
+declare INST64_ETCD_METHOD="${INST64_ETCD_METHOD:-AUTO}"
 # Installation destination
-declare INST64_KUBECTL_TARGET="${INST64_KUBECTL_TARGET:-}"
+declare INST64_ETCD_TARGET="${INST64_ETCD_TARGET:-}"
 # Hardware architecture
-declare INST64_KUBECTL_PLATFORM="${INST64_KUBECTL_PLATFORM:-}"
+declare INST64_ETCD_PLATFORM="${INST64_ETCD_PLATFORM:-}"
 # Application version
-declare INST64_KUBECTL_VERSION="${INST64_KUBECTL_VERSION:-latest}"
+declare INST64_ETCD_VERSION="${INST64_ETCD_VERSION:-latest}"
 
-INST64_APP_NAME='kubectl'
-INST64_APP_ID='KUBECTL'
-INST64_APP_FULL_NAME='KubeCTL - Kubernetes CLI'
-INST64_CLI_NAME='kubectl'
+INST64_APP_NAME='etcd'
+INST64_APP_ID='ETCD'
+INST64_APP_FULL_NAME='ETCD - Distributed Key-Value Store'
+INST64_APP_DOC_INSTALL='https://etcd.io/docs/v3.7/install/'
 
 #
 # Functions
 #
-
-function my_select_packages_version() {
-  bl64_dbg_app_show_function
-  local package_version=''
-  package_version="$(
-    bl64_api_call \
-      "$INST64_WEB_REPO_URL" \
-      '/release/stable.txt' \
-      "$BL64_API_METHOD_GET"
-  )"
-  if [[ -n "$package_version" ]]; then
-    echo "${package_version#v}"
-  else
-    bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
-    return "$BL64_LIB_ERROR_TASK_FAILED"
-  fi
-}
 
 function my_install_binary() {
   bl64_dbg_app_show_function
 
   inst64_lib_show_task_download
   inst64_lib_staging_create &&
-    inst64_lib_custom_web_get_file ||
+    inst64_lib_custom_gh_get_asset &&
+    inst64_lib_staging_open_tar ||
     return $?
 
   inst64_lib_show_task_deploy
   inst64_lib_target_create &&
+    INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_ETCD_VERSION}-${INST64_ETCD_PLATFORM}/${INST64_CLI_NAME_ETCD}" &&
+    inst64_lib_target_populate &&
+    INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_ETCD_VERSION}-${INST64_ETCD_PLATFORM}/${INST64_CLI_NAME_ETCDCTL}" &&
+    inst64_lib_target_populate &&
+    INST64_WORK_PATH_SOURCE="${INST64_PKG_MAIN_PREFIX}${INST64_ETCD_VERSION}-${INST64_ETCD_PLATFORM}/${INST64_CLI_NAME_ETCDUTL}" &&
     inst64_lib_target_populate ||
     return $?
 
@@ -98,7 +84,7 @@ function my_install_binary() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -106,27 +92,28 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
-  elif [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_lib_pkg_install
   fi
 }
 
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_setup || return 0
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_show_task_publish
-    inst64_lib_setup_promote
+    INST64_CLI_NAME="$INST64_CLI_NAME_ETCDUTL" &&
+      inst64_lib_setup_promote &&
+      INST64_CLI_NAME="$INST64_CLI_NAME_ETCDCTL" &&
+      inst64_lib_setup_promote
   fi
 }
 
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" version --client=true || return $?
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  "${INST64_CLI_TARGET}" version || return $?
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_verify_register_version
   fi
 }
@@ -135,27 +122,24 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" \
     "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-      INST64_KUBECTL_METHOD="$INST64_METHOD_EXTERNAL"
-    else
-      INST64_KUBECTL_METHOD="$INST64_METHOD_BINARY"
-    fi
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_ETCD_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ -z "$INST64_KUBECTL_PLATFORM" ]]; then
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ -z "$INST64_ETCD_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_KUBECTL_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+        INST64_ETCD_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_KUBECTL_PLATFORM="$INST64_CPU_LINUX_AMD64"
+        INST64_ETCD_PLATFORM="$INST64_CPU_LINUX_AMD64"
+      elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
+        INST64_ETCD_PLATFORM="$INST64_CPU_LINUX_ARM64"
       fi
     fi
     inst64_lib_base_check_platform
@@ -165,15 +149,12 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ "$INST64_KUBECTL_VERSION" == 'latest' ]]; then
-      INST64_KUBECTL_VERSION="$(my_select_packages_version)" ||
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ "$INST64_ETCD_VERSION" == 'latest' ]]; then
+      INST64_ETCD_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}"
-    INST64_WEB_REPO_PATH+="/v${INST64_KUBECTL_VERSION}/bin/${INST64_KUBECTL_PLATFORM}"
-  elif [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    INST64_PKG_MAIN='kubectl'
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_ETCD_VERSION}-${INST64_ETCD_PLATFORM}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_base_check_package
 }
@@ -184,16 +165,19 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    INST64_WEB_REPO_URL='https://dl.k8s.io'
-    INST64_WEB_REPO_PATH='release'
-    INST64_PKG_MAIN_PREFIX='kubectl'
-    INST64_CPU_DARWIN_ARM64='darwin/arm64'
-    INST64_CPU_LINUX_AMD64='linux/amd64'
-  elif [[ "$INST64_KUBECTL_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_REDHAT" ||
-      return $?
+  if [[ "$INST64_ETCD_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    INST64_GH_REPO_NAME='etcd'
+    INST64_GH_REPO_OWNER='etcd-io'
+    INST64_PKG_MAIN_PREFIX='etcd-'
+    INST64_PKG_MAIN_SUFFIX='.tar.gz'
+
+    INST64_CPU_DARWIN_ARM64='darwin-arm64'
+    INST64_CPU_LINUX_AMD64='linux-amd64'
+    INST64_CPU_LINUX_ARM64='linux-arm64'
+
+    INST64_CLI_NAME_ETCD='etcd'
+    INST64_CLI_NAME_ETCDCTL='etcdctl'
+    INST64_CLI_NAME_ETCDUTL='etcdutl'
   fi
 
   my_select_platform &&
@@ -207,7 +191,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.1.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

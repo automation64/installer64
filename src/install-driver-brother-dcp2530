@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.3.0
+# Template: install-bl64-aur-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -21,18 +21,13 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64"
@@ -42,18 +37,16 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_KUBEADM_METHOD="${INST64_KUBEADM_METHOD:-AUTO}"
+declare INST64_DRVDCP2530_METHOD="${INST64_DRVDCP2530_METHOD:-AUTO}"
 # Application version
-declare INST64_KUBEADM_VERSION="${INST64_KUBEADM_VERSION:-1.36}"
-# Enable development packages?
-declare INST64_KUBEADM_DEVELOPMENT="${INST64_KUBEADM_DEVELOPMENT:-NO}"
+declare INST64_DRVDCP2530_VERSION="${INST64_DRVDCP2530_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='kubeadm'
-INST64_APP_ID='KUBEADM'
-INST64_APP_FULL_NAME='KubeAdm - Kubernetes Bootstrap Toolbox'
-INST64_CLI_NAME='kubeadm'
-INST64_APP_DOC_INSTALL='https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm'
+INST64_APP_NAME='driver-brother-dcp-l2530dw'
+INST64_APP_ID='DRVDCP2530'
+INST64_APP_FULL_NAME='Driver - Brother dcp-l2530'
+
+INST64_PKG_MAIN='brother-dcp-l2530dw'
 
 #
 # Functions
@@ -67,8 +60,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_lib_pkg_install
+  if [[ "$INST64_DRVDCP2530_METHOD" == "$INST64_METHOD_AUR" ]]; then
+    inst64_lib_aur_install_yay
   fi
 }
 
@@ -80,17 +73,18 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_AUR" ||
     return $?
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_KUBEADM_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_DRVDCP2530_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_ARCH" ]]; then
+      INST64_DRVDCP2530_METHOD="$INST64_METHOD_AUR"
+    fi
   fi
 }
 
@@ -102,14 +96,6 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_KUBEADM_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
-    INST64_PKG_MAIN=' kubelet'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
-  fi
   inst64_lib_base_check_package
 }
 
@@ -119,11 +105,9 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_DRVDCP2530_METHOD" == "$INST64_METHOD_AUR" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
-      "$BL64_OS_FLAVOR_REDHAT" ||
+      "$BL64_OS_FLAVOR_ARCH" ||
       return $?
   fi
 
@@ -138,7 +122,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

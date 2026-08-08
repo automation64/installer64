@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.3.0
+# Template: install-bl64-repo-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,22 +42,35 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_KUBEADM_METHOD="${INST64_KUBEADM_METHOD:-AUTO}"
+declare INST64_REPOHPSPP10_METHOD="${INST64_REPOHPSPP10_METHOD:-AUTO}"
 # Application version
-declare INST64_KUBEADM_VERSION="${INST64_KUBEADM_VERSION:-1.36}"
-# Enable development packages?
-declare INST64_KUBEADM_DEVELOPMENT="${INST64_KUBEADM_DEVELOPMENT:-NO}"
+declare INST64_REPOHPSPP10_VERSION="${INST64_REPOHPSPP10_VERSION:-current}"
+# Hardware architecture
+declare INST64_REPOHPSPP10_PLATFORM="${INST64_REPOHPSPP10_PLATFORM:-}"
 
 # App information
-INST64_APP_NAME='kubeadm'
-INST64_APP_ID='KUBEADM'
-INST64_APP_FULL_NAME='KubeAdm - Kubernetes Bootstrap Toolbox'
-INST64_CLI_NAME='kubeadm'
-INST64_APP_DOC_INSTALL='https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm'
+INST64_APP_NAME='repo-hpspp-10'
+INST64_APP_ID='REPOHPSPP10'
+INST64_APP_FULL_NAME='Repo: HP SPP - External Linux RPM repository for HP Service Pack ProLiant Gen10'
+INST64_APP_DOC_INSTALL='https://downloads.linux.hpe.com/sdr/project/spp/'
 
 #
 # Functions
 #
+
+function my_install_repo() {
+  bl64_dbg_app_show_function
+  local repository_url=''
+  local repository_key=''
+
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}/spp-gen10/redhat/${BL64_OS_DISTRO##*-}/${INST64_REPOHPSPP10_PLATFORM}/${INST64_REPOHPSPP10_VERSION}"
+    repository_key="$INST64_OS_REPO_KEY_YUM"
+  fi
+
+  inst64_lib_pkg_repo_add \
+    "$repository_url" "$repository_key"
+}
 
 function my_prepare() {
   bl64_dbg_app_show_function
@@ -67,8 +80,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_lib_pkg_install
+  if [[ "$INST64_REPOHPSPP10_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    my_install_repo
   fi
 }
 
@@ -79,38 +92,33 @@ function my_setup() {
 
 function my_verify() {
   bl64_dbg_app_show_function
-  inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_REPO" ||
     return $?
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_KUBEADM_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_REPOHPSPP10_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_REPOHPSPP10_METHOD="$INST64_METHOD_REPO"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
+  if [[ "$INST64_REPOHPSPP10_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
+      INST64_REPOHPSPP10_PLATFORM="$INST64_CPU_LINUX_AMD64"
+    fi
+    inst64_lib_base_check_platform
+  fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_KUBEADM_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
-    INST64_PKG_MAIN=' kubelet'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
-  fi
-  inst64_lib_base_check_package
 }
 
 function my_initialize() {
@@ -119,12 +127,15 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOHPSPP10_METHOD" == "$INST64_METHOD_REPO" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
+
+    INST64_OS_REPO_NAME='hp-spp-10'
+    INST64_OS_SOURCE_YUM='https://downloads.linux.hpe.com/repo'
+    INST64_OS_REPO_KEY_YUM='https://downloads.linux.hpe.com/repo/spp/GPG-KEY-spp,https://downloads.linux.hpe.com/repo/spp/GPG-KEY2-spp'
+    INST64_CPU_LINUX_AMD64='x86_64'
   fi
 
   my_select_platform &&

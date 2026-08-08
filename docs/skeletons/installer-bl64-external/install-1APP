@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.2.0
+# Template: install-bl64-external-1.3.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -58,32 +58,9 @@ INST64_CLI_NAME='X_CLI_NAME_X'
 # Functions
 #
 
-function my_prepare_repository() {
-  bl64_dbg_app_show_function
-  local repository_url=''
-  local repository_key=''
-  local repository_apt_suite=''
-  local repository_apt_component=''
-
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
-    repository_url="${INST64_OS_SOURCE_APT}"
-    repository_key="$INST64_OS_REPO_KEY_APT"
-  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}"
-    repository_key="$INST64_OS_REPO_KEY_YUM"
-  fi
-
-  inst64_lib_pkg_repo_add \
-    "$repository_url" "$repository_key" \
-    "$repository_apt_suite" "$repository_apt_component"
-}
-
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_prepare_repository
-  fi
 }
 
 function my_install() {
@@ -150,12 +127,6 @@ function my_initialize() {
       "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
-
-    INST64_OS_REPO_NAME=''
-    INST64_OS_SOURCE_YUM='X_REPO_URL_X'
-    INST64_OS_SOURCE_APT='X_REPO_URL_X'
-    INST64_OS_REPO_KEY_YUM='X_KEY_URL_X'
-    INST64_OS_REPO_KEY_APT='X_KEY_URL_X'
   fi
 
   my_select_platform &&

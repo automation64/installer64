@@ -166,6 +166,7 @@ function inst64_lib_base_set_path_cli() {
         INST64_CLI_PATH="${INST64_USER_BIN}"
       fi
       ;;
+    "$INST64_METHOD_REPO") : ;;
   esac
 }
 

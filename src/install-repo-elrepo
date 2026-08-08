@@ -45,9 +45,9 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 declare INST64_REPOELREPO_METHOD="${INST64_REPOELREPO_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='repoelrepo'
+INST64_APP_NAME='repo-elrepo'
 INST64_APP_ID='REPOELREPO'
-INST64_APP_FULL_NAME='El Repo - Community supported hardware packages for Enterprise Linux'
+INST64_APP_FULL_NAME='Repo: El Repo - Community supported hardware packages for Enterprise Linux'
 INST64_APP_DOC_INSTALL='https://elrepo.org/wiki/doku.php?id=start'
 
 #
@@ -62,7 +62,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_REPO" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -80,10 +80,10 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_REPO" ||
     return $?
   if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_REPOELREPO_METHOD="$INST64_METHOD_EXTERNAL"
+    INST64_REPOELREPO_METHOD="$INST64_METHOD_REPO"
   fi
 }
 
@@ -95,7 +95,7 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_REPO" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_DISTRO" in
       "${BL64_OS_ALM}"-8.* | "${BL64_OS_RCK}"-8.* | "${BL64_OS_CNT}"-8.* | "${BL64_OS_OL}"-8.* | "${BL64_OS_RHEL}"-8.*) INST64_PKG_MAIN='https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm' ;;
@@ -112,7 +112,7 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_REPO" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
@@ -129,7 +129,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '1.0.2'
+bl64_lib_script_version_set '2.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

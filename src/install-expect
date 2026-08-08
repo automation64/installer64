@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.3.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,18 +42,13 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_KUBEADM_METHOD="${INST64_KUBEADM_METHOD:-AUTO}"
-# Application version
-declare INST64_KUBEADM_VERSION="${INST64_KUBEADM_VERSION:-1.36}"
-# Enable development packages?
-declare INST64_KUBEADM_DEVELOPMENT="${INST64_KUBEADM_DEVELOPMENT:-NO}"
+declare INST64_EXPECT_METHOD="${INST64_EXPECT_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='kubeadm'
-INST64_APP_ID='KUBEADM'
-INST64_APP_FULL_NAME='KubeAdm - Kubernetes Bootstrap Toolbox'
-INST64_CLI_NAME='kubeadm'
-INST64_APP_DOC_INSTALL='https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm'
+INST64_APP_NAME='expect'
+INST64_APP_ID='EXPECT'
+INST64_APP_FULL_NAME='Expect - Tool for automating interactive applications'
+INST64_CLI_NAME='expect'
 
 #
 # Functions
@@ -67,7 +62,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_EXPECT_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     inst64_lib_pkg_install
   fi
 }
@@ -80,17 +75,17 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" version
+  "${INST64_CLI_TARGET}" -v
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_KUBEADM_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_EXPECT_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_EXPECT_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -102,13 +97,13 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_KUBEADM_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
-    INST64_PKG_MAIN=' kubelet'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+  if [[ "$INST64_EXPECT_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN='expect'
+        ;;
+    esac
   fi
   inst64_lib_base_check_package
 }
@@ -119,10 +114,8 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_EXPECT_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
   fi
@@ -138,7 +131,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

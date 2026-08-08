@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.1.0
+# Template: install-bl64-repo-1.0.0
+#   Skeleton: install-bl64-custom-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,52 +43,50 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_REPOHPSPP11_METHOD="${INST64_REPOHPSPP11_METHOD:-AUTO}"
+declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
 # Application version
-declare INST64_REPOHPSPP11_VERSION="${INST64_REPOHPSPP11_VERSION:-current}"
-# Hardware architecture
-declare INST64_REPOHPSPP11_PLATFORM="${INST64_REPOHPSPP11_PLATFORM:-}"
+declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='repohpspp11'
-INST64_APP_ID='REPOHPSPP11'
-INST64_APP_FULL_NAME='HP SPP - External Linux RPM repository for HP Service Pack ProLiant Gen11'
-INST64_APP_DOC_INSTALL='https://downloads.linux.hpe.com/sdr/project/spp/'
-
-INST64_OS_REPO_NAME='hp-spp-11'
-INST64_OS_SOURCE_YUM='https://downloads.linux.hpe.com/repo'
-INST64_OS_REPO_KEY_YUM='https://downloads.linux.hpe.com/repo/spp/GPG-KEY-spp,https://downloads.linux.hpe.com/repo/spp/GPG-KEY2-spp'
-INST64_CPU_LINUX_AMD64='x86_64'
+INST64_APP_NAME='repo-X_APP_NAME_X'
+INST64_APP_ID='X_APP_NAME_CAPS_X'
+INST64_APP_FULL_NAME='Repo: X_APP_FULL_NAME_X'
 
 #
 # Functions
 #
 
-function my_prepare_repository() {
+function my_install_repo() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
+  local repository_apt_suite=''
+  local repository_apt_component=''
 
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}/spp-gen11/redhat/${BL64_OS_DISTRO##*-}/${INST64_REPOHPSPP11_PLATFORM}/${INST64_REPOHPSPP11_VERSION}"
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
+    repository_url="${INST64_OS_SOURCE_APT}"
+    repository_key="$INST64_OS_REPO_KEY_APT"
+  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}"
     repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
   inst64_lib_pkg_repo_add \
-    "$repository_url" "$repository_key"
+    "$repository_url" "$repository_key" \
+    "$repository_apt_suite" "$repository_apt_component"
 }
 
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_REPOHPSPP11_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_prepare_repository
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    my_install_repo
+  fi
 }
 
 function my_setup() {
@@ -97,28 +96,23 @@ function my_setup() {
 
 function my_verify() {
   bl64_dbg_app_show_function
+  inst64_lib_show_step_verify || return 0
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_REPO" ||
     return $?
-  if [[ "$INST64_REPOHPSPP11_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_REPOHPSPP11_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_REPO"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
-  if [[ "$INST64_REPOHPSPP11_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      INST64_REPOHPSPP11_PLATFORM="$INST64_CPU_LINUX_AMD64"
-    fi
-    inst64_lib_base_check_platform
-  fi
 }
 
 function my_select_packages() {
@@ -132,10 +126,17 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_REPOHPSPP11_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_REPO" ]]; then
     bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
+    INST64_OS_REPO_NAME=''
+    INST64_OS_SOURCE_YUM='X_REPO_URL_X'
+    INST64_OS_SOURCE_APT='X_REPO_URL_X'
+    INST64_OS_REPO_KEY_YUM='X_KEY_URL_X'
+    INST64_OS_REPO_KEY_APT='X_KEY_URL_X'
   fi
 
   my_select_platform &&

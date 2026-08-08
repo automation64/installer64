@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.1.0
+# Template: install-bl64-repo-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,34 +42,49 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_REPOHPSPP9_METHOD="${INST64_REPOHPSPP9_METHOD:-AUTO}"
+declare INST64_REPOK8S_METHOD="${INST64_REPOK8S_METHOD:-AUTO}"
 # Application version
-declare INST64_REPOHPSPP9_VERSION="${INST64_REPOHPSPP9_VERSION:-current}"
-# Hardware architecture
-declare INST64_REPOHPSPP9_PLATFORM="${INST64_REPOHPSPP9_PLATFORM:-}"
+declare INST64_REPOK8S_VERSION="${INST64_REPOK8S_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='repohpspp9'
-INST64_APP_ID='REPOHPSPP9'
-INST64_APP_FULL_NAME='HP SPP - External Linux RPM repository for HP Service Pack ProLiant Gen9'
-INST64_APP_DOC_INSTALL='https://downloads.linux.hpe.com/sdr/project/spp/'
-
-INST64_OS_REPO_NAME='hp-spp-9'
-INST64_OS_SOURCE_YUM='https://downloads.linux.hpe.com/repo'
-INST64_OS_REPO_KEY_YUM='https://downloads.linux.hpe.com/repo/spp/GPG-KEY-spp,https://downloads.linux.hpe.com/repo/spp/GPG-KEY2-spp'
-INST64_CPU_LINUX_AMD64='x86_64'
+INST64_APP_NAME='REPOK8S'
+INST64_APP_ID='REPOK8S'
+INST64_APP_FULL_NAME='Repo: Kubernetes - Official Kubernetes package repository'
+INST64_APP_DOC_INSTALL='https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management'
 
 #
 # Functions
 #
 
-function my_prepare_repository() {
+function my_select_packages_version() {
+  bl64_dbg_app_show_function
+  local package_version=''
+  package_version="$(
+    bl64_api_call \
+      "$INST64_WEB_REPO_URL" \
+      '/release/stable.txt' \
+      "$BL64_API_METHOD_GET"
+  )"
+  if [[ -n "$package_version" ]]; then
+    echo "${package_version#v}"
+  else
+    bl64_msg_show_error "Unable to detect package version (${INST64_WEB_REPO_URL})"
+    return "$BL64_LIB_ERROR_TASK_FAILED"
+  fi
+}
+
+function my_install_repo() {
   bl64_dbg_app_show_function
   local repository_url=''
   local repository_key=''
+  local repository_apt_suite='/'
+  local repository_apt_component=''
 
-  if bl64_os_is_flavor "$BL64_OS_FLAVOR_FEDORA" || bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
-    repository_url="${INST64_OS_SOURCE_YUM}/spp-gen9/redhat/${BL64_OS_DISTRO##*-}/${INST64_REPOHPSPP9_PLATFORM}/${INST64_REPOHPSPP9_VERSION}"
+  if bl64_os_is_flavor "$BL64_OS_FLAVOR_DEBIAN"; then
+    repository_url="${INST64_OS_SOURCE_APT}"
+    repository_key="${INST64_OS_REPO_KEY_APT}"
+  elif bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
+    repository_url="${INST64_OS_SOURCE_YUM}"
     repository_key="$INST64_OS_REPO_KEY_YUM"
   fi
 
@@ -80,14 +95,14 @@ function my_prepare_repository() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_REPOHPSPP9_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    my_prepare_repository
-  fi
 }
 
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
+  if [[ "$INST64_REPOK8S_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    my_install_repo
+  fi
 }
 
 function my_setup() {
@@ -97,33 +112,33 @@ function my_setup() {
 
 function my_verify() {
   bl64_dbg_app_show_function
+  inst64_lib_show_step_verify || return 0
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_REPO" ||
     return $?
-  if [[ "$INST64_REPOHPSPP9_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_REPOHPSPP9_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_REPOK8S_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_REPOK8S_METHOD="$INST64_METHOD_REPO"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
-  if [[ "$INST64_REPOHPSPP9_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-      INST64_REPOHPSPP9_PLATFORM="$INST64_CPU_LINUX_AMD64"
-    fi
-    inst64_lib_base_check_platform
-  fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
+  if [[ "$INST64_REPOK8S_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    if [[ "$INST64_REPOK8S_VERSION" == 'latest' ]]; then
+      INST64_REPOK8S_VERSION="$(my_select_packages_version)"
+    fi
+  fi
 }
 
 function my_initialize() {
@@ -132,15 +147,33 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_REPOHPSPP9_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOK8S_METHOD" == "$INST64_METHOD_REPO" ]]; then
     bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
+
+    INST64_OS_REPO_NAME='kubernetes'
+    INST64_WEB_REPO_URL='https://dl.k8s.io'
   fi
 
   my_select_platform &&
     my_select_packages ||
     return $?
+
+  if [[ "$INST64_REPOK8S_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_DEBIAN" \
+      "$BL64_OS_FLAVOR_FEDORA" \
+      "$BL64_OS_FLAVOR_REDHAT" ||
+      return $?
+
+    INST64_OS_SOURCE_APT="https://pkgs.k8s.io/core:/stable:/v${INST64_REPOK8S_VERSION}/deb"
+    INST64_OS_REPO_KEY_APT="https://pkgs.k8s.io/core:/stable:/v${INST64_REPOK8S_VERSION}/deb/Release.key"
+    INST64_OS_SOURCE_YUM="https://pkgs.k8s.io/core:/stable:/v${INST64_REPOK8S_VERSION%.*}/rpm/"
+    INST64_OS_REPO_KEY_YUM="https://pkgs.k8s.io/core:/stable:/v${INST64_REPOK8S_VERSION%.*}/rpm/repodata/repomd.xml.key"
+  fi
 
   inst64_lib_base_finalize
 }

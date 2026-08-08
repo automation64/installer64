@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-external-1.3.0
+# Template: install-bl64-repo-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -42,22 +42,35 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_KUBEADM_METHOD="${INST64_KUBEADM_METHOD:-AUTO}"
+declare INST64_REPOGITLABCE_METHOD="${INST64_REPOGITLABCE_METHOD:-AUTO}"
 # Application version
-declare INST64_KUBEADM_VERSION="${INST64_KUBEADM_VERSION:-1.36}"
-# Enable development packages?
-declare INST64_KUBEADM_DEVELOPMENT="${INST64_KUBEADM_DEVELOPMENT:-NO}"
+declare INST64_REPOGITLABCE_VERSION="${INST64_REPOGITLABCE_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='kubeadm'
-INST64_APP_ID='KUBEADM'
-INST64_APP_FULL_NAME='KubeAdm - Kubernetes Bootstrap Toolbox'
-INST64_CLI_NAME='kubeadm'
-INST64_APP_DOC_INSTALL='https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm'
+INST64_APP_NAME='repo-gitlab-ce'
+INST64_APP_ID='REPOGITLABCE'
+INST64_APP_FULL_NAME='Repo: GitLab CE - GitLab community edition official package repository'
+INST64_APP_DOC_INSTALL='https://docs.gitlab.com/install/package/almalinux'
 
 #
 # Functions
 #
+
+function my_install_repo() {
+  bl64_dbg_app_show_function
+
+  inst64_lib_show_task_download
+  inst64_lib_staging_create &&
+    inst64_lib_custom_web_get_file ||
+    return $?
+
+  inst64_lib_show_task_deploy
+  inst64_lib_target_populate ||
+    return $?
+
+  inst64_lib_show_task_cleanup
+  inst64_lib_staging_remove
+}
 
 function my_prepare() {
   bl64_dbg_app_show_function
@@ -67,8 +80,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    inst64_lib_pkg_install
+  if [[ "$INST64_REPOGITLABCE_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    my_install_repo
   fi
 }
 
@@ -80,17 +93,16 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" version
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_EXTERNAL" ||
+    "$INST64_METHOD_REPO" ||
     return $?
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_KUBEADM_METHOD="$INST64_METHOD_EXTERNAL"
+  if [[ "$INST64_REPOGITLABCE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_REPOGITLABCE_METHOD="$INST64_METHOD_REPO"
   fi
 }
 
@@ -102,13 +114,30 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
-    bl64_lib_flag_is_enabled "$INST64_KUBEADM_DEVELOPMENT" &&
-      INST64_PKG_DEV=''
-    INST64_PKG_MAIN=' kubelet'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=' kubeadm'
-    INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
+  if [[ "$INST64_REPOGITLABCE_METHOD" == "$INST64_METHOD_REPO" ]]; then
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN='config_file.repo'
+        INST64_WORK_PATH_SOURCE="$INST64_PKG_MAIN"
+        INST64_REPOGITLABCE_TARGET='/etc/yum.repos.d'
+        ;;
+      *)
+        bl64_os_raise_platform_unsupported
+        ;;
+    esac
+    case "$BL64_OS_DISTRO" in
+      "${BL64_OS_OL}"-7.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/ol/7' ;;
+      "${BL64_OS_OL}"-8.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/ol/8' ;;
+      "${BL64_OS_OL}"-9.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/ol/9' ;;
+      "${BL64_OS_OL}"-10.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/ol/10' ;;
+      "${BL64_OS_RHEL}"-8.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/el/8' ;;
+      "${BL64_OS_RHEL}"-9.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/el/9' ;;
+      "${BL64_OS_RHEL}"-10.*) INST64_WEB_REPO_PATH='install/repositories/gitlab/gitlab-ce/el/10' ;;
+      *)
+        bl64_os_raise_platform_unsupported
+        return $?
+        ;;
+    esac
   fi
   inst64_lib_base_check_package
 }
@@ -119,12 +148,11 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_KUBEADM_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
+  if [[ "$INST64_REPOGITLABCE_METHOD" == "$INST64_METHOD_REPO" ]]; then
     bl64_os_check_flavor \
-      "$BL64_OS_FLAVOR_DEBIAN" \
-      "$BL64_OS_FLAVOR_FEDORA" \
       "$BL64_OS_FLAVOR_REDHAT" ||
       return $?
+    INST64_WEB_REPO_URL='https://packages.gitlab.com'
   fi
 
   my_select_platform &&
@@ -138,7 +166,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '1.0.0'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&

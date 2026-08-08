@@ -155,7 +155,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='2.1.1'
+  readonly INST64_LIB_VERSION_BL64='2.2.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.3.1'
@@ -176,6 +176,7 @@ source /dev/null # keep to force shellcheck using source=
   readonly INST64_METHOD_PIP='PIP'
   readonly INST64_METHOD_PIPX='PIPX'
   readonly INST64_METHOD_UV='UV'
+  readonly INST64_METHOD_REPO='REPO'
   readonly INST64_METHOD_SNAP='SNAP'
 
   # User wide home path
