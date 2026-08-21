@@ -106,15 +106,17 @@ _Installer64_ implements the optimal installation method for each application:
 6. `EXTERNAL`: OS standard packages from external repository
 7. `FPAK`: FlatPak package (system-wide installation)
 8. `GO`: Go Lang module (user-wide installation only)
-9. `KREW`: Krew (KubeCTL plugin) package (user-wide installation only)
-10. `NATIVE`: OS standard packages from package repository
-11. `NPM`: NodeJS module (user-wide installation only)
-12. `PACKAGE`: Standalone OS package file (RPM for RHEL, DEB for Debian/Ubuntu, etc.)
-13. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation only)
-14. `PIPX`: Python module (user-wide installation only)
-15. `REPO`: External repository configuration
-16. `SNAP`: Snapcraft packages (system-wide installation)
-17. `UV`: Python module (user-wide installation only)
+9. `HELM`: Helm Package (user-wide installation only)
+10. `KREW`: Krew (KubeCTL plugin) package (user-wide installation only)
+11. `KUSTOMIZE`: Kustomize manifest (user-wide installation only)
+12. `NATIVE`: OS standard packages from package repository
+13. `NPM`: NodeJS module (user-wide installation only)
+14. `PACKAGE`: Standalone OS package file (RPM for RHEL, DEB for Debian/Ubuntu, etc.)
+15. `PIP`: Python module - used when `PIPX` unavailable (user-wide installation only)
+16. `PIPX`: Python module (user-wide installation only)
+17. `REPO`: External repository configuration
+18. `SNAP`: Snapcraft packages (system-wide installation)
+19. `UV`: Python module (user-wide installation only)
 
 ---
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Template: install-bl64-nodejs-1.0.0
-#   Skeleton: install-bl64-custom-1.1.0
+# Template: install-bl64-nodejs-1.1.0
+#   Skeleton: install-bl64-custom-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -47,12 +47,9 @@ declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-la
 INST64_APP_NAME='X_APP_NAME_X'
 INST64_APP_ID='X_APP_NAME_CAPS_X'
 INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-
 INST64_CLI_NAME='X_CLI_NAME_X'
-
-INST64_PKG_MAIN=''
-INST64_PKG_PRE=''
-INST64_PKG_POST=''
+# optional # INST64_APP_DOC_SETUP='X_DOC_SETUP_URL_X'
+# optional # INST64_APP_DOC_INSTALL='X_DOC_INSTALL_URL_X'
 
 #
 # Functions
@@ -121,9 +118,11 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  # X_PRE_REQ_PLACEHOLDER_X
-  # X_PRE_OS_PLACEHOLDER_X
-  # X_INIT_PLACEHOLDER_X
+  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_NPM" ]]; then
+    INST64_PKG_MAIN=''
+    INST64_PKG_PRE=''
+    INST64_PKG_POST=''
+  fi
 
   my_select_platform &&
     my_select_packages ||

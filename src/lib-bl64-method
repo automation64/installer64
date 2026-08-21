@@ -44,6 +44,15 @@ function inst64_lib_method_initialize() {
       inst64_lib_type_check_privilege_not_root &&
         inst64_lib_command_define 'INST64_COMMAND_YAY' 'yay'
       ;;
+
+    "$INST64_METHOD_HELM")
+      [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
+      bl64_k8s_setup &&
+        bl64_hlm_setup
+      ;;
+    "$INST64_METHOD_KUSTOMIZE")
+      bl64_k8s_setup
+      ;;
     "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL" | "$INST64_METHOD_REPO")
       INST64_CLI_PROMOTE='NO'
       [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'

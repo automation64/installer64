@@ -38,10 +38,13 @@ function inst64_lib_type_set() {
   fi
   bl64_dbg_app_show_vars 'INST64_SYSTEM_WIDE'
 
-  if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
+  if [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV")$ ||
+    "${!method}" =~ ^("$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
     bl64_dbg_app_show_comments 'overriding value to match method requirement: INST64_SYSTEM_WIDE to NO'
     INST64_SYSTEM_WIDE='NO'
-  elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_REPO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
+  elif [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|)$ ||
+    "${!method}" =~ ^("$INST64_METHOD_HELM"|"$INST64_METHOD_KUSTOMIZE"|"$INST64_METHOD_EXTERNAL")$ ||
+    "${!method}" =~ ^("$INST64_METHOD_REPO"|"$INST64_METHOD_FPAK"|"$INST64_METHOD_SNAP")$ ]]; then
     bl64_dbg_app_show_comments 'overriding value to match method requirement: INST64_SYSTEM_WIDE to YES'
     INST64_SYSTEM_WIDE='YES'
   fi
@@ -51,15 +54,6 @@ function inst64_lib_type_set() {
     bl64_check_rise_parameter_invalid 'INST64_SYSTEM_WIDE' 'installer method requires explicit declaration of installation type. Set it and try again.'
     return $?
   fi
-
-  if [[ "${!method}" =~ ^("$INST64_METHOD_AUR"|"$INST64_METHOD_NATIVE"|"$INST64_METHOD_PACKAGE"|"$INST64_METHOD_EXTERNAL"|"$INST64_METHOD_REPO")$ ]]; then
-    inst64_lib_type_check_system_wide ||
-      return $?
-  elif [[ "${!method}" =~ ^("$INST64_METHOD_PIP"|"$INST64_METHOD_PIPX"|"$INST64_METHOD_UV"|"$INST64_METHOD_KREW"|"$INST64_METHOD_BREW"|"$INST64_METHOD_NPM"|"$INST64_METHOD_GO")$ ]]; then
-    inst64_lib_type_check_user_wide ||
-      return $?
-  fi
-
   return 0
 }
 

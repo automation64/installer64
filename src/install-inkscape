@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Template: install-bl64-fpak-1.1.0
-#   Skeleton: install-bl64-custom-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,7 +21,6 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-# X_IMPORTS_PLACEHOLDER_X
 source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
@@ -39,16 +37,16 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_X_APP_NAME_CAPS_X_METHOD="${INST64_X_APP_NAME_CAPS_X_METHOD:-AUTO}"
+declare INST64_INKSCAPE_METHOD="${INST64_INKSCAPE_METHOD:-AUTO}"
 # Application version
-declare INST64_X_APP_NAME_CAPS_X_VERSION="${INST64_X_APP_NAME_CAPS_X_VERSION:-latest}"
+declare INST64_INKSCAPE_VERSION="${INST64_INKSCAPE_VERSION:-latest}"
 
 # App information
-INST64_APP_NAME='X_APP_NAME_X'
-INST64_APP_ID='X_APP_NAME_CAPS_X'
-INST64_APP_FULL_NAME='X_APP_FULL_NAME_X'
-INST64_CLI_NAME='X_CLI_NAME_X'
-# optional # INST64_APP_DOC_INSTALL='X_DOC_INSTALL_URL_X'
+INST64_APP_NAME='inkscape'
+INST64_APP_ID='INKSCAPE'
+INST64_APP_FULL_NAME='Inkscape - Vector Graphics Editor'
+INST64_CLI_NAME='org.inkscape.Inkscape'
+INST64_APP_DOC_INSTALL='https://github.com/inkscape/inkscape'
 
 #
 # Functions
@@ -62,7 +60,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_FPAK" ]]; then
+  if [[ "$INST64_INKSCAPE_METHOD" == "$INST64_METHOD_FPAK" ]]; then
     inst64_lib_flatpak_install
   fi
 }
@@ -75,7 +73,9 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  if [[ "$INST64_INKSCAPE_METHOD" == "$INST64_METHOD_FPAK" ]]; then
+    inst64_lib_flatpak_verify
+  fi
 }
 
 function my_select_method() {
@@ -84,9 +84,8 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_FPAK" ||
     return $?
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    # X_METHOD_AUTO_PLACEHOLDER_X
-    INST64_X_APP_NAME_CAPS_X_METHOD="$INST64_METHOD_FPAK"
+  if [[ "$INST64_INKSCAPE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_INKSCAPE_METHOD="$INST64_METHOD_FPAK"
   fi
 }
 
@@ -99,11 +98,11 @@ function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
   local version_target=''
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_FPAK" ]]; then
-    if [[ "$INST64_X_APP_NAME_CAPS_X_VERSION" == 'latest' ]]; then
+  if [[ "$INST64_INKSCAPE_METHOD" == "$INST64_METHOD_FPAK" ]]; then
+    if [[ "$INST64_INKSCAPE_VERSION" == 'latest' ]]; then
       version_target=''
     else
-      version_target="@${INST64_X_APP_NAME_CAPS_X_VERSION}"
+      version_target="@${INST64_INKSCAPE_VERSION}"
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
   fi
@@ -116,9 +115,9 @@ function my_initialize() {
     inst64_lib_base_setup ||
     return $?
 
-  if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_FPAK" ]]; then
-    INST64_PKG_MAIN=''
-    INST64_FPAK_REPO_NAME=''
+  if [[ "$INST64_INKSCAPE_METHOD" == "$INST64_METHOD_FPAK" ]]; then
+    INST64_PKG_MAIN='org.inkscape.Inkscape'
+    INST64_FPAK_REPO_NAME='flathub'
   fi
 
   my_select_platform &&

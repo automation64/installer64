@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-nodejs-1.0.0
-#   Skeleton: install-bl64-npm-1.1.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -22,13 +21,18 @@
 declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 [[ ! -d "$INST64_BASHLIB64" && -d "${HOME}/at64" ]] && INST64_BASHLIB64="${HOME}/at64"
 # shellcheck disable=SC2015
-source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64"
@@ -38,18 +42,13 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_CLAUDCODE_METHOD="${INST64_CLAUDCODE_METHOD:-AUTO}"
-# Application version
-declare INST64_CLAUDCODE_VERSION="${INST64_CLAUDCODE_VERSION:-latest}"
+declare INST64_X11XAUTH_METHOD="${INST64_X11XAUTH_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='claudcode'
-INST64_APP_ID='CLAUDCODE'
-INST64_APP_FULL_NAME='Claud Code - Anthropics agentic coding tool'
-
-INST64_CLI_NAME='claude'
-
-INST64_PKG_MAIN='@anthropic-ai/claude-code'
+INST64_APP_NAME='x11-xauth'
+INST64_APP_ID='X11XAUTH'
+INST64_APP_FULL_NAME='X11 XAuth - X authority file utility'
+INST64_CLI_NAME='xauth'
 
 #
 # Functions
@@ -63,8 +62,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_CLAUDCODE_METHOD" == "$INST64_METHOD_NPM" ]]; then
-    inst64_lib_nodejs_install_npm
+  if [[ "$INST64_X11XAUTH_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    inst64_lib_pkg_install
   fi
 }
 
@@ -76,17 +75,17 @@ function my_setup() {
 function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
-  "${INST64_CLI_TARGET}" --version
+  "${INST64_CLI_TARGET}" -V
 }
 
 function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_NPM" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_CLAUDCODE_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_CLAUDCODE_METHOD="$INST64_METHOD_NPM"
+  if [[ "$INST64_X11XAUTH_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_X11XAUTH_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -98,14 +97,13 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  local version_target=''
-  if [[ "$INST64_CLAUDCODE_METHOD" == "$INST64_METHOD_NPM" ]]; then
-    if [[ "$INST64_CLAUDCODE_VERSION" == 'latest' ]]; then
-      version_target=''
-    else
-      version_target="@${INST64_CLAUDCODE_VERSION}"
-    fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
+  if [[ "$INST64_X11XAUTH_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN='xorg-x11-xauth'
+        ;;
+    esac
   fi
   inst64_lib_base_check_package
 }
@@ -115,6 +113,12 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_setup ||
     return $?
+
+  if [[ "$INST64_X11XAUTH_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_REDHAT" ||
+      return $?
+  fi
 
   my_select_platform &&
     my_select_packages ||

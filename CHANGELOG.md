@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [12.0.0]
+
+### Added
+
+- Installers
+  - DrawIO
+  - Inkscape
+  - X11-Xauth
+  - NFS
+  - SeaweedFS
+- Core
+  - New method: KUSTOMIZE, HELM
+
+### Fixed
+
+- ClaudeCode: **breaking-change** installer name typo
+
 ## [11.5.0]
 
 ### Added
@@ -37,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- BPFTrace: renamed to BPF-Tools
+- BPFTrace: **breaking-change** renamed to BPF-Tools
 
 ## [11.3.0]
 
@@ -105,7 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- ProtonVPN: renamed to ProtonVPNGUI
+- ProtonVPN: **breaking-change** renamed to ProtonVPNGUI
 
 ## [11.0.0]
 
