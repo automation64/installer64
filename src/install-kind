@@ -53,6 +53,7 @@ INST64_APP_NAME='kind'
 INST64_APP_ID='KIND'
 INST64_APP_FULL_NAME='Kind - Kubernetes IN Docker'
 INST64_CLI_NAME='kind'
+INST64_APP_DOC_INSTALL='https://kind.sigs.k8s.io/docs/user/quick-start/#installation'
 
 INST64_GH_REPO_NAME='kind'
 INST64_GH_REPO_OWNER='kubernetes-sigs'
@@ -173,7 +174,7 @@ function my_initialize() {
 # Main
 #
 
-bl64_lib_script_version_set '2.0.0'
+bl64_lib_script_version_set '2.0.1'
 inst64_lib_base_initialize
 bl64_msg_show_batch_start "$BL64_SCRIPT_ID"
 my_initialize &&
