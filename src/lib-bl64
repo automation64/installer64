@@ -33,6 +33,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64-base" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-method-nodejs" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-method-python" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-method-snap" &&
+  source "${BL64_SCRIPT_PATH}/lib-bl64-offline" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-setup" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-verify" ||
   { echo 'Fatal: unable to load Installer64 libraries.' && exit 1; }
@@ -64,6 +65,8 @@ source /dev/null # keep to force shellcheck using source=
   declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-}"             # Replace if already installed?
   declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-}" # Refresh package manager before installation and cleanup after?
   declare INST64_CLI_PROMOTE="${INST64_CLI_PROMOTE:-}"                         # Promote CLI to searchable path?
+  declare INST64_OFFLINE_DOWNLOAD="${INST64_OFFLINE_DOWNLOAD:-NO}"             # Offline Mode: Download packages only
+  declare INST64_OFFLINE_TARGET="${INST64_OFFLINE_TARGET:-}"                   # Offline Mode: Path to save offline packages
 
   #
   # Global definitions
@@ -155,7 +158,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='2.3.0'
+  readonly INST64_LIB_VERSION_BL64='2.4.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.3.1'
@@ -185,7 +188,9 @@ source /dev/null # keep to force shellcheck using source=
   declare INST64_HOME="${HOME}/at64"
 
   # Install progress status
-  declare INST64_STATUS_FLAG='CONTINUE'
+  declare INST64_STATUS_FLAG_CONTINUE='C'
+  declare INST64_STATUS_FLAG_SKIP='S'
+  declare INST64_STATUS_FLAG="${INST64_STATUS_FLAG_CONTINUE}"
   declare INST64_STATUS_PATH=''
   declare INST64_STATUS_MODE='0644'
 

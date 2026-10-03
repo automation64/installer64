@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-binary-1.1.0
+# Template: install-bl64-binary-1.2.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -41,26 +41,19 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_OKDOC_METHOD="${INST64_OKDOC_METHOD:-AUTO}"
+declare INST64_OKDINSTALL_METHOD="${INST64_OKDINSTALL_METHOD:-AUTO}"
 # Installation destination
-declare INST64_OKDOC_TARGET="${INST64_OKDOC_TARGET:-}"
+declare INST64_OKDINSTALL_TARGET="${INST64_OKDINSTALL_TARGET:-}"
 # Hardware architecture
-declare INST64_OKDOC_PLATFORM="${INST64_OKDOC_PLATFORM:-}"
+declare INST64_OKDINSTALL_PLATFORM="${INST64_OKDINSTALL_PLATFORM:-}"
 # Application version
-declare INST64_OKDOC_VERSION="${INST64_OKDOC_VERSION:-latest}"
+declare INST64_OKDINSTALL_VERSION="${INST64_OKDINSTALL_VERSION:-latest}"
 
-INST64_APP_NAME='okdoc'
-INST64_APP_ID='OKDOC'
-INST64_APP_FULL_NAME='OKD OC - OpenShift Client'
-INST64_CLI_NAME='oc'
-
-INST64_GH_REPO_NAME='okd'
-INST64_GH_REPO_OWNER='okd-project'
-INST64_PKG_MAIN_PREFIX='openshift-client-'
-INST64_PKG_MAIN_SUFFIX='.tar.gz'
-INST64_CPU_DARWIN_ARM64='mac-arm64'
-INST64_CPU_LINUX_AMD64='linux'
-INST64_CPU_LINUX_ARM64='linux-arm64'
+INST64_APP_NAME='okd-install'
+INST64_APP_ID='OKDINSTALL'
+INST64_APP_FULL_NAME='OKD Install - Openshift cluster installer CLI'
+INST64_CLI_NAME='openshift-install'
+INST64_APP_DOC_INSTALL='https://github.com/okd-project/okd'
 
 #
 # Functions
@@ -87,7 +80,7 @@ function my_install_binary() {
 function my_prepare() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_prepare || return 0
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_base_create_path
   fi
 }
@@ -95,7 +88,7 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     my_install_binary
   fi
 }
@@ -103,7 +96,7 @@ function my_install() {
 function my_setup() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_setup || return 0
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_show_task_publish
     inst64_lib_setup_promote
   fi
@@ -113,7 +106,7 @@ function my_verify() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_verify || return 0
   "${INST64_CLI_TARGET}" version || return $?
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     inst64_lib_verify_register_version
   fi
 }
@@ -124,22 +117,22 @@ function my_select_method() {
     "$INST64_METHOD_AUTO" \
     "$INST64_METHOD_BINARY" ||
     return $?
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_OKDOC_METHOD="$INST64_METHOD_BINARY"
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_OKDINSTALL_METHOD="$INST64_METHOD_BINARY"
   fi
 }
 
 function my_select_platform() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_platform
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ -z "$INST64_OKDOC_PLATFORM" ]]; then
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ -z "$INST64_OKDINSTALL_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_OKDOC_PLATFORM="$INST64_CPU_DARWIN_ARM64"
+        INST64_OKDINSTALL_PLATFORM="$INST64_CPU_DARWIN_ARM64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
-        INST64_OKDOC_PLATFORM="$INST64_CPU_LINUX_AMD64"
+        INST64_OKDINSTALL_PLATFORM="$INST64_CPU_LINUX_AMD64"
       elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
-        INST64_OKDOC_PLATFORM="$INST64_CPU_LINUX_ARM64"
+        INST64_OKDINSTALL_PLATFORM="$INST64_CPU_LINUX_ARM64"
       fi
     fi
     inst64_lib_base_check_platform
@@ -149,12 +142,12 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages
-  if [[ "$INST64_OKDOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
-    if [[ "$INST64_OKDOC_VERSION" == 'latest' ]]; then
-      INST64_OKDOC_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    if [[ "$INST64_OKDINSTALL_VERSION" == 'latest' ]]; then
+      INST64_OKDINSTALL_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
         return $?
     fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_OKDOC_PLATFORM}-${INST64_OKDOC_VERSION}${INST64_PKG_MAIN_SUFFIX}"
+    INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_OKDINSTALL_PLATFORM}-${INST64_OKDINSTALL_VERSION}${INST64_PKG_MAIN_SUFFIX}"
   fi
   inst64_lib_base_check_package
 }
@@ -164,6 +157,16 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_setup ||
     return $?
+
+  if [[ "$INST64_OKDINSTALL_METHOD" == "$INST64_METHOD_BINARY" ]]; then
+    INST64_GH_REPO_NAME='okd'
+    INST64_GH_REPO_OWNER='okd-project'
+    INST64_PKG_MAIN_PREFIX='openshift-install-'
+    INST64_PKG_MAIN_SUFFIX='.tar.gz'
+    INST64_CPU_DARWIN_ARM64='mac-arm64'
+    INST64_CPU_LINUX_AMD64='linux'
+    INST64_CPU_LINUX_ARM64='linux-arm64'
+  fi
 
   my_select_platform &&
     my_select_packages ||

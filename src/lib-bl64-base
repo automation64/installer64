@@ -81,6 +81,7 @@ function inst64_lib_base_setup() {
     inst64_lib_target_set_path &&
     inst64_lib_method_initialize &&
     inst64_lib_base_set_path_cli &&
+    inst64_lib_offline_create_path &&
     return 0
 
   bl64_msg_show_error 'installer initialization failed'

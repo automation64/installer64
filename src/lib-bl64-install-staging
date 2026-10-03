@@ -14,6 +14,7 @@
 
 function inst64_lib_staging_open_zstd() {
   bl64_dbg_app_show_function
+  bl64_lib_flag_is_enabled "$INST64_OFFLINE_DOWNLOAD" && return 0
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
@@ -24,6 +25,7 @@ function inst64_lib_staging_open_zstd() {
 
 function inst64_lib_staging_open_tar() {
   bl64_dbg_app_show_function
+  bl64_lib_flag_is_enabled "$INST64_OFFLINE_DOWNLOAD" && return 0
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
@@ -35,6 +37,7 @@ function inst64_lib_staging_open_tar() {
 
 function inst64_lib_staging_open_zip() {
   bl64_dbg_app_show_function
+  bl64_lib_flag_is_enabled "$INST64_OFFLINE_DOWNLOAD" && return 0
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
@@ -46,6 +49,7 @@ function inst64_lib_staging_open_zip() {
 
 function inst64_lib_staging_open_gz() {
   bl64_dbg_app_show_function
+  bl64_lib_flag_is_enabled "$INST64_OFFLINE_DOWNLOAD" && return 0
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
@@ -57,6 +61,7 @@ function inst64_lib_staging_open_gz() {
 
 function inst64_lib_staging_open_7z() {
   bl64_dbg_app_show_function
+  bl64_lib_flag_is_enabled "$INST64_OFFLINE_DOWNLOAD" && return 0
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
@@ -68,6 +73,7 @@ function inst64_lib_staging_open_7z() {
 
 function inst64_lib_staging_open_bzip2() {
   bl64_dbg_app_show_function
+  bl64_lib_flag_is_enabled "$INST64_OFFLINE_DOWNLOAD" && return 0
   bl64_check_parameter 'INST64_WORK_PATH_STAGING' &&
     bl64_check_parameter 'INST64_PKG_MAIN' || return $?
 
