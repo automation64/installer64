@@ -37,72 +37,84 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_CUSTOM")
       [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
       [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
-      return 0
+      inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_AUR")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
-        inst64_lib_command_define 'INST64_COMMAND_YAY' 'yay'
+        inst64_lib_command_define 'INST64_COMMAND_YAY' 'yay' &&
+        inst64_lib_offline_check_method
       ;;
 
     "$INST64_METHOD_HELM")
       [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
       bl64_k8s_setup &&
-        bl64_hlm_setup
+        bl64_hlm_setup &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_KUSTOMIZE")
-      bl64_k8s_setup
+      bl64_k8s_setup &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_NATIVE" | "$INST64_METHOD_PACKAGE" | "$INST64_METHOD_EXTERNAL" | "$INST64_METHOD_REPO")
       INST64_CLI_PROMOTE='NO'
       [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
       inst64_lib_type_check_privilege_root &&
         bl64_cryp_setup &&
-        bl64_pkg_setup
+        bl64_pkg_setup &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
         inst64_lib_base_check_prereq_exe 'pip' &&
-        bl64_py_setup
+        bl64_py_setup &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_UV")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
-        inst64_lib_command_define 'INST64_COMMAND_UV' 'uv'
+        inst64_lib_command_define 'INST64_COMMAND_UV' 'uv' &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_BREW")
       INST64_CLI_PROMOTE='NO'
       [[ -z "$INST64_REFRESH_PACKAGE_MANAGER" ]] && INST64_REFRESH_PACKAGE_MANAGER='YES'
       inst64_lib_type_check_privilege_root &&
         bl64_cryp_setup &&
-        bl64_pkg_setup
+        bl64_pkg_setup &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_NPM")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
-        inst64_lib_command_define 'INST64_COMMAND_NPM' 'npm'
+        inst64_lib_command_define 'INST64_COMMAND_NPM' 'npm' &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_GO")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
-        inst64_lib_command_define 'INST64_COMMAND_GO' 'go'
+        inst64_lib_command_define 'INST64_COMMAND_GO' 'go' &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_FPAK")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_root &&
-        inst64_lib_command_define 'INST64_COMMAND_FLATPAK' 'flatpak'
+        inst64_lib_command_define 'INST64_COMMAND_FLATPAK' 'flatpak' &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_SNAP")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_root &&
-        inst64_lib_command_define 'INST64_COMMAND_SNAP' 'snap'
+        inst64_lib_command_define 'INST64_COMMAND_SNAP' 'snap' &&
+        inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_KREW")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
         bl64_k8s_setup &&
-        inst64_lib_base_check_prereq_exe 'kubectl-krew' "${HOME}/.krew/bin"
+        inst64_lib_base_check_prereq_exe 'kubectl-krew' "${HOME}/.krew/bin" &&
+        inst64_lib_offline_check_method
       ;;
   esac
 }

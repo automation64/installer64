@@ -27,7 +27,7 @@ function inst64_lib_verify_check_installed() {
     if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
       if ! bl64_lib_flag_is_enabled "$INST64_REPLACE_INSTALLED"; then
         bl64_msg_show_warning "application already installed. No further action will be taken. Set INST64_REPLACE_INSTALLED='YES' if replacement is required (current-version: ${!app_version})"
-        INST64_STATUS_FLAG='SKIP'
+        INST64_STATUS_FLAG="$INST64_STATUS_FLAG_SKIP"
         return 0
       fi
     fi

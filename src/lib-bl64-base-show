@@ -73,27 +73,27 @@ function inst64_lib_show_parameters() {
 
 function inst64_lib_show_step_prepare() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 1
   bl64_msg_show_phase 'prepare deployment'
   return 0
 }
 
 function inst64_lib_show_step_install() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 1
   bl64_msg_show_phase 'deploy application'
   return 0
 }
 
 function inst64_lib_show_step_setup() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 1
   bl64_msg_show_phase 'setup environment'
 }
 
 function inst64_lib_show_step_verify() {
   bl64_dbg_app_show_function
-  [[ "$INST64_STATUS_FLAG" == 'SKIP' ]] && return 1
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 1
   bl64_msg_show_phase 'verify deployment'
   if [[ -z "$INST64_CLI_TARGET" && -n "$INST64_CLI_PATH" && -n "$INST64_CLI_NAME" ]]; then
     INST64_CLI_TARGET=${INST64_CLI_PATH}/${INST64_CLI_NAME}
@@ -188,6 +188,8 @@ function inst64_lib_show_globals() {
     'INST64_GIT_BRANCH' \
     'INST64_GIT_REPO' \
     'INST64_GIT_SERVER' \
+    'INST64_OFFLINE_DOWNLOAD' \
+    'INST64_OFFLINE_TARGET' \
     'INST64_OS_REPO_KEY_APT' \
     'INST64_OS_REPO_KEY_YUM' \
     'INST64_OS_REPO_NAME' \
