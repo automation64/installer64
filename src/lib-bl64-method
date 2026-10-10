@@ -30,13 +30,15 @@ function inst64_lib_method_initialize() {
   case "${!method}" in
     "$INST64_METHOD_BINARY")
       [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
-      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      [[ -z "$INST64_INSTALL_UPGRADE" ]] && INST64_INSTALL_UPGRADE='NO'
+      [[ -z "$INST64_INSTALL_REPLACE" ]] && INST64_INSTALL_REPLACE='NO'
       inst64_lib_type_check_privilege_root &&
         bl64_arc_setup
       ;;
     "$INST64_METHOD_CUSTOM")
       [[ -z "$INST64_CLI_PROMOTE" ]] && INST64_CLI_PROMOTE='YES'
-      [[ -z "$INST64_REPLACE_INSTALLED" ]] && INST64_REPLACE_INSTALLED='NO'
+      [[ -z "$INST64_INSTALL_UPGRADE" ]] && INST64_INSTALL_UPGRADE='NO'
+      [[ -z "$INST64_INSTALL_REPLACE" ]] && INST64_INSTALL_REPLACE='NO'
       inst64_lib_offline_check_method
       ;;
     "$INST64_METHOD_AUR")
@@ -67,7 +69,7 @@ function inst64_lib_method_initialize() {
     "$INST64_METHOD_PIP" | "$INST64_METHOD_PIPX")
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
-        inst64_lib_base_check_prereq_exe 'pip' &&
+        inst64_lib_check_prereq_exe 'pip' &&
         bl64_py_setup &&
         inst64_lib_offline_check_method
       ;;
@@ -113,7 +115,7 @@ function inst64_lib_method_initialize() {
       INST64_CLI_PROMOTE='NO'
       inst64_lib_type_check_privilege_not_root &&
         bl64_k8s_setup &&
-        inst64_lib_base_check_prereq_exe 'kubectl-krew' "${HOME}/.krew/bin" &&
+        inst64_lib_check_prereq_exe 'kubectl-krew' "${HOME}/.krew/bin" &&
         inst64_lib_offline_check_method
       ;;
   esac

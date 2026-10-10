@@ -123,7 +123,7 @@ function my_select_packages() {
     INST64_PKG_MAIN='bashlib64-modular.tgz bashlib64-split.tgz bashlib64-stand-alone.tgz'
   fi
   INST64_CLI_TARGET="${INST64_BASHLIB64_TARGET}/bashlib64.bash"
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

@@ -169,7 +169,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_GO_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
@@ -178,7 +178,7 @@ function my_select_platform() {
         INST64_GO_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   elif [[ "$INST64_GO_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     INST64_PKG_MAIN='golang'
   fi
@@ -186,7 +186,7 @@ function my_select_platform() {
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_GO_VERSION" == 'latest' ]]; then
       INST64_GO_VERSION="$(inst64_select_packages_version)" ||
@@ -194,7 +194,7 @@ function my_select_packages() {
     fi
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_GO_VERSION}.${INST64_GO_PLATFORM}.${INST64_PKG_MAIN_SUFFIX}"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {
@@ -206,7 +206,7 @@ function my_initialize() {
   if [[ "$INST64_GO_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" &&
-      inst64_lib_base_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
+      inst64_lib_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
       return $?
   fi
 

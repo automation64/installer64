@@ -85,7 +85,7 @@ function my_select_packages() {
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

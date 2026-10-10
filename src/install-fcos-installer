@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Template: install-bl64-python-1.2.0
+# Template: install-bl64-native-1.0.0
 #######################################
 # Copyright SerDigital64 - https://github.com/serdigital64
 #
@@ -23,12 +23,16 @@ declare INST64_BASHLIB64="${INST64_BASHLIB64:-/opt/bl64}"
 # shellcheck disable=SC2015
 source "${INST64_BASHLIB64}/bashlib64-module-rnd.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-iam.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-py.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-cryp.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-api.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-vcs.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-rxtx.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-txt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fmt.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-module-fs.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-xsv.bash" &&
-  source "${INST64_BASHLIB64}/bashlib64-module-bsh.bash" &&
+  source "${INST64_BASHLIB64}/bashlib64-module-pkg.bash" &&
   source "${INST64_BASHLIB64}/bashlib64-core.bash" ||
   { echo "Fatal: unable to load BashLib64 libraries (${INST64_BASHLIB64})." && exit 1; }
 source "${BL64_SCRIPT_PATH}/lib-bl64"
@@ -38,18 +42,14 @@ source "${BL64_SCRIPT_PATH}/lib-bl64"
 #
 
 # Installation method
-declare INST64_NETHACKER_METHOD="${INST64_NETHACKER_METHOD:-AUTO}"
-# Application version
-declare INST64_NETHACKER_VERSION="${INST64_NETHACKER_VERSION:-latest}"
+declare INST64_FCOSINST_METHOD="${INST64_FCOSINST_METHOD:-AUTO}"
 
 # App information
-INST64_APP_NAME='nettacker'
-INST64_APP_ID='NETHACKER'
-INST64_APP_FULL_NAME='Nettacker - Automated Penetration Testing Framework'
-
-INST64_CLI_NAME='nettacker'
-
-INST64_PKG_MAIN='nettacker'
+INST64_APP_NAME='fcos-installer'
+INST64_APP_ID='FCOSINST'
+INST64_APP_FULL_NAME='FCOS Installer - Fedora CoreOS Installer'
+INST64_CLI_NAME='coreos-installer'
+INST64_APP_DOC_INSTALL='https://github.com/coreos/coreos-installer/blob/main/docs/getting-started.md'
 
 #
 # Functions
@@ -63,12 +63,8 @@ function my_prepare() {
 function my_install() {
   bl64_dbg_app_show_function
   inst64_lib_show_step_install || return 0
-  if [[ "$INST64_NETHACKER_METHOD" == "$INST64_METHOD_PIPX" ]]; then
-    inst64_lib_python_install_pipx
-  elif [[ "$INST64_NETHACKER_METHOD" == "$INST64_METHOD_PIP" ]]; then
-    inst64_lib_python_install_pip
-  elif [[ "$INST64_NETHACKER_METHOD" == "$INST64_METHOD_UV" ]]; then
-    inst64_lib_python_install_uv
+  if [[ "$INST64_FCOSINST_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    inst64_lib_pkg_install
   fi
 }
 
@@ -87,10 +83,10 @@ function my_select_method() {
   bl64_dbg_app_show_function
   inst64_lib_method_check \
     "$INST64_METHOD_AUTO" \
-    "$INST64_METHOD_PIP" "$INST64_METHOD_PIPX" "$INST64_METHOD_UV" ||
+    "$INST64_METHOD_NATIVE" ||
     return $?
-  if [[ "$INST64_NETHACKER_METHOD" == "$INST64_METHOD_AUTO" ]]; then
-    INST64_NETHACKER_METHOD="$INST64_METHOD_UV"
+  if [[ "$INST64_FCOSINST_METHOD" == "$INST64_METHOD_AUTO" ]]; then
+    INST64_FCOSINST_METHOD="$INST64_METHOD_NATIVE"
   fi
 }
 
@@ -103,13 +99,13 @@ function my_select_platform() {
 function my_select_packages() {
   bl64_dbg_app_show_function
   inst64_lib_show_task_select_packages || return 0
-  if [[ "$INST64_NETHACKER_METHOD" =~ ("$INST64_METHOD_PIPX"|"$INST64_METHOD_PIP"|"$INST64_METHOD_UV") ]]; then
-    if [[ "$INST64_NETHACKER_VERSION" == 'latest' ]]; then
-      version_target=''
-    else
-      version_target="==${INST64_NETHACKER_VERSION}.*"
-    fi
-    INST64_PKG_MAIN="${INST64_PKG_MAIN}${version_target}"
+  if [[ "$INST64_FCOSINST_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    # shellcheck disable=SC2249
+    case "$BL64_OS_FLAVOR" in
+      "$BL64_OS_FLAVOR_REDHAT")
+        INST64_PKG_MAIN='coreos-installer'
+        ;;
+    esac
   fi
   inst64_lib_check_package
 }
@@ -119,6 +115,12 @@ function my_initialize() {
   my_select_method &&
     inst64_lib_base_setup ||
     return $?
+
+  if [[ "$INST64_FCOSINST_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
+    bl64_os_check_flavor \
+      "$BL64_OS_FLAVOR_REDHAT" ||
+      return $?
+  fi
 
   my_select_platform &&
     my_select_packages ||

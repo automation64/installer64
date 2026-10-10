@@ -128,7 +128,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_OSVSCANNER_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_OSVSCANNER_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
@@ -137,13 +137,13 @@ function my_select_platform() {
         INST64_OSVSCANNER_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_OSVSCANNER_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_OSVSCANNER_VERSION" == 'latest' ]]; then
       INST64_OSVSCANNER_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
@@ -153,7 +153,7 @@ function my_select_packages() {
     INST64_CLI_SOURCE="$INST64_PKG_MAIN"
     INST64_WORK_PATH_SOURCE="$INST64_PKG_MAIN"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

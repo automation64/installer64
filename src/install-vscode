@@ -157,20 +157,20 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_VSCODE_METHOD" =~ "$INST64_METHOD_PACKAGE"|"$INST64_METHOD_BINARY" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
       INST64_VSCODE_PLATFORM="$INST64_CPU_LINUX_AMD64"
     elif [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
       INST64_VSCODE_PLATFORM="$INST64_CPU_LINUX_ARM64"
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     INST64_WEB_REPO_URL='https://code.visualstudio.com'
     INST64_WEB_REPO_PATH='sha'
@@ -197,7 +197,7 @@ function my_select_packages() {
   elif [[ "$INST64_VSCODE_METHOD" == "$INST64_METHOD_AUR" ]]; then
     INST64_PKG_MAIN='extra/vscode'
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

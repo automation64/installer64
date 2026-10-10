@@ -127,18 +127,18 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_K3S_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_K3S_PLATFORM" ]]; then
       INST64_K3S_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_K3S_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_K3S_VERSION" == 'latest' ]]; then
       INST64_K3S_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
@@ -146,7 +146,7 @@ function my_select_packages() {
     fi
     INST64_PKG_MAIN="$INST64_PKG_MAIN_PREFIX"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

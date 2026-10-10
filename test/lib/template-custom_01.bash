@@ -123,27 +123,27 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
       # X_PLATFORM_SELECTION_PLACEHOLDER_X
       INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
   return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == 'CUSTOM' ]]; then
     : # X_SELECT_PKG_PLACEHOLDER_X
     # ===[TEST-ONLY-SECTION]===[START]===
     INST64_PKG_MAIN='TEST'
     # ===[TEST-ONLY-SECTION]===[END]===
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

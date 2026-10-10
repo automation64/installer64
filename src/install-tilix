@@ -95,16 +95,17 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_TILIX_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     INST64_PKG_MAIN='tilix'
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {
@@ -116,7 +117,7 @@ function my_initialize() {
   if [[ "$INST64_TILIX_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_version \
       "${BL64_OS_OL}-9" "${BL64_OS_OL}-10" &&
-      inst64_lib_base_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
+      inst64_lib_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
       return $?
   fi
 
