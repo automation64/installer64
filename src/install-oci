@@ -142,12 +142,13 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_OCI_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
     INST64_PKG_MAIN='install.sh'
     INST64_CLI_SUBPATH='bin'
@@ -159,7 +160,7 @@ function my_select_packages() {
     fi
     INST64_PKG_MAIN="oci-cli${version_target}"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

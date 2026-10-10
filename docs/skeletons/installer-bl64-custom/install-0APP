@@ -117,25 +117,25 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   # X_PLATFORM_SELECTION_PLACEHOLDER_X
   # optional # if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
   # optional #   if [[ -z "$INST64_X_APP_NAME_CAPS_X_PLATFORM" ]]; then
   # optional #     INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
   # optional #   fi
-  # optional #   inst64_lib_base_check_platform
+  # optional #   inst64_lib_check_platform
   # optional # fi
   # optional # return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   # X_SELECT_PKG_PLACEHOLDER_X
   # optional # if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
   # optional #   :
   # optional # fi
-  # optional # inst64_lib_base_check_package
+  # optional # inst64_lib_check_package
 }
 
 function my_initialize() {
@@ -146,7 +146,7 @@ function my_initialize() {
 
   # X_INIT_PLACEHOLDER_X
   # optional # if [[ "$INST64_X_APP_NAME_CAPS_X_METHOD" == "$INST64_METHOD_CUSTOM" ]]; then
-  # optional #   inst64_lib_base_check_prereq_exe 'X_COMMAND_NAME_X'
+  # optional #   inst64_lib_check_prereq_exe 'X_COMMAND_NAME_X'
   # optional #   X_METHOD_VARIABLE_PLACEHOLDER_X
   # optional # fi
 

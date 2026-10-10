@@ -20,6 +20,7 @@ source "${BL64_SCRIPT_PATH}/lib-bl64-base" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-base-command" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-base-show" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-base-type" &&
+  source "${BL64_SCRIPT_PATH}/lib-bl64-check" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-install-staging" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-install-target" &&
   source "${BL64_SCRIPT_PATH}/lib-bl64-method" &&
@@ -52,32 +53,34 @@ source /dev/null # keep to force shellcheck using source=
   # Global parameters
   #
 
-  declare INST64_DEBUG="${INST64_DEBUG:-$BL64_DBG_TARGET_NONE}"                # Enable debugging? Options: BL64_DBG_TARGET_*
-  declare INST64_VERBOSE="${INST64_VERBOSE:-}"                                 # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
-  declare INST64_VERBOSE_LEVEL="${INST64_VERBOSE_LEVEL:-APP}"                  # Set verbosity level. Format: as defined by BL64_MSG_VERBOSE_*
-  declare INST64_VERBOSE_OUTPUT="${INST64_VERBOSE_OUTPUT:-}"                   # Set verbosity output terminal type. Format: as defined by BL64_MSG_OUTPUT_*
-  declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}"                 # Base path for local applications
-  declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"     # Local applications binaries location
-  declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"             # User applications binaries location
-  declare INST64_TMP="${INST64_TMP:-/tmp}"                                     # Location for temporary files
-  declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"                               # Base path for 3rd party applications
-  declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"                         # Install system wide? Requires root privilege
-  declare INST64_REPLACE_INSTALLED="${INST64_REPLACE_INSTALLED:-}"             # Replace if already installed?
-  declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-}" # Refresh package manager before installation and cleanup after?
+  declare INST64_LOCAL_ROOT="${INST64_LOCAL_ROOT:-/usr/local}" # Base path for local applications
+
   declare INST64_CLI_PROMOTE="${INST64_CLI_PROMOTE:-}"                         # Promote CLI to searchable path?
+  declare INST64_DEBUG="${INST64_DEBUG:-$BL64_DBG_TARGET_NONE}"                # Enable debugging? Options: BL64_DBG_TARGET_*
+  declare INST64_INSTALL_REPLACE="${INST64_INSTALL_REPLACE:-}"                 # Replace if already installed?
+  declare INST64_INSTALL_UPGRADE="${INST64_INSTALL_UPGRADE:-}"                 # Upgrade if already installed?
+  declare INST64_LOCAL_BIN="${INST64_LOCAL_BIN:-${INST64_LOCAL_ROOT}/bin}"     # Local applications binaries location
   declare INST64_OFFLINE_DOWNLOAD="${INST64_OFFLINE_DOWNLOAD:-NO}"             # Offline Mode: Download packages only
   declare INST64_OFFLINE_TARGET="${INST64_OFFLINE_TARGET:-}"                   # Offline Mode: Path to save offline packages
+  declare INST64_OPT_ROOT="${INST64_OPT_ROOT:-}"                               # Base path for 3rd party applications
+  declare INST64_REFRESH_PACKAGE_MANAGER="${INST64_REFRESH_PACKAGE_MANAGER:-}" # Refresh package manager before installation and cleanup after?
+  declare INST64_SYSTEM_WIDE="${INST64_SYSTEM_WIDE:-}"                         # Install system wide? Requires root privilege
+  declare INST64_TMP="${INST64_TMP:-/tmp}"                                     # Location for temporary files
+  declare INST64_USER_BIN="${INST64_USER_BIN:-${HOME}/.local/bin}"             # User applications binaries location
+  declare INST64_VERBOSE_LEVEL="${INST64_VERBOSE_LEVEL:-APP}"                  # Set verbosity level. Format: as defined by BL64_MSG_VERBOSE_*
+  declare INST64_VERBOSE_OUTPUT="${INST64_VERBOSE_OUTPUT:-}"                   # Set verbosity output terminal type. Format: as defined by BL64_MSG_OUTPUT_*
+  declare INST64_VERBOSE="${INST64_VERBOSE:-}"                                 # Set verbosity format. Format: as defined by BL64_MSG_FORMAT_*
 
   #
   # Global definitions
   #
 
   # App information
-  declare INST64_APP_NAME=''        # Application name. Format: a-z0-9-
-  declare INST64_APP_ID=''          # Application ID. Format: A-Z0-9
-  declare INST64_APP_FULL_NAME=''   # Application full name
-  declare INST64_APP_DOC_SETUP=''   # Optional. Application setup documentation URL
   declare INST64_APP_DOC_INSTALL='' # Optional. Application installation documentation URL
+  declare INST64_APP_DOC_SETUP=''   # Optional. Application setup documentation URL
+  declare INST64_APP_FULL_NAME=''   # Application full name
+  declare INST64_APP_ID=''          # Application ID. Format: A-Z0-9
+  declare INST64_APP_NAME=''        # Application name. Format: a-z0-9-
 
   #
   # Method definitions
@@ -88,67 +91,67 @@ source /dev/null # keep to force shellcheck using source=
   declare INST64_ROOT_PATH_DEFAULT_USER=''   # Default app install root for user-wide
 
   # Target configuration
-  declare INST64_TARGET_PATH_DEFAULT=''        # Custom app install target suffix for both system-wide and user-wide
-  declare INST64_TARGET_PATH_DEFAULT_SYSTEM='' # Default app install target suffix for system-wide only
-  declare INST64_TARGET_PATH_DEFAULT_USER=''   # Default app install target suffix for user-wide only
-  declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
   declare INST64_TARGET_GROUP="$BL64_IAM_SYSTEM_GROUP"
-  declare INST64_TARGET_MODE='0755'
   declare INST64_TARGET_MODE_DIR='0755'
   declare INST64_TARGET_MODE_FILE='0644'
+  declare INST64_TARGET_MODE='0755'
+  declare INST64_TARGET_OWNER="$BL64_IAM_SYSTEM_USER"
+  declare INST64_TARGET_PATH_DEFAULT_SYSTEM='' # Default app install target suffix for system-wide only
+  declare INST64_TARGET_PATH_DEFAULT_USER=''   # Default app install target suffix for user-wide only
+  declare INST64_TARGET_PATH_DEFAULT=''        # Custom app install target suffix for both system-wide and user-wide
 
   # Work paths
   declare INST64_WORK_PATH_SOURCE='' # Optional. Temporary file name. Default: INST64_CLI_NAME
 
   # Application packages
-  declare INST64_PKG_MAIN=''        # Main package name
+  declare INST64_PKG_DEV=''         # Optional. Development package
   declare INST64_PKG_MAIN_PREFIX='' # Optional. Main package name prefix
   declare INST64_PKG_MAIN_SUFFIX='' # Optional. Main package name suffix
-  declare INST64_PKG_PRE=''         # Optional. Pre-installation package
+  declare INST64_PKG_MAIN=''        # Main package name
   declare INST64_PKG_POST=''        # Optional. Post-installation package
-  declare INST64_PKG_DEV=''         # Optional. Development package
+  declare INST64_PKG_PRE=''         # Optional. Pre-installation package
 
   # CPU Architecture names
+  declare INST64_CPU_ALL_ALL='ALL'
   declare INST64_CPU_DARWIN_ARM64=''     # Optional. Format: app specific
-  declare INST64_CPU_LINUX_AMD64=''      # Optional. Format: app specific
   declare INST64_CPU_LINUX_AMD64_GNU=''  # Optional. Format: app specific
   declare INST64_CPU_LINUX_AMD64_MUSL='' # Optional. Format: app specific
+  declare INST64_CPU_LINUX_AMD64=''      # Optional. Format: app specific
   declare INST64_CPU_LINUX_ARM64=''      # Optional. Format: app specific
-  declare INST64_CPU_ALL_ALL='ALL'
 
   # Custom application installer
   declare INST64_APP_INSTALLER='' # Optional. Custom application installer script
 
   # CLI information
+  declare INST64_CLI_MODE='0755'
   declare INST64_CLI_NAME=''         # CLI command to publish. Format: name only
-  declare INST64_CLI_SOURCE=''       # Optional. Source CLI name, before published
+  declare INST64_CLI_NORMALIZE='YES' # Optional. Normalize CLI name and path if not standard
   declare INST64_CLI_PATH=''         # Optional. CLI promotion path
+  declare INST64_CLI_SOURCE=''       # Optional. Source CLI name, before published
   declare INST64_CLI_SUBPATH=''      # Optional. CLI target subpath
   declare INST64_CLI_TARGET=''       # Optional. CLI target path
-  declare INST64_CLI_NORMALIZE='YES' # Optional. Normalize CLI name and path if not standard
-  declare INST64_CLI_MODE='0755'
 
   # GitHub repository information
-  declare INST64_GH_REPO_OWNER='' # GitHub repository owner
   declare INST64_GH_REPO_NAME=''  # GitHub repository name
+  declare INST64_GH_REPO_OWNER='' # GitHub repository owner
 
   # Generic Git repository information
-  declare INST64_GIT_SERVER='' # Git server URL
-  declare INST64_GIT_REPO=''   # Git repository path
   declare INST64_GIT_BRANCH='' # Git branch
+  declare INST64_GIT_REPO=''   # Git repository path
+  declare INST64_GIT_SERVER='' # Git server URL
 
   # Generic Web repository information
-  declare INST64_WEB_REPO_URL=''    # URL from where to download the file from
-  declare INST64_WEB_REPO_PATH=''   # Optional. path to the file (w/o file name)
   declare INST64_WEB_FILE_SOURCE='' # Custom source ile name. Default: uses INST64_PKG_MAIN
   declare INST64_WEB_FILE_TARGET='' # Custom target file name. Default: uses INST64_PKG_MAIN
+  declare INST64_WEB_REPO_PATH=''   # Optional. path to the file (w/o file name)
+  declare INST64_WEB_REPO_URL=''    # URL from where to download the file from
 
   # OS package manager information
-  declare INST64_OS_REPO_NAME=''    # OS repository name
-  declare INST64_OS_SOURCE_YUM=''   # URL for YUM repository
-  declare INST64_OS_SOURCE_APT=''   # URL for APT repository
-  declare INST64_OS_REPO_KEY_YUM='' # URL for YUM repository key
   declare INST64_OS_REPO_KEY_APT='' # URL for APT repository key
+  declare INST64_OS_REPO_KEY_YUM='' # URL for YUM repository key
+  declare INST64_OS_REPO_NAME=''    # OS repository name
+  declare INST64_OS_SOURCE_APT=''   # URL for APT repository
+  declare INST64_OS_SOURCE_YUM=''   # URL for YUM repository
 
   # Flatpak package manager information
   declare INST64_FPAK_REPO_NAME=''
@@ -158,7 +161,7 @@ source /dev/null # keep to force shellcheck using source=
   #
 
   # Inst64 Library version
-  readonly INST64_LIB_VERSION_BL64='2.4.0'
+  readonly INST64_LIB_VERSION_BL64='2.5.0'
 
   # BashLib64 version required
   readonly INST64_LIB_VERSION_REQUIRED='23.3.1'
@@ -180,9 +183,9 @@ source /dev/null # keep to force shellcheck using source=
   readonly INST64_METHOD_PACKAGE='PACKAGE'
   readonly INST64_METHOD_PIP='PIP'
   readonly INST64_METHOD_PIPX='PIPX'
-  readonly INST64_METHOD_UV='UV'
   readonly INST64_METHOD_REPO='REPO'
   readonly INST64_METHOD_SNAP='SNAP'
+  readonly INST64_METHOD_UV='UV'
 
   # User wide home path
   declare INST64_HOME="${HOME}/at64"
@@ -191,8 +194,8 @@ source /dev/null # keep to force shellcheck using source=
   declare INST64_STATUS_FLAG_CONTINUE='C'
   declare INST64_STATUS_FLAG_SKIP='S'
   declare INST64_STATUS_FLAG="${INST64_STATUS_FLAG_CONTINUE}"
-  declare INST64_STATUS_PATH=''
   declare INST64_STATUS_MODE='0644'
+  declare INST64_STATUS_PATH=''
 
   # Bashlib64 Legacy flag
   declare INST64_STATUS_LEGACY='NO'

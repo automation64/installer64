@@ -130,7 +130,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_RHOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_RHOC_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" ]]; then
@@ -139,18 +139,18 @@ function my_select_platform() {
         INST64_RHOC_PLATFORM="$INST64_CPU_LINUX"
       fi
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_RHOC_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     INST64_PKG_MAIN="${INST64_PKG_MAIN_PREFIX}${INST64_PKG_MAIN_SUFFIX}"
     INST64_WEB_REPO_PATH="${INST64_WEB_REPO_PATH}/${INST64_RHOC_PLATFORM}"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

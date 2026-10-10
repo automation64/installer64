@@ -109,13 +109,15 @@ function inst64_lib_show_task_download() {
 
 function inst64_lib_show_task_select_platform() {
   bl64_dbg_app_show_function
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 1
   bl64_msg_show_task 'determine target CPU architecture'
   return 0
 }
 
 function inst64_lib_show_task_select_packages() {
   bl64_dbg_app_show_function
-  bl64_msg_show_task 'determine target package information'
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 1
+  bl64_msg_show_task 'determine target package version'
   return 0
 }
 
@@ -143,11 +145,12 @@ function inst64_lib_show_globals() {
   bl64_dbg_app_show_vars \
     'INST64_CLI_PROMOTE' \
     'INST64_DEBUG' \
+    'INST64_INSTALL_REPLACE' \
+    'INST64_INSTALL_UPGRADE' \
     'INST64_LOCAL_BIN' \
     'INST64_LOCAL_ROOT' \
     'INST64_OPT_ROOT' \
     'INST64_REFRESH_PACKAGE_MANAGER' \
-    'INST64_REPLACE_INSTALLED' \
     'INST64_SYSTEM_WIDE' \
     'INST64_TMP' \
     'INST64_USER_BIN' \

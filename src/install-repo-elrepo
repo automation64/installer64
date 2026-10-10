@@ -89,12 +89,13 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_REPOELREPO_METHOD" == "$INST64_METHOD_REPO" ]]; then
     # shellcheck disable=SC2249
     case "$BL64_OS_DISTRO" in
@@ -103,7 +104,7 @@ function my_select_packages() {
       "${BL64_OS_ALM}"-10.* | "${BL64_OS_RCK}"-10.* | "${BL64_OS_CNT}"-10.* | "${BL64_OS_OL}"-10.* | "${BL64_OS_RHEL}"-10.*) INST64_PKG_MAIN='https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm' ;;
     esac
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

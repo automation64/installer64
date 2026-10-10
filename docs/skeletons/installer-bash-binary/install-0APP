@@ -106,7 +106,7 @@ function my_select_platform() {
       # X_PLATFORM_SELECTION_PLACEHOLDER_X
       INST64_X_APP_NAME_CAPS_X_PLATFORM="$INST64_CPU_ALL_ALL"
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
@@ -118,7 +118,7 @@ function my_select_packages() {
     fi
     INST64_PKG_MAIN="X_PACKAGE_NAME_PLACEHOLDER_X"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

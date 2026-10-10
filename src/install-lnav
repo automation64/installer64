@@ -143,7 +143,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_LNAV_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ -z "$INST64_LNAV_PLATFORM" ]]; then
       if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_MACOS" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_ARM64" ]]; then
@@ -152,13 +152,13 @@ function my_select_platform() {
         INST64_LNAV_PLATFORM="$INST64_CPU_LINUX_AMD64"
       fi
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_LNAV_METHOD" == "$INST64_METHOD_BINARY" ]]; then
     if [[ "$INST64_LNAV_VERSION" == 'latest' ]]; then
       INST64_LNAV_VERSION="$(bl64_vcs_github_release_get_latest "$INST64_GH_REPO_OWNER" "$INST64_GH_REPO_NAME")" ||
@@ -168,7 +168,7 @@ function my_select_packages() {
   elif [[ "$INST64_LNAV_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     INST64_PKG_MAIN='lnav'
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {
@@ -180,7 +180,7 @@ function my_initialize() {
   if [[ "$INST64_LNAV_METHOD" == "$INST64_METHOD_EXTERNAL" ]]; then
     bl64_os_check_flavor \
       "$BL64_OS_FLAVOR_REDHAT" &&
-      inst64_lib_base_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
+      inst64_lib_check_prereq_file 'repo-epel' /etc/yum.repos.d/*epel*.repo ||
       return $?
     if bl64_os_is_flavor "$BL64_OS_FLAVOR_REDHAT"; then
       bl64_os_check_version \
@@ -189,7 +189,7 @@ function my_initialize() {
         "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
         "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
         "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" ||
-      return $?
+        return $?
     fi
   fi
 

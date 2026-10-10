@@ -77,7 +77,8 @@ _Installer64_ scripts can be customized using the following parameters as shell 
 - `INST64_LOCAL_ROOT`: Linux well-known base path for local content. Default: `/usr/local`
 - `INST64_OPT_ROOT`: Linux well-known base path for non-os packaged content. Default: `/opt`
 - `INST64_REFRESH_PACKAGE_MANAGER`: Refresh package manager before installation and cleanup after?. Default: `YES`
-- `INST64_REPLACE_INSTALLED`: Replace if already installed?. Default: `NO`
+- `INST64_INSTALL_UPGRADE`: Upgrade if already installed?. Default: `NO`
+- `INST64_INSTALL_REPLACE`: Replace if already installed?. Default: `NO`
 - `INST64_SYSTEM_WIDE`: Install system wide?. Default: `YES` if running as root, `NO` otherwise.
 - `INST64_USER_BIN`: Searchable path for user-wide executables. Default: `${HOME}/.local/bin`
 

@@ -115,7 +115,7 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
   if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     if [[ "$BL64_OS_TYPE" == "$BL64_OS_TYPE_LINUX" && "$BL64_OS_MACHINE" == "$BL64_OS_MACHINE_AMD64" ]]; then
       if [[ "$BL64_OS_FLAVOR" == "$BL64_OS_FLAVOR_DEBIAN" ]]; then
@@ -124,13 +124,13 @@ function my_select_platform() {
         INST64_GCHROME_PLATFORM='x86_64'
       fi
     fi
-    inst64_lib_base_check_platform
+    inst64_lib_check_platform
   fi
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_GCHROME_METHOD" == "$INST64_METHOD_PACKAGE" ]]; then
     INST64_WEB_REPO_URL='https://dl.google.com'
     INST64_WEB_REPO_PATH='linux/direct'
@@ -149,7 +149,7 @@ function my_select_packages() {
     INST64_PKG_MAIN='google-chrome'
     INST64_CLI_PATH='/opt/google/chrome'
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

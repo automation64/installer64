@@ -82,6 +82,7 @@ function inst64_lib_base_setup() {
     inst64_lib_method_initialize &&
     inst64_lib_base_set_path_cli &&
     inst64_lib_offline_create_path &&
+    inst64_lib_check_installed &&
     return 0
 
   bl64_msg_show_error 'installer initialization failed'
@@ -91,7 +92,10 @@ function inst64_lib_base_setup() {
 function inst64_lib_base_finalize() {
   bl64_dbg_app_show_function
 
-  inst64_lib_verify_check_installed && return 0
+  inst64_lib_check_upgrade
+
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return 0
+
   inst64_lib_show_docs &&
     inst64_lib_show_parameters
 }
@@ -169,47 +173,4 @@ function inst64_lib_base_set_path_cli() {
       ;;
     "$INST64_METHOD_REPO" | "$INST64_METHOD_HELM" | "$INST64_METHOD_KUSTOMIZE") : ;;
   esac
-}
-
-function inst64_lib_base_check_package() {
-  bl64_dbg_app_show_function
-  bl64_check_parameter 'INST64_PKG_MAIN'
-}
-
-function inst64_lib_base_check_platform() {
-  bl64_dbg_app_show_function
-  local platform="INST64_${INST64_APP_ID}_PLATFORM"
-  [[ -v "$platform" && -n "${!platform}" ]] && return 0
-  bl64_os_raise_platform_unsupported
-}
-
-function inst64_lib_base_check_prereq_exe() {
-  bl64_dbg_app_show_function "$@"
-  local command_name="${1:-}"
-
-  bl64_check_parameter 'command_name' ||
-    return $?
-
-  shift
-  if [[ -z "$(bl64_bsh_command_locate_user "$command_name" "$@")" ]]; then
-    bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
-    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
-  fi
-  return 0
-}
-
-function inst64_lib_base_check_prereq_file() {
-  bl64_dbg_app_show_function "$@"
-  local file_about="${1:-}"
-  local file_path="${2:-}"
-
-  bl64_check_parameter 'file_about' &&
-    bl64_check_parameter 'file_path' ||
-    return $?
-
-  if [[ ! -r "$file_path" ]]; then
-    bl64_msg_show_error "the installer was not able to find a required file. Install it and try again (file: ${file_about})"
-    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
-  fi
-  return 0
 }

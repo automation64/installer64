@@ -93,16 +93,17 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_VIRTMANAGER_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     INST64_PKG_MAIN='virt-manager virt-viewer'
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {
@@ -125,7 +126,7 @@ function my_initialize() {
         "${BL64_OS_OL}-8" "${BL64_OS_OL}-9" \
         "${BL64_OS_RCK}-8" "${BL64_OS_RCK}-9" \
         "${BL64_OS_RHEL}-8" "${BL64_OS_RHEL}-9" ||
-      return $?
+        return $?
     fi
   fi
 

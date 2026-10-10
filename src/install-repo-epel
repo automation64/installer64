@@ -90,12 +90,13 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_REPOEPEL_METHOD" == "$INST64_METHOD_REPO" ]]; then
     case "$BL64_OS_DISTRO" in
       "${BL64_OS_OL}"-8.*) INST64_PKG_MAIN='oracle-epel-release-el8' ;;
@@ -111,7 +112,7 @@ function my_select_packages() {
         ;;
     esac
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {

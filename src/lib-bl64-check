@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+#######################################
+# Copyright SerDigital64 - https://github.com/serdigital64
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#######################################
+
+function inst64_lib_check_installed() {
+  bl64_dbg_app_show_function
+  local app_target="INST64_${INST64_APP_ID}_TARGET"
+
+  if [[ ! -v "$app_target" ]]; then
+    bl64_dbg_app_show_comments 'check is not performed for methods that do not use TARGET. Assume new install'
+    return
+  fi
+
+  INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
+  if [[ -f "$INST64_STATUS_PATH" ]]; then
+    if ! bl64_lib_flag_is_enabled "$INST64_INSTALL_REPLACE" && ! bl64_lib_flag_is_enabled "$INST64_INSTALL_UPGRADE"; then
+      bl64_msg_show_warning 'application already installed. No further action will be taken. Set INST64_INSTALL_REPLACE='YES' or INST64_INSTALL_UPGRADE='YES' if replacement is required'
+      INST64_STATUS_FLAG="$INST64_STATUS_FLAG_SKIP"
+      return
+    fi
+  fi
+
+  bl64_dbg_app_show_comments 'No previous installation found. Assume new install'
+  return
+}
+
+function inst64_lib_check_upgrade() {
+  bl64_dbg_app_show_function
+  local app_target="INST64_${INST64_APP_ID}_TARGET"
+  local app_version="INST64_${INST64_APP_ID}_VERSION"
+
+  [[ "$INST64_STATUS_FLAG" == "$INST64_STATUS_FLAG_SKIP" ]] && return
+
+  if [[ ! -v "$app_target" || ! -v "$app_version" ]]; then
+    bl64_dbg_app_show_comments 'check is not performed for methods that do not use TARGET or VERSION. Assume new install'
+    return
+  fi
+
+  INST64_STATUS_PATH="${!app_target}/.${BL64_SCRIPT_NAME}"
+  if [[ -f "$INST64_STATUS_PATH" ]]; then
+    if [[ "${!app_version}" == "$(<"$INST64_STATUS_PATH")" ]]; then
+      if ! bl64_lib_flag_is_enabled "$INST64_INSTALL_REPLACE"; then
+        bl64_msg_show_warning "application already installed at the required version and no replacement was requested (${!app_version}). No further action will be taken."
+        INST64_STATUS_FLAG="$INST64_STATUS_FLAG_SKIP"
+        return
+      fi
+    else
+      if ! bl64_lib_flag_is_enabled "$INST64_INSTALL_UPGRADE"; then
+        bl64_msg_show_warning "application already installed at the required version and no upgrade was requested (current-version: ${!app_version}). No further action will be taken."
+        INST64_STATUS_FLAG="$INST64_STATUS_FLAG_SKIP"
+        return
+      fi
+    fi
+  fi
+
+  bl64_dbg_app_show_comments 'No previous installation found. Assume new install'
+  return
+}
+
+function inst64_lib_check_package() {
+  bl64_dbg_app_show_function
+  bl64_check_parameter 'INST64_PKG_MAIN'
+}
+
+function inst64_lib_check_platform() {
+  bl64_dbg_app_show_function
+  local platform="INST64_${INST64_APP_ID}_PLATFORM"
+  [[ -v "$platform" && -n "${!platform}" ]] && return 0
+  bl64_os_raise_platform_unsupported
+}
+
+function inst64_lib_check_prereq_exe() {
+  bl64_dbg_app_show_function "$@"
+  local command_name="${1:-}"
+
+  bl64_check_parameter 'command_name' ||
+    return $?
+
+  shift
+  if [[ -z "$(bl64_bsh_command_locate_user "$command_name" "$@")" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required command. Install it and try again (command: ${command_name})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
+}
+
+function inst64_lib_check_prereq_file() {
+  bl64_dbg_app_show_function "$@"
+  local file_about="${1:-}"
+  local file_path="${2:-}"
+
+  bl64_check_parameter 'file_about' &&
+    bl64_check_parameter 'file_path' ||
+    return $?
+
+  if [[ ! -r "$file_path" ]]; then
+    bl64_msg_show_error "the installer was not able to find a required file. Install it and try again (file: ${file_about})"
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
+  fi
+  return 0
+}

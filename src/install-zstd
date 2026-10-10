@@ -95,19 +95,20 @@ function my_select_method() {
 
 function my_select_platform() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_platform
+  inst64_lib_show_task_select_platform || return 0
+  return 0
 }
 
 function my_select_packages() {
   bl64_dbg_app_show_function
-  inst64_lib_show_task_select_packages
+  inst64_lib_show_task_select_packages || return 0
   if [[ "$INST64_ZSTD_METHOD" == "$INST64_METHOD_NATIVE" ]]; then
     bl64_lib_flag_is_enabled "$INST64_ZSTD_DEVELOPMENT" &&
       INST64_PKG_DEV=''
     INST64_PKG_MAIN='zstd'
     INST64_PKG_MAIN+=" ${INST64_PKG_DEV}"
   fi
-  inst64_lib_base_check_package
+  inst64_lib_check_package
 }
 
 function my_initialize() {
